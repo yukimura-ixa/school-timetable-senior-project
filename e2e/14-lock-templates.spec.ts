@@ -30,7 +30,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Find templates button
     const templatesButton = page
@@ -44,7 +43,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Click templates button
     const templatesButton = page
@@ -61,7 +59,6 @@ test.describe("Lock Templates", () => {
   test("should display template categories", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -86,7 +83,6 @@ test.describe("Lock Templates", () => {
   test("should display template cards", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -105,7 +101,6 @@ test.describe("Lock Templates", () => {
   test("should show lunch templates", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -129,7 +124,6 @@ test.describe("Lock Templates", () => {
   test("should show activity templates", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -146,7 +140,6 @@ test.describe("Lock Templates", () => {
   test("should show template descriptions", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -167,7 +160,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -196,7 +188,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -225,7 +216,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -254,7 +244,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -285,7 +274,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -315,7 +303,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -345,7 +332,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -379,7 +365,6 @@ test.describe("Lock Templates", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -404,7 +389,6 @@ test.describe("Lock Templates", () => {
     const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -427,7 +411,6 @@ test.describe("Lock Templates - Template Coverage", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -450,7 +433,6 @@ test.describe("Lock Templates - Template Coverage", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -470,7 +452,6 @@ test.describe("Lock Templates - Template Coverage", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -488,7 +469,6 @@ test.describe("Lock Templates - Template Coverage", () => {
   test("should display activity templates", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -505,7 +485,6 @@ test.describe("Lock Templates - Template Coverage", () => {
   test("should display assembly templates", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -530,7 +509,6 @@ test.describe("Lock Templates - Complete Flow", () => {
       "Set E2E_LOCK_TEMPLATES_MUTATE=true to allow DB mutations",
     );
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Open templates modal
     await page
@@ -570,7 +548,6 @@ test.describe("Lock Templates - Complete Flow", () => {
       "Set E2E_LOCK_TEMPLATES_MUTATE=true to allow DB mutations",
     );
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Open templates modal
     await page
@@ -622,7 +599,6 @@ test.describe("Lock Templates - Error Handling", () => {
     });
 
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -645,7 +621,6 @@ test.describe("Lock Templates - Error Handling", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Intercept API calls after opening modal
     await page
@@ -695,7 +670,6 @@ test.describe("Lock Templates - Accessibility", () => {
   test("should have proper ARIA labels", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -711,7 +685,6 @@ test.describe("Lock Templates - Accessibility", () => {
   test("should be keyboard navigable", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -744,7 +717,6 @@ test.describe("Lock Templates - Accessibility", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")

@@ -39,7 +39,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Find bulk lock button
     const bulkLockButton = page.getByTestId("bulk-lock-btn");
@@ -51,7 +50,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
     // Prefer dialog accessible name to avoid strict-mode ambiguity between title wrappers.
@@ -65,7 +63,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
 
@@ -85,7 +82,6 @@ test.describe("Bulk Lock Operations", () => {
   test("should display select all buttons", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
 
@@ -102,7 +98,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
     // Find and check first few timeslot checkboxes
@@ -121,7 +116,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
     // Prefer grade-labelled checkbox if present (e.g. "ม.1")
@@ -140,7 +134,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
     // Initial counter should show 0
@@ -173,7 +166,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
 
@@ -198,7 +190,6 @@ test.describe("Bulk Lock Operations", () => {
   test("should require subject selection", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await openBulkLockModal(page);
 
@@ -220,7 +211,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await openBulkLockModal(page);
 
@@ -243,7 +233,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
 
@@ -267,7 +256,6 @@ test.describe("Bulk Lock Operations", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     const modal = await openBulkLockModal(page);
 
@@ -283,7 +271,6 @@ test.describe("Bulk Lock Operations", () => {
     const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await openBulkLockModal(page);
 
@@ -305,7 +292,6 @@ test.describe("Bulk Lock - Complete Flow", () => {
       "Set E2E_BULK_LOCK_MUTATE=true to allow DB mutations",
     );
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Open modal
     await page
@@ -385,7 +371,6 @@ test.describe("Bulk Lock - Error Handling", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -418,7 +403,6 @@ test.describe("Bulk Lock - Error Handling", () => {
     });
 
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Opening modal should still work (uses cached data or shows error)
     await page
@@ -447,7 +431,6 @@ test.describe("Bulk Lock - Accessibility", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
@@ -470,7 +453,6 @@ test.describe("Bulk Lock - Accessibility", () => {
   test("should be keyboard navigable", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page
       .locator("button")
