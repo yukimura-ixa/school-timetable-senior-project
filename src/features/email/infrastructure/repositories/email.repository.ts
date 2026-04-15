@@ -43,4 +43,22 @@ export const emailRepository = {
       });
     },
   ),
+
+  /**
+   * Delete outbox entries whose verification tokens expired more than
+   * `graceDays` ago. Used by the daily cleanup cron to keep the table
+   * bounded — the verification URL is useless once it expires, so the
+   * row is only retained briefly for support/debugging.
+   *
+   * Not cached: this is a write path called from a scheduled route.
+   *
+   * @returns count of rows deleted
+   */
+  async deleteExpiredOutbox(graceDays = 7): Promise<number> {
+    const cutoff = new Date(Date.now() - graceDays * 24 * 60 * 60 * 1000);
+    const result = await prisma.emailOutbox.deleteMany({
+      where: { expiresAt: { lt: cutoff } },
+    });
+    return result.count;
+  },
 };
