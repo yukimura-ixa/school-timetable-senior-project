@@ -83,7 +83,7 @@ function CloneTimetableDataModal({
       return;
     }
     setIsCopying(true);
-    copyData();
+    void copyData();
     closeModal();
   };
   const cancel = () => {

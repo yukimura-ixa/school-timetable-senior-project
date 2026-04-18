@@ -71,7 +71,7 @@ function SelectMultipleTimeSlot(props: Props) {
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-3 w-[230px] relative">
-            {timeSlot.length == 0 || !props.subject ? (
+            {timeSlot.length === 0 || !props.subject ? (
               <p className="text-sm text-red-500 absolute right-0">
                 *กรุณาเลือกวันที่เรียนและวิชา
               </p>

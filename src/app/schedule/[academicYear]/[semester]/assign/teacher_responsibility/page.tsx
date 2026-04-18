@@ -154,7 +154,7 @@ function ClassroomResponsibility() {
           //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
           //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
           const filterResData = responsibilities.filter(
-            (data) => data.gradelevel.Year == year,
+            (data) => data.gradelevel.Year === year,
           ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
           const mapGradeIDOnly = filterResData.map((data) => ({
             GradeID: data.GradeID,
@@ -163,7 +163,7 @@ function ClassroomResponsibility() {
           const removeDulpicateGradeID = mapGradeIDOnly.filter(
             (obj, index) =>
               mapGradeIDOnly.findIndex(
-                (item) => item.GradeID == obj.GradeID,
+                (item) => item.GradeID === obj.GradeID,
               ) === index,
           ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
           return removeDulpicateGradeID;
@@ -234,12 +234,12 @@ function ClassroomResponsibility() {
     setData(() => {
       const newData = { ...data }; // Generic spread is safer
       if (rooms.length > 0) {
-        const gradeIndex = data.Grade.findIndex((item) => item.Year == year);
+        const gradeIndex = data.Grade.findIndex((item) => item.Year === year);
         if (gradeIndex !== -1 && newData.Grade[gradeIndex]) {
           newData.Grade[gradeIndex].ClassRooms = rooms;
         }
       } else {
-        const gradeIndex = data.Grade.findIndex((item) => item.Year == year);
+        const gradeIndex = data.Grade.findIndex((item) => item.Year === year);
         if (gradeIndex !== -1 && newData.Grade[gradeIndex]) {
           newData.Grade[gradeIndex].ClassRooms = [];
         }
@@ -292,13 +292,13 @@ function ClassroomResponsibility() {
 
   const sumTeachHour = (year: number): number => {
     const getSubjectsByYear = data.Subjects.filter(
-      (subj) => subj.GradeID?.[0] && parseInt(subj.GradeID[0]) == year,
+      (subj) => subj.GradeID?.[0] && parseInt(subj.GradeID[0]) === year,
     ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Subjects
     const mapTeachHour = getSubjectsByYear.map((item) => {
       const credit = item.Credit;
       return (isValidCredit(credit) ? subjectCreditValues[credit] : 0) * 2;
     }); //map credit เป็น array ex. => [1, 3, 1]
-    if (mapTeachHour.length == 0) {
+    if (mapTeachHour.length === 0) {
       //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 คาบ
       return 0;
     } else {
@@ -310,13 +310,13 @@ function ClassroomResponsibility() {
     //ตัวอย่างถ้าส่ง GradeID = 101 ไป ก็จะได้แบบนี้
     // {RespID: 1, TeacherID: 1, GradeID: '101', SubjectCode: 'ddddd', AcademicYear: 2566, …}
     // {RespID: 2, TeacherID: 1, GradeID: '101', SubjectCode: 'I20102', AcademicYear: 2566, …}
-    return data.Subjects.filter((item) => item.GradeID == GradeID);
+    return data.Subjects.filter((item) => item.GradeID === GradeID);
   };
   const [validateStatus, setValidateStatus] = useState<boolean>(false); //พอเรียก func validate ข้อมูลแล้ว ถ้าผ่านจะทำการเปลี่ยน state
   const validateEmptySubjects = (GradeID: string): boolean => {
     const mapGradeID = data.Subjects.map((item) => item.GradeID);
     const removeDulpicateGradeID = mapGradeID.filter(
-      (obj, index) => mapGradeID.findIndex((item) => item == obj) === index,
+      (obj, index) => mapGradeID.findIndex((item) => item === obj) === index,
     ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
     return !removeDulpicateGradeID.includes(GradeID);
   };
@@ -353,7 +353,7 @@ function ClassroomResponsibility() {
       );
     } else {
       setValidateStatus(false);
-      saveApi(postData);
+      void saveApi(postData);
     }
   };
 
@@ -377,7 +377,7 @@ function ClassroomResponsibility() {
       setValidateStatus(false);
       setIsApiLoading(false);
       enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
-      responsibilityData.mutate();
+      await responsibilityData.mutate();
     } catch (error) {
       console.error(error);
       const errorMessage =

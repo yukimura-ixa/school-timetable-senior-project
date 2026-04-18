@@ -41,7 +41,7 @@ function SelectClassRoomModal({
     if (!data || data.length === 0) {
       return [];
     }
-    const filterYear = data.filter((item) => item.Year == year); //filter เอาชั้นปีที่เลือก เช่น กดของมอหนึ่ง ก็จะเอาแค่มอหนึ่งออกมา ก็จะได้แค่ {GradeID: 101}
+    const filterYear = data.filter((item) => item.Year === year); //filter เอาชั้นปีที่เลือก เช่น กดของมอหนึ่ง ก็จะเอาแค่มอหนึ่งออกมา ก็จะได้แค่ {GradeID: 101}
     return filterYear.map((item) => {
       const existingClass = classList.find(
         (gid) => item.GradeID === gid.GradeID,
