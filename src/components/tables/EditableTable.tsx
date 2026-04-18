@@ -85,7 +85,7 @@ export type EditableTableProps<T> = {
   disableSelectionDuringCreate?: boolean;
 };
 
-export function EditableTable<T extends Record<string, any>>({
+export function EditableTable<T extends Record<string, unknown>>({
   title,
   columns,
   data,

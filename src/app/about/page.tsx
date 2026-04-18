@@ -68,10 +68,10 @@ export default function AboutPage() {
               ปรัชญา (Philosophy):
             </p>
             <p className="text-gray-700 italic text-xl mb-2">
-              "นตฺถิ ปญฺญาสมา อาภา"
+              {'"นตฺถิ ปญฺญาสมา อาภา"'}
             </p>
             <p className="text-gray-600">
-              แปลว่า: "ไม่มีแสงสว่างใดเสมอด้วยแสงสว่างแห่งปัญญา"
+              {'แปลว่า: "ไม่มีแสงสว่างใดเสมอด้วยแสงสว่างแห่งปัญญา"'}
             </p>
             <p className="text-gray-600 mt-2">
               ความหมาย:
@@ -205,10 +205,10 @@ export default function AboutPage() {
           </h2>
           <div className="bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 rounded-lg p-6">
             <p className="text-gray-800 leading-relaxed text-center font-medium">
-              "มุ่งพัฒนาผู้เรียนให้เป็นบุคคลที่มีคุณภาพ มีความรู้คู่คุณธรรม
+              {'"มุ่งพัฒนาผู้เรียนให้เป็นบุคคลที่มีคุณภาพ มีความรู้คู่คุณธรรม'}
               <br />
-              สืบสานวัฒนธรรมท้องถิ่น
-              และก้าวทันการเปลี่ยนแปลงของโลกในศตวรรษที่ 21"
+              {'สืบสานวัฒนธรรมท้องถิ่น'}
+              {'และก้าวทันการเปลี่ยนแปลงของโลกในศตวรรษที่ 21"'}
             </p>
           </div>
         </section>

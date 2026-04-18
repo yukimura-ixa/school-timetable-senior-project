@@ -8,9 +8,9 @@ type ClassItem = {
 };
 
 type props = {
-  closeModal: any;
+  closeModal: () => void;
   classList: ClassItem[];
-  confirmChange: any;
+  confirmChange: (selectedClasses: ClassItem[]) => void;
 };
 
 function SelectClassModal({ closeModal, classList, confirmChange }: props) {

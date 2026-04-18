@@ -2,6 +2,9 @@
 
 import prisma from "@/lib/prisma";
 import { isAccelerateEnabled } from "@/lib/cache-config";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("CacheInvalidation");
 
 /**
  * Invalidate Prisma Accelerate cache for given tags.
@@ -10,19 +13,19 @@ import { isAccelerateEnabled } from "@/lib/cache-config";
  */
 export async function invalidatePublicCache(tags: string[]): Promise<void> {
   if (!isAccelerateEnabled()) {
-    if (process.env.NODE_ENV === "development") {
-      console.debug(
-        "[cache] Accelerate not active, skipping invalidation for:",
-        tags,
-      );
-    }
+    log.debug("Accelerate not active, skipping invalidation", { tags });
     return;
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (prisma as any).$accelerate.invalidate({ tags });
+    const client = prisma as unknown as {
+      $accelerate: { invalidate: (opts: { tags: string[] }) => Promise<void> };
+    };
+    await client.$accelerate.invalidate({ tags });
   } catch (err) {
-    console.warn("[cache] Invalidation failed:", err);
+    log.warn("Cache invalidation failed", {
+      tags,
+      error: err instanceof Error ? err.message : String(err),
+    });
   }
 }
