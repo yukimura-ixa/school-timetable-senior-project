@@ -98,7 +98,7 @@ export function ConfigStatusBadge({
       } else {
         enqueueSnackbar(result.error?.message || "เกิดข้อผิดพลาด", { variant: "error" });
       }
-    } catch (_error) {
+    } catch {
       enqueueSnackbar("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ", { variant: "error" });
     }
 

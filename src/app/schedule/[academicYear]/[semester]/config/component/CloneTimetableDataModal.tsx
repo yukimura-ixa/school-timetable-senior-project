@@ -55,7 +55,7 @@ function CloneTimetableDataModal({
     }
   }
 
-  const [currentTime, _setCurrentTime] = useState(semester + "/" + academicYear);
+  const currentTime = semester + "/" + academicYear;
 
   useEffect(() => {
     validateData();
