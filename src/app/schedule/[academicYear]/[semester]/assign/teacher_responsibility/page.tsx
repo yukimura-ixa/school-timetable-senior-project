@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import React, { Fragment, useState } from "react";
 import { TbArrowBackUp } from "react-icons/tb";
 import { useSearchParams } from "next/navigation";
-import { IoIosArrowDown, IoMdAdd, IoMdAddCircle } from "react-icons/io";
+import { IoIosArrowDown, IoMdAddCircle } from "react-icons/io";
 import SelectClassRoomModal, {
   type ClassRoomItem,
 } from "../component/SelectClassRoomModal";
@@ -15,7 +15,6 @@ import Loading from "@/app/loading";
 import {
   subjectCreditValues,
   subject_credit,
-  type SubjectCreditValues,
 } from "@/models/credit-value";
 import { enqueueSnackbar } from "notistack";
 
@@ -312,7 +311,7 @@ function ClassroomResponsibility() {
     // {RespID: 2, TeacherID: 1, GradeID: '101', SubjectCode: 'I20102', AcademicYear: 2566, …}
     return data.Subjects.filter((item) => item.GradeID === GradeID);
   };
-  const [validateStatus, setValidateStatus] = useState<boolean>(false); //พอเรียก func validate ข้อมูลแล้ว ถ้าผ่านจะทำการเปลี่ยน state
+  const [_validateStatus, setValidateStatus] = useState<boolean>(false); //พอเรียก func validate ข้อมูลแล้ว ถ้าผ่านจะทำการเปลี่ยน state
   const validateEmptySubjects = (GradeID: string): boolean => {
     const mapGradeID = data.Subjects.map((item) => item.GradeID);
     const removeDulpicateGradeID = mapGradeID.filter(
@@ -366,7 +365,7 @@ function ClassroomResponsibility() {
     if (!data.TeacherID) return;
     setIsApiLoading(true);
     try {
-      const result = await syncAssignmentsAction({
+      const _result = await syncAssignmentsAction({
         TeacherID: data.TeacherID,
         Resp: data.Resp,
         AcademicYear: data.AcademicYear,

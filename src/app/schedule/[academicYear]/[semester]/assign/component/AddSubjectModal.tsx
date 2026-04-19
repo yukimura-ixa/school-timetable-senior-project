@@ -203,7 +203,7 @@ function AddSubjectModal(props: Props) {
               </u>
             </div>
             <div className="flex flex-col gap-3">
-              {subjectByGradeID.map((subject, index) => (
+              {subjectByGradeID.map((subject, _index) => (
                 <Fragment
                   key={`current${subject.SubjectCode}${subject.Semester}${subject.AcademicYear}`}
                 >

@@ -7,7 +7,7 @@ type Props = {
 
 function SelectedValue({ values = [2565, 2566, 2567, 2568] }: Props) {
   const [index, setIndex] = useState<number>(0);
-  const [selectedValue, setSelectedValue] = useState<string | number[]>(values);
+  const [selectedValue] = useState<string | number[]>(values);
   const fowardValue = (): void => {
     if (index + 1 === values.length) {
       // console.log("no");

@@ -4,19 +4,23 @@ import Link from "next/link";
 import {
   managementMenu,
   scheduleMenu,
-  othersMenu,
   // @ts-expect-error - JS module without types
 } from "@/raw-data/menubar-data";
-import { IoIosArrowDown } from "react-icons/io";
 import { usePathname } from "next/navigation";
 import { useUIStore } from "@/stores/uiStore";
+
+interface MenuItem {
+  id: string;
+  IconStyle: { Icon: React.ComponentType<{ className?: string }> };
+  title: string;
+  link: string | null;
+  dynamicLink?: boolean;
+  roles?: string[];
+}
 
 function Menubar() {
   const { sidebarOpen } = useUIStore();
   const pathName = usePathname();
-  const [indexPoint, setIndexPoint] = useState<number>(0);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
 
   // Extract current term from URL if present
@@ -40,7 +44,7 @@ function Menubar() {
             <p className="text-gray-700 mb-3 font-bold text-sm uppercase tracking-wider select-none">
               การจัดการข้อมูล
             </p>
-            {managementMenu.map((item: any, index: number) => {
+            {(managementMenu as MenuItem[]).map((item: MenuItem, index: number) => {
               return (
                 <React.Fragment key={item.id}>
                   {item.link === linkSelected ? (
@@ -81,7 +85,7 @@ function Menubar() {
             <p className="text-gray-700 mb-3 font-bold text-sm uppercase tracking-wider select-none">
               ตารางสอน
             </p>
-            {scheduleMenu.map((item: any, index: number) => {
+            {(scheduleMenu as MenuItem[]).map((item: MenuItem, index: number) => {
               // For dynamic links (จัดตารางสอน), use current semester if available
               const linkHref =
                 item.dynamicLink && currentTerm

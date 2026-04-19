@@ -8,16 +8,6 @@ import { publicDataRepository } from "@/lib/infrastructure/repositories/public-d
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
-// Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
-function parseConfigId(
-  configId: string,
-): { academicYear: number; semesterEnum: "SEMESTER_1" | "SEMESTER_2" } | null {
-  const match = /^(1|2)-(\d{4})$/.exec(configId);
-  if (!match) return null;
-  const [, sem, year] = match;
-  const semesterEnum = sem === "1" ? "SEMESTER_1" : "SEMESTER_2";
-  return { academicYear: parseInt(year!, 10), semesterEnum };
-}
 
 type PageProps = {
   params: Promise<{ gradeId: string; academicYear: string; semester: string }>;

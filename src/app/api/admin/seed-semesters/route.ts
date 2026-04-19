@@ -277,7 +277,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
   return NextResponse.json(
     { ok: false, error: "Method Not Allowed" },
     { status: 405 },

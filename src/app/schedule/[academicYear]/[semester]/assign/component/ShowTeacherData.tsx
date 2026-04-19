@@ -11,7 +11,6 @@ import type {
   teacher,
   subject,
   gradelevel,
-  teachers_responsibility,
 } from "@/prisma/generated/client";
 import useSWR from "swr";
 import { getAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
@@ -19,19 +18,7 @@ import QuickAssignmentPanel from "./QuickAssignmentPanel";
 import { LockedScheduleList } from "../components/LockedScheduleList";
 import { useTeacherLockedSchedules } from "../hooks/useTeacherLockedSchedules";
 
-// Type for responsibility data with subject relation
-interface ResponsibilityWithSubject extends teachers_responsibility {
-  subject?: {
-    Category?: string;
-    SubjectName?: string;
-    Credit?: string;
-  };
-  gradelevel?: {
-    Year: number;
-    Number: number;
-  };
-  ClassID?: number;
-}
+
 import Loading from "@/app/loading";
 import ErrorBoundary from "@/components/error/ErrorBoundary";
 import {

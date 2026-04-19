@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { IoMdRemove, IoMdAdd } from "react-icons/io";
 type Props = {
   classifier: string;

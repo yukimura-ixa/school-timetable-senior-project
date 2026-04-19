@@ -42,7 +42,6 @@ import type {
   subject,
   room,
   teacher,
-  teachers_responsibility,
 } from "@/prisma/generated/client";
 
 // Server Actions

@@ -1,7 +1,5 @@
-import { useTeachers } from "@/hooks";
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useMemo, useState } from "react";
-import type { gradelevel } from "@/prisma/generated/client";
 
 import { AiOutlineClose } from "react-icons/ai";
 import { useGradeLevels } from "@/hooks";
@@ -29,7 +27,7 @@ function SelectClassRoomModal({
   confirmChange,
   year,
 }: props) {
-  const { data, isLoading, error, mutate } = useGradeLevels();
+  const { data, isLoading } = useGradeLevels();
   const baseClassRooms = useMemo(() => {
     // ตัวอย่างข้อมูลแบบคร่าวๆ //
     // {GradeID : 101}

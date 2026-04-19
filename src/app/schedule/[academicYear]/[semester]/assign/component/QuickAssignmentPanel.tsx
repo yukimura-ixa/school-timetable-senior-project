@@ -39,10 +39,8 @@ import {
   deleteAssignmentAction,
 } from "@/features/assign/application/actions/assign.actions";
 import {
-  syncAssignmentsSchema,
   type ResponsibilityInput,
 } from "@/features/assign/application/schemas/assign.schemas";
-import * as v from "valibot";
 import { subjectCreditValues } from "@/models/credit-value";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
