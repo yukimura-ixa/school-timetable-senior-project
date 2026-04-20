@@ -8,7 +8,7 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import {
@@ -18,7 +18,9 @@ import {
   CircularProgress,
   Alert,
   Chip,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   DndContext,
   useDroppable,
@@ -32,6 +34,7 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useSnackbar } from "notistack";
 import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
+import { deleteScheduleAction } from "@/features/schedule-arrangement/application/actions/schedule-arrangement.actions";
 
 type Timeslot = {
   TimeslotID: string;
@@ -70,9 +73,11 @@ const DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
 function DroppableCell({
   timeslot,
   entry,
+  onRemove,
 }: {
   timeslot: Timeslot;
   entry?: ScheduleEntry;
+  onRemove?: (classId: number) => void;
 }) {
   const { isOver, setNodeRef } = useDroppable({
     id: timeslot.TimeslotID,
@@ -98,6 +103,7 @@ function DroppableCell({
         borderRadius: 1,
         p: 1,
         minHeight: 80,
+        position: "relative",
         bgcolor: isBreak
           ? "action.disabledBackground"
           : isOver
@@ -114,9 +120,25 @@ function DroppableCell({
         </Typography>
       ) : entry ? (
         <Box>
-          <Typography variant="body2" fontWeight="bold" noWrap>
-            {entry.subject.SubjectName}
-          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <Typography variant="body2" fontWeight="bold" noWrap sx={{ flex: 1 }}>
+              {entry.subject.SubjectName}
+            </Typography>
+            <IconButton
+              data-testid="timeslot-remove"
+              aria-label="ลบรายวิชาออกจากคาบเรียน"
+              size="small"
+              onClick={() => onRemove?.(entry.ClassID)}
+              sx={{
+                p: 0.25,
+                ml: 0.5,
+                color: "error.main",
+                "&:hover": { bgcolor: "error.lighter" },
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
           <Box sx={{ display: "flex", gap: 0.5, mt: 0.5, flexWrap: "wrap" }}>
             <Chip
               label={entry.gradelevel.GradeName}
@@ -256,6 +278,26 @@ export default function GridSlot() {
     }
   };
 
+  const handleRemoveEntry = async (classId: number) => {
+    try {
+      const result = await deleteScheduleAction({ classId });
+      if (result.success) {
+        enqueueSnackbar("ลบรายวิชาออกจากคาบเรียนแล้ว", { variant: "success" });
+        await mutate();
+        window.dispatchEvent(new Event("schedule-updated"));
+      } else {
+        enqueueSnackbar(result.error?.message || "ไม่สามารถลบรายวิชาได้", {
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      enqueueSnackbar(
+        error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการลบ",
+        { variant: "error" },
+      );
+    }
+  };
+
   if (timeslotsLoading || scheduleLoading) {
     return (
       <Paper sx={{ p: 4, display: "flex", justifyContent: "center" }}>
@@ -359,7 +401,7 @@ export default function GridSlot() {
                       return (
                         <td key={`${day}-${period}`}>
                           {timeslot ? (
-                            <DroppableCell timeslot={timeslot} entry={entry} />
+                            <DroppableCell timeslot={timeslot} entry={entry} onRemove={handleRemoveEntry} />
                           ) : (
                             <Box sx={{ minHeight: 80 }} />
                           )}
