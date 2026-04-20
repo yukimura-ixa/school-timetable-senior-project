@@ -68,6 +68,7 @@
     "admin:seed:prod": "tsx scripts/seed-prod-admin.ts"
   },
   "dependencies": {
+    "@azure/communication-email": "^1.1.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -91,7 +92,6 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.4",
     "next": "^16.2.2",
-    "nodemailer": "^8.0.4",
     "notistack": "^3.0.2",
     "pg": "^8.20.0",
     "react": "19.2.3",
@@ -114,7 +114,6 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^25.5.2",
-    "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.20.0",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",

@@ -1,65 +1,39 @@
-import nodemailer, { type Transporter } from "nodemailer";
+import {
+  EmailClient,
+  KnownEmailSendStatus,
+} from "@azure/communication-email";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("Mailer");
 
-type SmtpConfig = {
-  host: string;
-  port: number;
-  secure: boolean;
-  user?: string;
-  pass?: string;
-  from: string;
-  tlsRejectUnauthorized: boolean;
+type AcsEmailConfig = {
+  connectionString: string;
+  senderAddress: string;
 };
 
-function getSmtpConfig(): SmtpConfig | null {
-  const host = process.env.SMTP_HOST;
-  const portRaw = process.env.SMTP_PORT;
-  const secureRaw = process.env.SMTP_SECURE;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASSWORD;
-  const from = process.env.EMAIL_FROM;
-  const tlsRejectUnauthorizedRaw = process.env.SMTP_TLS_REJECT_UNAUTHORIZED;
+function getAcsConfig(): AcsEmailConfig | null {
+  const connectionString = process.env.ACS_CONNECTION_STRING;
+  const senderAddress = process.env.ACS_SENDER_ADDRESS;
 
-  if (!host || !portRaw || !from) return null;
-
-  const port = Number(portRaw);
-  const secure = secureRaw === "true" || port === 465;
-  const tlsRejectUnauthorized =
-    tlsRejectUnauthorizedRaw == null ? true : tlsRejectUnauthorizedRaw === "true";
-
-  if (!Number.isFinite(port)) return null;
+  if (!connectionString || !senderAddress) return null;
 
   return {
-    host,
-    port,
-    secure,
-    user,
-    pass,
-    from,
-    tlsRejectUnauthorized,
+    connectionString,
+    senderAddress,
   };
 }
 
 const globalForMailer = global as unknown as {
-  mailer?: Transporter;
+  mailer?: EmailClient;
   mailerConfigKey?: string;
 };
 
-function makeConfigKey(cfg: SmtpConfig) {
-  return [
-    cfg.host,
-    cfg.port,
-    cfg.secure ? "secure" : "insecure",
-    cfg.user ?? "-",
-    cfg.from,
-    cfg.tlsRejectUnauthorized ? "tlsStrict" : "tlsLenient",
-  ].join("|");
+function makeConfigKey(cfg: AcsEmailConfig) {
+  return [cfg.connectionString, cfg.senderAddress].join("|");
 }
 
-function getTransporter(): Transporter | null {
-  const cfg = getSmtpConfig();
+function getEmailClient(): EmailClient | null {
+  const cfg = getAcsConfig();
   if (!cfg) return null;
 
   const key = makeConfigKey(cfg);
@@ -67,34 +41,14 @@ function getTransporter(): Transporter | null {
     return globalForMailer.mailer;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: cfg.host,
-    port: cfg.port,
-    secure: cfg.secure,
-    auth:
-      cfg.user && cfg.pass
-        ? {
-            user: cfg.user,
-            pass: cfg.pass,
-          }
-        : undefined,
-    tls: {
-      rejectUnauthorized: cfg.tlsRejectUnauthorized,
-      minVersion: "TLSv1.2",
-    },
-  });
+  const client = new EmailClient(cfg.connectionString);
 
-  globalForMailer.mailer = transporter;
+  globalForMailer.mailer = client;
   globalForMailer.mailerConfigKey = key;
 
-  log.info("Mailer initialized", {
-    host: cfg.host,
-    port: cfg.port,
-    secure: cfg.secure,
-    hasAuth: Boolean(cfg.user && cfg.pass),
-  });
+  log.info("Mailer initialized", { provider: "ACS", senderAddress: cfg.senderAddress });
 
-  return transporter;
+  return client;
 }
 
 export type SendEmailInput = {
@@ -109,44 +63,57 @@ export type SendEmailResult =
   | { success: false; error: string };
 
 /**
- * Send an email via configured SMTP service.
- * Returns success: false if SMTP is not configured (check error message).
+ * Send an email via configured Azure Communication Services Email.
+ * Returns success: false if ACS is not configured (check error message).
  * This allows the application to work without email in development/test environments.
- * 
+ *
  * @param input - Email parameters (to, subject, text, html)
  * @returns SendEmailResult with success status and messageId or error
  */
 export async function sendEmail(
   input: SendEmailInput,
 ): Promise<SendEmailResult> {
-  const cfg = getSmtpConfig();
+  const cfg = getAcsConfig();
   if (!cfg) {
     return {
       success: false,
       error:
-        "Email service is not configured (missing SMTP_HOST/SMTP_PORT/EMAIL_FROM).",
+        "Email service is not configured (missing ACS_CONNECTION_STRING/ACS_SENDER_ADDRESS).",
     };
   }
 
-  const transporter = getTransporter();
-  if (!transporter) {
+  const client = getEmailClient();
+  if (!client) {
     return {
       success: false,
       error:
-        "Email service is not configured (invalid SMTP settings).",
+        "Email service is not configured (invalid ACS settings).",
     };
   }
 
   try {
-    const info = await transporter.sendMail({
-      from: cfg.from,
-      to: input.to,
-      subject: input.subject,
-      text: input.text,
-      html: input.html,
+    const poller = await client.beginSend({
+      senderAddress: cfg.senderAddress,
+      content: {
+        subject: input.subject,
+        plainText: input.text,
+        ...(input.html ? { html: input.html } : {}),
+      },
+      recipients: {
+        to: [{ address: input.to }],
+      },
     });
 
-    return { success: true, messageId: info.messageId };
+    const result = await poller.pollUntilDone();
+
+    if (!result || result.status !== KnownEmailSendStatus.Succeeded) {
+      const providerError =
+        result?.error?.message ??
+        `Email send did not succeed (status: ${result?.status ?? "unknown"}).`;
+      return { success: false, error: providerError };
+    }
+
+    return { success: true, messageId: result.id };
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Failed to send email.";

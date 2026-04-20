@@ -66,7 +66,12 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
         }}
       >
         {statCards.map((card, index) => (
-          <Box key={index}>
+          <Box
+            key={index}
+            data-testid={
+              index === 3 ? "conflict-stat-card" : `overview-stat-card-${index}`
+            }
+          >
             <Card
               elevation={2}
               sx={{

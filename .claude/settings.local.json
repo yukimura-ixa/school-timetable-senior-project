@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_serena_serena__activate_project",
+      "mcp__plugin_serena_serena__initial_instructions",
+      "mcp__plugin_serena_serena__read_memory",
+      "Bash(gh issue *)",
+      "mcp__plugin_serena_serena__write_memory",
+      "Bash(git -C /b/dev/school-timetable-senior-project log --oneline --since=\"2025-11-01\")",
+      "Bash(git -C /b/dev/school-timetable-senior-project log --oneline --grep=\"waitForTimeout\\\\|E2E\\\\|e2e\\\\|reliability\\\\|assertion\" --all)",
+      "Bash(git *)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(find /b/dev/school-timetable-senior-project/test-results* -name \"results.json\" -type f)",
+      "Bash(xargs ls *)",
+      "Bash(xargs grep *)",
+      "Bash(python3 *)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "microsoft/playwright-mcp",
+    "mui-mcp",
+    "next-devtools",
+    "Vercel",
+    "oraios/serena",
+    "context7"
+  ]
+}

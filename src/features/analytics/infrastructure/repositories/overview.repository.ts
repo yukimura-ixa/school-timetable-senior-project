@@ -9,6 +9,7 @@ import prisma from "@/lib/prisma";
 import type { OverviewStats } from "../../domain/types/analytics.types";
 import { parseConfigId } from "../../domain/services/calculation.service";
 import { cacheTag } from "next/cache";
+import { conflictRepository } from "@/features/conflict/infrastructure/repositories/conflict.repository";
 
 // Prisma payload types for overview queries
 type TimeslotId = { TimeslotID: string };
@@ -108,9 +109,6 @@ export const overviewRepository = {
     const completionRate =
       totalRequiredSlots > 0 ? (totalScheduled / totalRequiredSlots) * 100 : 0;
 
-    // Issue #107: Implement conflict detection using conflictRepository
-    const { conflictRepository } =
-      await import("@/features/conflict/infrastructure/repositories/conflict.repository");
     const conflictData = await conflictRepository.findAllConflicts(
       config.academicYear,
       config.semester,

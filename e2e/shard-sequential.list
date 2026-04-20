@@ -13,6 +13,7 @@
 16-publish-gate.spec.ts
 20-subject-assignment.spec.ts
 21-arrangement-flow.spec.ts
+22-auto-arrange.spec.ts
 critical-path/cp-03-lock-integration.spec.ts
 edge-cases/admin-edge-cases.spec.ts
 profile/profile-management.spec.ts

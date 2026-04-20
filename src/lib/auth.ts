@@ -227,7 +227,7 @@ export const auth = betterAuth({
         });
       } catch (err) {
         console.error("[Auth] Failed to create email outbox entry:", err);
-        // Continue anyway - email will still be sent if SMTP is configured
+        // Continue anyway - email will still be sent if ACS is configured
         return;
       }
 

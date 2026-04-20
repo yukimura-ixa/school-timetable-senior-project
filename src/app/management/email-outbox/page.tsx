@@ -61,8 +61,8 @@ export default async function EmailOutboxPage({
           Email Outbox
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Admin-only: verification links and delivery status (SMTP via
-          Nodemailer).
+          Admin-only: verification links and delivery status (Azure
+          Communication Services Email).
         </Typography>
       </Box>
 

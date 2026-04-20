@@ -5,8 +5,10 @@ import {
   getPeriodDistribution,
   getDayDistribution,
   getProgramCompliance,
+  getOverviewStats,
   TimeDistributionSection,
   ComplianceSection,
+  OverviewSection,
 } from "@/features/analytics";
 
 export const metadata: Metadata = {
@@ -24,10 +26,12 @@ export default async function AnalyticsPage({
 
   // Fetch analytics data
   const [
+    overviewStatsResult,
     periodDistributionResult,
     dayDistributionResult,
     programComplianceResult,
   ] = await Promise.all([
+    getOverviewStats({ configId: semesterAndyear }),
     getPeriodDistribution({ configId: semesterAndyear }),
     getDayDistribution({ configId: semesterAndyear }),
     getProgramCompliance({ configId: semesterAndyear }),
@@ -45,6 +49,11 @@ export default async function AnalyticsPage({
           {academicYear}
         </Typography>
       </Box>
+
+      {/* Section 0: Overview Stats */}
+      {overviewStatsResult.success && (
+        <OverviewSection stats={overviewStatsResult.data} />
+      )}
 
       {/* Section 1: Time Distribution */}
       <Suspense fallback={<TimeSkeleton />}>
