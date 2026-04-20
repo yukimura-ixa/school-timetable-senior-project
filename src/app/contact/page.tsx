@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Globe, Facebook, MapPin, Phone } from "lucide-react";
+import { Globe, Share2 as Facebook, MapPin, Phone } from "lucide-react";
 import { createMetadataWithSocial } from "@/utils/canonical-url";
 
 export const metadata: Metadata = createMetadataWithSocial({

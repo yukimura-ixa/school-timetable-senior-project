@@ -45,12 +45,14 @@ function Menubar() {
               การจัดการข้อมูล
             </p>
             {(managementMenu as MenuItem[]).map((item: MenuItem, index: number) => {
+              if (item.link === null) return null;
+              const itemLink = item.link;
               return (
                 <React.Fragment key={item.id}>
-                  {item.link === linkSelected ? (
+                  {itemLink === linkSelected ? (
                     <Link
-                      href={item.link}
-                      onClick={() => setLinkSelected(item.link)}
+                      href={itemLink}
+                      onClick={() => setLinkSelected(itemLink)}
                       className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md transform scale-105 transition-all duration-300`}
                       style={{
                         marginBottom:
@@ -62,8 +64,8 @@ function Menubar() {
                     </Link>
                   ) : (
                     <Link
-                      href={item.link}
-                      onClick={() => setLinkSelected(item.link)}
+                      href={itemLink}
+                      onClick={() => setLinkSelected(itemLink)}
                       className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer text-gray-600 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-600 hover:shadow-sm transition-all duration-300`}
                       style={{
                         marginBottom:

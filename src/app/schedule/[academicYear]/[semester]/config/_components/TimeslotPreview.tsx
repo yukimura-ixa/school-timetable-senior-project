@@ -52,16 +52,16 @@ export function TimeslotPreview({ config }: Props) {
               p: 1.5,
               borderRadius: 1,
               bgcolor:
-                slot.type === "break"
+                slot.type.startsWith("lunch-")
                   ? "warning.light"
-                  : slot.type === "minibreak"
+                  : slot.type === "mini-break"
                     ? "info.light"
                     : "grey.100",
               border: 1,
               borderColor:
-                slot.type === "break"
+                slot.type.startsWith("lunch-")
                   ? "warning.main"
-                  : slot.type === "minibreak"
+                  : slot.type === "mini-break"
                     ? "info.main"
                     : "grey.300",
             }}

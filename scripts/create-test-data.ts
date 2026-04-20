@@ -11,7 +11,7 @@ console.log("DEBUG: PrismaClient defined?", !!PrismaClient);
 
 const prisma = new PrismaClient({} as any);
 
-async function runSeed(args?: any) {
+async function runSeed(_args?: any) {
   console.log("Start seeding test data for Charter B...");
 
   try {

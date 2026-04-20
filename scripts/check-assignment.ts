@@ -2,7 +2,7 @@ import { PrismaClient } from "../prisma/generated/client";
 
 const prisma = new PrismaClient({} as any);
 
-async function runCheck(args?: any) {
+async function runCheck(_args?: any) {
   console.log("Checking assignments...");
   try {
     const teacher = await prisma.teacher.findFirst({

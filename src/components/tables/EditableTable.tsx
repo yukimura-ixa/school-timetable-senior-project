@@ -121,7 +121,9 @@ export function EditableTable<T extends Record<string, unknown>>({
     setTableData(data);
   }, [data]);
 
-  const allIds = tableData.map((r) => r[idField]).filter((x) => x != null);
+  const allIds = tableData
+    .map((r) => r[idField] as string | number)
+    .filter((x) => x != null);
 
   const isSelected = (id: string | number) => selected.includes(id);
   const toggleAll = (checked: boolean) =>
@@ -287,7 +289,7 @@ export function EditableTable<T extends Record<string, unknown>>({
     if (selected.length === 0 || addMode) return;
     const nextDrafts: Record<string | number, Partial<T>> = {};
     for (const row of tableData) {
-      const id = row[idField];
+      const id = row[idField] as string | number | null | undefined;
       if (id != null && selected.includes(id)) {
         nextDrafts[id] = { ...row };
       }
@@ -583,7 +585,7 @@ export function EditableTable<T extends Record<string, unknown>>({
 
             {/* Existing rows */}
             {paged.map((item) => {
-              const id = item[idField];
+              const id = item[idField] as string | number;
               const selectedRow = isSelected(id);
               const isEditing = editMode && selectedRow;
               return (

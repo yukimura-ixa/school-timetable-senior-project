@@ -8,6 +8,7 @@ import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import { ErrorBoundary } from "@/components/error";
 import { Sarabun, Inter } from "next/font/google"; // [NEW] Add Inter
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 
 const sarabun = Sarabun({
@@ -52,6 +53,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             <div className="flex justify-center w-full h-auto">
               <Content>{children}</Content>
               {process.env.VERCEL === "1" && <SpeedInsights />}
+              {process.env.VERCEL === "1" && <Analytics />}
             </div>
           </ErrorBoundary>
         </SnackbarProvider>
