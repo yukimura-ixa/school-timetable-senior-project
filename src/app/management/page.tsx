@@ -6,7 +6,6 @@ import ClassIcon from "@mui/icons-material/Class";
 import SchoolIcon from "@mui/icons-material/School";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
-import EmailIcon from "@mui/icons-material/Email";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -65,13 +64,7 @@ const managementPages: ManagementCard[] = [
     icon: <MeetingRoomIcon sx={{ fontSize: 48 }} />,
     color: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
   },
-  {
-    title: "Email Outbox",
-    description: "ตรวจสอบลิงก์ยืนยันอีเมล (Admin เท่านั้น)",
-    href: "/management/email-outbox",
-    icon: <EmailIcon sx={{ fontSize: 48 }} />,
-    color: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
-  },
+  // Email Outbox hidden: email system is disabled app-wide.
 ];
 
 export default function ManagementIndexPage() {

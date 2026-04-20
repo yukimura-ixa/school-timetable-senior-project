@@ -106,12 +106,9 @@ export default function ProfilePage() {
           onError={(msg) => showSnackbar(msg, "error")}
         />
 
-        {/* Email Section */}
-        <EmailSection
-          currentEmail={session.user.email || ""}
-          onSuccess={(msg) => showSnackbar(msg, "success")}
-          onError={(msg) => showSnackbar(msg, "error")}
-        />
+        {/* Email Section hidden: email system is disabled app-wide so the
+            change-email verification flow can't deliver. Component kept in
+            this file for easy restoration when email is re-enabled. */}
       </Stack>
 
       {/* Snackbar for notifications */}

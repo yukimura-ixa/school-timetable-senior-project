@@ -307,17 +307,8 @@ export default function SignInForm() {
               }
             />
 
-            <Box display="flex" justifyContent="flex-end">
-              <Link href="/forgot-password" style={{ textDecoration: "none" }}>
-                <Typography
-                  variant="body2"
-                  color="primary"
-                  sx={{ fontWeight: 600, "&:hover": { textDecoration: "underline" } }}
-                >
-                  ลืมรหัสผ่าน?
-                </Typography>
-              </Link>
-            </Box>
+            {/* "ลืมรหัสผ่าน?" link hidden: email system is disabled so the
+                reset flow can't deliver. Restore this block when email works. */}
 
             {/* Submit Button */}
             <Button

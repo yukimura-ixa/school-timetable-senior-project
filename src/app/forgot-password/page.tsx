@@ -1,15 +1,9 @@
-import type { Metadata } from "next";
-import ForgotPasswordPageClient from "./ForgotPasswordPageClient";
-import { createMetadataWithCanonical } from "@/utils/canonical-url";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = createMetadataWithCanonical({
-  title: "ลืมรหัสผ่าน - ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา",
-  description:
-    "รีเซ็ตรหัสผ่านของระบบตารางเรียนตารางสอน โรงเรียนพระซองสามัคคีวิทยา ผ่านอีเมลที่ลงทะเบียนไว้",
-  path: "/forgot-password",
-  robots: { index: false, follow: true },
-});
-
-export default function ForgotPasswordPage() {
-  return <ForgotPasswordPageClient />;
+// Email system is disabled app-wide — the reset flow can't deliver, so the
+// page is not reachable. Route stays registered so the existing client
+// component and metadata file remain valid imports; restore by reverting
+// this commit when email works.
+export default function ForgotPasswordDisabledPage() {
+  redirect("/signin");
 }
