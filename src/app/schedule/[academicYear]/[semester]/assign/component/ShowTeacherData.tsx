@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   useParams,
   usePathname,
@@ -71,7 +71,12 @@ function ShowTeacherData({
     ? parseInt(params.semester as string, 10)
     : null;
 
-  const [manualTeacherId, setManualTeacherId] = useState<number | null>(null);
+  // Track manual teacher selection paired with the paramTeacherId it was set for.
+  // Override expires automatically when paramTeacherId changes (URL catches up).
+  const [manualSelection, setManualSelection] = useState<{
+    teacherId: number | null;
+    forParamId: number | null;
+  } | null>(null);
 
   // Use SWR with fallback data from server-side fetch
   const teacherData = useTeachers();
@@ -93,13 +98,10 @@ function ShowTeacherData({
     return Number.isNaN(tId) ? null : tId;
   }, [searchParams]);
 
-  const [manualOverride, setManualOverride] = useState(false);
-
-  useEffect(() => {
-    setManualOverride(false);
-  }, [paramTeacherId]);
-
-  const effectiveTeacherId = manualOverride ? manualTeacherId : paramTeacherId;
+  const effectiveTeacherId =
+    manualSelection?.forParamId === paramTeacherId
+      ? manualSelection.teacherId
+      : paramTeacherId;
 
   const teacher = useMemo(() => {
     if (!effectiveTeacherId) return null;
@@ -185,8 +187,7 @@ function ShowTeacherData({
     _event: React.SyntheticEvent,
     value: teacher | null,
   ) => {
-    setManualTeacherId(value?.TeacherID ?? null);
-    setManualOverride(true);
+    setManualSelection({ teacherId: value?.TeacherID ?? null, forParamId: paramTeacherId });
     if (value) {
       router.push(`${pathName}?TeacherID=${value.TeacherID}`, { scroll: false });
     } else {
