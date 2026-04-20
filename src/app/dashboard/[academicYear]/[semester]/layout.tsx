@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
+import { SemesterUrlSync } from "@/components/SemesterUrlSync";
 
 // NOTE: Cannot export segment configs (dynamic, runtime, etc.) in Next.js 16
 // when using async params. The layout is already dynamic due to async params.
@@ -43,5 +44,10 @@ export default async function DashboardSemesterLayout({
     notFound();
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <SemesterUrlSync academicYear={year} semester={semester} />
+      {children}
+    </>
+  );
 }

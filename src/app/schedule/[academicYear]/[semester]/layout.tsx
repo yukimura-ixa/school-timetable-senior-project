@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
+import { SemesterUrlSync } from "@/components/SemesterUrlSync";
 
 // NOTE: Cannot export segment configs (dynamic, runtime, etc.) in Next.js 16
 // when using async params. The layout is already dynamic due to async params.
@@ -59,5 +60,10 @@ export default async function ScheduleSemesterLayout({
 
   // Semester exists (configured or not) - allow access
   // Child pages will handle unconfigured state with helpful messages
-  return <>{children}</>;
+  return (
+    <>
+      <SemesterUrlSync academicYear={year} semester={sem} />
+      {children}
+    </>
+  );
 }

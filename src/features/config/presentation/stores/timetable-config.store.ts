@@ -87,11 +87,13 @@ function validateConfigData(config: ConfigData): ValidationErrors {
   }
 
   // Validate BreakTimeslots
-  if (config.BreakTimeslots.Junior > config.TimeslotPerDay) {
-    errors.breakSlotJunior = "คาบพักมัธยมต้นต้องไม่เกินจำนวนคาบทั้งหมด";
+  // Break is inserted AFTER the selected period, so value must leave at least one
+  // period afterwards (i.e. value < TimeslotPerDay, not <=).
+  if (config.BreakTimeslots.Junior >= config.TimeslotPerDay) {
+    errors.breakSlotJunior = "คาบพักมัธยมต้นต้องอยู่ก่อนคาบสุดท้าย";
   }
-  if (config.BreakTimeslots.Senior > config.TimeslotPerDay) {
-    errors.breakSlotSenior = "คาบพักมัธยมปลายต้องไม่เกินจำนวนคาบทั้งหมด";
+  if (config.BreakTimeslots.Senior >= config.TimeslotPerDay) {
+    errors.breakSlotSenior = "คาบพักมัธยมปลายต้องอยู่ก่อนคาบสุดท้าย";
   }
 
   // Warn if break slots are the same (not an error, but worth noting)
@@ -101,8 +103,8 @@ function validateConfigData(config: ConfigData): ValidationErrors {
 
   // Validate MiniBreak
   if (config.HasMinibreak) {
-    if (config.MiniBreak.SlotNumber > config.TimeslotPerDay) {
-      errors.miniBreakSlot = "คาบพักเบรกต้องไม่เกินจำนวนคาบทั้งหมด";
+    if (config.MiniBreak.SlotNumber >= config.TimeslotPerDay) {
+      errors.miniBreakSlot = "คาบพักเบรกต้องอยู่ก่อนคาบสุดท้าย";
     }
     if (
       config.MiniBreak.Duration < CONFIG_CONSTRAINTS.MINI_BREAK_DURATION.min
@@ -138,7 +140,9 @@ export const useConfigStore = create<ConfigStoreState>()(
         state.config = data;
         state.mode = "view";
         state.isDirty = false;
-        state.validationErrors = {};
+        // Re-validate on load so stale rows saved before the "strictly less
+        // than TimeslotPerDay" rule surface immediately instead of silently.
+        state.validationErrors = validateConfigData(data);
         state.breakSlotOptions = generateTimeslotRange(data.TimeslotPerDay);
       }),
 
@@ -152,15 +156,17 @@ export const useConfigStore = create<ConfigStoreState>()(
         if (field === "TimeslotPerDay" && typeof value === "number") {
           state.breakSlotOptions = generateTimeslotRange(value);
 
-          // Clamp break slots to new max
-          if (state.config.BreakTimeslots.Junior > value) {
-            state.config.BreakTimeslots.Junior = value;
+          // Clamp break slots to value - 1 (break is inserted AFTER the chosen
+          // period, so the chosen period must be strictly less than the total).
+          const maxBreakSlot = Math.max(value - 1, 1);
+          if (state.config.BreakTimeslots.Junior >= value) {
+            state.config.BreakTimeslots.Junior = maxBreakSlot;
           }
-          if (state.config.BreakTimeslots.Senior > value) {
-            state.config.BreakTimeslots.Senior = value;
+          if (state.config.BreakTimeslots.Senior >= value) {
+            state.config.BreakTimeslots.Senior = maxBreakSlot;
           }
-          if (state.config.MiniBreak.SlotNumber > value) {
-            state.config.MiniBreak.SlotNumber = Math.min(2, value);
+          if (state.config.MiniBreak.SlotNumber >= value) {
+            state.config.MiniBreak.SlotNumber = Math.min(2, maxBreakSlot);
           }
         }
 

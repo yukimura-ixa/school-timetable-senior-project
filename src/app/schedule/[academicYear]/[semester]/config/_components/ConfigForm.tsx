@@ -132,7 +132,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <BreakSlotSelect
-              label="มัธยมต้น (ม.1-3)"
+              label="มัธยมต้น (ม.1-3) — หลังคาบที่"
               value={config.BreakTimeslots.Junior}
               onChange={(slot) => updateBreakSlot("Junior", slot)}
               maxSlots={config.TimeslotPerDay}
@@ -142,7 +142,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <BreakSlotSelect
-              label="มัธยมปลาย (ม.4-6)"
+              label="มัธยมปลาย (ม.4-6) — หลังคาบที่"
               value={config.BreakTimeslots.Senior}
               onChange={(slot) => updateBreakSlot("Senior", slot)}
               maxSlots={config.TimeslotPerDay}
