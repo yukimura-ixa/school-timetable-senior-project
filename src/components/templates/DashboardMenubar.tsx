@@ -6,6 +6,15 @@ import { showTimetableMenu } from "@/raw-data/menubar-data";
 import { useParams, usePathname } from "next/navigation";
 import { useUIStore } from "@/stores/uiStore";
 
+interface MenuItem {
+  id: string;
+  IconStyle: { Icon: React.ComponentType<{ className?: string }> };
+  title: string;
+  link: string;
+  dynamicLink?: boolean;
+  roles?: string[];
+}
+
 function DashboardMenubar() {
   const { sidebarOpen } = useUIStore();
   const pathName = usePathname();
@@ -25,7 +34,7 @@ function DashboardMenubar() {
   const currentSlug = pathName.split("/").filter(Boolean).pop() ?? pathName;
   const [linkSelected, setLinkSelected] = useState<string>(currentSlug);
 
-  const makePath = (item: any): string => {
+  const makePath = (item: MenuItem): string => {
     if (item?.dynamicLink) {
       if (!academicYear || !semester) {
         return pathName; // prevent broken navigation when context missing
@@ -88,7 +97,7 @@ function DashboardMenubar() {
             <p className="text-gray-700 mb-3 font-bold text-sm uppercase tracking-wider select-none">
               แสดงข้อมูล
             </p>
-            {showTimetableMenu.map((item: any, index: number) => {
+            {(showTimetableMenu as MenuItem[]).map((item: MenuItem, index: number) => {
               const slug = extractSlug(item.link);
               const href = makePath(item);
               const isActive = slug === linkSelected;

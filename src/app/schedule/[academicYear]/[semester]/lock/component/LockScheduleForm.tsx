@@ -11,11 +11,8 @@ import { useRoomAvailability } from "@/hooks/useRoomAvailability";
 import type {
   room,
   semester,
-  subject,
   teacher,
-  timeslot,
 } from "@/prisma/generated/client";
-import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { useTeachers } from "@/hooks";
@@ -258,7 +255,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     }
 
     if (!data) {
-      addLockSchedule(lockScheduleData);
+      void addLockSchedule(lockScheduleData);
     } else {
       editLockSchedule(lockScheduleData);
     }
@@ -266,19 +263,6 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
 
   const setTeacherList = (value: teacher[]) => {
     dispatch({ type: "SET_TEACHERS", payload: value });
-  };
-
-  const handleAddTeacherList = (value: teacher) => {
-    const teacherList = [...lockScheduleData.teachers];
-    teacherList.push(value);
-    dispatch({ type: "SET_TEACHERS", payload: teacherList });
-  };
-
-  const removeTeacherFromList = (value: teacher) => {
-    const teacherList = [...lockScheduleData.teachers];
-    const index = teacherList.indexOf(value);
-    teacherList.splice(index, 1);
-    dispatch({ type: "SET_TEACHERS", payload: teacherList });
   };
 
   const handleSubjectChange = (value: SubjectWithResponsibilities) => {
@@ -356,7 +340,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
             <SelectSubject
               currentValue={`${
-                lockScheduleData.SubjectCode == ""
+                lockScheduleData.SubjectCode === ""
                   ? ""
                   : `${lockScheduleData.SubjectCode} ${lockScheduleData.SubjectName}`
               }`}

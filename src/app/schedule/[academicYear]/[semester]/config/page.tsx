@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { BsTable, BsCalendar2Day } from "react-icons/bs";
 import { LuClock10 } from "react-icons/lu";
-import { MdSchool, MdLunchDining } from "react-icons/md";
+import { MdLunchDining } from "react-icons/md";
 import { TbTimeDuration45 } from "react-icons/tb";
 import CheckBox from "@/components/mui/CheckBox";
 import PrimaryButton from "@/components/mui/PrimaryButton";
@@ -39,7 +39,7 @@ function TimetableConfigValue() {
   const [isCopying, setIsCopying] = useState(false);
   const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
   const [isCloneDataModal, setIsCloneDataModal] = useState<boolean>(false);
-  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [isSaved] = useState<boolean>(false);
   const [addMiniBreak, setAddMiniBreak] = useState<boolean>(false);
   const [configData, setConfigData] = useState({
     Days: ["MON", "TUE", "WED", "THU", "FRI"],
@@ -101,7 +101,16 @@ function TimetableConfigValue() {
       // Map table_config.Config JSON to legacy local state format
       // Config is stored as unstructured JSON, so we need to parse it carefully
       try {
-        const config = tableConfig.data.Config as Record<string, any>;
+        const config = tableConfig.data.Config as {
+          Days?: string[];
+          StartTime?: string;
+          BreakDuration?: number;
+          BreakTimeslots?: { Junior?: number; Senior?: number };
+          Duration?: number;
+          TimeslotPerDay?: number;
+          MiniBreak?: { Duration?: number; SlotNumber?: number };
+          HasMinibreak?: boolean;
+        };
         setConfigData({
           Days: config.Days || ["MON", "TUE", "WED", "THU", "FRI"],
           AcademicYear: tableConfig.data.AcademicYear,

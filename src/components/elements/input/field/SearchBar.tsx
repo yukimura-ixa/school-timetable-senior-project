@@ -15,7 +15,7 @@ function SearchBar({
   placeHolder = "ค้นหา",
   fill = "#EDEEF3",
   handleChange,
-  value,
+  value: _value,
 }: SearchBarProps) {
   return (
     <div className="flex items-center rounded relative">

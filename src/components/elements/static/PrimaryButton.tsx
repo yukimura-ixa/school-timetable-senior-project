@@ -1,6 +1,6 @@
 import React from "react";
 type Props = {
-  handleClick: any;
+  handleClick: React.MouseEventHandler<HTMLButtonElement>;
   title: string;
   color: string;
   Icon?: React.JSX.Element | null;

@@ -95,7 +95,7 @@ function AddSubjectModal(props: Props) {
     setSubjectList(() => [...subjectList, item]);
   };
   const removeFromSubjectList = (index: number) => {
-    setSubjectList(() => subjectList.filter((item, ind) => ind != index));
+    setSubjectList(() => subjectList.filter((_item, ind) => ind !== index));
   };
   const removeCurrentSubject = (subject: SubjectAssignment) => {
     // การลบวิชาที่เคยมีอยู่แล้วออกไป ทำไมถึงต้องทำอะไรกับตัวแปรตั้งสองตัว??
@@ -106,10 +106,10 @@ function AddSubjectModal(props: Props) {
     const indexMain = currentSubject.indexOf(subject);
     const indexSub = subjectByGradeID.indexOf(subject);
     setCurrentSubject(() =>
-      currentSubject.filter((item, ind) => ind != indexMain),
+      currentSubject.filter((_item, ind) => ind !== indexMain),
     );
     setSubjectByGradeID(() =>
-      subjectByGradeID.filter((item, ind) => ind != indexSub),
+      subjectByGradeID.filter((_item, ind) => ind !== indexSub),
     );
   };
   const confirmToAddSubjectToClass = () => {
@@ -203,7 +203,7 @@ function AddSubjectModal(props: Props) {
               </u>
             </div>
             <div className="flex flex-col gap-3">
-              {subjectByGradeID.map((subject, index) => (
+              {subjectByGradeID.map((subject, _index) => (
                 <Fragment
                   key={`current${subject.SubjectCode}${subject.Semester}${subject.AcademicYear}`}
                 >

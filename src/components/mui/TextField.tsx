@@ -81,10 +81,6 @@ const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
     },
     ref,
   ) {
-    // Determine which API is being used
-    const useLegacyAPI =
-      handleChange !== undefined || placeHolder !== undefined;
-
     // Map legacy props to MUI props
     const placeholderText = placeHolder || placeholder;
     const handleChangeEvent = handleChange || onChange;

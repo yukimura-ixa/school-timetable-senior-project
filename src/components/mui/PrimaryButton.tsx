@@ -91,10 +91,6 @@ const PrimaryButton = React.forwardRef<HTMLButtonElement, PrimaryButtonProps>(
     },
     ref,
   ) {
-    // Determine which API is being used
-    const useLegacyAPI =
-      handleClick !== undefined || title !== undefined || Icon !== undefined;
-
     // Map legacy color "danger" to MUI "error"
     const muiColor = color === "danger" ? "error" : color;
 

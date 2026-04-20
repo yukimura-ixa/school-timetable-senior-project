@@ -28,7 +28,6 @@ import {
   isConflictError,
   isValidationError,
   isLockedScheduleError,
-  type ServerActionError,
 } from "@/types";
 import { createLogger } from "@/lib/logger";
 import { sanitizeErrorMessage } from "@/shared/lib/error-sanitizer";

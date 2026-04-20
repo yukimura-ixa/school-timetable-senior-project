@@ -19,7 +19,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
-import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { createTimeslotsAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { TimeslotConfigurationStep } from "./TimeslotConfigurationStep";
 import {

@@ -19,7 +19,7 @@ type props = {
 
 function DeleteLockScheduleModal({ closeModal, deleteData, mutate }: props) {
   const confirmed = () => {
-    deleteLockSchedule(deleteData);
+    void deleteLockSchedule(deleteData);
     closeModal();
   };
   const cancel = () => {

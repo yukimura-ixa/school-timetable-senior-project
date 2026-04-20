@@ -17,11 +17,6 @@ import {
 // Import from the unified design system
 import {
   colors,
-  gradients,
-  animations,
-  glassCardSx,
-  iconBoxSx,
-  statBadgeSx,
 } from "@/shared/design-system";
 
 /**

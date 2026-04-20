@@ -125,7 +125,7 @@ export function TeacherDataGrid({
         if (result.success) {
           enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
           setRows((prev) => prev.filter((row) => row.TeacherID !== id));
-          onMutate();
+          void onMutate();
         } else {
           enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ", { variant: "error" });
         }
@@ -156,7 +156,7 @@ export function TeacherDataGrid({
           prev.filter((row) => !selectedIds.includes(row.TeacherID)),
         );
         setRowSelectionModel({ type: "include", ids: new Set<GridRowId>() });
-        onMutate();
+        void onMutate();
       } else {
         enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ", { variant: "error" });
       }
@@ -199,7 +199,7 @@ export function TeacherDataGrid({
       }
 
       enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
-      onMutate();
+      void onMutate();
       return updatedTeacher;
     },
     [onMutate],

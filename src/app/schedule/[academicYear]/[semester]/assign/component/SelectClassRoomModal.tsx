@@ -1,7 +1,5 @@
-import { useTeachers } from "@/hooks";
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useMemo, useState } from "react";
-import type { gradelevel } from "@/prisma/generated/client";
 
 import { AiOutlineClose } from "react-icons/ai";
 import { useGradeLevels } from "@/hooks";
@@ -29,7 +27,7 @@ function SelectClassRoomModal({
   confirmChange,
   year,
 }: props) {
-  const { data, isLoading, error, mutate } = useGradeLevels();
+  const { data, isLoading } = useGradeLevels();
   const baseClassRooms = useMemo(() => {
     // ตัวอย่างข้อมูลแบบคร่าวๆ //
     // {GradeID : 101}
@@ -41,7 +39,7 @@ function SelectClassRoomModal({
     if (!data || data.length === 0) {
       return [];
     }
-    const filterYear = data.filter((item) => item.Year == year); //filter เอาชั้นปีที่เลือก เช่น กดของมอหนึ่ง ก็จะเอาแค่มอหนึ่งออกมา ก็จะได้แค่ {GradeID: 101}
+    const filterYear = data.filter((item) => item.Year === year); //filter เอาชั้นปีที่เลือก เช่น กดของมอหนึ่ง ก็จะเอาแค่มอหนึ่งออกมา ก็จะได้แค่ {GradeID: 101}
     return filterYear.map((item) => {
       const existingClass = classList.find(
         (gid) => item.GradeID === gid.GradeID,

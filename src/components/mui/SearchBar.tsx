@@ -85,10 +85,6 @@ const SearchBar = React.forwardRef<HTMLDivElement, SearchBarProps>(
   ) {
     const [internalValue, setInternalValue] = React.useState("");
 
-    // Determine which API is being used
-    const useLegacyAPI =
-      handleChange !== undefined || placeHolder !== undefined;
-
     // Map legacy props to MUI props
     const placeholderText = placeHolder || placeholder || "ค้นหา";
     const handleChangeEvent = handleChange || onChange;

@@ -1,6 +1,5 @@
-import SearchBar from "@/components/mui/SearchBar";
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
 
 import type { subject, teacher } from "@/prisma/generated/client";
@@ -38,7 +37,7 @@ function SelectTeacher(props: Props) {
             </div>
           ) : (
             <div className="flex flex-wrap gap-3 justify-end">
-              {props.teachers?.map((item, index) => (
+              {props.teachers?.map((item, _index) => (
                 <Fragment key={`teacherSelected${item.TeacherID}`}>
                   <MiniButton
                     handleClick={() => {}}

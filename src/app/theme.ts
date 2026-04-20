@@ -1,5 +1,5 @@
 "use client";
-import { createTheme, alpha, Shadows } from "@mui/material";
+import { createTheme, Shadows } from "@mui/material";
 import { Sarabun, Inter } from "next/font/google";
 
 const sarabun = Sarabun({

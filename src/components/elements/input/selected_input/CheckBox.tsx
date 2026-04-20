@@ -1,10 +1,10 @@
-import type { JSX } from "react";
+import type { JSX, MouseEventHandler } from "react";
 
 interface ICheckBoxProps {
   label: string;
   value: string | number;
   name: string;
-  handleClick: any;
+  handleClick: MouseEventHandler<HTMLInputElement>;
   checked: boolean;
   disabled?: boolean;
 }
