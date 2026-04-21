@@ -34,9 +34,12 @@ import {
 } from "./conflict.actions";
 import { conflictRepository } from "../../infrastructure/repositories/conflict.repository";
 
+/* eslint-disable @typescript-eslint/unbound-method -- vitest mocks extract
+   method references; binding is not needed because we only stub return values. */
 const mockFindAll = conflictRepository.findAllConflicts as ReturnType<typeof vi.fn>;
 const mockCheckTeacher = conflictRepository.checkTeacherConflict as ReturnType<typeof vi.fn>;
 const mockCheckRoom = conflictRepository.checkRoomConflict as ReturnType<typeof vi.fn>;
+/* eslint-enable @typescript-eslint/unbound-method */
 
 describe("Conflict Actions", () => {
   beforeEach(() => {

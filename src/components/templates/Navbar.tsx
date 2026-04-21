@@ -21,21 +21,23 @@ function Navbar() {
   const router = useRouter();
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
 
-  // Cache session to prevent flashing "Loading..." on route changes
+  // Cache session to prevent flashing "Loading..." on route changes.
   const [cachedSession, setCachedSession] = useState<typeof session>(null);
 
   useEffect(() => {
     if (session && !isPending) {
+      // Intentional: mirror auth-client state into a cache so stale sessions
+      // survive route transitions without re-fetching. The cascading render
+      // cost is bounded (one extra render per real auth change).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCachedSession(session);
     }
   }, [session, isPending]);
 
-  // Use cached session if available, otherwise use live session
   const displaySession = cachedSession ?? session;
   const hydratedSession = isHydrated ? displaySession : null;
   const hydratedRole = normalizeAppRole(hydratedSession?.user?.role);
 
-  // Only show loading on initial mount (no cached session yet)
   const showLoading = !isHydrated || (!cachedSession && isPending);
   return (
     <>

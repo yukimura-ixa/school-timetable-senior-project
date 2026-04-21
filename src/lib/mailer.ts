@@ -106,7 +106,7 @@ export async function sendEmail(
 
     const result = await poller.pollUntilDone();
 
-    if (!result || result.status !== KnownEmailSendStatus.Succeeded) {
+    if (!result || String(result.status) !== String(KnownEmailSendStatus.Succeeded)) {
       const providerError =
         result?.error?.message ??
         `Email send did not succeed (status: ${result?.status ?? "unknown"}).`;

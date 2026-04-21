@@ -135,6 +135,7 @@ describe("Lock Actions", () => {
     };
 
     it("creates cartesian product of timeslots × grades", async () => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises -- vi.fn default signature is () => any; mockImplementation accepts any return
       mockCreateLock.mockImplementation(async (data: Record<string, unknown>) => ({
         ClassID: Math.floor(Math.random() * 1000),
         ...data,
