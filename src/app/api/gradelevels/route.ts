@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("GradeLevelsAPI");
 
 /**
  * GET /api/gradelevels
@@ -34,7 +37,7 @@ export async function GET(_request: NextRequest) {
       data: gradeLevels,
     });
   } catch (error) {
-    console.error("[API] GET /api/gradelevels error:", error);
+    log.error("GET /api/gradelevels failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

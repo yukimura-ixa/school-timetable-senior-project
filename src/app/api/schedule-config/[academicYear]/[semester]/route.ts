@@ -3,6 +3,9 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("ScheduleConfigAPI");
 
 export async function GET(
   _request: Request,
@@ -59,13 +62,29 @@ export async function GET(
     );
   }
 
-  const config = await semesterRepository.findByYearAndSemester(
-    academicYear,
-    semester,
-  );
+  try {
+    const config = await semesterRepository.findByYearAndSemester(
+      academicYear,
+      semester,
+    );
 
-  return NextResponse.json({
-    success: true,
-    data: config,
-  });
+    return NextResponse.json({
+      success: true,
+      data: config,
+    });
+  } catch (error) {
+    log.error("GET /api/schedule-config failed", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Failed to fetch schedule configuration",
+          code: "INTERNAL_ERROR",
+        },
+      },
+      { status: 500 },
+    );
+  }
 }

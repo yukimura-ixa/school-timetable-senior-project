@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("RoomsAvailableAPI");
 
 /**
  * GET /api/rooms/available
@@ -71,7 +74,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[API] GET /api/rooms/available error:", error);
+    log.error("GET /api/rooms/available failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

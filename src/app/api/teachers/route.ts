@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("TeachersAPI");
 
 /**
  * GET /api/teachers
@@ -53,7 +56,7 @@ export async function GET(request: NextRequest) {
       data: teachers,
     });
   } catch (error) {
-    console.error("[API] GET /api/teachers error:", error);
+    log.error("GET /api/teachers failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

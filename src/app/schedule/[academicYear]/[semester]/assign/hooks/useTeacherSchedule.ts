@@ -46,7 +46,7 @@ import type {
 
 // Server Actions
 import { getTeacherScheduleAction } from "@/features/arrange/application/actions/arrange.actions";
-import { getConflictsAction } from "@/features/class/application/actions/class.actions";
+import { getTeacherConflictsAction } from "@/features/class/application/actions/class.actions";
 import { getTeacherByIdAction } from "@/features/teacher/application/actions/teacher.actions";
 import { getAvailableRespsAction } from "@/features/assign/application/actions/assign.actions";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
@@ -234,7 +234,7 @@ export function useTeacherSchedule({
     async () => {
       if (!teacherID || !teacherIDNum) return null;
 
-      const result = await getConflictsAction({
+      const result = await getTeacherConflictsAction({
         AcademicYear: academicYearNum,
         Semester: semesterEnum,
         TeacherID: teacherIDNum,
