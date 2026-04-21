@@ -14,6 +14,8 @@ import type {
   ReRoomSuggestion,
   ResolutionContext,
   ResolutionSuggestion,
+  ScheduleArrangementInput,
+  SwapSuggestion,
   TimeslotOption,
 } from "../models/conflict.model";
 
@@ -102,6 +104,51 @@ function generateMoveCandidates(
   return out;
 }
 
+function generateSwap(
+  ctx: ResolutionContext,
+  swapTargets: readonly string[],
+): SwapSuggestion[] {
+  const blockers = ctx.existingSchedules.filter(
+    (s) => s.timeslotId === ctx.attempt.timeslotId,
+  );
+  const out: SwapSuggestion[] = [];
+
+  for (const blocker of blockers) {
+    for (const targetSlotId of swapTargets) {
+      const blockerAttempt: ScheduleArrangementInput = {
+        classId: blocker.classId,
+        timeslotId: targetSlotId,
+        subjectCode: blocker.subjectCode,
+        gradeId: blocker.gradeId,
+        teacherId: blocker.teacherId,
+        roomId: blocker.roomId ?? null,
+        academicYear: ctx.attempt.academicYear,
+        semester: ctx.attempt.semester,
+      };
+      const others = ctx.existingSchedules.filter(
+        (s) => s.classId !== blocker.classId,
+      );
+      const check = checkAllConflicts(
+        blockerAttempt,
+        others,
+        ctx.responsibilities,
+      );
+      if (check.hasConflict) continue;
+
+      out.push({
+        kind: "SWAP",
+        counterpartTimeslotId: targetSlotId,
+        counterpartClassId: blocker.classId,
+        counterpartSubjectCode: blocker.subjectCode,
+        rationale: `สลับกับ ${blocker.subjectCode}`,
+        confidence: 0.5,
+      });
+      break;
+    }
+  }
+  return out;
+}
+
 export function suggestResolutions(
   ctx: ResolutionContext,
   opts: SuggestOptions = {},
@@ -114,7 +161,30 @@ export function suggestResolutions(
   const needCrossDay = reRoom.length + moveSameDay.length < max;
   const moveCrossDay = needCrossDay ? generateMoveCandidates(ctx, false) : [];
 
-  const all: ResolutionSuggestion[] = [...reRoom, ...moveSameDay, ...moveCrossDay];
+  const moveCount = moveSameDay.length + moveCrossDay.length;
+  const needSwap = moveCount < 3;
+
+  const moveTargets = [...moveSameDay, ...moveCrossDay].map(
+    (m) => m.targetTimeslotId,
+  );
+  const swapTargets: string[] =
+    moveTargets.length > 0
+      ? moveTargets
+      : ctx.allTimeslots
+          .filter(
+            (t) =>
+              !t.isBreaktime && t.timeslotId !== ctx.attempt.timeslotId,
+          )
+          .map((t) => t.timeslotId);
+
+  const swap = needSwap ? generateSwap(ctx, swapTargets) : [];
+
+  const all: ResolutionSuggestion[] = [
+    ...reRoom,
+    ...moveSameDay,
+    ...moveCrossDay,
+    ...swap,
+  ];
   all.sort((a, b) => b.confidence - a.confidence);
   return all.slice(0, max);
 }

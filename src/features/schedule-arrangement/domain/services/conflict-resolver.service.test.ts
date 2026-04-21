@@ -44,7 +44,6 @@ function makeCtx(over: Partial<ResolutionContext> = {}): ResolutionContext {
   };
 }
 
-
 describe("suggestResolutions", () => {
   it("returns [] when conflict has hasConflict=false", () => {
     expect(suggestResolutions(makeCtx())).toEqual([]);
@@ -123,7 +122,7 @@ describe("RE_ROOM suggestions", () => {
   });
 });
 
-describe("MOVE same-day suggestions", () => {
+describe("MOVE suggestions", () => {
   const timeslots: TimeslotOption[] = [
     { timeslotId: "1-2567-MON-1", dayOfWeek: "MON", slotNumber: 1 },
     { timeslotId: "1-2567-MON-2", dayOfWeek: "MON", slotNumber: 2 },
@@ -167,38 +166,8 @@ describe("MOVE same-day suggestions", () => {
     const targets = moves.map((m) => m.targetTimeslotId);
     expect(targets).toContain("1-2567-MON-2");
     expect(targets).toContain("1-2567-MON-4");
-    expect(targets).not.toContain("1-2567-MON-3"); // break slot
-    expect(targets).not.toContain("1-2567-MON-1"); // origin
-  });
-
-  it("includes cross-day MOVE candidates when same-day yields fewer than maxSuggestions", () => {
-    const tightSameDaySlots: TimeslotOption[] = [
-      { timeslotId: "1-2567-MON-1", dayOfWeek: "MON", slotNumber: 1 },
-      { timeslotId: "1-2567-TUE-1", dayOfWeek: "TUE", slotNumber: 1 },
-      { timeslotId: "1-2567-TUE-2", dayOfWeek: "TUE", slotNumber: 2 },
-      { timeslotId: "1-2567-WED-1", dayOfWeek: "WED", slotNumber: 1 },
-    ];
-    const ctx = makeCtx({
-      conflict: {
-        hasConflict: true,
-        conflictType: ConflictType.TEACHER_CONFLICT,
-        message: "Teacher busy",
-      },
-      attempt: makeAttempt({ timeslotId: "1-2567-MON-1" }),
-      responsibilities: [responsibility],
-      allTimeslots: tightSameDaySlots,
-    });
-
-    const result = suggestResolutions(ctx, { maxSuggestions: 3 });
-    const targets = result
-      .filter(
-        (s): s is Extract<ResolutionSuggestion, { kind: "MOVE" }> =>
-          s.kind === "MOVE",
-      )
-      .map((s) => s.targetTimeslotId);
-    expect(targets).toEqual(
-      expect.arrayContaining(["1-2567-TUE-1", "1-2567-WED-1"]),
-    );
+    expect(targets).not.toContain("1-2567-MON-3");
+    expect(targets).not.toContain("1-2567-MON-1");
   });
 
   it("ranks nearer periods higher than farther periods on same day", () => {
@@ -222,5 +191,101 @@ describe("MOVE same-day suggestions", () => {
     const mon4 = moves.find((m) => m.targetTimeslotId === "1-2567-MON-4");
     expect(mon2 && mon4).toBeTruthy();
     expect(mon2!.confidence).toBeGreaterThan(mon4!.confidence);
+  });
+
+  it("includes cross-day MOVE candidates when same-day yields fewer than maxSuggestions", () => {
+    const tight: TimeslotOption[] = [
+      { timeslotId: "1-2567-MON-1", dayOfWeek: "MON", slotNumber: 1 },
+      { timeslotId: "1-2567-TUE-1", dayOfWeek: "TUE", slotNumber: 1 },
+      { timeslotId: "1-2567-TUE-2", dayOfWeek: "TUE", slotNumber: 2 },
+      { timeslotId: "1-2567-WED-1", dayOfWeek: "WED", slotNumber: 1 },
+    ];
+    const ctx = makeCtx({
+      conflict: {
+        hasConflict: true,
+        conflictType: ConflictType.TEACHER_CONFLICT,
+        message: "Teacher busy",
+      },
+      attempt: makeAttempt({ timeslotId: "1-2567-MON-1" }),
+      responsibilities: [responsibility],
+      allTimeslots: tight,
+    });
+
+    const result = suggestResolutions(ctx, { maxSuggestions: 3 });
+    const targets = result
+      .filter(
+        (s): s is Extract<ResolutionSuggestion, { kind: "MOVE" }> =>
+          s.kind === "MOVE",
+      )
+      .map((s) => s.targetTimeslotId);
+    expect(targets).toEqual(
+      expect.arrayContaining(["1-2567-TUE-1", "1-2567-WED-1"]),
+    );
+  });
+});
+
+describe("SWAP fallthrough", () => {
+  const slots: TimeslotOption[] = [
+    { timeslotId: "1-2567-MON-1", dayOfWeek: "MON", slotNumber: 1 },
+    { timeslotId: "1-2567-MON-2", dayOfWeek: "MON", slotNumber: 2 },
+  ];
+
+  const attemptResp: TeacherResponsibility = {
+    respId: 1,
+    teacherId: 1,
+    gradeId: "M1-1",
+    subjectCode: "MATH101",
+    academicYear: 2567,
+    semester: "SEMESTER_1",
+    teachHour: 2,
+  };
+  const blockerResp: TeacherResponsibility = {
+    respId: 2,
+    teacherId: 1,
+    gradeId: "M1-2",
+    subjectCode: "ENG101",
+    academicYear: 2567,
+    semester: "SEMESTER_1",
+    teachHour: 2,
+  };
+
+  it("proposes SWAP with the schedule blocking the attempt slot when MOVE count < 3", () => {
+    const blocker: ExistingSchedule = {
+      classId: 42,
+      timeslotId: "1-2567-MON-1",
+      subjectCode: "ENG101",
+      subjectName: "English",
+      roomId: 99,
+      roomName: "R-99",
+      gradeId: "M1-2",
+      isLocked: false,
+      teacherId: 1,
+      teacherName: "T-1",
+    };
+
+    const ctx = makeCtx({
+      conflict: {
+        hasConflict: true,
+        conflictType: ConflictType.TEACHER_CONFLICT,
+        message: "Teacher busy",
+      },
+      attempt: makeAttempt({
+        timeslotId: "1-2567-MON-1",
+        teacherId: 1,
+        gradeId: "M1-1",
+      }),
+      existingSchedules: [blocker],
+      responsibilities: [attemptResp, blockerResp],
+      allTimeslots: slots,
+    });
+
+    const result = suggestResolutions(ctx, { maxSuggestions: 3 });
+    const swaps = result.filter(
+      (s): s is Extract<ResolutionSuggestion, { kind: "SWAP" }> =>
+        s.kind === "SWAP",
+    );
+    expect(swaps.length).toBeGreaterThan(0);
+    expect(swaps[0]!.counterpartClassId).toBe(42);
+    expect(swaps[0]!.counterpartSubjectCode).toBe("ENG101");
   });
 });
