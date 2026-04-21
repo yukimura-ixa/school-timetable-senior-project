@@ -17,3 +17,6 @@ export type {
   ConflictValidationOperations,
   ConflictType,
 } from "./useConflictValidation";
+
+export { useConflictResolution } from "./useConflictResolution";
+export type { UseConflictResolutionParams } from "./useConflictResolution";

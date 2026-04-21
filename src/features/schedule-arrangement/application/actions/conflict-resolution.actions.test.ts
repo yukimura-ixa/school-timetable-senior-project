@@ -57,11 +57,9 @@ import { checkAllConflicts } from "@/features/schedule-arrangement/domain/servic
 import { suggestResolutions } from "@/features/schedule-arrangement/domain/services/conflict-resolver.service";
 import { auth } from "@/lib/auth";
 
-/* eslint-disable @typescript-eslint/unbound-method -- vitest mock references */
 const mockCheck = checkAllConflicts as ReturnType<typeof vi.fn>;
 const mockSuggest = suggestResolutions as ReturnType<typeof vi.fn>;
 const mockGetSession = auth.api.getSession as unknown as ReturnType<typeof vi.fn>;
-/* eslint-enable @typescript-eslint/unbound-method */
 
 const validInput = {
   AcademicYear: 2567,
