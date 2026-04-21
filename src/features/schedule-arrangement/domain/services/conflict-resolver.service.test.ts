@@ -44,10 +44,6 @@ function makeCtx(over: Partial<ResolutionContext> = {}): ResolutionContext {
   };
 }
 
-// Re-exports to silence unused-import warnings; additional suites below
-// reference these types once wired.
-void (0 as unknown as TeacherResponsibility);
-void (0 as unknown as TimeslotOption);
 
 describe("suggestResolutions", () => {
   it("returns [] when conflict has hasConflict=false", () => {
@@ -124,5 +120,77 @@ describe("RE_ROOM suggestions", () => {
     });
 
     expect(suggestResolutions(ctx)).toEqual([]);
+  });
+});
+
+describe("MOVE same-day suggestions", () => {
+  const timeslots: TimeslotOption[] = [
+    { timeslotId: "1-2567-MON-1", dayOfWeek: "MON", slotNumber: 1 },
+    { timeslotId: "1-2567-MON-2", dayOfWeek: "MON", slotNumber: 2 },
+    {
+      timeslotId: "1-2567-MON-3",
+      dayOfWeek: "MON",
+      slotNumber: 3,
+      isBreaktime: true,
+    },
+    { timeslotId: "1-2567-MON-4", dayOfWeek: "MON", slotNumber: 4 },
+    { timeslotId: "1-2567-TUE-1", dayOfWeek: "TUE", slotNumber: 1 },
+  ];
+
+  const responsibility: TeacherResponsibility = {
+    respId: 1,
+    teacherId: 1,
+    gradeId: "M1-1",
+    subjectCode: "MATH101",
+    academicYear: 2567,
+    semester: "SEMESTER_1",
+    teachHour: 2,
+  };
+
+  it("proposes MOVE to an empty same-day non-break slot", () => {
+    const ctx = makeCtx({
+      conflict: {
+        hasConflict: true,
+        conflictType: ConflictType.TEACHER_CONFLICT,
+        message: "Teacher busy",
+      },
+      attempt: makeAttempt({ timeslotId: "1-2567-MON-1" }),
+      existingSchedules: [],
+      responsibilities: [responsibility],
+      allTimeslots: timeslots,
+    });
+
+    const moves = suggestResolutions(ctx, { maxSuggestions: 5 }).filter(
+      (s): s is Extract<ResolutionSuggestion, { kind: "MOVE" }> =>
+        s.kind === "MOVE",
+    );
+    const targets = moves.map((m) => m.targetTimeslotId);
+    expect(targets).toContain("1-2567-MON-2");
+    expect(targets).toContain("1-2567-MON-4");
+    expect(targets).not.toContain("1-2567-MON-3"); // break slot
+    expect(targets).not.toContain("1-2567-MON-1"); // origin
+  });
+
+  it("ranks nearer periods higher than farther periods on same day", () => {
+    const ctx = makeCtx({
+      conflict: {
+        hasConflict: true,
+        conflictType: ConflictType.TEACHER_CONFLICT,
+        message: "Teacher busy",
+      },
+      attempt: makeAttempt({ timeslotId: "1-2567-MON-1" }),
+      existingSchedules: [],
+      responsibilities: [responsibility],
+      allTimeslots: timeslots,
+    });
+
+    const moves = suggestResolutions(ctx, { maxSuggestions: 5 }).filter(
+      (s): s is Extract<ResolutionSuggestion, { kind: "MOVE" }> =>
+        s.kind === "MOVE",
+    );
+    const mon2 = moves.find((m) => m.targetTimeslotId === "1-2567-MON-2");
+    const mon4 = moves.find((m) => m.targetTimeslotId === "1-2567-MON-4");
+    expect(mon2 && mon4).toBeTruthy();
+    expect(mon2!.confidence).toBeGreaterThan(mon4!.confidence);
   });
 });

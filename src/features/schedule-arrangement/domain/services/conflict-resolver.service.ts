@@ -6,12 +6,15 @@
  * input is passed in explicitly so unit tests can exercise every branch.
  */
 
+import { checkAllConflicts } from "./conflict-detector.service";
 import { ConflictType } from "../models/conflict.model";
 import type {
   ExistingSchedule,
+  MoveSuggestion,
   ReRoomSuggestion,
   ResolutionContext,
   ResolutionSuggestion,
+  TimeslotOption,
 } from "../models/conflict.model";
 
 export interface SuggestOptions {
@@ -49,6 +52,56 @@ function generateReRoom(ctx: ResolutionContext): ReRoomSuggestion[] {
   return out;
 }
 
+function slotMeta(
+  allTimeslots: TimeslotOption[],
+  timeslotId: string,
+): { slotNumber: number; dayOfWeek: string } | null {
+  const hit = allTimeslots.find((t) => t.timeslotId === timeslotId);
+  if (!hit) return null;
+  return { slotNumber: hit.slotNumber, dayOfWeek: hit.dayOfWeek };
+}
+
+function generateMoveCandidates(
+  ctx: ResolutionContext,
+  sameDay: boolean,
+): MoveSuggestion[] {
+  const origin = slotMeta(ctx.allTimeslots, ctx.attempt.timeslotId);
+  if (!origin) return [];
+
+  const candidates = ctx.allTimeslots.filter((t) => {
+    if (t.timeslotId === ctx.attempt.timeslotId) return false;
+    if (t.isBreaktime) return false;
+    const onSameDay = t.dayOfWeek === origin.dayOfWeek;
+    return sameDay ? onSameDay : !onSameDay;
+  });
+
+  const out: MoveSuggestion[] = [];
+  for (const slot of candidates) {
+    const altAttempt = { ...ctx.attempt, timeslotId: slot.timeslotId };
+    const result = checkAllConflicts(
+      altAttempt,
+      ctx.existingSchedules,
+      ctx.responsibilities,
+    );
+    if (result.hasConflict) continue;
+
+    const distance = Math.abs(slot.slotNumber - origin.slotNumber);
+    const base = sameDay ? 0.8 : 0.65;
+    const floor = sameDay ? 0.7 : 0.5;
+    const confidence = Math.max(base - 0.02 * distance, floor);
+
+    out.push({
+      kind: "MOVE",
+      targetTimeslotId: slot.timeslotId,
+      rationale: sameDay
+        ? `ย้ายไปคาบ ${slot.slotNumber} วัน${slot.dayOfWeek}`
+        : `ย้ายไปวัน${slot.dayOfWeek} คาบ ${slot.slotNumber}`,
+      confidence,
+    });
+  }
+  return out;
+}
+
 export function suggestResolutions(
   ctx: ResolutionContext,
   opts: SuggestOptions = {},
@@ -56,7 +109,11 @@ export function suggestResolutions(
   if (!ctx.conflict.hasConflict) return [];
   const max = opts.maxSuggestions ?? 3;
 
-  const all: ResolutionSuggestion[] = [...generateReRoom(ctx)];
+  const all: ResolutionSuggestion[] = [
+    ...generateReRoom(ctx),
+    ...generateMoveCandidates(ctx, true),
+  ];
+
   all.sort((a, b) => b.confidence - a.confidence);
   return all.slice(0, max);
 }
