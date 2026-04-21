@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import {
@@ -35,6 +35,14 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useSnackbar } from "notistack";
 import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
 import { deleteScheduleAction } from "@/features/schedule-arrangement/application/actions/schedule-arrangement.actions";
+import ConflictDetailsModal from "@/features/schedule-arrangement/presentation/components/ConflictDetailsModal";
+import { useConflictResolution } from "@/features/schedule-arrangement/presentation/hooks";
+import {
+  ConflictType,
+  type ConflictResult,
+  type ResolutionSuggestion,
+  type ScheduleArrangementInput,
+} from "@/features/schedule-arrangement/domain/models/conflict.model";
 
 type Timeslot = {
   TimeslotID: string;
@@ -167,6 +175,23 @@ export default function GridSlot() {
   const semester = params.semester as string;
   const teacher = searchParams.get("teacher");
 
+  const yearInt = parseInt(academicYear, 10);
+  const semInt = semester === "2" ? 2 : 1;
+
+  const [conflictModal, setConflictModal] = useState<{
+    conflict: ConflictResult;
+    attempt: ScheduleArrangementInput;
+  } | null>(null);
+  const {
+    suggestions,
+    isLoading: isLoadingSuggestions,
+    fetchFor,
+    reset: resetSuggestions,
+  } = useConflictResolution({
+    academicYear: yearInt,
+    semester: semInt,
+  });
+
   // DnD sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -251,9 +276,22 @@ export default function GridSlot() {
       });
 
       if (!result.allowed) {
-        enqueueSnackbar(result.message || "ไม่สามารถจัดตารางได้", {
-          variant: "error",
-        });
+        const attempt: ScheduleArrangementInput = {
+          timeslotId,
+          subjectCode: subjectData.SubjectCode,
+          gradeId: subjectData.GradeID,
+          teacherId: parseInt(teacher, 10) || undefined,
+          roomId: null,
+          academicYear: yearInt,
+          semester: semInt === 1 ? "SEMESTER_1" : "SEMESTER_2",
+        };
+        const conflict: ConflictResult = {
+          hasConflict: true,
+          conflictType: ConflictType.TEACHER_CONFLICT,
+          message: result.message || "ไม่สามารถจัดตารางได้",
+        };
+        setConflictModal({ conflict, attempt });
+        void fetchFor(attempt);
         return;
       }
 
@@ -296,6 +334,52 @@ export default function GridSlot() {
         { variant: "error" },
       );
     }
+  };
+
+  const closeConflictModal = () => {
+    setConflictModal(null);
+    resetSuggestions();
+  };
+
+  const handleApplySuggestion = (s: ResolutionSuggestion) => {
+    if (!conflictModal || !teacher) return;
+    const { attempt } = conflictModal;
+
+    if (s.kind === "MOVE") {
+      const q = new URLSearchParams({
+        timeslot: s.targetTimeslotId,
+        subject: attempt.subjectCode,
+        grade: attempt.gradeId,
+        teacher,
+      });
+      router.push(
+        `/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`,
+      );
+      closeConflictModal();
+      return;
+    }
+
+    if (s.kind === "RE_ROOM") {
+      const q = new URLSearchParams({
+        timeslot: attempt.timeslotId,
+        subject: attempt.subjectCode,
+        grade: attempt.gradeId,
+        teacher,
+        room: String(s.targetRoomId),
+      });
+      router.push(
+        `/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`,
+      );
+      closeConflictModal();
+      return;
+    }
+
+    // SWAP — MVP: manual follow-up required, see issue tracker
+    enqueueSnackbar(
+      "ฟังก์ชันสลับอัตโนมัติยังไม่รองรับ โปรดลบรายวิชาปลายทางก่อนแล้วจัดใหม่",
+      { variant: "warning" },
+    );
+    closeConflictModal();
   };
 
   if (timeslotsLoading || scheduleLoading) {
@@ -415,6 +499,17 @@ export default function GridSlot() {
           </table>
         </Box>
       </Paper>
+      {conflictModal && (
+        <ConflictDetailsModal
+          open
+          conflict={conflictModal.conflict}
+          attempt={conflictModal.attempt}
+          suggestions={suggestions}
+          isLoadingSuggestions={isLoadingSuggestions}
+          onApply={handleApplySuggestion}
+          onClose={closeConflictModal}
+        />
+      )}
     </DndContext>
   );
 }
