@@ -72,8 +72,12 @@ export default defineConfig({
     video: process.env.CI ? "off" : "off", // Disable video locally for speed
     // Reduce action timeout locally (dev server should be warm)
     actionTimeout: process.env.CI ? 30000 : 10000,
-    // Navigation timeout: increased for CI compilation overhead
-    navigationTimeout: process.env.CI ? 90000 : 30000,
+    // Navigation timeout: increased for CI compilation overhead.
+    // Local dev-server compiles heavy dashboard pages (e.g. teacher-table,
+    // all-timeslot) on first hit — 30s is not enough. Use 60s to match
+    // actual dev compile time; fall back to prod build (PROD_BUILD=true)
+    // for the fastest run. Tracking: #68.
+    navigationTimeout: process.env.CI ? 90000 : 60000,
     // Reuse browser context state for faster test isolation
     launchOptions: {
       // Disable GPU for faster headless mode

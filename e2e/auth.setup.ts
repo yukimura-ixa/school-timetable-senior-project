@@ -38,10 +38,10 @@ const authFile =
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@school.local";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 
-// Increase setup timeout to accommodate initial compile/HMR and seeding
-// Dev server compilation can take 20-30s; auth + DB check ~30-40s; total ~60-70s
-// Using 90s for comfortable CI buffer (was 120s with slow polling, now optimized)
-setup.setTimeout(90_000);
+// Increase setup timeout to accommodate initial compile/HMR and seeding.
+// Dev server first-hit compilation of /api/health/db + /signin can consume
+// 30-60s before any UI work begins. 180s leaves headroom for CI too.
+setup.setTimeout(180_000);
 
 /**
  * Ensures database is fully seeded before proceeding with tests
@@ -52,7 +52,8 @@ setup.setTimeout(90_000);
  * @throws Error if database is not ready after maximum attempts
  */
 async function ensureDatabaseReady(): Promise<void> {
-  const maxAttempts = 10;
+  const maxAttempts = 20;
+  const perRequestTimeoutMs = 15_000;
   const baseUrl =
     process.env.BASE_URL ??
     process.env.PLAYWRIGHT_TEST_BASE_URL ??
@@ -62,7 +63,15 @@ async function ensureDatabaseReady(): Promise<void> {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const response = await fetch(`${baseUrl}/api/health/db`);
+      // Bound each fetch so a hung first-compile doesn't swallow all retries.
+      const controller = new AbortController();
+      const abortTimer = setTimeout(
+        () => controller.abort(),
+        perRequestTimeoutMs,
+      );
+      const response = await fetch(`${baseUrl}/api/health/db`, {
+        signal: controller.signal,
+      }).finally(() => clearTimeout(abortTimer));
 
       if (response.ok) {
         const data = await response.json();
