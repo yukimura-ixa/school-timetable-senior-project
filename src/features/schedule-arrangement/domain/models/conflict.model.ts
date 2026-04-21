@@ -142,3 +142,76 @@ export interface TeacherResponsibility {
   semester: string;
   teachHour: number;
 }
+
+/**
+ * Kinds of resolution suggestions the resolver can produce.
+ */
+export type ResolutionKind = "MOVE" | "RE_ROOM" | "SWAP";
+
+export interface MoveSuggestion {
+  kind: "MOVE";
+  /** Target timeslot (same subject, same class, same room). */
+  targetTimeslotId: string;
+  rationale: string;
+  confidence: number; // 0..1
+}
+
+export interface ReRoomSuggestion {
+  kind: "RE_ROOM";
+  /** Keep original slot, switch to this room. */
+  targetRoomId: number;
+  targetRoomName: string;
+  rationale: string;
+  confidence: number;
+}
+
+export interface SwapSuggestion {
+  kind: "SWAP";
+  /** Slot currently occupied by the counterpart (to be swapped into). */
+  counterpartTimeslotId: string;
+  /** ClassID of the schedule that will be displaced by the swap. */
+  counterpartClassId: number;
+  /** Subject code of the displaced schedule — for UI display. */
+  counterpartSubjectCode: string;
+  rationale: string;
+  confidence: number;
+}
+
+export type ResolutionSuggestion =
+  | MoveSuggestion
+  | ReRoomSuggestion
+  | SwapSuggestion;
+
+/**
+ * Lightweight room projection used by the resolver.
+ */
+export interface RoomOption {
+  roomId: number;
+  roomName: string;
+}
+
+/**
+ * Lightweight timeslot projection used by the resolver.
+ * Only fields the resolver actually uses are required.
+ */
+export interface TimeslotOption {
+  timeslotId: string;
+  dayOfWeek: string;
+  /** Arbitrary ordering within a day; resolver uses it for distance weighting. */
+  slotNumber: number;
+  /** Breaks and lunches are excluded from MOVE candidates. */
+  isBreaktime?: boolean;
+}
+
+/**
+ * All the data the pure resolver needs. Built by the server action from
+ * repository queries; the resolver itself is deterministic and I/O-free.
+ */
+export interface ResolutionContext {
+  conflict: ConflictResult;
+  attempt: ScheduleArrangementInput;
+  existingSchedules: ExistingSchedule[];
+  responsibilities: TeacherResponsibility[];
+  availableRooms: RoomOption[];
+  allTimeslots: TimeslotOption[];
+}
