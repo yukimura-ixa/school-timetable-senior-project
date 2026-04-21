@@ -171,6 +171,36 @@ describe("MOVE same-day suggestions", () => {
     expect(targets).not.toContain("1-2567-MON-1"); // origin
   });
 
+  it("includes cross-day MOVE candidates when same-day yields fewer than maxSuggestions", () => {
+    const tightSameDaySlots: TimeslotOption[] = [
+      { timeslotId: "1-2567-MON-1", dayOfWeek: "MON", slotNumber: 1 },
+      { timeslotId: "1-2567-TUE-1", dayOfWeek: "TUE", slotNumber: 1 },
+      { timeslotId: "1-2567-TUE-2", dayOfWeek: "TUE", slotNumber: 2 },
+      { timeslotId: "1-2567-WED-1", dayOfWeek: "WED", slotNumber: 1 },
+    ];
+    const ctx = makeCtx({
+      conflict: {
+        hasConflict: true,
+        conflictType: ConflictType.TEACHER_CONFLICT,
+        message: "Teacher busy",
+      },
+      attempt: makeAttempt({ timeslotId: "1-2567-MON-1" }),
+      responsibilities: [responsibility],
+      allTimeslots: tightSameDaySlots,
+    });
+
+    const result = suggestResolutions(ctx, { maxSuggestions: 3 });
+    const targets = result
+      .filter(
+        (s): s is Extract<ResolutionSuggestion, { kind: "MOVE" }> =>
+          s.kind === "MOVE",
+      )
+      .map((s) => s.targetTimeslotId);
+    expect(targets).toEqual(
+      expect.arrayContaining(["1-2567-TUE-1", "1-2567-WED-1"]),
+    );
+  });
+
   it("ranks nearer periods higher than farther periods on same day", () => {
     const ctx = makeCtx({
       conflict: {

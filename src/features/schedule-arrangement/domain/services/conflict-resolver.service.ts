@@ -109,11 +109,12 @@ export function suggestResolutions(
   if (!ctx.conflict.hasConflict) return [];
   const max = opts.maxSuggestions ?? 3;
 
-  const all: ResolutionSuggestion[] = [
-    ...generateReRoom(ctx),
-    ...generateMoveCandidates(ctx, true),
-  ];
+  const reRoom = generateReRoom(ctx);
+  const moveSameDay = generateMoveCandidates(ctx, true);
+  const needCrossDay = reRoom.length + moveSameDay.length < max;
+  const moveCrossDay = needCrossDay ? generateMoveCandidates(ctx, false) : [];
 
+  const all: ResolutionSuggestion[] = [...reRoom, ...moveSameDay, ...moveCrossDay];
   all.sort((a, b) => b.confidence - a.confidence);
   return all.slice(0, max);
 }
