@@ -125,7 +125,7 @@ export const getClassSchedulesAction = createAction(
  * Get schedule conflicts for a teacher
  * Returns schedules where OTHER teachers are assigned at same time
  */
-export const getConflictsAction = createAction(
+export const getTeacherConflictsAction = createAction(
   getConflictsSchema,
   async (input: GetConflictsInput) => {
     const sem = semester[input.Semester];

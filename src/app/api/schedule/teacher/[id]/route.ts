@@ -3,6 +3,9 @@ import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("TeacherScheduleAPI");
 
 /**
  * GET /api/schedule/teacher/[id]
@@ -100,7 +103,7 @@ export async function GET(
       })),
     });
   } catch (error) {
-    console.error("[API] GET /api/schedule/teacher/[id] error:", error);
+    log.error("GET /api/schedule/teacher/[id] failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

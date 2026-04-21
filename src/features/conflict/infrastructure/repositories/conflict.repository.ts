@@ -149,19 +149,12 @@ export interface ConflictSummary {
 /**
  * Conflict Detection Repository
  *
- * ⚠️ TEMPORARILY DISABLED - Returns empty results until schema migration is complete
+ * Aggregate conflict analysis for dashboard reporting.
+ * For real-time validation during scheduling, see conflict-detector.service.ts.
  */
 export const conflictRepository = {
   /**
    * Find all scheduling conflicts for a given term
-   *
-   * @todo Implement with new schema:
-   * 1. Query: `where: { timeslot: { AcademicYear, Semester } }`
-   * 2. Include: `teachers_responsibility: { include: { teacher: true } }`
-   * 3. Teacher conflicts: Loop through responsibility array
-   * 4. Room conflicts: Handle null rooms, update field names
-   * 5. Class conflicts: Use array access for teachers
-   * 6. Unassigned: Check `teachers_responsibility.length === 0`
    */
   async findAllConflicts(
     academicYear: number,

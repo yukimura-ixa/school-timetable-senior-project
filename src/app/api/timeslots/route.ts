@@ -2,6 +2,9 @@ import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("TimeslotsAPI");
 
 /**
  * GET /api/timeslots
@@ -65,7 +68,7 @@ export async function GET(request: NextRequest) {
       data: timeslotsWithPeriod,
     });
   } catch (error) {
-    console.error("[API] GET /api/timeslots error:", error);
+    log.error("GET /api/timeslots failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
