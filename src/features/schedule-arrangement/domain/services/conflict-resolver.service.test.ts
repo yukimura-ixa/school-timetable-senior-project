@@ -289,3 +289,61 @@ describe("SWAP fallthrough", () => {
     expect(swaps[0]!.counterpartSubjectCode).toBe("ENG101");
   });
 });
+
+describe("ranking and cap", () => {
+  const responsibility: TeacherResponsibility = {
+    respId: 1,
+    teacherId: 1,
+    gradeId: "M1-1",
+    subjectCode: "MATH101",
+    academicYear: 2567,
+    semester: "SEMESTER_1",
+    teachHour: 2,
+  };
+
+  it("respects maxSuggestions cap", () => {
+    const manySlots: TimeslotOption[] = Array.from({ length: 10 }, (_, i) => ({
+      timeslotId: `1-2567-MON-${i + 1}`,
+      dayOfWeek: "MON",
+      slotNumber: i + 1,
+    }));
+    const ctx = makeCtx({
+      conflict: {
+        hasConflict: true,
+        conflictType: ConflictType.TEACHER_CONFLICT,
+        message: "Teacher busy",
+      },
+      attempt: makeAttempt({ timeslotId: "1-2567-MON-1" }),
+      responsibilities: [responsibility],
+      allTimeslots: manySlots,
+    });
+
+    expect(suggestResolutions(ctx, { maxSuggestions: 3 })).toHaveLength(3);
+    expect(suggestResolutions(ctx, { maxSuggestions: 1 })).toHaveLength(1);
+  });
+
+  it("sorts by confidence descending", () => {
+    const slots: TimeslotOption[] = [
+      { timeslotId: "1-2567-MON-1", dayOfWeek: "MON", slotNumber: 1 },
+      { timeslotId: "1-2567-MON-2", dayOfWeek: "MON", slotNumber: 2 },
+      { timeslotId: "1-2567-TUE-5", dayOfWeek: "TUE", slotNumber: 5 },
+    ];
+    const ctx = makeCtx({
+      conflict: {
+        hasConflict: true,
+        conflictType: ConflictType.TEACHER_CONFLICT,
+        message: "Teacher busy",
+      },
+      attempt: makeAttempt({ timeslotId: "1-2567-MON-1" }),
+      responsibilities: [responsibility],
+      allTimeslots: slots,
+    });
+
+    const result = suggestResolutions(ctx, { maxSuggestions: 5 });
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i - 1]!.confidence).toBeGreaterThanOrEqual(
+        result[i]!.confidence,
+      );
+    }
+  });
+});
