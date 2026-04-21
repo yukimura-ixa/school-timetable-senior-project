@@ -493,4 +493,90 @@ export const conflictRepository = {
       return null;
     }
   },
+
+  /**
+   * Load every class_schedule row for a term, projected into the
+   * ExistingSchedule shape used by the domain conflict detector/resolver.
+   * Consumed by conflict-resolution server action.
+   */
+  async findSchedulesForSemester(
+    academicYear: number,
+    semester: "SEMESTER_1" | "SEMESTER_2",
+  ): Promise<
+    Array<{
+      classId: number;
+      timeslotId: string;
+      subjectCode: string;
+      subjectName: string;
+      roomId: number | null;
+      roomName?: string;
+      gradeId: string;
+      isLocked: boolean;
+      teacherId?: number;
+      teacherName?: string;
+    }>
+  > {
+    const rows = await prisma.class_schedule.findMany({
+      where: {
+        timeslot: { AcademicYear: academicYear, Semester: semester },
+      },
+      include: {
+        subject: true,
+        room: true,
+        gradelevel: true,
+        teachers_responsibility: { include: { teacher: true } },
+      },
+    });
+
+    return rows.map((s) => {
+      const resp = s.teachers_responsibility[0];
+      const teacher = resp?.teacher;
+      return {
+        classId: s.ClassID,
+        timeslotId: s.TimeslotID,
+        subjectCode: s.SubjectCode,
+        subjectName: s.subject?.SubjectName ?? "",
+        roomId: s.RoomID ?? null,
+        roomName: s.room?.RoomName,
+        gradeId: s.GradeID,
+        isLocked: s.IsLocked,
+        teacherId: teacher?.TeacherID,
+        teacherName: teacher
+          ? `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`
+          : undefined,
+      };
+    });
+  },
+
+  /**
+   * Load every teachers_responsibility row for a term, projected to the
+   * domain TeacherResponsibility shape used by the resolver.
+   */
+  async findResponsibilitiesForTerm(
+    academicYear: number,
+    semester: "SEMESTER_1" | "SEMESTER_2",
+  ): Promise<
+    Array<{
+      respId: number;
+      teacherId: number;
+      gradeId: string;
+      subjectCode: string;
+      academicYear: number;
+      semester: string;
+      teachHour: number;
+    }>
+  > {
+    const rows = await prisma.teachers_responsibility.findMany({
+      where: { AcademicYear: academicYear, Semester: semester },
+    });
+    return rows.map((r) => ({
+      respId: r.RespID,
+      teacherId: r.TeacherID,
+      gradeId: r.GradeID,
+      subjectCode: r.SubjectCode,
+      academicYear: r.AcademicYear,
+      semester: r.Semester,
+      teachHour: r.TeachHour,
+    }));
+  },
 };
