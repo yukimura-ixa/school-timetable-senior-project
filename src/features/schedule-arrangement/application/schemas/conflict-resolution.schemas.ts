@@ -32,3 +32,35 @@ export const suggestResolutionSchema = v.object({
 export type SuggestResolutionInput = v.InferInput<
   typeof suggestResolutionSchema
 >;
+
+/**
+ * Input for applySwapAction.
+ *
+ * Atomic two-step: move `counterpart` off its current slot to
+ * `counterpart.targetTimeslotId`, then place `attempt` at the freed slot.
+ * Both writes run inside a single Prisma transaction so the arrange grid can
+ * never observe a half-applied swap.
+ */
+export const applySwapSchema = v.object({
+  AcademicYear: v.pipe(
+    v.number(),
+    v.minValue(2500),
+    v.maxValue(3000),
+  ),
+  Semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+  counterpart: v.object({
+    classId: v.pipe(v.number(), v.minValue(1)),
+    targetTimeslotId: v.pipe(v.string(), v.minLength(1)),
+  }),
+  attempt: v.object({
+    timeslotId: v.pipe(v.string(), v.minLength(1)),
+    subjectCode: v.pipe(v.string(), v.minLength(1)),
+    gradeId: v.pipe(v.string(), v.minLength(1)),
+    teacherId: v.pipe(v.number(), v.minValue(1)),
+    roomId: v.pipe(v.number(), v.minValue(1)),
+    academicYear: v.pipe(v.number(), v.minValue(2500), v.maxValue(3000)),
+    semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+  }),
+});
+
+export type ApplySwapInput = v.InferInput<typeof applySwapSchema>;

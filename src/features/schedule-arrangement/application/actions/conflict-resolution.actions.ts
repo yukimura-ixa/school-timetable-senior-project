@@ -9,9 +9,12 @@
 
 import { createAction } from "@/shared/lib/action-wrapper";
 import { createLogger } from "@/lib/logger";
+import prisma from "@/lib/prisma";
 import {
   suggestResolutionSchema,
+  applySwapSchema,
   type SuggestResolutionInput,
+  type ApplySwapInput,
 } from "../schemas/conflict-resolution.schemas";
 import { suggestResolutions } from "@/features/schedule-arrangement/domain/services/conflict-resolver.service";
 import { checkAllConflicts } from "@/features/schedule-arrangement/domain/services/conflict-detector.service";
@@ -25,6 +28,7 @@ import type {
 import { roomRepository } from "@/features/room/infrastructure/repositories/room.repository";
 import { timeslotRepository } from "@/features/timeslot/infrastructure/repositories/timeslot.repository";
 import { conflictRepository } from "@/features/conflict/infrastructure/repositories/conflict.repository";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 const log = createLogger("ConflictResolutionAction");
 
@@ -101,5 +105,152 @@ export const suggestResolutionAction = createAction(
     };
 
     return suggestResolutions(ctx, { maxSuggestions: 3 });
+  },
+);
+
+/**
+ * Atomically apply a SWAP suggestion: move the counterpart schedule off the
+ * contested slot and place the attempt at the freed slot, inside a single
+ * Prisma transaction. Rejects if either placement would produce a new
+ * conflict once the simulated swap is applied.
+ */
+export const applySwapAction = createAction(
+  applySwapSchema,
+  async (input: ApplySwapInput) => {
+    log.debug("applySwap input", {
+      counterpartClassId: input.counterpart.classId,
+      counterpartTo: input.counterpart.targetTimeslotId,
+      attemptAt: input.attempt.timeslotId,
+    });
+
+    const [schedules, responsibilities] = await Promise.all([
+      conflictRepository.findSchedulesForSemester(
+        input.AcademicYear,
+        input.Semester,
+      ),
+      conflictRepository.findResponsibilitiesForTerm(
+        input.AcademicYear,
+        input.Semester,
+      ),
+    ]);
+
+    const counterpart = schedules.find(
+      (s) => s.classId === input.counterpart.classId,
+    );
+    if (!counterpart) {
+      throw new Error(
+        `Counterpart schedule ${input.counterpart.classId} not found`,
+      );
+    }
+    if (counterpart.isLocked) {
+      throw new Error("Counterpart schedule is locked and cannot be swapped");
+    }
+
+    // Simulate: remove counterpart from its origin slot; the resolver
+    // detector sees neither the old counterpart nor the not-yet-created
+    // attempt in the "others" arrays.
+    const othersForCounterpart: ExistingSchedule[] = schedules.filter(
+      (s) => s.classId !== counterpart.classId,
+    );
+
+    const counterpartCheck = checkAllConflicts(
+      {
+        classId: counterpart.classId,
+        timeslotId: input.counterpart.targetTimeslotId,
+        subjectCode: counterpart.subjectCode,
+        roomId: counterpart.roomId,
+        gradeId: counterpart.gradeId,
+        teacherId: counterpart.teacherId,
+        academicYear: input.AcademicYear,
+        semester: input.Semester,
+      },
+      othersForCounterpart,
+      responsibilities,
+    );
+    if (counterpartCheck.hasConflict) {
+      return {
+        applied: false,
+        reason: counterpartCheck.message,
+        failedOn: "counterpart" as const,
+      };
+    }
+
+    // Simulate the counterpart at its new slot for the attempt check.
+    const simulatedCounterpart: ExistingSchedule = {
+      ...counterpart,
+      timeslotId: input.counterpart.targetTimeslotId,
+    };
+    const othersForAttempt: ExistingSchedule[] = [
+      ...othersForCounterpart,
+      simulatedCounterpart,
+    ];
+
+    const attemptCheck = checkAllConflicts(
+      {
+        timeslotId: input.attempt.timeslotId,
+        subjectCode: input.attempt.subjectCode,
+        roomId: input.attempt.roomId,
+        gradeId: input.attempt.gradeId,
+        teacherId: input.attempt.teacherId,
+        academicYear: input.attempt.academicYear,
+        semester: input.attempt.semester,
+      },
+      othersForAttempt,
+      responsibilities,
+    );
+    if (attemptCheck.hasConflict) {
+      return {
+        applied: false,
+        reason: attemptCheck.message,
+        failedOn: "attempt" as const,
+      };
+    }
+
+    const responsibility = responsibilities.find(
+      (r) =>
+        r.teacherId === input.attempt.teacherId &&
+        r.subjectCode === input.attempt.subjectCode &&
+        r.gradeId === input.attempt.gradeId &&
+        r.academicYear === input.attempt.academicYear &&
+        r.semester === input.attempt.semester,
+    );
+    if (!responsibility) {
+      return {
+        applied: false,
+        reason: "ไม่พบรายการสอนของครูสำหรับวิชานี้",
+        failedOn: "attempt" as const,
+      };
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const movedCounterpart = await tx.class_schedule.update({
+        where: { ClassID: counterpart.classId },
+        data: { TimeslotID: input.counterpart.targetTimeslotId },
+      });
+      const createdAttempt = await tx.class_schedule.create({
+        data: {
+          TimeslotID: input.attempt.timeslotId,
+          SubjectCode: input.attempt.subjectCode,
+          GradeID: input.attempt.gradeId,
+          RoomID: input.attempt.roomId,
+          IsLocked: false,
+          teachers_responsibility: {
+            connect: { RespID: responsibility.respId },
+          },
+        },
+      });
+      return {
+        movedCounterpartClassId: movedCounterpart.ClassID,
+        createdAttemptClassId: createdAttempt.ClassID,
+      };
+    });
+
+    await invalidatePublicCache(["stats", "classes"]);
+
+    return {
+      applied: true as const,
+      counterpartClassId: result.movedCounterpartClassId,
+      attemptClassId: result.createdAttemptClassId,
+    };
   },
 );

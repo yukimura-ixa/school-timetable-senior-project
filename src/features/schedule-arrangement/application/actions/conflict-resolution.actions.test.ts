@@ -52,9 +52,31 @@ vi.mock("@/features/conflict/infrastructure/repositories/conflict.repository", (
   },
 }));
 
-import { suggestResolutionAction } from "./conflict-resolution.actions";
+vi.mock("@/lib/cache-invalidation", () => ({
+  invalidatePublicCache: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock("@/lib/prisma", () => ({
+  default: {
+    $transaction: vi.fn(
+      async (cb: (tx: unknown) => Promise<unknown>) =>
+        cb({
+          class_schedule: {
+            update: vi.fn(() => Promise.resolve({ ClassID: 42 })),
+            create: vi.fn(() => Promise.resolve({ ClassID: 999 })),
+          },
+        }),
+    ),
+  },
+}));
+
+import {
+  suggestResolutionAction,
+  applySwapAction,
+} from "./conflict-resolution.actions";
 import { checkAllConflicts } from "@/features/schedule-arrangement/domain/services/conflict-detector.service";
 import { suggestResolutions } from "@/features/schedule-arrangement/domain/services/conflict-resolver.service";
+import { conflictRepository } from "@/features/conflict/infrastructure/repositories/conflict.repository";
 import { auth } from "@/lib/auth";
 
 const mockCheck = checkAllConflicts as ReturnType<typeof vi.fn>;
@@ -138,5 +160,144 @@ describe("suggestResolutionAction", () => {
       expect(result.data).toHaveLength(1);
     }
     expect(mockSuggest).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("applySwapAction", () => {
+  /* eslint-disable @typescript-eslint/unbound-method */
+  const mockFindSchedules =
+    conflictRepository.findSchedulesForSemester as ReturnType<typeof vi.fn>;
+  const mockFindResps =
+    conflictRepository.findResponsibilitiesForTerm as ReturnType<typeof vi.fn>;
+  /* eslint-enable @typescript-eslint/unbound-method */
+
+  const swapInput = {
+    AcademicYear: 2567,
+    Semester: "SEMESTER_1" as const,
+    counterpart: { classId: 42, targetTimeslotId: "1-2567-MON-2" },
+    attempt: {
+      timeslotId: "1-2567-MON-1",
+      subjectCode: "MATH101",
+      gradeId: "M1-1",
+      teacherId: 1,
+      roomId: 10,
+      academicYear: 2567,
+      semester: "SEMESTER_1" as const,
+    },
+  };
+
+  const blocker = {
+    classId: 42,
+    timeslotId: "1-2567-MON-1",
+    subjectCode: "ENG101",
+    subjectName: "English",
+    roomId: 99,
+    roomName: "R-99",
+    gradeId: "M1-2",
+    isLocked: false,
+    teacherId: 1,
+    teacherName: "T-1",
+  };
+
+  const attemptResp = {
+    respId: 1,
+    teacherId: 1,
+    gradeId: "M1-1",
+    subjectCode: "MATH101",
+    academicYear: 2567,
+    semester: "SEMESTER_1",
+    teachHour: 2,
+  };
+  const blockerResp = {
+    respId: 2,
+    teacherId: 1,
+    gradeId: "M1-2",
+    subjectCode: "ENG101",
+    academicYear: 2567,
+    semester: "SEMESTER_1",
+    teachHour: 2,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetSession.mockResolvedValue({
+      user: { id: "u1", email: "a@x", role: "admin" },
+    });
+    mockFindSchedules.mockResolvedValue([blocker]);
+    mockFindResps.mockResolvedValue([attemptResp, blockerResp]);
+  });
+
+  it("rejects when counterpart schedule not found", async () => {
+    mockFindSchedules.mockResolvedValueOnce([]);
+    const result = await applySwapAction(swapInput);
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects when counterpart is locked", async () => {
+    mockFindSchedules.mockResolvedValueOnce([{ ...blocker, isLocked: true }]);
+    const result = await applySwapAction(swapInput);
+    expect(result.success).toBe(false);
+  });
+
+  it("returns applied=false when simulated counterpart move still conflicts", async () => {
+    // First call validates counterpart at new slot → make it conflict.
+    mockCheck.mockReturnValueOnce({
+      hasConflict: true,
+      conflictType: "TEACHER_CONFLICT",
+      message: "Counterpart conflict",
+    });
+    const result = await applySwapAction(swapInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toMatchObject({
+        applied: false,
+        failedOn: "counterpart",
+      });
+    }
+  });
+
+  it("returns applied=false when attempt at freed slot still conflicts", async () => {
+    mockCheck
+      .mockReturnValueOnce({
+        hasConflict: false,
+        conflictType: "NONE",
+        message: "",
+      })
+      .mockReturnValueOnce({
+        hasConflict: true,
+        conflictType: "CLASS_CONFLICT",
+        message: "Attempt conflict",
+      });
+    const result = await applySwapAction(swapInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toMatchObject({
+        applied: false,
+        failedOn: "attempt",
+      });
+    }
+  });
+
+  it("commits both writes in a transaction when checks pass", async () => {
+    mockCheck
+      .mockReturnValueOnce({
+        hasConflict: false,
+        conflictType: "NONE",
+        message: "",
+      })
+      .mockReturnValueOnce({
+        hasConflict: false,
+        conflictType: "NONE",
+        message: "",
+      });
+    const result = await applySwapAction(swapInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toMatchObject({
+        applied: true,
+        counterpartClassId: 42,
+        attemptClassId: 999,
+      });
+    }
   });
 });
