@@ -24,7 +24,7 @@ import { LearningArea, semester } from "@/prisma/generated/client";
 /**
  * Calculate teacher's total workload for a semester
  * @param teacherId - Teacher ID
- * @param semesterValue - Semester (SEMESTER_1, SEMESTER_2, SEMESTER_3)
+ * @param semesterValue - Semester (SEMESTER_1 or SEMESTER_2)
  * @param year - Academic year
  * @returns Teacher workload with hours and status
  */

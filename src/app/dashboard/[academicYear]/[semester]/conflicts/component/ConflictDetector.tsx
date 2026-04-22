@@ -86,10 +86,7 @@ export default function ConflictDetector() {
     async ([, year, sem]) => {
       return await getConflictsAction({
         AcademicYear: year,
-        Semester: `SEMESTER_${sem}` as
-          | "SEMESTER_1"
-          | "SEMESTER_2"
-          | "SEMESTER_3",
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
   );
