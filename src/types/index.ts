@@ -4,7 +4,7 @@
  * Re-exports all type definitions for easy importing throughout the application.
  *
  * Created: Week 8 - Type Safety Improvements
- * Usage: import { ConflictError, LockSchedule, SubjectData } from '@/types'
+ * Usage: import { ConflictError, LockSchedule, SelectOption } from '@/types'
  */
 
 // Error Types
@@ -53,29 +53,7 @@ export type {
 } from "./lock-schedule";
 
 // UI State Types
-export type {
-  SubjectData,
-  TimeslotData,
-  TimeslotWithRelations,
-  TimeSlotGridData,
-  ArrangementUIState,
-  TeacherResponsibilityWithRelations,
-  TeacherResponsibilityFormData,
-  ClassScheduleSummary,
-  TeacherScheduleSummary,
-  TimetableConfig,
-  TimetableConfigFormData,
-  SelectOption,
-  TeacherSelectOption,
-  RoomSelectOption,
-  SubjectSelectOption,
-  DragSourceData,
-  DropTargetData,
-  DragEventData,
-  FilterState,
-  PaginationState,
-  PaginatedResponse,
-} from "./ui-state";
+export type { SelectOption, RoomSelectOption } from "./ui-state";
 
 // Event Handler Types
 export type {
