@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "school_timetable_senior_project",
+  "project_id": "a1b17819-db89-44bc-9b2d-f0e84e9cdca6"
+}

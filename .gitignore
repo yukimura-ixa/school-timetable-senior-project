@@ -120,3 +120,8 @@ tmp/
 !e2e/**/*-snapshots/*.png
 .artifacts/*
 
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
