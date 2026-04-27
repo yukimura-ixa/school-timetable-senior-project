@@ -85,11 +85,14 @@ export const suggestResolutionAction = createAction(
       isBreaktime: t.Breaktime !== "NOT_BREAK",
     }));
 
-    const conflict = checkAllConflicts(
-      { ...input.attempt, roomId: input.attempt.roomId ?? null },
-      existing,
-      resps,
-    );
+    const normalizedAttempt = {
+      ...input.attempt,
+      academicYear: input.AcademicYear,
+      semester: input.Semester,
+      roomId: input.attempt.roomId ?? null,
+    };
+
+    const conflict = checkAllConflicts(normalizedAttempt, existing, resps);
 
     if (!conflict.hasConflict) {
       return [];
@@ -97,7 +100,7 @@ export const suggestResolutionAction = createAction(
 
     const ctx: ResolutionContext = {
       conflict,
-      attempt: { ...input.attempt, roomId: input.attempt.roomId ?? null },
+      attempt: normalizedAttempt,
       existingSchedules: existing,
       responsibilities: resps,
       availableRooms,

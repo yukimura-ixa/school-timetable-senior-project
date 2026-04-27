@@ -167,8 +167,8 @@ export interface ReRoomSuggestion {
 
 export interface SwapSuggestion {
   kind: "SWAP";
-  /** Slot currently occupied by the counterpart (to be swapped into). */
-  counterpartTimeslotId: string;
+  /** Target timeslot the counterpart will be moved to, freeing up the contested slot. */
+  counterpartTargetTimeslotId: string;
   /** ClassID of the schedule that will be displaced by the swap. */
   counterpartClassId: number;
   /** Subject code of the displaced schedule — for UI display. */

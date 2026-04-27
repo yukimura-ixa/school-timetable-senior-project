@@ -285,9 +285,15 @@ export default function GridSlot() {
           academicYear: yearInt,
           semester: semInt === 1 ? "SEMESTER_1" : "SEMESTER_2",
         };
+        const reasonToConflictType: Record<string, ConflictType> = {
+          teacher_conflict: ConflictType.TEACHER_CONFLICT,
+          grade_conflict: ConflictType.CLASS_CONFLICT,
+          break_timeslot: ConflictType.LOCKED_TIMESLOT,
+          locked_timeslot: ConflictType.LOCKED_TIMESLOT,
+        };
         const conflict: ConflictResult = {
           hasConflict: true,
-          conflictType: ConflictType.TEACHER_CONFLICT,
+          conflictType: reasonToConflictType[result.reason] ?? ConflictType.TEACHER_CONFLICT,
           message: result.message || "ไม่สามารถจัดตารางได้",
         };
         setConflictModal({ conflict, attempt });

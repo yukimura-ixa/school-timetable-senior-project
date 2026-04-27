@@ -92,8 +92,6 @@ const validInput = {
     gradeId: "M1-1",
     teacherId: 1,
     roomId: 10,
-    academicYear: 2567,
-    semester: "SEMESTER_1" as const,
   },
 };
 
