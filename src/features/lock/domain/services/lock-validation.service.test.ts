@@ -116,11 +116,11 @@ describe("lock-validation.service", () => {
       const result = groupSchedulesBySubject([schedule]);
 
       expect(result).toHaveLength(1);
-      expect(result[0].SubjectCode).toBe("MATH101");
-      expect(result[0].SubjectName).toBe("คณิตศาสตร์");
-      expect(result[0].GradeIDs).toEqual(["M1-1"]);
-      expect(result[0].ClassIDs).toEqual([1]);
-      expect(result[0].timeslots).toHaveLength(1);
+      expect(result[0]!.SubjectCode).toBe("MATH101");
+      expect(result[0]!.SubjectName).toBe("คณิตศาสตร์");
+      expect(result[0]!.GradeIDs).toEqual(["M1-1"]);
+      expect(result[0]!.ClassIDs).toEqual([1]);
+      expect(result[0]!.timeslots).toHaveLength(1);
     });
 
     it("groups schedules with same SubjectCode together", () => {
@@ -131,8 +131,8 @@ describe("lock-validation.service", () => {
       const result = groupSchedulesBySubject(schedules);
 
       expect(result).toHaveLength(1);
-      expect(result[0].GradeIDs).toEqual(["M1-1", "M1-2"]);
-      expect(result[0].ClassIDs).toEqual([1, 2]);
+      expect(result[0]!.GradeIDs).toEqual(["M1-1", "M1-2"]);
+      expect(result[0]!.ClassIDs).toEqual([1, 2]);
     });
 
     it("separates schedules with different SubjectCodes", () => {
@@ -174,7 +174,7 @@ describe("lock-validation.service", () => {
       ];
       const result = groupSchedulesBySubject(schedules);
 
-      expect(result[0].GradeIDs).toEqual(["M1-1"]);
+      expect(result[0]!.GradeIDs).toEqual(["M1-1"]);
     });
 
     it("deduplicates timeslots within a group", () => {
@@ -184,7 +184,7 @@ describe("lock-validation.service", () => {
       ];
       const result = groupSchedulesBySubject(schedules);
 
-      expect(result[0].timeslots).toHaveLength(1);
+      expect(result[0]!.timeslots).toHaveLength(1);
     });
 
     it("collects all ClassIDs without deduplication", () => {
@@ -195,15 +195,15 @@ describe("lock-validation.service", () => {
       ];
       const result = groupSchedulesBySubject(schedules);
 
-      expect(result[0].ClassIDs).toEqual([10, 20, 30]);
+      expect(result[0]!.ClassIDs).toEqual([10, 20, 30]);
     });
 
     it("handles null subject gracefully", () => {
       const schedule = makeSchedule({ subject: null });
       const result = groupSchedulesBySubject([schedule]);
 
-      expect(result[0].SubjectName).toBeNull();
-      expect(result[0].teachers).toEqual([]);
+      expect(result[0]!.SubjectName).toBeNull();
+      expect(result[0]!.teachers).toEqual([]);
     });
   });
 });

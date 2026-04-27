@@ -98,8 +98,8 @@ describe("Lock Actions", () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(1);
-      expect(result.data![0].SubjectCode).toBe("MATH101");
-      expect(result.data![0].GradeIDs).toEqual(["M1-1", "M1-2"]);
+      expect(result.data![0]!.SubjectCode).toBe("MATH101");
+      expect(result.data![0]!.GradeIDs).toEqual(["M1-1", "M1-2"]);
     });
 
     it("returns empty array when no locked schedules", async () => {
