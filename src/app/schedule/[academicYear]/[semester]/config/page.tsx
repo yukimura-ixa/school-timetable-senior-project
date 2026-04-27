@@ -1,6 +1,8 @@
 "use client";
 import CheckIcon from "@mui/icons-material/Check";
 import ReplayIcon from "@mui/icons-material/Replay";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Box } from "@mui/material";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -18,11 +20,12 @@ import {
   createConfigAction,
 } from "@/features/config/application/actions/config.actions";
 import useSWR from "swr";
-import DeleteIcon from "@mui/icons-material/Delete";
 import Loading from "@/app/loading";
 import {
   PageLoadingSkeleton,
 } from "@/components/feedback";
+import { PublishReadinessCard } from "@/features/config/presentation/components/PublishReadinessCard";
+import { ConfigStatusBadge } from "@/app/schedule/[academicYear]/[semester]/config/_components/ConfigStatusBadge";
 
 function TimetableConfigValue() {
   const params = useParams();
@@ -64,6 +67,7 @@ function TimetableConfigValue() {
     AcademicYear: number;
     Semester: string;
     Config: unknown;
+    status: "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
   } | null;
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
   const tableConfig = useSWR(
@@ -297,6 +301,9 @@ function TimetableConfigValue() {
     return <PageLoadingSkeleton />;
   }
 
+  const configId = `${semester}-${academicYear}`;
+  const configStatus = tableConfig.data?.status ?? "DRAFT";
+
   return (
     <>
       {isCopying ? <Loading /> : null}
@@ -305,6 +312,23 @@ function TimetableConfigValue() {
           โหลดข้อมูลตั้งค่าตารางไม่สำเร็จ แสดงค่าเริ่มต้นให้ก่อน
         </div>
       ) : null}
+      {/* Status badge always shown; readiness card only for DRAFT */}
+      <Box sx={{ mx: 1.5, mb: 2 }}>
+        <ConfigStatusBadge
+          configId={configId}
+          currentStatus={configStatus}
+          completeness={0}
+          onStatusChange={() => tableConfig.mutate()}
+        />
+        {configStatus === "DRAFT" && (
+          <Box sx={{ mt: 1.5 }}>
+            <PublishReadinessCard
+              configId={configId}
+              onStatusChange={() => tableConfig.mutate()}
+            />
+          </Box>
+        )}
+      </Box>
       {isActiveModal && hasTerm ? (
         <ConfirmDeleteModal
           closeModal={() => setIsActiveModal(false)}
