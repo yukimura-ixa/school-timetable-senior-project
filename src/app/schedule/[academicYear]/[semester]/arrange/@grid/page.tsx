@@ -352,19 +352,14 @@ export default function GridSlot() {
     if (!conflictModal || !teacher) return;
     const { attempt, respId } = conflictModal;
 
-    // Responsibility ID must flow to /room-select so the created class
-    // schedule is linked to a teachers_responsibility row. Missing resp
-    // silently creates orphaned schedules that disappear from teacher views.
-    const respEntry = respId ? { resp: String(respId) } : {};
-
     if (s.kind === "MOVE") {
       const q = new URLSearchParams({
         timeslot: s.targetTimeslotId,
         subject: attempt.subjectCode,
         grade: attempt.gradeId,
         teacher,
-        ...respEntry,
-      });
+        ...(respId ? { resp: String(respId) } : {}),
+      } as Record<string, string>);
       router.push(
         `/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`,
       );
@@ -379,8 +374,8 @@ export default function GridSlot() {
         grade: attempt.gradeId,
         teacher,
         room: String(s.targetRoomId),
-        ...respEntry,
-      });
+        ...(respId ? { resp: String(respId) } : {}),
+      } as Record<string, string>);
       router.push(
         `/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`,
       );
