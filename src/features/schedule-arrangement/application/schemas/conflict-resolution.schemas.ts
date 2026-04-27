@@ -23,8 +23,7 @@ export const suggestResolutionSchema = v.object({
     roomId: v.optional(
       v.union([v.pipe(v.number(), v.minValue(1)), v.null()]),
     ),
-    academicYear: v.pipe(v.number(), v.minValue(2500), v.maxValue(3000)),
-    semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+    // Omit academicYear/semester from attempt — action normalizes from top-level
     classId: v.optional(v.pipe(v.number(), v.minValue(1))),
   }),
 });

@@ -137,7 +137,7 @@ function generateSwap(
 
       out.push({
         kind: "SWAP",
-        counterpartTimeslotId: targetSlotId,
+        counterpartTargetTimeslotId: targetSlotId,
         counterpartClassId: blocker.classId,
         counterpartSubjectCode: blocker.subjectCode,
         rationale: `สลับกับ ${blocker.subjectCode}`,
