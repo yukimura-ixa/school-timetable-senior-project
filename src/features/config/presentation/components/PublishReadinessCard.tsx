@@ -113,7 +113,6 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
                 size="small"
                 startIcon={<RefreshIcon />}
                 onClick={fetchReadiness}
-                disabled={isPending}
               >
                 ลองใหม่
               </Button>
