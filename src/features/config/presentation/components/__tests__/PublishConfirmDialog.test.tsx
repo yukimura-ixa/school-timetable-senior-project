@@ -75,8 +75,7 @@ describe("PublishConfirmDialog", () => {
         onStatusChange={vi.fn()}
       />,
     );
-    const btn = screen.getByTestId("force-publish-btn") as HTMLButtonElement;
-    expect(btn.disabled).toBe(true);
+    expect(screen.getByTestId("force-publish-btn")).toBeDisabled();
   });
 
   it("disables force-publish button when reason is under 10 chars", () => {
@@ -91,8 +90,7 @@ describe("PublishConfirmDialog", () => {
     );
     const input = screen.getByTestId("override-reason-input").querySelector("input")!;
     fireEvent.change(input, { target: { value: "short" } });
-    const btn = screen.getByTestId("force-publish-btn") as HTMLButtonElement;
-    expect(btn.disabled).toBe(true);
+    expect(screen.getByTestId("force-publish-btn")).toBeDisabled();
   });
 
   it("enables force-publish button when reason >= 10 chars", () => {
@@ -107,8 +105,7 @@ describe("PublishConfirmDialog", () => {
     );
     const input = screen.getByTestId("override-reason-input").querySelector("input")!;
     fireEvent.change(input, { target: { value: "เหตุผลที่ยาวพอ123" } });
-    const btn = screen.getByTestId("force-publish-btn") as HTMLButtonElement;
-    expect(btn.disabled).toBe(false);
+    expect(screen.getByTestId("force-publish-btn")).toBeEnabled();
   });
 
   it("calls updateConfigStatusAction with force:true on force publish", async () => {
