@@ -162,3 +162,13 @@ export const getConfigWithCompletenessAction = createAction(
     return configWithCounts;
   },
 );
+
+/**
+ * Get publish readiness result for a config (client-callable)
+ */
+export const getPublishReadinessAction = createAction(
+  v.object({ configId: v.string() }),
+  async ({ configId }: { configId: string }) => {
+    return getPublishReadiness(configId);
+  },
+);
