@@ -181,6 +181,7 @@ export default function GridSlot() {
   const [conflictModal, setConflictModal] = useState<{
     conflict: ConflictResult;
     attempt: ScheduleArrangementInput;
+    respId?: number;
   } | null>(null);
   const {
     suggestions,
@@ -290,7 +291,7 @@ export default function GridSlot() {
           conflictType: ConflictType.TEACHER_CONFLICT,
           message: result.message || "ไม่สามารถจัดตารางได้",
         };
-        setConflictModal({ conflict, attempt });
+        setConflictModal({ conflict, attempt, respId: subjectData.RespID });
         void fetchFor(attempt);
         return;
       }
@@ -343,7 +344,12 @@ export default function GridSlot() {
 
   const handleApplySuggestion = (s: ResolutionSuggestion) => {
     if (!conflictModal || !teacher) return;
-    const { attempt } = conflictModal;
+    const { attempt, respId } = conflictModal;
+
+    // Responsibility ID must flow to /room-select so the created class
+    // schedule is linked to a teachers_responsibility row. Missing resp
+    // silently creates orphaned schedules that disappear from teacher views.
+    const respEntry = respId ? { resp: String(respId) } : {};
 
     if (s.kind === "MOVE") {
       const q = new URLSearchParams({
@@ -351,6 +357,7 @@ export default function GridSlot() {
         subject: attempt.subjectCode,
         grade: attempt.gradeId,
         teacher,
+        ...respEntry,
       });
       router.push(
         `/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`,
@@ -366,6 +373,7 @@ export default function GridSlot() {
         grade: attempt.gradeId,
         teacher,
         room: String(s.targetRoomId),
+        ...respEntry,
       });
       router.push(
         `/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`,

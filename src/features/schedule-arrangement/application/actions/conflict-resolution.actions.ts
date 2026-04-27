@@ -123,7 +123,7 @@ export const applySwapAction = createAction(
       attemptAt: input.attempt.timeslotId,
     });
 
-    const [schedules, responsibilities] = await Promise.all([
+    const [schedules, responsibilities, timeslots] = await Promise.all([
       conflictRepository.findSchedulesForSemester(
         input.AcademicYear,
         input.Semester,
@@ -132,7 +132,23 @@ export const applySwapAction = createAction(
         input.AcademicYear,
         input.Semester,
       ),
+      timeslotRepository.findByTerm(input.AcademicYear, input.Semester),
     ]);
+
+    // Reject any timeslot ID that does not belong to the target term.
+    // Without this check a caller could move a counterpart into a timeslot
+    // from another term, sidestepping conflict detection entirely.
+    const termTimeslotIds = new Set(timeslots.map((t) => t.TimeslotID));
+    const requiredTimeslots = [
+      input.counterpart.targetTimeslotId,
+      input.attempt.timeslotId,
+    ];
+    const outOfTerm = requiredTimeslots.find((id) => !termTimeslotIds.has(id));
+    if (outOfTerm) {
+      throw new Error(
+        `Timeslot ${outOfTerm} does not belong to ${input.Semester} ${input.AcademicYear}`,
+      );
+    }
 
     const counterpart = schedules.find(
       (s) => s.classId === input.counterpart.classId,
