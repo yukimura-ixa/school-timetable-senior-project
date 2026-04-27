@@ -37,10 +37,14 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
   const fetchReadiness = useCallback(() => {
     setFetchError(false);
     startTransition(async () => {
-      const result = await getPublishReadinessAction({ configId });
-      if (result.success && result.data) {
-        setReadiness(result.data);
-      } else {
+      try {
+        const result = await getPublishReadinessAction({ configId });
+        if (result.success && result.data) {
+          setReadiness(result.data);
+        } else {
+          setFetchError(true);
+        }
+      } catch {
         setFetchError(true);
       }
     });
@@ -109,6 +113,7 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
                 size="small"
                 startIcon={<RefreshIcon />}
                 onClick={fetchReadiness}
+                disabled={isPending}
               >
                 ลองใหม่
               </Button>
