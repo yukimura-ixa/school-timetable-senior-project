@@ -77,6 +77,7 @@ import {
 import { checkAllConflicts } from "@/features/schedule-arrangement/domain/services/conflict-detector.service";
 import { suggestResolutions } from "@/features/schedule-arrangement/domain/services/conflict-resolver.service";
 import { conflictRepository } from "@/features/conflict/infrastructure/repositories/conflict.repository";
+import { timeslotRepository } from "@/features/timeslot/infrastructure/repositories/timeslot.repository";
 import { auth } from "@/lib/auth";
 
 const mockCheck = checkAllConflicts as ReturnType<typeof vi.fn>;
@@ -167,6 +168,9 @@ describe("applySwapAction", () => {
     conflictRepository.findSchedulesForSemester as ReturnType<typeof vi.fn>;
   const mockFindResps =
     conflictRepository.findResponsibilitiesForTerm as ReturnType<typeof vi.fn>;
+  const mockFindByTerm = timeslotRepository.findByTerm as ReturnType<
+    typeof vi.fn
+  >;
   /* eslint-enable @typescript-eslint/unbound-method */
 
   const swapInput = {
@@ -223,6 +227,19 @@ describe("applySwapAction", () => {
     });
     mockFindSchedules.mockResolvedValue([blocker]);
     mockFindResps.mockResolvedValue([attemptResp, blockerResp]);
+    mockFindByTerm.mockResolvedValue([
+      { TimeslotID: "1-2567-MON-1" },
+      { TimeslotID: "1-2567-MON-2" },
+    ]);
+  });
+
+  it("rejects when a provided timeslot does not belong to the term", async () => {
+    mockFindByTerm.mockResolvedValueOnce([
+      { TimeslotID: "1-2567-MON-1" },
+      // MON-2 missing from term
+    ]);
+    const result = await applySwapAction(swapInput);
+    expect(result.success).toBe(false);
   });
 
   it("rejects when counterpart schedule not found", async () => {
