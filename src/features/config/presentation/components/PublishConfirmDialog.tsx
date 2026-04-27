@@ -48,21 +48,25 @@ export function PublishConfirmDialog({
 
   const handlePublish = (force = false) => {
     startTransition(async () => {
-      const result = await updateConfigStatusAction({
-        configId,
-        status: "PUBLISHED",
-        ...(force ? { force: true, reason: overrideReason.trim() } : {}),
-      });
-
-      if (result.success) {
-        enqueueSnackbar("เผยแพร่ตารางสำเร็จ", { variant: "success" });
-        onStatusChange?.();
-        router.refresh();
-        handleClose();
-      } else {
-        enqueueSnackbar(result.error?.message ?? "เกิดข้อผิดพลาด", {
-          variant: "error",
+      try {
+        const result = await updateConfigStatusAction({
+          configId,
+          status: "PUBLISHED",
+          ...(force ? { force: true, reason: overrideReason.trim() } : {}),
         });
+
+        if (result.success) {
+          enqueueSnackbar("เผยแพร่ตารางสำเร็จ", { variant: "success" });
+          onStatusChange?.();
+          router.refresh();
+          handleClose();
+        } else {
+          enqueueSnackbar(result.error?.message ?? "เกิดข้อผิดพลาด", {
+            variant: "error",
+          });
+        }
+      } catch {
+        enqueueSnackbar("เกิดข้อผิดพลาดในการเผยแพร่", { variant: "error" });
       }
     });
   };
