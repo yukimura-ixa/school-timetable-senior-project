@@ -339,32 +339,23 @@ export const getGradesWithScheduleCounts = cache(
  */
 export const getSubjectDistribution = cache(
   async function getSubjectDistribution(academicYear: number, sem: semester) {
-    type ScheduleGroup = {
-      SubjectCode: string;
+    const schedules = await prisma.class_schedule.groupBy({
+      by: ["SubjectCode"],
+      where: {
+        timeslot: {
+          AcademicYear: academicYear,
+          Semester: sem,
+        },
+      },
       _count: {
-        ClassID: number;
-      };
-    };
-
-    const schedules =
-      (await // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma groupBy not typed on delegate
-      (prisma.class_schedule as any).groupBy({
-        by: ["SubjectCode"],
-        where: {
-          timeslot: {
-            AcademicYear: academicYear,
-            Semester: sem,
-          },
-        },
+        ClassID: true,
+      },
+      orderBy: {
         _count: {
-          ClassID: true,
+          ClassID: "desc",
         },
-        orderBy: {
-          _count: {
-            ClassID: "desc",
-          },
-        },
-      })) as ScheduleGroup[];
+      },
+    });
 
     // Enrich with subject details
     const subjectCodes = schedules.map((s) => s.SubjectCode);
