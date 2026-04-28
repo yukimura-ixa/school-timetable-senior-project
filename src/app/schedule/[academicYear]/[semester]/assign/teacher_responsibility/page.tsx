@@ -64,42 +64,17 @@ interface PageState {
   Subjects: AssignmentWithRelations[];
 }
 
-function ClassroomResponsibility() {
+export default function ClassroomResponsibilityPage() {
   const params = useParams();
-  const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
   const router = useRouter();
+  const searchTeacherID = useSearchParams().get("TeacherID");
 
-  // Use useSemesterSync to extract and sync semester with global store
-  // Extract academicYear and semester from route params
   const academicYear = params.academicYear
     ? parseInt(params.academicYear as string, 10)
     : null;
   const semester = params.semester
     ? parseInt(params.semester as string, 10)
     : null;
-
-  const searchTeacherID = useSearchParams().get("TeacherID");
-
-  // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
-  const [data, setData] = useState<PageState>({
-    Teacher: {
-      //ข้อมูลเปล่า เอาไว้กันแตก
-      TeacherID: null,
-      Prefix: "",
-      Firstname: "",
-      Lastname: "",
-      Department: "",
-    },
-    Grade: [
-      { Year: 1, ClassRooms: [] }, //ClassRooms : [{RespID: 1,GradeID:'101', Subjects:[]}]
-      { Year: 2, ClassRooms: [] },
-      { Year: 3, ClassRooms: [] },
-      { Year: 4, ClassRooms: [] },
-      { Year: 5, ClassRooms: [] },
-      { Year: 6, ClassRooms: [] },
-    ],
-    Subjects: [],
-  });
 
   if (!searchTeacherID) {
     return (
@@ -109,17 +84,59 @@ function ClassroomResponsibility() {
           เลือกครูจากหน้ามอบหมายวิชาเรียนเพื่อดูชั้นเรียนที่รับผิดชอบ
         </p>
         <div className="mt-4">
-            <MiniButton
-              title="ย้อนกลับ"
-              border
-              handleClick={() =>
-                router.replace(`/schedule/${academicYear}/${semester}/assign`)
-              }
-            />
+          <MiniButton
+            title="ย้อนกลับ"
+            border
+            handleClick={() =>
+              router.replace(`/schedule/${academicYear}/${semester}/assign`)
+            }
+          />
         </div>
       </div>
     );
   }
+
+  return (
+    <ClassroomResponsibility
+      searchTeacherID={searchTeacherID}
+      academicYear={academicYear}
+      semester={semester}
+    />
+  );
+}
+
+interface ClassroomResponsibilityProps {
+  searchTeacherID: string;
+  academicYear: number | null;
+  semester: number | null;
+}
+
+function ClassroomResponsibility({
+  searchTeacherID,
+  academicYear,
+  semester,
+}: ClassroomResponsibilityProps) {
+  const router = useRouter();
+  const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
+
+  const [data, setData] = useState<PageState>({
+    Teacher: {
+      TeacherID: null,
+      Prefix: "",
+      Firstname: "",
+      Lastname: "",
+      Department: "",
+    },
+    Grade: [
+      { Year: 1, ClassRooms: [] },
+      { Year: 2, ClassRooms: [] },
+      { Year: 3, ClassRooms: [] },
+      { Year: 4, ClassRooms: [] },
+      { Year: 5, ClassRooms: [] },
+      { Year: 6, ClassRooms: [] },
+    ],
+    Subjects: [],
+  });
 
   // Fetch teacher responsibilities using Server Action
   const responsibilityData = useSWR<AssignmentWithRelations[] | null>(
@@ -630,4 +647,3 @@ function ClassroomResponsibility() {
   );
 }
 
-export default ClassroomResponsibility;
