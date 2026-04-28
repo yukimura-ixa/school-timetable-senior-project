@@ -56,10 +56,10 @@ function MiniButton({
           backgroundColor: buttonRGBString,
         }}
         onMouseEnter={() => {
-          hoverable ? setIsHover(true) : null;
+          if (hoverable) setIsHover(true);
         }}
         onMouseLeave={() => {
-          hoverable ? setIsHover(false) : null;
+          if (hoverable) setIsHover(false);
         }}
       >
         <p className="text-sm" style={{ color: titleRGBString }}>

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { PublishConfirmDialog } from "../PublishConfirmDialog";
 import type { PublishReadinessResult } from "@/features/config/domain/types/publish-readiness-types";
 

@@ -62,9 +62,8 @@ export function useRoomAvailability({
     }
   };
 
-  useEffect(() => {
-    void fetchLocked();
-  }, [academicYear, semester, enabled]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { void fetchLocked(); }, [academicYear, semester, enabled]);
 
   const availabilityMap = useMemo(
     () => computeAvailability(lockedSchedules, selectedTimeslots),

@@ -75,6 +75,7 @@ function ConfigureTimeslotsContent({
     setLoading(true);
     try {
       if (mode === "edit") {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { AcademicYear: _ay, Semester: _sem, ...configData } = timeslotConfig;
         const result = await updateConfigWithTimeslotsAction({
           ConfigID: configId,

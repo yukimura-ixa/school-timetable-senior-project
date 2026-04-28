@@ -211,19 +211,14 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     });
   };
 
-  useEffect(() => {
-    const validate = () => {
-      validateData();
-    };
-    return validate();
-  }, [
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { validateData(); }, [
     lockScheduleData.SubjectName,
     lockScheduleData.SubjectCode,
     lockScheduleData.DayOfWeek,
     lockScheduleData.timeslots,
     lockScheduleData.teachers,
     lockScheduleData.GradeIDs,
-    // lockScheduleData.room,
   ]);
 
   useEffect(() => {

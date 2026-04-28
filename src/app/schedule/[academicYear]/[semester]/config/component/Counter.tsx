@@ -3,7 +3,7 @@ import { IoMdRemove, IoMdAdd } from "react-icons/io";
 type Props = {
   classifier: string;
   currentValue: number;
-  onChange: Function;
+  onChange: (value: number) => void;
   isDisabled: boolean;
 };
 

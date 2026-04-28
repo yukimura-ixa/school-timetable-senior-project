@@ -328,7 +328,7 @@ function ClassroomResponsibility({
     // {RespID: 2, TeacherID: 1, GradeID: '101', SubjectCode: 'I20102', AcademicYear: 2566, …}
     return data.Subjects.filter((item) => item.GradeID === GradeID);
   };
-  const [_validateStatus, setValidateStatus] = useState<boolean>(false); //พอเรียก func validate ข้อมูลแล้ว ถ้าผ่านจะทำการเปลี่ยน state
+  const [, setValidateStatus] = useState<boolean>(false);
   const validateEmptySubjects = (GradeID: string): boolean => {
     const mapGradeID = data.Subjects.map((item) => item.GradeID);
     const removeDulpicateGradeID = mapGradeID.filter(
@@ -382,7 +382,7 @@ function ClassroomResponsibility({
     if (!data.TeacherID) return;
     setIsApiLoading(true);
     try {
-      const _result = await syncAssignmentsAction({
+      await syncAssignmentsAction({
         TeacherID: data.TeacherID,
         Resp: data.Resp,
         AcademicYear: data.AcademicYear,
@@ -520,12 +520,12 @@ function ClassroomResponsibility({
                           isSelected={false}
                           hoverable={true}
                           handleClick={() => {
-                            (setAddSubjectModalActive(true),
-                              setClassRoomForAddSubj(() => ({
-                                Year: grade.Year,
-                                GradeID: room.GradeID,
-                                Number: parseInt(room.GradeID.substring(2)),
-                              })));
+                            setAddSubjectModalActive(true);
+                            setClassRoomForAddSubj(() => ({
+                              Year: grade.Year,
+                              GradeID: room.GradeID,
+                              Number: parseInt(room.GradeID.substring(2)),
+                            }));
                             // setCurrentSubject(room.Subjects);
                             setCurrentSubject(
                               getSubjectDataByGradeID(room.GradeID),
@@ -564,12 +564,12 @@ function ClassroomResponsibility({
                           isSelected={false}
                           hoverable={true}
                           handleClick={() => {
-                            (setAddSubjectModalActive(true),
-                              setClassRoomForAddSubj(() => ({
-                                Year: grade.Year,
-                                GradeID: room.GradeID,
-                                Number: parseInt(room.GradeID.substring(2)),
-                              })));
+                            setAddSubjectModalActive(true);
+                            setClassRoomForAddSubj(() => ({
+                              Year: grade.Year,
+                              GradeID: room.GradeID,
+                              Number: parseInt(room.GradeID.substring(2)),
+                            }));
                             setCurrentSubject(
                               getSubjectDataByGradeID(room.GradeID),
                             );

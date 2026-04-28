@@ -57,9 +57,8 @@ function CloneTimetableDataModal({
 
   const currentTime = semester + "/" + academicYear;
 
-  useEffect(() => {
-    validateData();
-  }, [cloneList]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { validateData(); }, [cloneList]);
 
   const tableConfig = useSWR("all-configs", async () => {
     try {

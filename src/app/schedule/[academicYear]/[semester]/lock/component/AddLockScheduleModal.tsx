@@ -84,12 +84,8 @@ function AddLockScheduleModal({
       ClassRooms: lockScheduleData.Grade.length === 0,
     }));
   };
-  useEffect(() => {
-    const validate = () => {
-      validateData();
-    };
-    return validate();
-  }, [
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { validateData(); }, [
     lockScheduleData.Subject,
     lockScheduleData.DayOfWeek,
     lockScheduleData.timeSlotID,

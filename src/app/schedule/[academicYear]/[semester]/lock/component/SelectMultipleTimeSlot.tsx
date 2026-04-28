@@ -1,7 +1,7 @@
 import { useTimeslots } from "@/hooks";
 import { subjectCreditValues } from "@/models/credit-value";
 import { useParams } from "next/navigation";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useMemo } from "react";
 import { BsInfo } from "react-icons/bs";
 
 import type { subject } from "@/prisma/generated/client";
@@ -27,16 +27,12 @@ function SelectMultipleTimeSlot(props: Props) {
     academicYear ?? 0,
     semester ?? 0,
   );
-  const [timeSlot, setTimeSlot] = useState<string[]>([]);
-  useEffect(() => {
-    if (!timeSlotData.isLoading) {
-      setTimeSlot(() =>
-        timeSlotData.data
-          .filter((item) => item.DayOfWeek === props.daySelected)
-          .map((item) => item.TimeslotID),
-      );
-    }
-  }, [timeSlotData.isLoading, props.daySelected]);
+  const timeSlot = useMemo(() => {
+    if (timeSlotData.isLoading) return [];
+    return timeSlotData.data
+      .filter((item) => item.DayOfWeek === props.daySelected)
+      .map((item) => item.TimeslotID);
+  }, [timeSlotData.isLoading, timeSlotData.data, props.daySelected]);
 
   const checkTimeslotCond = (index: number) => {
     if (!props.subject?.Credit) return false;

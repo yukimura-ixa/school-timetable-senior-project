@@ -24,7 +24,6 @@ import {
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
-import EmailIcon from "@mui/icons-material/Email";
 import SaveIcon from "@mui/icons-material/Save";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -438,113 +437,6 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
               disabled={saving || !canSubmit}
             >
               {saving ? "กำลังเปลี่ยน..." : "เปลี่ยนรหัสผ่าน"}
-            </Button>
-          </Box>
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ============================================================================
-// Email Section
-// ============================================================================
-
-interface EmailSectionProps {
-  currentEmail: string;
-  onSuccess: (msg: string) => void;
-  onError: (msg: string) => void;
-}
-
-function EmailSection({ currentEmail, onSuccess, onError }: EmailSectionProps) {
-  const [newEmail, setNewEmail] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const handleChangeEmail = async () => {
-    if (!newEmail) {
-      onError("กรุณากรอกอีเมลใหม่");
-      return;
-    }
-    if (!newEmail.includes("@")) {
-      onError("รูปแบบอีเมลไม่ถูกต้อง");
-      return;
-    }
-    if (newEmail === currentEmail) {
-      onError("อีเมลใหม่ต้องไม่เหมือนกับอีเมลปัจจุบัน");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const result = await authClient.changeEmail({
-        newEmail,
-        callbackURL: "/dashboard/profile",
-      });
-
-      if (result.error) {
-        onError(result.error.message || "ไม่สามารถเปลี่ยนอีเมลได้");
-      } else {
-        onSuccess("ส่งลิงก์ยืนยันไปยังอีเมลใหม่แล้ว กรุณาตรวจสอบอีเมลของคุณ");
-        setNewEmail("");
-      }
-    } catch {
-      onError("เกิดข้อผิดพลาดในการเปลี่ยนอีเมล");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Card>
-      <CardHeader
-        avatar={<EmailIcon color="info" />}
-        title={
-          <Typography variant="h6" fontWeight={600}>
-            เปลี่ยนอีเมล
-          </Typography>
-        }
-        subheader="จะส่งลิงก์ยืนยันไปยังอีเมลใหม่"
-      />
-      <Divider />
-      <CardContent>
-        <Stack spacing={3}>
-          <TextField
-            label="อีเมลปัจจุบัน"
-            value={currentEmail}
-            fullWidth
-            disabled
-            InputProps={{
-              readOnly: true,
-            }}
-          />
-          <TextField
-            label="อีเมลใหม่"
-            type="email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            fullWidth
-            placeholder="example@email.com"
-            helperText="ระบบจะส่งลิงก์ยืนยันไปยังอีเมลใหม่นี้"
-          />
-          <Alert severity="info" variant="outlined">
-            การเปลี่ยนอีเมลจะต้องยืนยันผ่านลิงก์ที่ส่งไปยังอีเมลใหม่
-            อีเมลจะเปลี่ยนหลังจากยืนยันสำเร็จเท่านั้น
-          </Alert>
-          <Box display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              color="info"
-              startIcon={
-                saving ? (
-                  <CircularProgress size={20} aria-label="กำลังเปลี่ยนอีเมล" />
-                ) : (
-                  <EmailIcon />
-                )
-              }
-              onClick={handleChangeEmail}
-              disabled={saving || !newEmail}
-            >
-              {saving ? "กำลังส่ง..." : "ส่งลิงก์ยืนยัน"}
             </Button>
           </Box>
         </Stack>

@@ -61,6 +61,14 @@ interface BulkLockModalProps {
   onSuccess: () => void;
 }
 
+const DAY_NAMES: Record<string, string> = {
+  MON: "จันทร์",
+  TUE: "อังคาร",
+  WED: "พุธ",
+  THU: "พฤหัสบดี",
+  FRI: "ศุกร์",
+};
+
 export default function BulkLockModal({
   open,
   onClose,
@@ -72,10 +80,10 @@ export default function BulkLockModal({
   onSuccess,
 }: BulkLockModalProps) {
   // Use props if provided, otherwise empty arrays (component can be extended to fetch data)
-  const timeslots = propTimeslots || [];
-  const grades = propGrades || [];
-  const subjects = propSubjects || [];
-  const rooms = propRooms || [];
+  const timeslots = useMemo(() => propTimeslots ?? [], [propTimeslots]);
+  const grades = useMemo(() => propGrades ?? [], [propGrades]);
+  const subjects = useMemo(() => propSubjects ?? [], [propSubjects]);
+  const rooms = useMemo(() => propRooms ?? [], [propRooms]);
   const [selectedTimeslots, setSelectedTimeslots] = useState<Set<string>>(
     new Set(),
   );
@@ -120,13 +128,6 @@ export default function BulkLockModal({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const DAY_NAMES: Record<string, string> = {
-    MON: "จันทร์",
-    TUE: "อังคาร",
-    WED: "พุธ",
-    THU: "พฤหัสบดี",
-    FRI: "ศุกร์",
-  };
 
   const handleTimeslotToggle = (timeslotId: string) => {
     setSelectedTimeslots((prev) => {
@@ -206,7 +207,6 @@ export default function BulkLockModal({
     grades,
     subjects,
     rooms,
-    DAY_NAMES,
   ]);
 
   const handleSubmit = async () => {
