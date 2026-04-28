@@ -1,7 +1,7 @@
 import { subject_credit } from "@/models/credit-value";
 
 type SubjectCreditWithTitles = {
-  [subject_credit: string]: string;
+  [key in subject_credit]: string;
 };
 
 export const subjectCreditTitles: SubjectCreditWithTitles = {
