@@ -126,3 +126,4 @@ tmp/
 *.db
 .beads-credential-key
 set-path.ps1
+.claude/settings.local.json
