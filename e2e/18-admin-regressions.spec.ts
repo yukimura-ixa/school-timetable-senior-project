@@ -42,44 +42,43 @@ test.describe("Admin regressions (SBTM)", () => {
     const { page } = authenticatedAdmin;
     const nav = new NavigationHelper(page);
 
-    await nav.goToDashboardSelector();
+    await nav.goToConfig(testSemesters.semester1_2567.SemesterAndyear);
 
-    const configButton = page
-      .getByRole("button", { name: /ตั้งค่าตาราง/i })
-      .first();
-    if (!(await configButton.isVisible({ timeout: 10000 }).catch(() => false))) {
-      test.skip(true, "No config dialog available on dashboard");
+    const editButton = page.getByRole("button", { name: /แก้ไขตั้งค่า/i });
+    if (!(await editButton.isVisible({ timeout: 10000 }).catch(() => false))) {
+      test.skip(true, "Config page not available — semester may not be seeded");
+      return;
     }
-
-    await configButton.click();
-
-    const dialog = page.getByRole("dialog");
-    if (!(await dialog.isVisible({ timeout: 10000 }).catch(() => false))) {
-      test.skip(true, "Config dialog did not appear after clicking — UI may differ in CI");
+    if (await editButton.isDisabled()) {
+      test.skip(true, "Config not in DRAFT status — edit button disabled, cannot test cancel");
       return;
     }
 
-    const titleText = (await dialog.getByRole("heading").textContent()) ?? "";
-    const configMatch = titleText.match(/(\d-\d{4})/);
-    if (!configMatch?.[1]) {
-      test.skip(true, "Config ID not found in dialog title");
+    await editButton.click();
+
+    const dialog = page.getByRole("dialog");
+    if (!(await dialog.isVisible({ timeout: 10000 }).catch(() => false))) {
+      test.skip(true, "ConfigureTimeslotsDialog did not open");
+      return;
     }
-    const configId = configMatch[1];
 
     const timeInput = dialog.locator('input[type="time"]').first();
     await expect(timeInput).toBeVisible();
+    const originalValue = await timeInput.inputValue();
     await timeInput.fill("08:45");
 
     await dialog.getByRole("button", { name: /ยกเลิก|cancel/i }).click();
     await expect(dialog).toBeHidden({ timeout: 10000 });
 
-    await nav.goToConfig(configId);
-    const configTimeInput = page.locator('input[type="time"]').first();
-    if (await configTimeInput.isVisible().catch(() => false)) {
-      await expect(configTimeInput).not.toHaveValue("08:45");
-    } else {
-      await expect(page.locator("b", { hasText: "08:45" })).toHaveCount(0);
+    // Re-open dialog to confirm cancel did not persist the value
+    await editButton.click();
+    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const timeInputAfter = dialog.locator('input[type="time"]').first();
+    await expect(timeInputAfter).not.toHaveValue("08:45");
+    if (originalValue) {
+      await expect(timeInputAfter).toHaveValue(originalValue);
     }
+    await dialog.getByRole("button", { name: /ยกเลิก|cancel/i }).click();
   });
 
   test("ADM-REG-002: Teacher arrange time row uses local HH:mm", async ({
