@@ -20,6 +20,8 @@ import {
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
 import { createTimeslotsAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import { updateConfigWithTimeslotsAction } from "@/features/config/application/actions/config.actions";
+import type { ConfigData } from "@/features/config/domain/types/config-data.types";
 import { TimeslotConfigurationStep } from "./TimeslotConfigurationStep";
 import {
   CreateSemesterProvider,
@@ -33,6 +35,8 @@ type Props = {
   academicYear: number;
   semester: 1 | 2;
   configId: string;
+  mode?: "create" | "edit";
+  initialConfig?: ConfigData;
 };
 
 /**
@@ -44,7 +48,10 @@ function ConfigureTimeslotsContent({
   onSuccess,
   academicYear,
   semester,
-}: Pick<Props, "onClose" | "onSuccess" | "academicYear" | "semester">) {
+  configId,
+  mode = "create",
+  initialConfig,
+}: Pick<Props, "onClose" | "onSuccess" | "academicYear" | "semester" | "configId" | "mode" | "initialConfig">) {
   const {
     timeslotConfig,
     isTimeslotConfigValid,
@@ -59,7 +66,7 @@ function ConfigureTimeslotsContent({
     setSemester(semester);
   }, [academicYear, semester, setAcademicYear, setSemester]);
 
-  const handleCreate = async () => {
+  const handleSubmit = async () => {
     if (!timeslotConfig) {
       enqueueSnackbar("กรุณากรอกข้อมูลให้ครบถ้วน", { variant: "warning" });
       return;
@@ -67,17 +74,31 @@ function ConfigureTimeslotsContent({
 
     setLoading(true);
     try {
-      const result = await createTimeslotsAction(timeslotConfig);
-
-      if (!result.success) {
-        const errorMessage =
-          typeof result.error === "string"
-            ? result.error
-            : result.error?.message || "Failed to create timeslots";
-        throw new Error(errorMessage);
+      if (mode === "edit") {
+        const { AcademicYear: _ay, Semester: _sem, ...configData } = timeslotConfig;
+        const result = await updateConfigWithTimeslotsAction({
+          ConfigID: configId,
+          Config: configData,
+        });
+        if (!result.success) {
+          const errorMessage =
+            typeof result.error === "string"
+              ? result.error
+              : result.error?.message || "Failed to update timeslots";
+          throw new Error(errorMessage);
+        }
+        enqueueSnackbar("อัปเดตตารางเรียนสำเร็จ", { variant: "success" });
+      } else {
+        const result = await createTimeslotsAction(timeslotConfig);
+        if (!result.success) {
+          const errorMessage =
+            typeof result.error === "string"
+              ? result.error
+              : result.error?.message || "Failed to create timeslots";
+          throw new Error(errorMessage);
+        }
+        enqueueSnackbar("ตั้งค่าตารางเรียนสำเร็จ", { variant: "success" });
       }
-
-      enqueueSnackbar("ตั้งค่าตารางเรียนสำเร็จ", { variant: "success" });
       onSuccess();
       onClose();
     } catch (error: unknown) {
@@ -94,23 +115,31 @@ function ConfigureTimeslotsContent({
   return (
     <>
       <DialogContent>
-        <Alert severity="info" sx={{ mb: 2 }}>
-          ภาคเรียนนี้ยังไม่มีการตั้งค่าตารางเรียน กรุณากำหนดค่าช่วงเวลาเรียน
-        </Alert>
+        {mode === "edit" ? (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            การแก้ไขจะสร้างคาบเรียนใหม่ทั้งหมด ข้อมูลการมอบหมายครูเดิมจะถูกลบ
+          </Alert>
+        ) : (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            ภาคเรียนนี้ยังไม่มีการตั้งค่าตารางเรียน กรุณากำหนดค่าช่วงเวลาเรียน
+          </Alert>
+        )}
 
-        <TimeslotConfigurationStep />
+        <TimeslotConfigurationStep initialConfig={initialConfig} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
           ยกเลิก
         </Button>
         <Button
-          onClick={() => void handleCreate()}
+          onClick={() => void handleSubmit()}
           variant="contained"
           disabled={loading || !isTimeslotConfigValid}
           startIcon={loading && <CircularProgress size={20} />}
         >
-          {loading ? "กำลังสร้าง..." : "ตั้งค่าตารางเรียน"}
+          {loading
+            ? mode === "edit" ? "กำลังอัปเดต..." : "กำลังสร้าง..."
+            : mode === "edit" ? "อัปเดตตารางเรียน" : "ตั้งค่าตารางเรียน"}
         </Button>
       </DialogActions>
     </>
@@ -124,10 +153,14 @@ export function ConfigureTimeslotsDialog({
   academicYear,
   semester,
   configId,
+  mode = "create",
+  initialConfig,
 }: Props) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>ตั้งค่าตารางเรียน - {configId}</DialogTitle>
+      <DialogTitle>
+        {mode === "edit" ? "แก้ไขตารางเรียน" : "ตั้งค่าตารางเรียน"} - {configId}
+      </DialogTitle>
 
       <CreateSemesterProvider>
         <ConfigureTimeslotsContent
@@ -135,6 +168,9 @@ export function ConfigureTimeslotsDialog({
           onSuccess={onSuccess}
           academicYear={academicYear}
           semester={semester}
+          configId={configId}
+          mode={mode}
+          initialConfig={initialConfig}
         />
       </CreateSemesterProvider>
     </Dialog>

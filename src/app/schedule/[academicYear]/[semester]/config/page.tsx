@@ -1,37 +1,33 @@
 "use client";
-import CheckIcon from "@mui/icons-material/Check";
-import ReplayIcon from "@mui/icons-material/Replay";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Box } from "@mui/material";
-import Dropdown from "@/components/elements/input/selected_input/Dropdown";
+import EditIcon from "@mui/icons-material/Edit";
+import { Box, Button } from "@mui/material";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BsTable, BsCalendar2Day } from "react-icons/bs";
 import { LuClock10 } from "react-icons/lu";
 import { MdLunchDining } from "react-icons/md";
 import { TbTimeDuration45 } from "react-icons/tb";
-import CheckBox from "@/components/mui/CheckBox";
-import PrimaryButton from "@/components/mui/PrimaryButton";
-import Counter from "./component/Counter";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
-import { closeSnackbar, enqueueSnackbar } from "notistack";
-import {
-  createConfigAction,
-} from "@/features/config/application/actions/config.actions";
 import useSWR from "swr";
 import Loading from "@/app/loading";
-import {
-  PageLoadingSkeleton,
-} from "@/components/feedback";
+import { PageLoadingSkeleton } from "@/components/feedback";
 import { PublishReadinessCard } from "@/features/config/presentation/components/PublishReadinessCard";
 import { ConfigStatusBadge } from "@/app/schedule/[academicYear]/[semester]/config/_components/ConfigStatusBadge";
+import { ConfigureTimeslotsDialog } from "@/app/dashboard/_components/ConfigureTimeslotsDialog";
+import { parseConfigData } from "@/features/config/domain/types/config-data.types";
+
+type TableConfigResponse = {
+  ConfigID: string;
+  AcademicYear: number;
+  Semester: string;
+  Config: unknown;
+  status: "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
+} | null;
 
 function TimetableConfigValue() {
   const params = useParams();
-
-  // Sync URL params with global store
-  // Extract academicYear and semester from route params
   const academicYear = params.academicYear
     ? parseInt(params.academicYear as string, 10)
     : null;
@@ -39,280 +35,54 @@ function TimetableConfigValue() {
     ? parseInt(params.semester as string, 10)
     : null;
   const hasTerm = Boolean(academicYear && semester);
+
   const [isCopying, setIsCopying] = useState(false);
-  const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
-  const [isCloneDataModal, setIsCloneDataModal] = useState<boolean>(false);
-  const [isSaved] = useState<boolean>(false);
-  const [addMiniBreak, setAddMiniBreak] = useState<boolean>(false);
-  const [configData, setConfigData] = useState({
-    Days: ["MON", "TUE", "WED", "THU", "FRI"],
-    AcademicYear: academicYear,
-    Semester: `SEMESTER_${semester}`,
-    StartTime: "08:30",
-    BreakDuration: 50,
-    BreakTimeslots: {
-      Junior: 4,
-      Senior: 5,
-    },
-    Duration: 50,
-    TimeslotPerDay: 8,
-    MiniBreak: {
-      Duration: 10,
-      SlotNumber: 2,
-    },
-    HasMinibreak: false,
-  });
-  type TableConfigResponse = {
-    ConfigID: string;
-    AcademicYear: number;
-    Semester: string;
-    Config: unknown;
-    status: "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
-  } | null;
-  const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
+  const [isDeleteModal, setIsDeleteModal] = useState(false);
+  const [isCloneModal, setIsCloneModal] = useState(false);
+  const [isEditDialog, setIsEditDialog] = useState(false);
+
   const tableConfig = useSWR(
     hasTerm ? `config-${academicYear}-${semester}` : null,
     async () => {
       if (!academicYear || !semester) return null;
       const response = await fetch(
         `/api/schedule-config/${academicYear}/${semester}`,
-        {
-          credentials: "include",
-        },
+        { credentials: "include" },
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to load timetable config");
-      }
-
+      if (!response.ok) throw new Error("Failed to load timetable config");
       const result = (await response.json()) as {
         success: boolean;
         data: TableConfigResponse;
       };
-
       return result.success ? result.data : null;
     },
   );
 
-  useEffect(() => {
-    if (tableConfig.isValidating) return;
-    if (!hasTerm) return;
-
-    const hasConfig = Boolean(tableConfig.data && tableConfig.data.Config);
-    setIsSetTimeslot(hasConfig);
-
-    if (hasConfig && tableConfig.data) {
-      // Map table_config.Config JSON to legacy local state format
-      // Config is stored as unstructured JSON, so we need to parse it carefully
-      try {
-        const config = tableConfig.data.Config as {
-          Days?: string[];
-          StartTime?: string;
-          BreakDuration?: number;
-          BreakTimeslots?: { Junior?: number; Senior?: number };
-          Duration?: number;
-          TimeslotPerDay?: number;
-          MiniBreak?: { Duration?: number; SlotNumber?: number };
-          HasMinibreak?: boolean;
-        };
-        setConfigData({
-          Days: config.Days || ["MON", "TUE", "WED", "THU", "FRI"],
-          AcademicYear: tableConfig.data.AcademicYear,
-          Semester: tableConfig.data.Semester,
-          StartTime: config.StartTime || "08:30",
-          BreakDuration: config.BreakDuration || 50,
-          BreakTimeslots: {
-            Junior: config.BreakTimeslots?.Junior || 4,
-            Senior: config.BreakTimeslots?.Senior || 5,
-          },
-          Duration: config.Duration || 50,
-          TimeslotPerDay: config.TimeslotPerDay || 8,
-          MiniBreak: {
-            Duration: config.MiniBreak?.Duration || 10,
-            SlotNumber: config.MiniBreak?.SlotNumber || 2,
-          },
-          HasMinibreak: config.HasMinibreak || false,
-        });
-      } catch (error) {
-        console.error("Error parsing config JSON:", error);
-      }
-      return;
-    }
-
-    if (tableConfig.data === null) {
-      if (!academicYear || !semester) return;
-
-      setConfigData({
-        Days: ["MON", "TUE", "WED", "THU", "FRI"],
-        AcademicYear: academicYear,
-        Semester: `SEMESTER_${semester}`,
-        StartTime: "08:30",
-        BreakDuration: 50,
-        BreakTimeslots: {
-          Junior: 4,
-          Senior: 5,
-        },
-        Duration: 50,
-        TimeslotPerDay: 8,
-        MiniBreak: {
-          Duration: 10,
-          SlotNumber: 2,
-        },
-        HasMinibreak: false,
-      });
-    }
-  }, [
-    tableConfig.data,
-    tableConfig.isValidating,
-    academicYear,
-    semester,
-    hasTerm,
-  ]);
-  const handleChangeStartTime = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setConfigData(() => ({ ...configData, StartTime: value }));
-  };
-  const [breakSlotMap, setBreakSlotMap] = useState<number[]>([]); //เอาไว้แมพเพื่อใช้กับ กำหนดคาบพักเที่ยง ข้อมูลตัวอย่าง => [1, 2, 3, 4, 5]
-  useEffect(() => {
-    const breakSlot: number[] = []; //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
-    for (let i = 0; i < configData.TimeslotPerDay; i++) {
-      breakSlot.push(i + 1);
-    }
-    setBreakSlotMap(breakSlot);
-    const currentValue = configData.TimeslotPerDay;
-    const breakJVal = configData.BreakTimeslots.Junior;
-    const breakSVal = configData.BreakTimeslots.Senior;
-    if (breakJVal > currentValue || breakSVal > currentValue) {
-      const jVal = breakJVal > currentValue ? currentValue : breakJVal; //ถ้า range เกินจะเซ็ทเป็นค่าสูงสุดของ TimeSlotPerDay
-      const sVal = breakSVal > currentValue ? currentValue : breakSVal;
-      setConfigData(() => ({
-        ...configData,
-        BreakTimeslots: { Junior: jVal, Senior: sVal },
-      }));
-    } //เช็คว่าถ้าคาบพักเที่ยงมี range ที่เกินจำนวนคาบต่อวัน จะให้ set เป็นค่าสูงสุดของจำนวนคาบโดยอัตโนมัติ
-  }, [configData.TimeslotPerDay]);
-  const handleChangeTimeSlotPerDay = (currentValue: number) => {
-    if (currentValue < 7 || currentValue > 10) {
-      return;
-    }
-    setConfigData(() => ({ ...configData, TimeslotPerDay: currentValue }));
-  };
-  const handleChangeDuration = (currentValue: number) => {
-    if (currentValue < 30 || currentValue > 120) {
-      return;
-    }
-    setConfigData(() => ({
-      ...configData,
-      Duration: currentValue,
-      BreakDuration: currentValue,
-    }));
-  };
-  // const handleChangeBreakDuration = (currentValue: number) => {
-  //   setConfigData(() => ({ ...configData, BreakDuration: currentValue }));
-  // };
-  const handleChangeBreakTimeJ = (currentValue: number) => {
-    setConfigData(() => ({
-      ...configData,
-      BreakTimeslots: {
-        Junior: currentValue,
-        Senior: configData.BreakTimeslots.Senior,
-      },
-    }));
-  };
-
-  const handleChangeBreakTimeS = (currentValue: number) => {
-    setConfigData(() => ({
-      ...configData,
-      BreakTimeslots: {
-        Junior: configData.BreakTimeslots.Junior,
-        Senior: currentValue,
-      },
-    }));
-  };
-  const handleChangeMiniBreak = (currentValue: number) => {
-    setConfigData(() => ({
-      ...configData,
-      MiniBreak: {
-        Duration: configData.MiniBreak.Duration,
-        SlotNumber: currentValue,
-      },
-    }));
-  };
-  const reset = () => {
-    if (!academicYear || !semester) return;
-    setConfigData(() => ({
-      Days: ["MON", "TUE", "WED", "THU", "FRI"],
-      AcademicYear: academicYear,
-      Semester: `SEMESTER_${semester}`,
-      StartTime: "08:30",
-      BreakDuration: 50,
-      BreakTimeslots: {
-        Junior: 4,
-        Senior: 5,
-      },
-      Duration: 50,
-      TimeslotPerDay: 8,
-      MiniBreak: {
-        Duration: 10,
-        SlotNumber: 2,
-      },
-      HasMinibreak: false,
-    }));
-    enqueueSnackbar("คืนค่าเริ่มต้นสำเร็จ", { variant: "success" });
-  };
-
-  const saved = async () => {
-    if (!academicYear || !semester) return;
-    setIsSetTimeslot(true);
-    const saving = enqueueSnackbar("กำลังตั้งค่าตาราง", {
-      variant: "info",
-      persist: true,
-    });
-    try {
-      const result = await createConfigAction({
-        ConfigID: `${semester}-${academicYear}`,
-        AcademicYear: academicYear,
-        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
-        Config: {
-          ...configData,
-          HasMinibreak: addMiniBreak,
-        },
-      });
-
-      if (result.success) {
-        closeSnackbar(saving);
-        enqueueSnackbar("ตั้งค่าตารางสำเร็จ", { variant: "success" });
-        await tableConfig.mutate();
-      } else {
-        throw new Error(result.error?.message || "Unknown error");
-      }
-    } catch (error) {
-      console.error("Config save error:", error);
-      closeSnackbar(saving);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการตั้งค่าตาราง", { variant: "error" });
-      setIsSetTimeslot(false);
-    }
-  };
-
-  if (tableConfig.isLoading && !isCopying) {
-    return <PageLoadingSkeleton />;
-  }
-  if (!academicYear || !semester) {
-    return <PageLoadingSkeleton />;
-  }
+  if (tableConfig.isLoading && !isCopying) return <PageLoadingSkeleton />;
+  if (!academicYear || !semester) return <PageLoadingSkeleton />;
 
   const configId = `${semester}-${academicYear}`;
   const configStatus = tableConfig.data?.status ?? "DRAFT";
+  const hasConfig = Boolean(tableConfig.data?.Config);
+  const parsedConfig = hasConfig
+    ? (() => {
+        try {
+          return parseConfigData(tableConfig.data!.Config);
+        } catch {
+          return null;
+        }
+      })()
+    : null;
 
   return (
     <>
       {isCopying ? <Loading /> : null}
       {tableConfig.error ? (
         <div className="mx-3 mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          โหลดข้อมูลตั้งค่าตารางไม่สำเร็จ แสดงค่าเริ่มต้นให้ก่อน
+          โหลดข้อมูลตั้งค่าตารางไม่สำเร็จ
         </div>
       ) : null}
-      {/* Status badge always shown; readiness card only for DRAFT */}
+
       <Box sx={{ mx: 1.5, mb: 2 }}>
         <ConfigStatusBadge
           configId={configId}
@@ -329,264 +99,138 @@ function TimetableConfigValue() {
           </Box>
         )}
       </Box>
-      {isActiveModal && hasTerm ? (
+
+      {isDeleteModal && hasTerm ? (
         <ConfirmDeleteModal
-          closeModal={() => setIsActiveModal(false)}
+          closeModal={() => setIsDeleteModal(false)}
           mutate={tableConfig.mutate}
           academicYear={academicYear}
           semester={semester}
         />
       ) : null}
-      {isCloneDataModal && hasTerm ? (
+      {isCloneModal && hasTerm ? (
         <CloneTimetableDataModal
           setIsCopying={setIsCopying}
-          closeModal={() => setIsCloneDataModal(false)}
+          closeModal={() => setIsCloneModal(false)}
           mutate={tableConfig.mutate}
           academicYear={academicYear}
           semester={semester}
         />
       ) : null}
+      {isEditDialog && hasConfig && parsedConfig ? (
+        <ConfigureTimeslotsDialog
+          open={isEditDialog}
+          onClose={() => setIsEditDialog(false)}
+          onSuccess={() => tableConfig.mutate()}
+          academicYear={academicYear}
+          semester={semester as 1 | 2}
+          configId={configId}
+          mode="edit"
+          initialConfig={parsedConfig}
+        />
+      ) : null}
+
       <span className="flex flex-col gap-3 my-5 px-3">
-        {!isSetTimeslot ? (
-          <div className="flex w-full py-4 justify-end items-center">
+        {!hasConfig ? (
+          <div className="flex flex-col items-center gap-4 py-10 text-center text-gray-500">
+            <p>ยังไม่มีการตั้งค่าตารางเรียน</p>
+            <p className="text-sm">กรุณาตั้งค่าจากหน้า Dashboard</p>
             <u
-              onClick={() => setIsCloneDataModal(true)}
-              className="text-blue-500 cursor-pointer hover:text-blue-600 duration-300"
+              onClick={() => setIsCloneModal(true)}
+              className="text-blue-500 cursor-pointer hover:text-blue-600 duration-300 text-sm"
             >
-              เรียกข้อมูลตารางสอนที่มีอยู่
+              หรือเรียกข้อมูลตารางสอนที่มีอยู่
             </u>
           </div>
-        ) : null}
-        {/* Config timeslot per day */}
-        <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <div className="flex items-center gap-4">
-            <BsTable size={25} className="fill-gray-500" />
-            <p className="text-md">
-              กำหนดคาบต่อวัน
-            </p>
-          </div>
-          {isSetTimeslot ? (
-            <p className=" text-gray-600">
-              <b>{configData.TimeslotPerDay}</b> คาบ
-            </p>
-          ) : (
-            <Counter
-              classifier="คาบ"
-              currentValue={configData.TimeslotPerDay}
-              onChange={handleChangeTimeSlotPerDay}
-              isDisabled={isSetTimeslot}
-            />
-          )}
-        </div>
-        {/* Config duration */}
-        <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <div className="flex items-center gap-4">
-            <TbTimeDuration45 size={25} className="stroke-gray-500" />
-            <p className="text-md">กำหนดระยะเวลาต่อคาบ</p>
-          </div>
-          {isSetTimeslot ? (
-            <p className=" text-gray-600">
-              <b>{configData.Duration}</b> นาที
-            </p>
-          ) : (
-            <Counter
-              classifier="นาที"
-              currentValue={configData.Duration}
-              onChange={handleChangeDuration}
-              isDisabled={isSetTimeslot}
-            />
-          )}
-        </div>
-        {/* Config time for start class */}
-        <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <div className="flex items-center gap-4">
-            <LuClock10 size={25} className="stroke-gray-500" />
-            <p className="text-md">กำหนดเวลาเริ่มคาบแรก</p>
-          </div>
-          {isSetTimeslot ? (
-            <p className=" text-gray-600">
-              <b>{configData.StartTime}</b> นาฬิกา
-            </p>
-          ) : (
-            <input
-              type="time"
-              value={configData.StartTime}
-              className="text-gray-500 outline-none h-[45px] border px-3 w-[140px]"
-              onChange={handleChangeStartTime}
-            />
-          )}
-        </div>
-        {/* Config พักเล็ก */}
-        <div className="flex w-full h-[65px] justify-between py-4 items-center mt-3">
-          <div className="flex items-center gap-4">
-            <MdLunchDining size={25} className="fill-gray-500" />
-            <p className="text-md">กำหนดคาบพักเล็ก</p>
-          </div>
-          <div className="flex flex-col-reverse gap-4">
-            {!addMiniBreak && !isSetTimeslot ? (
-              <u
-                className=" text-blue-500 cursor-pointer select-none"
-                onClick={() => setAddMiniBreak(true)}
-              >
-                เพิ่มเวลาพักเล็ก
-              </u>
-            ) : !isSetTimeslot ? (
-              <div className="flex gap-3 items-center">
-                <p className="text-md text-gray-500">พักเล็กก่อนคาบที่</p>
-                <Dropdown
-                  width="100%"
-                  height="40px"
-                  data={breakSlotMap}
-                  currentValue={String(configData.MiniBreak.SlotNumber)}
-                  placeHolder="เลือกคาบ"
-                  renderItem={({
-                    data,
-                  }: {
-                    data: number;
-                  }): React.JSX.Element => <li className="w-[70px]">{data}</li>}
-                  handleChange={handleChangeMiniBreak}
-                  searchFunction={undefined}
-                />
-                <p className=" text-gray-500">เวลา</p>
-                <input
-                  disabled={isSetTimeslot}
-                  type="number"
-                  className="border w-14 h-10 rounded pl-2"
-                  onChange={(e) =>
-                    setConfigData(() => ({
-                      ...configData,
-                      MiniBreak: {
-                        Duration: parseInt(e.target.value),
-                        SlotNumber: configData.MiniBreak.SlotNumber,
-                      },
-                    }))
-                  }
-                  value={configData.MiniBreak.Duration}
-                />
-                <p className=" text-gray-500">นาที</p>
-                <u
-                  className=" text-blue-500 ml-4 cursor-pointer select-none"
-                  onClick={() => setAddMiniBreak(false)}
-                >
-                  ยกเลิก
-                </u>
+        ) : (
+          <>
+            <div className="flex w-full h-[65px] justify-between py-4 items-center">
+              <div className="flex items-center gap-4">
+                <BsTable size={25} className="fill-gray-500" />
+                <p className="text-md">กำหนดคาบต่อวัน</p>
               </div>
-            ) : (
-              <p className=" text-gray-600">
-                ก่อนคาบที่ <b>{configData.MiniBreak.SlotNumber}</b> ระยะเวลา{" "}
-                <b>{configData.MiniBreak.Duration}</b> นาที
+              <p className="text-gray-600">
+                <b>{parsedConfig?.TimeslotPerDay}</b> คาบ
               </p>
+            </div>
+
+            <div className="flex w-full h-[65px] justify-between py-4 items-center">
+              <div className="flex items-center gap-4">
+                <TbTimeDuration45 size={25} className="stroke-gray-500" />
+                <p className="text-md">กำหนดระยะเวลาต่อคาบ</p>
+              </div>
+              <p className="text-gray-600">
+                <b>{parsedConfig?.Duration}</b> นาที
+              </p>
+            </div>
+
+            <div className="flex w-full h-[65px] justify-between py-4 items-center">
+              <div className="flex items-center gap-4">
+                <LuClock10 size={25} className="stroke-gray-500" />
+                <p className="text-md">กำหนดเวลาเริ่มคาบแรก</p>
+              </div>
+              <p className="text-gray-600">
+                <b>{parsedConfig?.StartTime}</b> นาฬิกา
+              </p>
+            </div>
+
+            {parsedConfig?.HasMinibreak && (
+              <div className="flex w-full h-[65px] justify-between py-4 items-center mt-3">
+                <div className="flex items-center gap-4">
+                  <MdLunchDining size={25} className="fill-gray-500" />
+                  <p className="text-md">กำหนดคาบพักเล็ก</p>
+                </div>
+                <p className="text-gray-600">
+                  ก่อนคาบที่ <b>{parsedConfig.MiniBreak?.SlotNumber}</b> ระยะเวลา{" "}
+                  <b>{parsedConfig.MiniBreak?.Duration}</b> นาที
+                </p>
+              </div>
             )}
-          </div>
-        </div>
-        {/* Config lunch time */}
-        <div className="flex w-full h-auto justify-between py-4 items-center">
-          <div className="flex items-center gap-4">
-            <MdLunchDining size={25} className="fill-gray-500" />
-            <p className="text-md">กำหนดคาบพักเที่ยง</p>
-          </div>
-          <div className="flex flex-col-reverse gap-4">
-            <div className="flex justify-between items-center gap-3">
-              <p className="text-md text-gray-500">มัธยมปลายคาบที่</p>
-              {isSetTimeslot ? (
-                <b className="text-md text-gray-600">
-                  {configData.BreakTimeslots.Senior}
-                </b>
-              ) : (
-                <Dropdown
-                  width="100%"
-                  height="40px"
-                  data={breakSlotMap}
-                  currentValue={String(configData.BreakTimeslots.Senior)}
-                  placeHolder="เลือกคาบ"
-                  renderItem={({
-                    data,
-                  }: {
-                    data: number;
-                  }): React.JSX.Element => <li className="w-[70px]">{data}</li>}
-                  handleChange={handleChangeBreakTimeS}
-                  searchFunction={undefined}
-                />
-              )}
-            </div>
-            <div className="flex justify-between items-center gap-3">
-              <p className=" text-gray-500">มัธยมต้นคาบที่</p>
-              {isSetTimeslot ? (
-                <b className=" text-gray-600">
-                  {configData.BreakTimeslots.Junior}
-                </b>
-              ) : (
-                <Dropdown
-                  width="100%"
-                  height="40px"
-                  data={breakSlotMap}
-                  currentValue={String(configData.BreakTimeslots.Junior)}
-                  placeHolder="เลือกคาบ"
-                  renderItem={({
-                    data,
-                  }: {
-                    data: number;
-                  }): React.JSX.Element => <li className="w-[70px]">{data}</li>}
-                  handleChange={handleChangeBreakTimeJ}
-                  searchFunction={undefined}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-        {/* Config day of week */}
-        <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <div className="flex items-center gap-4">
-            <BsCalendar2Day size={25} className="fill-gray-500" />
-            <p className="text-md">กำหนดวันในตารางสอน</p>
-          </div>
-          <div className="flex gap-3">
-            <CheckBox
-              label="วันจันทร์ - ศุกร์ (ค่าเริ่มต้น)"
-              checked={true}
-              disabled={true}
-              value={""}
-              name={""}
-              handleClick={undefined}
-            />
-          </div>
-        </div>
-        <div className="flex w-full h-[65px] justify-between items-center">
-          {isSaved ? (
-            <p className="text-green-400">ตั้งค่าสำเร็จ !</p>
-          ) : (
-            <>
-              <div>
-                <PrimaryButton
-                  handleClick={() => setIsActiveModal(true)}
-                  title={"ลบเทอม"}
-                  color={"danger"}
-                  Icon={<DeleteIcon />}
-                  reverseIcon={false}
-                  isDisabled={!isSetTimeslot}
-                />
+
+            <div className="flex w-full h-auto justify-between py-4 items-center">
+              <div className="flex items-center gap-4">
+                <MdLunchDining size={25} className="fill-gray-500" />
+                <p className="text-md">กำหนดคาบพักเที่ยง</p>
               </div>
-              <div className="flex gap-3">
-                <PrimaryButton
-                  handleClick={reset}
-                  title={"คืนค่าเริ่มต้น"}
-                  color={"secondary"}
-                  Icon={<ReplayIcon />}
-                  reverseIcon={false}
-                  isDisabled={isSetTimeslot}
-                />
-                <PrimaryButton
-                  handleClick={saved}
-                  title={"ตั้งค่า"}
-                  color={"success"}
-                  Icon={<CheckIcon />}
-                  reverseIcon={false}
-                  isDisabled={isSetTimeslot}
-                />
+              <div className="flex flex-col gap-2 text-right">
+                <p className="text-gray-600">
+                  มัธยมปลาย คาบที่ <b>{parsedConfig?.BreakTimeslots.Senior}</b>
+                </p>
+                <p className="text-gray-600">
+                  มัธยมต้น คาบที่ <b>{parsedConfig?.BreakTimeslots.Junior}</b>
+                </p>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+
+            <div className="flex w-full h-[65px] justify-between py-4 items-center">
+              <div className="flex items-center gap-4">
+                <BsCalendar2Day size={25} className="fill-gray-500" />
+                <p className="text-md">วันที่เรียน</p>
+              </div>
+              <p className="text-gray-600">
+                {parsedConfig?.Days.join(", ")}
+              </p>
+            </div>
+
+            <div className="flex w-full h-[65px] justify-between items-center">
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => setIsDeleteModal(true)}
+              >
+                ลบเทอม
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<EditIcon />}
+                onClick={() => setIsEditDialog(true)}
+              >
+                แก้ไขตั้งค่า
+              </Button>
+            </div>
+          </>
+        )}
       </span>
     </>
   );

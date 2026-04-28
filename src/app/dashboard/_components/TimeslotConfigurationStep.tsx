@@ -39,7 +39,11 @@ const DAYS: { value: day_of_week; label: string }[] = [
   { value: "SUN", label: "อาทิตย์" },
 ];
 
-export function TimeslotConfigurationStep() {
+type Props = {
+  initialConfig?: Partial<CreateTimeslotsInput>;
+};
+
+export function TimeslotConfigurationStep({ initialConfig }: Props) {
   const {
     academicYear,
     semester,
@@ -58,6 +62,7 @@ export function TimeslotConfigurationStep() {
     HasMinibreak: true,
     MiniBreak: { SlotNumber: 3, Duration: 10 },
     BreakTimeslots: { Junior: 4, Senior: 5 },
+    ...initialConfig,
   });
 
   const errors = useMemo(() => {
