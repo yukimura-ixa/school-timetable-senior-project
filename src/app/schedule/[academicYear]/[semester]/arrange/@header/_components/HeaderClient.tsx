@@ -207,7 +207,6 @@ export function HeaderClient({
           >
             {autoArrangeLoading ? "กำลังจัด..." : "จัดอัตโนมัติ"}
           </Button>
-          {/* TODO: Re-enable when arrangement store supports undo/redo/save */}
         </Stack>
       </Box>
 

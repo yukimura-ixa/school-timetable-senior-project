@@ -85,12 +85,6 @@ interface ArrangementUIState {
     gradeLevel: string | null;
   };
 
-  // === History Stack (Undo/Redo) ===
-  history: {
-    past: SubjectData[][];
-    present: SubjectData[];
-    future: SubjectData[][];
-  };
 }
 
 // ============================================================================
@@ -144,14 +138,6 @@ interface ArrangementUIActions {
 
   // === Filter Actions ===
   setFilters: (filters: Partial<ArrangementUIState["filters"]>) => void;
-
-  // === History Actions (Undo/Redo) ===
-  pushHistory: (scheduledSubjects: SubjectData[]) => void;
-  undo: () => void;
-  redo: () => void;
-  canUndo: () => boolean;
-  canRedo: () => boolean;
-  clearHistory: () => void;
 
   // === Reset Actions ===
   resetAllState: () => void;
@@ -209,12 +195,6 @@ const initialState: ArrangementUIState = {
     gradeLevel: null,
   },
 
-  // History Stack
-  history: {
-    past: [],
-    present: [],
-    future: [],
-  },
 };
 
 // ============================================================================
@@ -225,7 +205,7 @@ type ArrangementUIStore = ArrangementUIState & ArrangementUIActions;
 
 export const useArrangementUIStore = create<ArrangementUIStore>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       ...initialState,
 
       // === Teacher Actions ===
@@ -443,90 +423,6 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
           "arrangement/setFilters",
         ),
 
-      // === History Actions (Undo/Redo) ===
-      pushHistory: (scheduledSubjects) =>
-        set(
-          (state) => ({
-            history: {
-              past: [...state.history.past, state.history.present],
-              present: scheduledSubjects,
-              future: [], // Clear future when new action is performed
-            },
-            scheduledSubjects,
-          }),
-          undefined,
-          "arrangement/pushHistory",
-        ),
-
-      undo: () =>
-        set(
-          (state) => {
-            const { past, present, future } = state.history;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zustand devtools middleware overload rejects Partial<Store> for no-op returns
-            if (past.length === 0) return state as any;
-
-            const previous = past[past.length - 1];
-            const newPast = past.slice(0, past.length - 1);
-
-            return {
-              history: {
-                past: newPast,
-                present: previous,
-                future: [present, ...future],
-              },
-              scheduledSubjects: previous,
-            };
-          },
-          undefined,
-          "arrangement/undo",
-        ),
-
-      redo: () =>
-        set(
-          (state) => {
-            const { past, present, future } = state.history;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zustand devtools middleware overload rejects Partial<Store> for no-op returns
-            if (future.length === 0) return state as any;
-
-            const next = future[0];
-            const newFuture = future.slice(1);
-
-            return {
-              history: {
-                past: [...past, present],
-                present: next,
-                future: newFuture,
-              },
-              scheduledSubjects: next,
-            };
-          },
-          undefined,
-          "arrangement/redo",
-        ),
-
-      canUndo: () => {
-        const state = get();
-        return state.history.past.length > 0;
-      },
-
-      canRedo: () => {
-        const state = get();
-        return state.history.future.length > 0;
-      },
-
-      clearHistory: () =>
-        set(
-          {
-            history: {
-              past: [],
-              present: [],
-              future: [],
-            },
-          },
-          undefined,
-          "arrangement/clearHistory",
-        ),
-
       // === Reset Actions ===
       resetAllState: () =>
         set(initialState, undefined, "arrangement/resetAllState"),
@@ -544,11 +440,6 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             subjectPayload: null, // Fixed: use null
             showErrorMsgByTimeslotID: {},
             showLockDataMsgByTimeslotID: {},
-            history: {
-              past: [],
-              present: [],
-              future: [],
-            },
           },
           undefined,
           "arrangement/resetOnTeacherChange",
