@@ -262,11 +262,12 @@ export const updateConfigWithTimeslotsAction = createAction(
         },
       });
 
-      // Step 3: Update config
+      // Step 3: Update config; reset completeness — teachers + schedule were wiped
       const updatedConfig: table_config = await tx.table_config.update({
         where: { ConfigID: input.ConfigID },
         data: {
           Config: input.Config as ConfigData,
+          configCompleteness: 25,
         },
       });
 

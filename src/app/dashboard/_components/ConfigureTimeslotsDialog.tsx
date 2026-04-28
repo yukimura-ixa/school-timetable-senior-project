@@ -116,8 +116,10 @@ function ConfigureTimeslotsContent({
     <>
       <DialogContent>
         {mode === "edit" ? (
-          <Alert severity="warning" sx={{ mb: 2 }}>
-            การแก้ไขจะสร้างคาบเรียนใหม่ทั้งหมด ข้อมูลการมอบหมายครูเดิมจะถูกลบ
+          <Alert severity="error" sx={{ mb: 2 }}>
+            <strong>คำเตือน:</strong> การแก้ไขจะ<strong>ลบข้อมูลทั้งหมด</strong>ในภาคเรียนนี้ ได้แก่
+            ตารางสอน (class_schedule) การมอบหมายครู และคาบเรียนทั้งหมด
+            จากนั้นจะสร้างคาบเรียนใหม่ตามค่าที่กำหนด
           </Alert>
         ) : (
           <Alert severity="info" sx={{ mb: 2 }}>

@@ -225,6 +225,8 @@ function TimetableConfigValue() {
                 variant="contained"
                 startIcon={<EditIcon />}
                 onClick={() => setIsEditDialog(true)}
+                disabled={configStatus !== "DRAFT"}
+                title={configStatus !== "DRAFT" ? `ไม่สามารถแก้ไขได้ในสถานะ ${configStatus}` : undefined}
               >
                 แก้ไขตั้งค่า
               </Button>
