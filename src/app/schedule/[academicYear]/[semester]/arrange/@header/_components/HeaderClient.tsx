@@ -106,8 +106,9 @@ export function HeaderClient({
         severity: stats.failed > 0 ? "warning" : "success",
       });
 
-      // Refresh the page to show new placements
+      // Refresh server components (palette unplaced count) + bust SWR cache in grid
       router.refresh();
+      window.dispatchEvent(new Event("schedule-updated"));
     } catch (err) {
       setSnackbar({
         open: true,

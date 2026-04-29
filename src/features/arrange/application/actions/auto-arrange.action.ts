@@ -8,6 +8,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
@@ -72,7 +73,7 @@ export async function autoArrangeAction(
     log.debug("Auto-arrange request received", { input });
 
     // ── Auth ──
-    const session = await auth.api.getSession({ headers: new Headers() });
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
       return { success: false, message: "กรุณาเข้าสู่ระบบ" };

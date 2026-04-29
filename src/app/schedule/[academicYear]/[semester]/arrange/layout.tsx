@@ -1,20 +1,8 @@
 "use client";
 
-/**
- * Arrange Editor Layout - Parallel Routes Container
- *
- * This layout orchestrates 4 independent parallel routes (slots):
- * - @header: Teacher selector, tabs, action buttons
- * - @palette: Subject search and draggable palette
- * - @grid: Timetable grid with DnD (DndContext lives in @grid/page.tsx)
- * - @inspector: Conflicts and progress indicators
- * - @modal: Intercepting routes for dialogs
- *
- * Each slot can load independently with its own loading state.
- */
-
 import React from "react";
 import { Container, Box, Grid } from "@mui/material";
+import { ArrangeDndProvider } from "./_components/ArrangeDndProvider";
 
 export default function ArrangeLayout({
   children,
@@ -38,23 +26,25 @@ export default function ArrangeLayout({
         {header}
       </Box>
 
-      {/* Three-column layout */}
-      <Grid container spacing={2}>
-        {/* Left: Subject Palette */}
-        <Grid size={{ xs: 12, md: 3 }} data-slot="palette">
-          {palette}
-        </Grid>
+      {/* Three-column layout — DndContext wraps palette + grid so DnD works across slots */}
+      <ArrangeDndProvider>
+        <Grid container spacing={2}>
+          {/* Left: Subject Palette */}
+          <Grid size={{ xs: 12, md: 3 }} data-slot="palette">
+            {palette}
+          </Grid>
 
-        {/* Center: Timetable Grid */}
-        <Grid size={{ xs: 12, md: 6 }} data-slot="grid">
-          {grid}
-        </Grid>
+          {/* Center: Timetable Grid */}
+          <Grid size={{ xs: 12, md: 6 }} data-slot="grid">
+            {grid}
+          </Grid>
 
-        {/* Right: Inspector (conflicts + progress) */}
-        <Grid size={{ xs: 12, md: 3 }} data-slot="inspector">
-          {inspector}
+          {/* Right: Inspector (conflicts + progress) */}
+          <Grid size={{ xs: 12, md: 3 }} data-slot="inspector">
+            {inspector}
+          </Grid>
         </Grid>
-      </Grid>
+      </ArrangeDndProvider>
 
       {/* Modal Slot: Intercepting routes */}
       {modal}

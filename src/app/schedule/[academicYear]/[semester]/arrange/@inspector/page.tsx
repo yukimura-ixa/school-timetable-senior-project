@@ -1,10 +1,3 @@
-/**
- * Inspector Slot - Server Component
- *
- * Shows teacher schedule inspection info.
- * Conflict detection is under development.
- */
-
 import { Alert, Stack, Typography } from "@mui/material";
 
 export default async function InspectorSlot({
@@ -22,7 +15,7 @@ export default async function InspectorSlot({
       </Typography>
       <Alert severity="info" variant="outlined">
         {teacherParam
-          ? "กำลังพัฒนาระบบตรวจสอบความขัดแย้ง"
+          ? "ลากรายวิชาจากแผงด้านซ้ายไปวางในช่วงเวลาที่ต้องการ"
           : "เลือกครูเพื่อดูข้อมูล"}
       </Alert>
     </Stack>
