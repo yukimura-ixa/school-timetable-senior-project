@@ -67,8 +67,7 @@ export function SemesterCard({
   const statusColor = STATUS_COLORS[semester.status];
   const statusLabel = STATUS_LABELS[semester.status];
 
-  // Check if timeslots need to be configured (completeness < 25%)
-  const needsTimeslotConfig = semester.configCompleteness < 25;
+  const needsTimeslotConfig = (semester.timeslotCount ?? 0) === 0;
 
   const formatDate = (date?: Date | null) => {
     if (!date) return "-";

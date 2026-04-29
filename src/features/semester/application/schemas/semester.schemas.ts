@@ -99,6 +99,7 @@ export const SemesterDTOSchema = v.object({
   createdAt: v.date(),
   updatedAt: v.date(),
   // Computed fields
+  timeslotCount: v.optional(v.number()),
   classCount: v.optional(v.number()),
   teacherCount: v.optional(v.number()),
   roomCount: v.optional(v.number()),

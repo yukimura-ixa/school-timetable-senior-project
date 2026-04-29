@@ -13,7 +13,10 @@
       "Bash(find /b/dev/school-timetable-senior-project/test-results* -name \"results.json\" -type f)",
       "Bash(xargs ls *)",
       "Bash(xargs grep *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(bd show *)",
+      "Bash(bd update *)",
+      "Bash(pnpm typecheck *)"
     ]
   },
   "enabledMcpjsonServers": [
@@ -23,5 +26,6 @@
     "Vercel",
     "oraios/serena",
     "context7"
-  ]
+  ],
+  "outputStyle": "Explanatory"
 }

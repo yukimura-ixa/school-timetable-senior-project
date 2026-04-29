@@ -210,7 +210,7 @@ export class SemesterRepository {
       return null;
     }
 
-    const [academicYear, semesterNum] = configId.split("-").map(Number);
+    const [semesterNum, academicYear] = configId.split("-").map(Number);
     const semesterEnum = semesterNum === 1 ? "SEMESTER_1" : "SEMESTER_2";
 
     // Get counts for this semester
