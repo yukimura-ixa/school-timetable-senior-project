@@ -5,7 +5,7 @@
  * Shows currently selected semester and allows changing it
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -27,7 +27,7 @@ import type { SemesterDTO } from "@/features/semester/application/schemas/semest
 
 export function SemesterSelector() {
   const router = useRouter();
-  const { selectedSemester, academicYear, semester, setSemester } =
+  const { selectedSemester, academicYear, semester, setSemester, clearSemester } =
     useSemesterStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -45,6 +45,16 @@ export function SemesterSelector() {
   );
 
   const semesters = semestersData || [];
+
+  // Drop persisted selection if it no longer exists in DB (e.g. after reseed)
+  useEffect(() => {
+    if (!semestersData) return;
+    if (!selectedSemester) return;
+    const stillExists = semestersData.some(
+      (s) => s.configId === selectedSemester,
+    );
+    if (!stillExists) clearSemester();
+  }, [semestersData, selectedSemester, clearSemester]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

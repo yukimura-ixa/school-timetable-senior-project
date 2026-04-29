@@ -8,6 +8,7 @@ import {
 } from "@/raw-data/menubar-data";
 import { usePathname } from "next/navigation";
 import { useUIStore } from "@/stores/uiStore";
+import { useSemesterStore } from "@/stores/semesterStore";
 
 interface MenuItem {
   id: string;
@@ -21,15 +22,22 @@ interface MenuItem {
 function Menubar() {
   const { sidebarOpen } = useUIStore();
   const pathName = usePathname();
+  const persistedYear = useSemesterStore((s) => s.academicYear);
+  const persistedSemester = useSemesterStore((s) => s.semester);
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
 
-  // Extract current term from URL if present
+  // Resolve term: URL first (current page context), persisted store second
   const currentTerm = useMemo(() => {
-    // Match patterns like /schedule/2567/1/* or /dashboard/2567/1/*
     const match = pathName.match(/\/(schedule|dashboard)\/(25\d{2})\/(\d)/);
-    if (!match) return null;
-    return { year: match[2], semester: match[3] };
-  }, [pathName]);
+    if (match) return { year: match[2], semester: match[3] };
+    if (persistedYear && persistedSemester) {
+      return {
+        year: String(persistedYear),
+        semester: String(persistedSemester),
+      };
+    }
+    return null;
+  }, [pathName, persistedYear, persistedSemester]);
   return (
     <>
       {pathName === "/signin" ? null : (
@@ -88,11 +96,13 @@ function Menubar() {
               ตารางสอน
             </p>
             {(scheduleMenu as MenuItem[]).map((item: MenuItem, index: number) => {
-              // For dynamic links (จัดตารางสอน), use current semester if available
-              const linkHref =
-                item.dynamicLink && currentTerm
+              // For dynamic links (จัดตารางสอน), use current/persisted semester
+              // Fallback to /dashboard (semester picker) when no term known
+              const linkHref = item.dynamicLink
+                ? currentTerm
                   ? `/schedule/${currentTerm.year}/${currentTerm.semester}/arrange`
-                  : item.link || "/dashboard";
+                  : "/dashboard"
+                : item.link || "/dashboard";
 
               const isSelected = linkHref === linkSelected;
 

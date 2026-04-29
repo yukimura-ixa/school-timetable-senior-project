@@ -225,17 +225,14 @@ async function seedDemoData() {
   console.log("🌐 Starting demo data seed (idempotent, additive)...");
 
   const academicYear = 2567;
+  // Two-semester demo:
+  //   1-2567  → "normal" happy path: single program M1-SCI, full schedule
+  //   2-2567  → "example" showcase: 3 program tracks, M.4 grades, partial schedule,
+  //              locked assembly slot, overloaded teacher (edge cases for review)
   const semesters: { semester: semester; number: number }[] = [
     { semester: "SEMESTER_1", number: 1 },
     { semester: "SEMESTER_2", number: 2 },
   ];
-
-  // Add semester 1-2568 for future testing
-  const nextYearSemesters: {
-    semester: semester;
-    number: number;
-    year: number;
-  }[] = [{ semester: "SEMESTER_1", number: 1, year: 2568 }];
 
   const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
   const periods = [
@@ -606,34 +603,6 @@ async function seedDemoData() {
     }
   }
 
-  // Semester 1-2568
-  for (const sem of nextYearSemesters) {
-    for (const day of days) {
-      for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
-        const period = periods[periodNum - 1];
-        const timeslotId = `${sem.number}-${sem.year}-${day}${periodNum}`;
-
-        await withRetry(
-          () =>
-            prisma.timeslot.upsert({
-              where: { TimeslotID: timeslotId },
-              update: {},
-              create: {
-                TimeslotID: timeslotId,
-                AcademicYear: sem.year,
-                Semester: sem.semester,
-                StartTime: new Date(`2024-01-01T${period.start}:00`),
-                EndTime: new Date(`2024-01-01T${period.end}:00`),
-                Breaktime: period.break,
-                DayOfWeek: day,
-              },
-            }),
-          `Upsert timeslot ${timeslotId}`,
-        );
-        timeslotCount++;
-      }
-    }
-  }
   console.log(`✅ Created ${timeslotCount} demo timeslots`);
 
   // ===== DEMO TABLE CONFIGS =====
@@ -678,23 +647,8 @@ async function seedDemoData() {
     "Upsert table config 2-2567",
   );
 
-  await withRetry(
-    () =>
-      prisma.table_config.upsert({
-        where: { ConfigID: "1-2568" },
-        update: {},
-        create: {
-          ConfigID: "1-2568",
-          AcademicYear: 2568,
-          Semester: "SEMESTER_1",
-          Config: configTemplate,
-          status: "DRAFT",
-        },
-      }),
-    "Upsert table config 1-2568",
-  );
   console.log(
-    "✅ Created 3 demo table configurations (1-2567, 2-2567, 1-2568)",
+    "✅ Created 2 demo table configurations (1-2567 ACTIVE, 2-2567 DRAFT)",
   );
 
   // ===== DEMO TEACHER RESPONSIBILITIES =====
@@ -716,18 +670,16 @@ async function seedDemoData() {
     { subjectCode: "อ21101", teacherIndex: 7, dept: "ภาษาต่างประเทศ" }, // English teacher
   ];
 
-  // All semester configurations for responsibilities
+  // Normal happy-path semester only. 2-2567 gets its own multi-track data below.
   const semesterConfigs = [
     { year: 2567, semester: "SEMESTER_1" as semester, configId: "1-2567" },
-    { year: 2567, semester: "SEMESTER_2" as semester, configId: "2-2567" },
-    { year: 2568, semester: "SEMESTER_1" as semester, configId: "1-2568" },
   ];
 
-  // Create responsibilities for a limited set of grades and semesters in test mode to speed up E2E tests
-  const testSemesterConfigs = isTestMode
-    ? [semesterConfigs[0]]
-    : semesterConfigs;
-  const testGradeLevels = isTestMode ? gradeLevels.slice(0, 3) : gradeLevels; // Only M.1 grades for tests
+  const testSemesterConfigs = semesterConfigs;
+  const testGradeLevels =
+    process.env.SEED_FOR_TESTS === "true"
+      ? gradeLevels.slice(0, 3)
+      : gradeLevels;
 
   for (const semConfig of testSemesterConfigs) {
     for (const grade of testGradeLevels) {
@@ -776,7 +728,7 @@ async function seedDemoData() {
     }
   }
   console.log(
-    `✅ Created ${responsibilities.length} demo teacher responsibilities (${semesterConfigs.length} semesters × ${gradeLevels.length} grades × ${subjectTeacherMap.length} subjects)`,
+    `✅ Created ${responsibilities.length} normal-semester teacher responsibilities (1-2567 × ${testGradeLevels.length} grades × ${subjectTeacherMap.length} subjects)`,
   );
 
   // ===== DEMO CLASS SCHEDULES =====
@@ -849,30 +801,318 @@ async function seedDemoData() {
   }
   console.log(`✅ Created ${scheduleCount} demo class schedules`);
 
+  // ============================================================================
+  // EXAMPLE SEMESTER (2-2567): multi-track + edge cases
+  // ============================================================================
+  console.log("\n🎯 Seeding EXAMPLE semester 2-2567 (multi-track + edge cases)...");
+
+  // ----- 3 Programs (one per track) for ม.4 -----
+  const exampleProgramDefs: Array<{
+    code: string;
+    name: string;
+    track: ProgramTrack;
+    description: string;
+  }> = [
+    {
+      code: "M4-SCI",
+      name: "หลักสูตรวิทย์-คณิต ม.4",
+      track: "SCIENCE_MATH",
+      description: "เน้นวิทยาศาสตร์และคณิตศาสตร์",
+    },
+    {
+      code: "M4-MATH",
+      name: "หลักสูตรศิลป์-คำนวณ ม.4",
+      track: "LANGUAGE_MATH",
+      description: "เน้นคณิตศาสตร์และภาษา",
+    },
+    {
+      code: "M4-LANG",
+      name: "หลักสูตรศิลป์-ภาษา ม.4",
+      track: "LANGUAGE_ARTS",
+      description: "เน้นภาษาต่างประเทศและสังคม",
+    },
+  ];
+
+  const examplePrograms = [];
+  for (const def of exampleProgramDefs) {
+    // Match by (Year, Track) first since that's the unique constraint;
+    // re-use whatever ProgramCode is already in the DB to avoid conflicts.
+    const existing = await prisma.program.findFirst({
+      where: { Year: 4, Track: def.track },
+    });
+    const p =
+      existing ??
+      (await withRetry(
+        () =>
+          prisma.program.create({
+            data: {
+              ProgramCode: def.code,
+              ProgramName: def.name,
+              Year: 4,
+              Track: def.track,
+              MinTotalCredits: 41,
+              Description: def.description,
+            },
+          }),
+        `Create example program ${def.code}`,
+      ));
+    examplePrograms.push(p);
+  }
+  console.log(`✅ Created ${examplePrograms.length} example M.4 programs (3 tracks)`);
+
+  // ----- ม.4 grade levels (one per track) -----
+  const exampleGradeDefs = [
+    { id: "M4-1", year: 4, number: 1, programIdx: 0 }, // วิทย์-คณิต
+    { id: "M4-2", year: 4, number: 2, programIdx: 1 }, // ศิลป์-คำนวณ
+    { id: "M4-3", year: 4, number: 3, programIdx: 2 }, // ศิลป์-ภาษา
+  ];
+  const exampleGrades = [];
+  for (const g of exampleGradeDefs) {
+    const grade = await withRetry(
+      () =>
+        prisma.gradelevel.upsert({
+          where: { GradeID: g.id },
+          update: {},
+          create: {
+            GradeID: g.id,
+            Year: g.year,
+            Number: g.number,
+            StudentCount: 32,
+            ProgramID: examplePrograms[g.programIdx].ProgramID,
+          },
+        }),
+      `Upsert example grade ${g.id}`,
+    );
+    exampleGrades.push(grade);
+  }
+  console.log(`✅ Created ${exampleGrades.length} example M.4 grade levels`);
+
+  // Wire core subjects to each track program (re-using demo subjects).
+  // Track-specific emphasis: SCI program weights science/math; LANG program weights foreign-language.
+  let exampleProgSubjLinks = 0;
+  for (let i = 0; i < examplePrograms.length; i++) {
+    const program = examplePrograms[i];
+    for (let j = 0; j < demoSubjects.length; j++) {
+      const subject = demoSubjects[j];
+      const category = subjectCategoryMap[subject.code] || "CORE";
+      await withRetry(
+        () =>
+          prisma.program_subject.upsert({
+            where: {
+              ProgramID_SubjectCode: {
+                ProgramID: program.ProgramID,
+                SubjectCode: subject.code,
+              },
+            },
+            update: {},
+            create: {
+              ProgramID: program.ProgramID,
+              SubjectCode: subject.code,
+              Category: category,
+              IsMandatory: category !== "ACTIVITY",
+              MinCredits: creditToNum(subject.credit),
+              SortOrder: j + 1,
+            },
+          }),
+        `Link ${subject.code} to ${program.ProgramCode}`,
+      );
+      exampleProgSubjLinks++;
+    }
+  }
+  console.log(`✅ Linked ${exampleProgSubjLinks} program-subject relations across 3 tracks`);
+
+  // ----- Responsibilities for 2-2567 (M.4 grades) -----
+  // Edge case: teacher[1] (Math) deliberately overloaded across all 3 grades on multiple subjects
+  const exampleResps: Awaited<
+    ReturnType<typeof prisma.teachers_responsibility.create>
+  >[] = [];
+  for (const grade of exampleGrades) {
+    for (const mapping of subjectTeacherMap) {
+      const teacher = teachers[mapping.teacherIndex];
+      // Overload signal: math teacher (idx 1) gets TeachHour=4 vs default 2
+      const teachHour = mapping.teacherIndex === 1 ? 4 : 2;
+      const existing = await withRetry(
+        () =>
+          prisma.teachers_responsibility.findFirst({
+            where: {
+              TeacherID: teacher.TeacherID,
+              GradeID: grade.GradeID,
+              SubjectCode: mapping.subjectCode,
+              AcademicYear: 2567,
+              Semester: "SEMESTER_2",
+            },
+          }),
+        `Check resp ${mapping.subjectCode}/${grade.GradeID}/2-2567`,
+      );
+      const resp =
+        existing ??
+        (await prisma.teachers_responsibility.create({
+          data: {
+            TeacherID: teacher.TeacherID,
+            GradeID: grade.GradeID,
+            SubjectCode: mapping.subjectCode,
+            AcademicYear: 2567,
+            Semester: "SEMESTER_2",
+            TeachHour: teachHour,
+          },
+        }));
+      exampleResps.push(resp);
+    }
+  }
+  // Add ACT-CLUB resp for each M.4 grade (assigned to art teacher idx 5) so locked assembly slot can be created
+  for (const grade of exampleGrades) {
+    const teacher = teachers[5];
+    const existing = await prisma.teachers_responsibility.findFirst({
+      where: {
+        TeacherID: teacher.TeacherID,
+        GradeID: grade.GradeID,
+        SubjectCode: "ACT-CLUB",
+        AcademicYear: 2567,
+        Semester: "SEMESTER_2",
+      },
+    });
+    const resp =
+      existing ??
+      (await prisma.teachers_responsibility.create({
+        data: {
+          TeacherID: teacher.TeacherID,
+          GradeID: grade.GradeID,
+          SubjectCode: "ACT-CLUB",
+          AcademicYear: 2567,
+          Semester: "SEMESTER_2",
+          TeachHour: 1,
+        },
+      }));
+    exampleResps.push(resp);
+  }
+  console.log(`✅ Created ${exampleResps.length} example responsibilities (math teacher intentionally overloaded; ACT-CLUB linked for assembly)`);
+
+  // ----- Class schedules for 2-2567: PARTIAL coverage + LOCKED Monday P1 (assembly) -----
+  // Only fill ~50% of slots so dashboard shows "incomplete" + publish-readiness issues.
+  let exampleScheduleCount = 0;
+  let exampleLockedCount = 0;
+
+  // 1) Locked assembly slot: MON-P1 for every M.4 grade (ActivityType-style, but using ACT-CLUB subject)
+  for (let gi = 0; gi < exampleGrades.length; gi++) {
+    const grade = exampleGrades[gi];
+    const timeslotId = `2-${academicYear}-MON1`;
+    const resp = exampleResps.find(
+      (r) =>
+        r.GradeID === grade.GradeID &&
+        r.SubjectCode === "ACT-CLUB" &&
+        r.Semester === "SEMESTER_2",
+    );
+    if (!resp) continue;
+    // Skip silently if the locked slot already exists (idempotent re-runs)
+    const exists = await prisma.class_schedule.findFirst({
+      where: { TimeslotID: timeslotId, GradeID: grade.GradeID },
+    });
+    if (exists) {
+      if (exists.IsLocked) exampleLockedCount++;
+      exampleScheduleCount++;
+      continue;
+    }
+    try {
+      await prisma.class_schedule.create({
+        data: {
+          TimeslotID: timeslotId,
+          SubjectCode: "ACT-CLUB",
+          GradeID: grade.GradeID,
+          RoomID: rooms[gi % rooms.length].RoomID,
+          IsLocked: true,
+          teachers_responsibility: { connect: [{ RespID: resp.RespID }] },
+        },
+      });
+      exampleLockedCount++;
+      exampleScheduleCount++;
+    } catch (err: any) {
+      if (!err.message?.includes("Unique constraint")) {
+        console.warn(`⚠️ locked slot skip ${grade.GradeID}: ${err.message}`);
+      }
+    }
+  }
+
+  // 2) Partial coverage: only 4 subjects/day on TUE+THU (skip WED/FRI to show gaps)
+  const partialTemplate = [
+    { day: "TUE", period: 2, subjectCode: "ค21101", teacherIndex: 1 },
+    { day: "TUE", period: 3, subjectCode: "ว21101", teacherIndex: 2 },
+    { day: "THU", period: 2, subjectCode: "ค21101", teacherIndex: 1 },
+    { day: "THU", period: 3, subjectCode: "อ21101", teacherIndex: 7 },
+  ];
+  for (let gi = 0; gi < exampleGrades.length; gi++) {
+    const grade = exampleGrades[gi];
+    for (let si = 0; si < partialTemplate.length; si++) {
+      const slot = partialTemplate[si];
+      const timeslotId = `2-${academicYear}-${slot.day}${slot.period}`;
+      const teacher = teachers[slot.teacherIndex];
+      const resp = exampleResps.find(
+        (r) =>
+          r.GradeID === grade.GradeID &&
+          r.SubjectCode === slot.subjectCode &&
+          r.TeacherID === teacher.TeacherID &&
+          r.Semester === "SEMESTER_2",
+      );
+      if (!resp) continue;
+      // Idempotent: skip if (timeslot, grade) already scheduled
+      const exists = await prisma.class_schedule.findFirst({
+        where: { TimeslotID: timeslotId, GradeID: grade.GradeID },
+      });
+      if (exists) {
+        exampleScheduleCount++;
+        continue;
+      }
+      // Distinct room per (grade, slot) to avoid (TimeslotID, RoomID) conflicts
+      const roomIdx = (gi * partialTemplate.length + si) % rooms.length;
+      try {
+        await prisma.class_schedule.create({
+          data: {
+            TimeslotID: timeslotId,
+            SubjectCode: slot.subjectCode,
+            GradeID: grade.GradeID,
+            RoomID: rooms[roomIdx].RoomID,
+            IsLocked: false,
+            teachers_responsibility: { connect: [{ RespID: resp.RespID }] },
+          },
+        });
+        exampleScheduleCount++;
+      } catch (err: any) {
+        if (!err.message?.includes("Unique constraint")) {
+          console.warn(
+            `⚠️ partial slot skip ${grade.GradeID}/${slot.subjectCode}: ${err.message}`,
+          );
+        }
+      }
+    }
+  }
+  console.log(
+    `✅ Example semester schedules: ${exampleScheduleCount} total (${exampleLockedCount} locked assembly, rest partial)`,
+  );
+
   // ===== DEMO SUMMARY =====
   console.log("\n" + "=".repeat(70));
   console.log("🌐 Demo Data Seed Completed Successfully!");
   console.log("=".repeat(70));
   console.log("📊 Demo Data Summary:");
   console.log(`   • Subjects: ${demoSubjects.length}`);
-  console.log(`   • Program: 1 (${demoProgram.ProgramName})`);
-  console.log(`   • Program-Subject Links: ${programSubjectCount}`);
-  console.log(`   • Grade Levels: ${demoGrades.length} (M.1/1-3)`);
+  console.log(`   • Programs: 4 (M1-SCI + 3 M.4 tracks)`);
+  console.log(`   • Program-Subject Links: ${programSubjectCount + exampleProgSubjLinks}`);
+  console.log(
+    `   • Grade Levels: ${demoGrades.length + exampleGrades.length} (M.1/1-3 normal, M.4/1-3 example)`,
+  );
   console.log(`   • Rooms: ${demoRooms.length}`);
   console.log(`   • Teachers: ${teachers.length}`);
-  console.log(`   • Timeslots: ${timeslotCount} (3 semesters)`);
-  console.log(`   • Table Configurations: 3 (1-2567, 2-2567, 1-2568)`);
+  console.log(`   • Timeslots: ${timeslotCount} (2 semesters: 1-2567, 2-2567)`);
+  console.log(`   • Table Configurations: 2 (1-2567 ACTIVE, 2-2567 DRAFT)`);
   console.log(
-    `   • Teacher Responsibilities: ${responsibilities.length} (all 3 semesters)`,
+    `   • Teacher Responsibilities: ${responsibilities.length + exampleResps.length} (normal + example)`,
   );
-  console.log(`   • Class Schedules: ${scheduleCount}`);
+  console.log(
+    `   • Class Schedules: ${scheduleCount + exampleScheduleCount} (${scheduleCount} normal full + ${exampleScheduleCount} example partial w/ ${exampleLockedCount} locked)`,
+  );
   console.log("=".repeat(70));
-  console.log("\n✨ Demo data ready for production preview!");
-  console.log("💡 Teacher schedules will show populated timetables.");
-  console.log(
-    "💡 Program-subject relationships defined for curriculum validation.",
-  );
-  console.log("💡 Teacher responsibilities available for all 3 semesters.");
+  console.log("\n✨ Demo data ready!");
+  console.log("💡 1-2567 = NORMAL happy path (single program, full schedule)");
+  console.log("💡 2-2567 = EXAMPLE showcase (3 tracks, partial schedule, locked assembly, overloaded teacher)");
   console.log("=".repeat(70));
 }
 
