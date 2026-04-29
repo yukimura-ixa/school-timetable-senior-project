@@ -224,6 +224,33 @@ const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = {
 async function seedDemoData() {
   console.log("🌐 Starting demo data seed (idempotent, additive)...");
 
+  // ----- Cleanup: drop any semester NOT in the demo set (1-2567, 2-2567) -----
+  // Removes leftover configs from prior seed variants (e.g., 1-2568, 1-2569)
+  // so the SemesterSelector and dashboard don't show ghost semesters.
+  const KEEP_CONFIG_IDS = ["1-2567", "2-2567"];
+  console.log(`🧹 Cleaning configs not in [${KEEP_CONFIG_IDS.join(", ")}]...`);
+  const stale = await prisma.table_config.findMany({
+    where: { ConfigID: { notIn: KEEP_CONFIG_IDS } },
+    select: { ConfigID: true, AcademicYear: true, Semester: true },
+  });
+  for (const s of stale) {
+    // class_schedules tied to timeslots of this semester
+    await prisma.class_schedule.deleteMany({
+      where: {
+        timeslot: { AcademicYear: s.AcademicYear, Semester: s.Semester },
+      },
+    });
+    await prisma.teachers_responsibility.deleteMany({
+      where: { AcademicYear: s.AcademicYear, Semester: s.Semester },
+    });
+    await prisma.timeslot.deleteMany({
+      where: { AcademicYear: s.AcademicYear, Semester: s.Semester },
+    });
+    await prisma.table_config.delete({ where: { ConfigID: s.ConfigID } });
+    console.log(`   ✂️  Removed semester ${s.ConfigID}`);
+  }
+  if (stale.length === 0) console.log("   (no stale semesters found)");
+
   const academicYear = 2567;
   // Two-semester demo:
   //   1-2567  → "normal" happy path: single program M1-SCI, full schedule
@@ -647,9 +674,7 @@ async function seedDemoData() {
     "Upsert table config 2-2567",
   );
 
-  console.log(
-    "✅ Created 2 demo table configurations (1-2567 ACTIVE, 2-2567 DRAFT)",
-  );
+  console.log("✅ Created 2 demo table configurations (1-2567, 2-2567)");
 
   // ===== DEMO TEACHER RESPONSIBILITIES =====
   console.log("📝 Creating demo teacher responsibilities...");
@@ -1102,7 +1127,7 @@ async function seedDemoData() {
   console.log(`   • Rooms: ${demoRooms.length}`);
   console.log(`   • Teachers: ${teachers.length}`);
   console.log(`   • Timeslots: ${timeslotCount} (2 semesters: 1-2567, 2-2567)`);
-  console.log(`   • Table Configurations: 2 (1-2567 ACTIVE, 2-2567 DRAFT)`);
+  console.log(`   • Table Configurations: 2 (1-2567 normal, 2-2567 example)`);
   console.log(
     `   • Teacher Responsibilities: ${responsibilities.length + exampleResps.length} (normal + example)`,
   );
