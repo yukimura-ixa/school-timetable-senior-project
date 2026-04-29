@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { PublishReadinessResult } from "@/features/config/domain/types/publish-readiness-types";
 
 // Stat Card Component
@@ -101,23 +102,41 @@ export function PublishReadinessCard({
   );
 }
 
+const COLLAPSED_COUNT = 3;
+
 export function ReadinessIssues({ issues }: { issues: string[] }) {
-  if (issues.length === 0) {
-    return null;
-  }
+  const [expanded, setExpanded] = useState(false);
+
+  if (issues.length === 0) return null;
+
+  const visible = expanded ? issues : issues.slice(0, COLLAPSED_COUNT);
+  const hidden = issues.length - COLLAPSED_COUNT;
 
   return (
-    <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-yellow-900">
-        ⚠️ ประเด็นที่ต้องดำเนินการก่อนเผยแพร่
-      </h2>
-      <ul className="list-disc space-y-2 pl-5">
-        {issues.map((issue, index) => (
-          <li key={index} className="text-sm text-yellow-800">
+    <div className="rounded-lg border border-yellow-200 bg-yellow-50 shadow-sm">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-yellow-200">
+        <h2 className="text-sm font-semibold text-yellow-900">
+          ⚠️ ประเด็นที่ต้องดำเนินการก่อนเผยแพร่
+        </h2>
+        <span className="text-xs font-medium text-yellow-700 bg-yellow-100 border border-yellow-200 rounded-full px-2 py-0.5">
+          {issues.length} รายการ
+        </span>
+      </div>
+      <ul className="divide-y divide-yellow-100">
+        {visible.map((issue, index) => (
+          <li key={index} className="px-5 py-2 text-sm text-yellow-800">
             {issue}
           </li>
         ))}
       </ul>
+      {issues.length > COLLAPSED_COUNT && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="w-full px-5 py-2 text-xs font-medium text-yellow-700 hover:bg-yellow-100 transition-colors border-t border-yellow-200 text-left"
+        >
+          {expanded ? "▲ แสดงน้อยลง" : `▼ แสดงเพิ่มเติมอีก ${hidden} รายการ`}
+        </button>
+      )}
     </div>
   );
 }

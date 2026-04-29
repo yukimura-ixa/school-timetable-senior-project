@@ -56,22 +56,22 @@ export default function SignInPageClient() {
         />
 
         <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={{ xs: 3, md: 4 }}
-          sx={{
-            width: "100%",
-            alignItems: "stretch",
-            minHeight: { md: 560 },
-          }}
-        >
-          <Box sx={{ flex: 1, display: "flex" }}>
-            <WelcomePanel />
-          </Box>
-          <Box sx={{ flex: 1, display: "flex" }}>
-            <SignInForm />
-          </Box>
-        </Stack>
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={{ xs: 0, md: 4 }}
+            sx={{
+              width: "100%",
+              alignItems: "stretch",
+              minHeight: { md: 560 },
+            }}
+          >
+            <Box sx={{ flex: 1, display: { xs: "none", md: "flex" } }}>
+              <WelcomePanel />
+            </Box>
+            <Box sx={{ flex: 1, display: "flex" }}>
+              <SignInForm />
+            </Box>
+          </Stack>
         </Container>
 
         {/* Bottom gradient fade */}
