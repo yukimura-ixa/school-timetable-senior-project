@@ -222,23 +222,252 @@ const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = {
 // Creates minimal but complete data for production demos
 // ============================================================================
 async function seedDemoData() {
-  console.log("🌐 Starting demo data seed (idempotent, additive)...");
+  console.log("🌐 Starting demo data seed 2568 (idempotent, additive)...");
 
-  // ----- Cleanup: drop any semester NOT in the demo set (1-2567, 2-2567) -----
-  // Removes leftover configs from prior seed variants (e.g., 1-2568, 1-2569)
-  // so the SemesterSelector and dashboard don't show ghost semesters.
-  const KEEP_CONFIG_IDS = ["1-2567", "2-2567"];
+  // ── Config ──────────────────────────────────────────────────────────────────
+  const KEEP_CONFIG_IDS = ["1-2568", "2-2568"];
+  const configTemplate = {
+    periodsPerDay: 8,
+    startTime: "08:30",
+    periodDuration: 50,
+    schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+    miniBreak: { after: 2, duration: 10 },
+    lunchBreak: { after: 4, duration: 50 },
+    breakTimes: { junior: { after: 4, duration: 50 }, senior: { after: 5, duration: 50 } },
+  };
+
+  // ── Subjects (77 total) ─────────────────────────────────────────────────────
+  const ALL_SUBJECTS: Array<{
+    code: string;
+    name: string;
+    credit: subject_credit;
+    learningArea?: LearningArea | null;
+    activityType?: ActivityType | null;
+    category: SubjectCategory;
+  }> = [
+    // Lower Secondary Core M.1
+    { code: "ท21101", name: "ภาษาไทย พื้นฐาน ม.1", credit: "CREDIT_15", learningArea: "THAI", category: "CORE" },
+    { code: "ค21101", name: "คณิตศาสตร์ พื้นฐาน ม.1", credit: "CREDIT_15", learningArea: "MATHEMATICS", category: "CORE" },
+    { code: "ว21101", name: "วิทยาศาสตร์และเทคโนโลยี ม.1", credit: "CREDIT_15", learningArea: "SCIENCE", category: "CORE" },
+    { code: "ส21101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม ม.1", credit: "CREDIT_10", learningArea: "SOCIAL", category: "CORE" },
+    { code: "พ21101", name: "สุขศึกษาและพลศึกษา ม.1", credit: "CREDIT_10", learningArea: "HEALTH_PE", category: "CORE" },
+    { code: "ศ21101", name: "ศิลปะ ม.1", credit: "CREDIT_10", learningArea: "ARTS", category: "CORE" },
+    { code: "ง21101", name: "การงานอาชีพ ม.1", credit: "CREDIT_10", learningArea: "CAREER", category: "CORE" },
+    { code: "อ21101", name: "ภาษาอังกฤษ พื้นฐาน ม.1", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
+    // Lower Secondary Core M.2
+    { code: "ท22101", name: "ภาษาไทย พื้นฐาน ม.2", credit: "CREDIT_15", learningArea: "THAI", category: "CORE" },
+    { code: "ค22101", name: "คณิตศาสตร์ พื้นฐาน ม.2", credit: "CREDIT_15", learningArea: "MATHEMATICS", category: "CORE" },
+    { code: "ว22101", name: "วิทยาศาสตร์และเทคโนโลยี ม.2", credit: "CREDIT_15", learningArea: "SCIENCE", category: "CORE" },
+    { code: "ส22101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม ม.2", credit: "CREDIT_10", learningArea: "SOCIAL", category: "CORE" },
+    { code: "พ22101", name: "สุขศึกษาและพลศึกษา ม.2", credit: "CREDIT_10", learningArea: "HEALTH_PE", category: "CORE" },
+    { code: "ศ22101", name: "ศิลปะ ม.2", credit: "CREDIT_10", learningArea: "ARTS", category: "CORE" },
+    { code: "ง22101", name: "การงานอาชีพ ม.2", credit: "CREDIT_10", learningArea: "CAREER", category: "CORE" },
+    { code: "อ22101", name: "ภาษาอังกฤษ พื้นฐาน ม.2", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
+    // Lower Secondary Core M.3
+    { code: "ท23101", name: "ภาษาไทย พื้นฐาน ม.3", credit: "CREDIT_15", learningArea: "THAI", category: "CORE" },
+    { code: "ค23101", name: "คณิตศาสตร์ พื้นฐาน ม.3", credit: "CREDIT_15", learningArea: "MATHEMATICS", category: "CORE" },
+    { code: "ว23101", name: "วิทยาศาสตร์และเทคโนโลยี ม.3", credit: "CREDIT_15", learningArea: "SCIENCE", category: "CORE" },
+    { code: "ส23101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม ม.3", credit: "CREDIT_10", learningArea: "SOCIAL", category: "CORE" },
+    { code: "พ23101", name: "สุขศึกษาและพลศึกษา ม.3", credit: "CREDIT_10", learningArea: "HEALTH_PE", category: "CORE" },
+    { code: "ศ23101", name: "ศิลปะ ม.3", credit: "CREDIT_10", learningArea: "ARTS", category: "CORE" },
+    { code: "ง23101", name: "การงานอาชีพ ม.3", credit: "CREDIT_10", learningArea: "CAREER", category: "CORE" },
+    { code: "อ23101", name: "ภาษาอังกฤษ พื้นฐาน ม.3", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
+    // Upper Secondary Core M.4
+    { code: "ท31101", name: "ภาษาไทย พื้นฐาน ม.4", credit: "CREDIT_10", learningArea: "THAI", category: "CORE" },
+    { code: "ค31101", name: "คณิตศาสตร์ พื้นฐาน ม.4", credit: "CREDIT_10", learningArea: "MATHEMATICS", category: "CORE" },
+    { code: "ว31101", name: "วิทยาศาสตร์และเทคโนโลยี ม.4", credit: "CREDIT_10", learningArea: "SCIENCE", category: "CORE" },
+    { code: "ส31101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม ม.4", credit: "CREDIT_10", learningArea: "SOCIAL", category: "CORE" },
+    { code: "พ31101", name: "สุขศึกษาและพลศึกษา ม.4", credit: "CREDIT_10", learningArea: "HEALTH_PE", category: "CORE" },
+    { code: "อ31101", name: "ภาษาอังกฤษ พื้นฐาน ม.4", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
+    // Upper Secondary Core M.5
+    { code: "ท32101", name: "ภาษาไทย พื้นฐาน ม.5", credit: "CREDIT_10", learningArea: "THAI", category: "CORE" },
+    { code: "ค32101", name: "คณิตศาสตร์ พื้นฐาน ม.5", credit: "CREDIT_10", learningArea: "MATHEMATICS", category: "CORE" },
+    { code: "ว32101", name: "วิทยาศาสตร์และเทคโนโลยี ม.5", credit: "CREDIT_10", learningArea: "SCIENCE", category: "CORE" },
+    { code: "ส32101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม ม.5", credit: "CREDIT_10", learningArea: "SOCIAL", category: "CORE" },
+    { code: "พ32101", name: "สุขศึกษาและพลศึกษา ม.5", credit: "CREDIT_10", learningArea: "HEALTH_PE", category: "CORE" },
+    { code: "อ32101", name: "ภาษาอังกฤษ พื้นฐาน ม.5", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
+    // Upper Secondary Core M.6
+    { code: "ท33101", name: "ภาษาไทย พื้นฐาน ม.6", credit: "CREDIT_10", learningArea: "THAI", category: "CORE" },
+    { code: "ค33101", name: "คณิตศาสตร์ พื้นฐาน ม.6", credit: "CREDIT_10", learningArea: "MATHEMATICS", category: "CORE" },
+    { code: "ว33101", name: "วิทยาศาสตร์และเทคโนโลยี ม.6", credit: "CREDIT_10", learningArea: "SCIENCE", category: "CORE" },
+    { code: "ส33101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม ม.6", credit: "CREDIT_10", learningArea: "SOCIAL", category: "CORE" },
+    { code: "พ33101", name: "สุขศึกษาและพลศึกษา ม.6", credit: "CREDIT_10", learningArea: "HEALTH_PE", category: "CORE" },
+    { code: "อ33101", name: "ภาษาอังกฤษ พื้นฐาน ม.6", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
+    // SCI-MATH electives (ค shared with LANG-MATH)
+    { code: "ค31201", name: "คณิตศาสตร์เพิ่มเติม ม.4", credit: "CREDIT_20", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
+    { code: "ว31201", name: "ฟิสิกส์ ม.4", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว31202", name: "เคมี ม.4", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว31203", name: "ชีววิทยา ม.4", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ค32201", name: "คณิตศาสตร์เพิ่มเติม ม.5", credit: "CREDIT_20", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
+    { code: "ว32201", name: "ฟิสิกส์ ม.5", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว32202", name: "เคมี ม.5", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว32203", name: "ชีววิทยา ม.5", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ค33201", name: "คณิตศาสตร์เพิ่มเติม ม.6", credit: "CREDIT_20", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
+    { code: "ว33201", name: "ฟิสิกส์ ม.6", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว33202", name: "เคมี ม.6", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว33203", name: "ชีววิทยา ม.6", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    // Chinese — LANG-MATH + LANG-ARTS shared
+    { code: "จ31201", name: "ภาษาจีน ม.4", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
+    { code: "จ32201", name: "ภาษาจีน ม.5", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
+    { code: "จ33201", name: "ภาษาจีน ม.6", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
+    // Career/Tech — LANG-MATH only
+    { code: "ง31201", name: "การงานอาชีพและเทคโนโลยี ม.4", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
+    { code: "ง32201", name: "การงานอาชีพและเทคโนโลยี ม.5", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
+    { code: "ง33201", name: "การงานอาชีพและเทคโนโลยี ม.6", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
+    // Japanese — LANG-ARTS only
+    { code: "ญ31201", name: "ภาษาญี่ปุ่น ม.4", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
+    { code: "ญ32201", name: "ภาษาญี่ปุ่น ม.5", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
+    { code: "ญ33201", name: "ภาษาญี่ปุ่น ม.6", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
+    // Advanced Social — LANG-ARTS only
+    { code: "ส31102", name: "สังคมศึกษาเพิ่มเติม ม.4", credit: "CREDIT_15", learningArea: "SOCIAL", category: "ADDITIONAL" },
+    { code: "ส32102", name: "สังคมศึกษาเพิ่มเติม ม.5", credit: "CREDIT_15", learningArea: "SOCIAL", category: "ADDITIONAL" },
+    { code: "ส33102", name: "สังคมศึกษาเพิ่มเติม ม.6", credit: "CREDIT_15", learningArea: "SOCIAL", category: "ADDITIONAL" },
+    // Advanced Arts — LANG-ARTS only
+    { code: "ศ31201", name: "ศิลปะเพิ่มเติม ม.4", credit: "CREDIT_10", learningArea: "ARTS", category: "ADDITIONAL" },
+    { code: "ศ32201", name: "ศิลปะเพิ่มเติม ม.5", credit: "CREDIT_10", learningArea: "ARTS", category: "ADDITIONAL" },
+    { code: "ศ33201", name: "ศิลปะเพิ่มเติม ม.6", credit: "CREDIT_10", learningArea: "ARTS", category: "ADDITIONAL" },
+    // Activity subjects
+    { code: "ACT-GUIDE",    name: "แนะแนว",               credit: "CREDIT_10", category: "ACTIVITY", activityType: "GUIDANCE" as ActivityType },
+    { code: "ACT-CLUB",     name: "ชุมนุม",                credit: "CREDIT_10", category: "ACTIVITY", activityType: "CLUB"     as ActivityType },
+    { code: "ACT-SCOUT-M1", name: "ลูกเสือ/เนตรนารี ม.1", credit: "CREDIT_10", category: "ACTIVITY", activityType: "SCOUT"    as ActivityType },
+    { code: "ACT-SCOUT-M2", name: "ลูกเสือ/เนตรนารี ม.2", credit: "CREDIT_10", category: "ACTIVITY", activityType: "SCOUT"    as ActivityType },
+    { code: "ACT-SCOUT-M3", name: "ลูกเสือ/เนตรนารี ม.3", credit: "CREDIT_10", category: "ACTIVITY", activityType: "SCOUT"    as ActivityType },
+    { code: "ACT-SCOUT-M4", name: "ลูกเสือ/เนตรนารี ม.4", credit: "CREDIT_10", category: "ACTIVITY", activityType: "SCOUT"    as ActivityType },
+    { code: "ACT-SCOUT-M5", name: "ลูกเสือ/เนตรนารี ม.5", credit: "CREDIT_10", category: "ACTIVITY", activityType: "SCOUT"    as ActivityType },
+    { code: "ACT-SCOUT-M6", name: "ลูกเสือ/เนตรนารี ม.6", credit: "CREDIT_10", category: "ACTIVITY", activityType: "SCOUT"    as ActivityType },
+  ];
+
+  // ── Rooms (22) ──────────────────────────────────────────────────────────────
+  const ALL_ROOMS = [
+    { name: "ห้อง 101", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 102", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 103", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 104", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 105", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 106", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 201", building: "อาคาร 2", floor: "ชั้น 1" },
+    { name: "ห้อง 202", building: "อาคาร 2", floor: "ชั้น 1" },
+    { name: "ห้อง 203", building: "อาคาร 2", floor: "ชั้น 1" },
+    { name: "ห้อง 204", building: "อาคาร 2", floor: "ชั้น 1" },
+    { name: "ห้อง 205", building: "อาคาร 2", floor: "ชั้น 1" },
+    { name: "ห้อง 206", building: "อาคาร 2", floor: "ชั้น 1" },
+    { name: "ห้องปฏิบัติการวิทย์ 1", building: "อาคารวิทยาศาสตร์", floor: "ชั้น 1" },
+    { name: "ห้องปฏิบัติการวิทย์ 2", building: "อาคารวิทยาศาสตร์", floor: "ชั้น 1" },
+    { name: "ห้องปฏิบัติการวิทย์ 3", building: "อาคารวิทยาศาสตร์", floor: "ชั้น 2" },
+    { name: "ห้องคอมพิวเตอร์ 1", building: "อาคารเทคโนโลยี", floor: "ชั้น 1" },
+    { name: "ห้องคอมพิวเตอร์ 2", building: "อาคารเทคโนโลยี", floor: "ชั้น 1" },
+    { name: "ห้องศิลปะ", building: "อาคาร 2", floor: "ชั้น 2" },
+    { name: "โรงพลศึกษา", building: "อาคารกีฬา", floor: "ชั้น 1" },
+    { name: "ห้องกิจกรรม 1", building: "อาคาร 1", floor: "ชั้น 2" },
+    { name: "ห้องกิจกรรม 2", building: "อาคาร 1", floor: "ชั้น 2" },
+    { name: "ห้องประชุม", building: "อาคารอำนวยการ", floor: "ชั้น 1" },
+  ];
+
+  // ── Teachers (29: 28 dept + 1 E2E) ─────────────────────────────────────────
+  // T1–T3: ภาษาไทย  T4–T6: คณิตศาสตร์  T7–T10: วิทยาศาสตร์
+  // T11–T13: สังคมศึกษา  T14–T15: สุขศึกษา/พลศึกษา  T16–T17: ศิลปะ
+  // T18–T19: การงานอาชีพ  T20–T23: ภาษาอังกฤษ
+  // T24–T25: ภาษาจีน  T26: ภาษาญี่ปุ่น  T27–T28: แนะแนว/กิจกรรม  T29: E2E
+  const ALL_TEACHERS = [
+    { email: "teacher1@school.ac.th",  prefix: "ครู", firstname: "สมชาย",    lastname: "ทองดี",      dept: "ภาษาไทย" },
+    { email: "teacher2@school.ac.th",  prefix: "ครู", firstname: "นิภา",     lastname: "ใสสะอาด",    dept: "ภาษาไทย" },
+    { email: "teacher3@school.ac.th",  prefix: "ครู", firstname: "วิมล",     lastname: "รักภาษา",    dept: "ภาษาไทย" },
+    { email: "teacher4@school.ac.th",  prefix: "ครู", firstname: "อนุชา",    lastname: "มั่นคง",     dept: "คณิตศาสตร์" },
+    { email: "teacher5@school.ac.th",  prefix: "ครู", firstname: "สุภา",     lastname: "เลขเก่ง",    dept: "คณิตศาสตร์" },
+    { email: "teacher6@school.ac.th",  prefix: "ครู", firstname: "ประสิทธิ์",lastname: "คิดเร็ว",    dept: "คณิตศาสตร์" },
+    { email: "teacher7@school.ac.th",  prefix: "ครู", firstname: "วิชัย",    lastname: "เก่งมาก",    dept: "วิทยาศาสตร์และเทคโนโลยี" },
+    { email: "teacher8@school.ac.th",  prefix: "ครู", firstname: "ศิริพรรณ",lastname: "สุขเจริญ",    dept: "วิทยาศาสตร์และเทคโนโลยี" },
+    { email: "teacher9@school.ac.th",  prefix: "ครู", firstname: "นันทวัน", lastname: "ภูมิใจ",     dept: "วิทยาศาสตร์และเทคโนโลยี" },
+    { email: "teacher10@school.ac.th", prefix: "ครู", firstname: "ธีรพล",   lastname: "วิทยา",      dept: "วิทยาศาสตร์และเทคโนโลยี" },
+    { email: "teacher11@school.ac.th", prefix: "ครู", firstname: "สุดา",    lastname: "รักเรียน",   dept: "สังคมศึกษา" },
+    { email: "teacher12@school.ac.th", prefix: "ครู", firstname: "จิราพร",  lastname: "ประวัติดี",  dept: "สังคมศึกษา" },
+    { email: "teacher13@school.ac.th", prefix: "ครู", firstname: "ชาติชาย", lastname: "ศาสนา",      dept: "สังคมศึกษา" },
+    { email: "teacher14@school.ac.th", prefix: "ครู", firstname: "ประสิทธิ์",lastname: "แข็งแรง",   dept: "สุขศึกษาและพลศึกษา" },
+    { email: "teacher15@school.ac.th", prefix: "ครู", firstname: "กนกพร",   lastname: "สุขภาพดี",   dept: "สุขศึกษาและพลศึกษา" },
+    { email: "teacher16@school.ac.th", prefix: "ครู", firstname: "ศิริพร",  lastname: "ศิลป์งาม",   dept: "ศิลปะ" },
+    { email: "teacher17@school.ac.th", prefix: "ครู", firstname: "อรุณ",    lastname: "วาดเก่ง",    dept: "ศิลปะ" },
+    { email: "teacher18@school.ac.th", prefix: "ครู", firstname: "บุญส่ง",  lastname: "อาชีพดี",    dept: "การงานอาชีพ" },
+    { email: "teacher19@school.ac.th", prefix: "ครู", firstname: "วรรณา",   lastname: "เทคโนโลยี",  dept: "การงานอาชีพ" },
+    { email: "teacher20@school.ac.th", prefix: "ครู", firstname: "จอห์น",   lastname: "สมิธ",       dept: "ภาษาต่างประเทศ" },
+    { email: "teacher21@school.ac.th", prefix: "ครู", firstname: "แมรี่",   lastname: "จอห์นสัน",   dept: "ภาษาต่างประเทศ" },
+    { email: "teacher22@school.ac.th", prefix: "ครู", firstname: "ไมเคิล",  lastname: "บราวน์",     dept: "ภาษาต่างประเทศ" },
+    { email: "teacher23@school.ac.th", prefix: "ครู", firstname: "เอมิลี่", lastname: "เดวิส",      dept: "ภาษาต่างประเทศ" },
+    { email: "teacher24@school.ac.th", prefix: "ครู", firstname: "หลี่",    lastname: "เมย์",       dept: "ภาษาต่างประเทศ" },
+    { email: "teacher25@school.ac.th", prefix: "ครู", firstname: "หวัง",    lastname: "ฟาง",        dept: "ภาษาต่างประเทศ" },
+    { email: "teacher26@school.ac.th", prefix: "ครู", firstname: "ซาโตะ",   lastname: "ยูกิ",       dept: "ภาษาต่างประเทศ" },
+    { email: "teacher27@school.ac.th", prefix: "ครู", firstname: "กมลา",    lastname: "แนะนำดี",    dept: "แนะแนว" },
+    { email: "teacher28@school.ac.th", prefix: "ครู", firstname: "ปรีชา",   lastname: "กิจกรรม",    dept: "แนะแนว" },
+    { email: "e2e.teacher@school.ac.th", prefix: "ครู", firstname: "E2E", lastname: "ทดสอบ", dept: "คณิตศาสตร์" },
+  ];
+
+  // ── Programs (12) ───────────────────────────────────────────────────────────
+  // schema: @@unique([Year, Track]) enforced — findFirst by (Year, Track) before create
+  const ALL_PROGRAMS = [
+    { code: "M1-GEN",       name: "หลักสูตรมัธยมศึกษาปีที่ 1",    year: 1, track: "GENERAL"       as ProgramTrack, minCredits: 43 },
+    { code: "M2-GEN",       name: "หลักสูตรมัธยมศึกษาปีที่ 2",    year: 2, track: "GENERAL"       as ProgramTrack, minCredits: 43 },
+    { code: "M3-GEN",       name: "หลักสูตรมัธยมศึกษาปีที่ 3",    year: 3, track: "GENERAL"       as ProgramTrack, minCredits: 43 },
+    { code: "M4-SCI",       name: "หลักสูตรวิทย์-คณิต ม.4",       year: 4, track: "SCIENCE_MATH"  as ProgramTrack, minCredits: 41 },
+    { code: "M4-LANG-MATH", name: "หลักสูตรศิลป์-คำนวณ ม.4",      year: 4, track: "LANGUAGE_MATH" as ProgramTrack, minCredits: 41 },
+    { code: "M4-LANG-ARTS", name: "หลักสูตรศิลป์-ภาษา ม.4",       year: 4, track: "LANGUAGE_ARTS" as ProgramTrack, minCredits: 41 },
+    { code: "M5-SCI",       name: "หลักสูตรวิทย์-คณิต ม.5",       year: 5, track: "SCIENCE_MATH"  as ProgramTrack, minCredits: 41 },
+    { code: "M5-LANG-MATH", name: "หลักสูตรศิลป์-คำนวณ ม.5",      year: 5, track: "LANGUAGE_MATH" as ProgramTrack, minCredits: 41 },
+    { code: "M5-LANG-ARTS", name: "หลักสูตรศิลป์-ภาษา ม.5",       year: 5, track: "LANGUAGE_ARTS" as ProgramTrack, minCredits: 41 },
+    { code: "M6-SCI",       name: "หลักสูตรวิทย์-คณิต ม.6",       year: 6, track: "SCIENCE_MATH"  as ProgramTrack, minCredits: 41 },
+    { code: "M6-LANG-MATH", name: "หลักสูตรศิลป์-คำนวณ ม.6",      year: 6, track: "LANGUAGE_MATH" as ProgramTrack, minCredits: 41 },
+    { code: "M6-LANG-ARTS", name: "หลักสูตรศิลป์-ภาษา ม.6",       year: 6, track: "LANGUAGE_ARTS" as ProgramTrack, minCredits: 41 },
+  ];
+
+  // ── Grade Levels (18) ───────────────────────────────────────────────────────
+  const ALL_GRADES = [
+    { id: "M1-1", year: 1, number: 1, students: 35, programCode: "M1-GEN" },
+    { id: "M1-2", year: 1, number: 2, students: 35, programCode: "M1-GEN" },
+    { id: "M1-3", year: 1, number: 3, students: 35, programCode: "M1-GEN" },
+    { id: "M2-1", year: 2, number: 1, students: 35, programCode: "M2-GEN" },
+    { id: "M2-2", year: 2, number: 2, students: 35, programCode: "M2-GEN" },
+    { id: "M2-3", year: 2, number: 3, students: 35, programCode: "M2-GEN" },
+    { id: "M3-1", year: 3, number: 1, students: 35, programCode: "M3-GEN" },
+    { id: "M3-2", year: 3, number: 2, students: 35, programCode: "M3-GEN" },
+    { id: "M3-3", year: 3, number: 3, students: 35, programCode: "M3-GEN" },
+    { id: "M4-1", year: 4, number: 1, students: 32, programCode: "M4-SCI" },
+    { id: "M4-2", year: 4, number: 2, students: 32, programCode: "M4-LANG-MATH" },
+    { id: "M4-3", year: 4, number: 3, students: 32, programCode: "M4-LANG-ARTS" },
+    { id: "M5-1", year: 5, number: 1, students: 32, programCode: "M5-SCI" },
+    { id: "M5-2", year: 5, number: 2, students: 32, programCode: "M5-LANG-MATH" },
+    { id: "M5-3", year: 5, number: 3, students: 32, programCode: "M5-LANG-ARTS" },
+    { id: "M6-1", year: 6, number: 1, students: 32, programCode: "M6-SCI" },
+    { id: "M6-2", year: 6, number: 2, students: 32, programCode: "M6-LANG-MATH" },
+    { id: "M6-3", year: 6, number: 3, students: 32, programCode: "M6-LANG-ARTS" },
+  ];
+
+  // ── Period schedule ─────────────────────────────────────────────────────────
+  // P2 BREAK_BOTH: mini-break gap (10:10–10:20) follows after P2 ends at 10:10
+  // P4 BREAK_JUNIOR: juniors at lunch; no class_schedule for junior grades at P4
+  // P5 BREAK_SENIOR: seniors at lunch; no class_schedule for senior grades at P5
+  const PERIODS_2568 = [
+    { num: 1, start: "08:30", end: "09:20", brk: "NOT_BREAK"    as breaktime },
+    { num: 2, start: "09:20", end: "10:10", brk: "BREAK_BOTH"   as breaktime },
+    { num: 3, start: "10:20", end: "11:10", brk: "NOT_BREAK"    as breaktime },
+    { num: 4, start: "11:10", end: "12:00", brk: "BREAK_JUNIOR" as breaktime },
+    { num: 5, start: "12:00", end: "12:50", brk: "BREAK_SENIOR" as breaktime },
+    { num: 6, start: "12:50", end: "13:40", brk: "NOT_BREAK"    as breaktime },
+    { num: 7, start: "13:40", end: "14:30", brk: "NOT_BREAK"    as breaktime },
+    { num: 8, start: "14:30", end: "15:20", brk: "NOT_BREAK"    as breaktime },
+  ];
+
+  const DAYS: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
+  // Available period indices for each school level (no lunch break for their group)
+  const JUNIOR_PERIODS = [1, 2, 3, 5, 6, 7, 8]; // skip P4
+  const SENIOR_PERIODS = [1, 2, 3, 4, 6, 7, 8]; // skip P5
+
+  // ── Cleanup stale semesters ─────────────────────────────────────────────────
   console.log(`🧹 Cleaning configs not in [${KEEP_CONFIG_IDS.join(", ")}]...`);
   const stale = await prisma.table_config.findMany({
     where: { ConfigID: { notIn: KEEP_CONFIG_IDS } },
     select: { ConfigID: true, AcademicYear: true, Semester: true },
   });
   for (const s of stale) {
-    // class_schedules tied to timeslots of this semester
     await prisma.class_schedule.deleteMany({
-      where: {
-        timeslot: { AcademicYear: s.AcademicYear, Semester: s.Semester },
-      },
+      where: { timeslot: { AcademicYear: s.AcademicYear, Semester: s.Semester } },
     });
     await prisma.teachers_responsibility.deleteMany({
       where: { AcademicYear: s.AcademicYear, Semester: s.Semester },
@@ -251,98 +480,10 @@ async function seedDemoData() {
   }
   if (stale.length === 0) console.log("   (no stale semesters found)");
 
-  const academicYear = 2567;
-  // Two-semester demo:
-  //   1-2567  → "normal" happy path: single program M1-SCI, full schedule
-  //   2-2567  → "example" showcase: 3 program tracks, M.4 grades, partial schedule,
-  //              locked assembly slot, overloaded teacher (edge cases for review)
-  const semesters: { semester: semester; number: number }[] = [
-    { semester: "SEMESTER_1", number: 1 },
-    { semester: "SEMESTER_2", number: 2 },
-  ];
-
-  const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
-  const periods = [
-    { start: "08:30", end: "09:20", break: "NOT_BREAK" as breaktime },
-    { start: "09:20", end: "10:10", break: "NOT_BREAK" as breaktime },
-    { start: "10:10", end: "11:00", break: "NOT_BREAK" as breaktime },
-    { start: "11:00", end: "11:50", break: "NOT_BREAK" as breaktime },
-    { start: "12:50", end: "13:40", break: "BREAK_JUNIOR" as breaktime },
-    { start: "13:40", end: "14:30", break: "BREAK_SENIOR" as breaktime },
-    { start: "14:30", end: "15:20", break: "NOT_BREAK" as breaktime },
-    { start: "15:20", end: "16:10", break: "NOT_BREAK" as breaktime },
-  ];
-
-  // ===== DEMO SUBJECTS (10 core subjects) =====
-  console.log("📚 Creating demo subjects...");
-
-  // Demo subjects using MOE format (ม.1 subjects for demo purposes)
-  const demoSubjects = [
-    {
-      code: "ท21101",
-      name: "ภาษาไทย พื้นฐาน 1",
-      credit: "CREDIT_15" as subject_credit,
-      learningArea: "THAI" as LearningArea,
-    },
-    {
-      code: "ค21101",
-      name: "คณิตศาสตร์ พื้นฐาน 1",
-      credit: "CREDIT_15" as subject_credit,
-      learningArea: "MATHEMATICS" as LearningArea,
-    },
-    {
-      code: "ว21101",
-      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 1",
-      credit: "CREDIT_15" as subject_credit,
-      learningArea: "SCIENCE" as LearningArea,
-    },
-    {
-      code: "ส21101",
-      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 1",
-      credit: "CREDIT_10" as subject_credit,
-      learningArea: "SOCIAL" as LearningArea,
-    },
-    {
-      code: "พ21101",
-      name: "สุขศึกษาและพลศึกษา 1",
-      credit: "CREDIT_10" as subject_credit,
-      learningArea: "HEALTH_PE" as LearningArea,
-    },
-    {
-      code: "ศ21101",
-      name: "ศิลปะ พื้นฐาน 1",
-      credit: "CREDIT_10" as subject_credit,
-      learningArea: "ARTS" as LearningArea,
-    },
-    {
-      code: "ง21101",
-      name: "การงานอาชีพ พื้นฐาน 1",
-      credit: "CREDIT_10" as subject_credit,
-      learningArea: "CAREER" as LearningArea,
-    },
-    {
-      code: "อ21101",
-      name: "ภาษาอังกฤษ พื้นฐาน 1",
-      credit: "CREDIT_10" as subject_credit,
-      learningArea: "FOREIGN_LANGUAGE" as LearningArea,
-    },
-    {
-      code: "ACT-CLUB",
-      name: "ชุมนุม",
-      credit: "CREDIT_10" as subject_credit,
-      learningArea: null,
-      activityType: "CLUB" as ActivityType,
-    },
-    {
-      code: "ACT-GUIDE",
-      name: "แนะแนว",
-      credit: "CREDIT_10" as subject_credit,
-      learningArea: null,
-      activityType: "GUIDANCE" as ActivityType,
-    },
-  ];
-
-  for (const subject of demoSubjects) {
+  // ── Seed subjects ───────────────────────────────────────────────────────────
+  console.log("📚 Seeding subjects...");
+  const subjectMap = new Map(ALL_SUBJECTS.map((s) => [s.code, s]));
+  for (const subject of ALL_SUBJECTS) {
     await withRetry(
       () =>
         prisma.subject.upsert({
@@ -352,792 +493,622 @@ async function seedDemoData() {
             SubjectCode: subject.code,
             SubjectName: subject.name,
             Credit: subject.credit,
-            Category: subject.activityType ? "ACTIVITY" : "CORE",
-            LearningArea: subject.learningArea,
-            ActivityType: subject.activityType,
-            IsGraded: !subject.activityType,
+            Category: subject.category,
+            LearningArea: subject.learningArea ?? null,
+            ActivityType: subject.activityType ?? null,
+            IsGraded: subject.category !== "ACTIVITY",
           },
         }),
-      `Upsert demo subject ${subject.code}`,
+      `Upsert subject ${subject.code}`,
     );
   }
-  console.log(`✅ Created ${demoSubjects.length} demo subjects`);
+  console.log(`✅ ${ALL_SUBJECTS.length} subjects`);
 
-  // ===== DEMO PROGRAM =====
-  console.log("🎓 Creating demo program...");
-  const demoProgram = await withRetry(
-    () =>
-      prisma.program.upsert({
-        where: { ProgramCode: "M1-SCI" },
-        update: {},
-        create: {
-          ProgramCode: "M1-SCI",
-          ProgramName: "หลักสูตรวิทย์-คณิต ม.1",
-          Year: 1,
-          Track: "SCIENCE_MATH" as ProgramTrack,
-          MinTotalCredits: 43,
-          Description:
-            "หลักสูตรเน้นวิทยาศาสตร์และคณิตศาสตร์สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ 1",
-        },
-      }),
-    "Upsert demo program M1-SCI",
-  );
-  console.log(`✅ Created demo program: ${demoProgram.ProgramName}`);
-
-  // ===== DEMO PROGRAM_SUBJECT RELATIONSHIPS =====
-  console.log("🔗 Creating demo program-subject relationships...");
-  let programSubjectCount = 0;
-
-  // Define category mapping for demo subjects
-  const subjectCategoryMap: Record<string, SubjectCategory> = {
-    ท21101: "CORE",
-    ค21101: "CORE",
-    ว21101: "CORE",
-    ส21101: "CORE",
-    พ21101: "CORE",
-    ศ21101: "CORE",
-    ง21101: "CORE",
-    อ21101: "CORE",
-    "ACT-CLUB": "ACTIVITY",
-    "ACT-GUIDE": "ACTIVITY",
-  };
-
-  // Credit to number helper
-  const creditToNum = (credit: subject_credit): number => {
-    switch (credit) {
-      case "CREDIT_05":
-        return 0.5;
-      case "CREDIT_10":
-        return 1.0;
-      case "CREDIT_15":
-        return 1.5;
-      case "CREDIT_20":
-        return 2.0;
-      default:
-        return 1.0;
-    }
-  };
-
-  for (let i = 0; i < demoSubjects.length; i++) {
-    const subject = demoSubjects[i];
-    const category = subjectCategoryMap[subject.code] || "CORE";
-
-    await withRetry(
-      () =>
-        prisma.program_subject.upsert({
-          where: {
-            ProgramID_SubjectCode: {
-              ProgramID: demoProgram.ProgramID,
-              SubjectCode: subject.code,
-            },
-          },
-          update: {},
-          create: {
-            ProgramID: demoProgram.ProgramID,
-            SubjectCode: subject.code,
-            Category: category,
-            IsMandatory: category !== "ACTIVITY",
-            MinCredits: creditToNum(subject.credit),
-            SortOrder: i + 1,
-          },
-        }),
-      `Link subject ${subject.code} to M1-SCI program`,
-    );
-    programSubjectCount++;
-  }
-  console.log(
-    `✅ Created ${programSubjectCount} program-subject relationships`,
-  );
-
-  // ===== DEMO GRADE LEVELS (3 sections of M.1) =====
-  console.log("🏫 Creating demo grade levels...");
-  const demoGrades = [
-    { id: "M1-1", year: 1, number: 1 },
-    { id: "M1-2", year: 1, number: 2 },
-    { id: "M1-3", year: 1, number: 3 },
-  ];
-
-  const gradeLevels = [];
-  for (const grade of demoGrades) {
-    const gradeLevel = await withRetry(
-      () =>
-        prisma.gradelevel.upsert({
-          where: { GradeID: grade.id },
-          update: {},
-          create: {
-            GradeID: grade.id,
-            Year: grade.year,
-            Number: grade.number,
-            StudentCount: 35,
-            ProgramID: demoProgram.ProgramID,
-          },
-        }),
-      `Upsert demo grade ${grade.id}`,
-    );
-    gradeLevels.push(gradeLevel);
-  }
-  console.log(`✅ Created ${demoGrades.length} demo grade levels`);
-
-  // ===== DEMO ROOMS (5 rooms) =====
-  console.log("🚪 Creating demo rooms...");
-  const demoRooms = [
-    { name: "ห้อง 111", building: "อาคาร 1", floor: "ชั้น 1" },
-    { name: "ห้อง 112", building: "อาคาร 1", floor: "ชั้น 1" },
-    { name: "ห้อง 113", building: "อาคาร 1", floor: "ชั้น 1" },
-    { name: "ห้อง 211", building: "อาคารวิทยาศาสตร์", floor: "ชั้น 1" },
-    { name: "ห้อง 212", building: "อาคารวิทยาศาสตร์", floor: "ชั้น 1" },
-  ];
-
-  const rooms = [];
-  for (const room of demoRooms) {
-    const createdRoom = await withRetry(
+  // ── Seed rooms ──────────────────────────────────────────────────────────────
+  console.log("🚪 Seeding rooms...");
+  const roomMap = new Map<string, number>();
+  for (const r of ALL_ROOMS) {
+    const room = await withRetry(
       () =>
         prisma.room.upsert({
-          where: { RoomName: room.name },
+          where: { RoomName: r.name },
           update: {},
-          create: {
-            RoomName: room.name,
-            Building: room.building,
-            Floor: room.floor,
-          },
+          create: { RoomName: r.name, Building: r.building, Floor: r.floor },
         }),
-      `Upsert demo room ${room.name}`,
+      `Upsert room ${r.name}`,
     );
-    rooms.push(createdRoom);
+    roomMap.set(room.RoomName, room.RoomID);
   }
-  console.log(`✅ Created ${demoRooms.length} demo rooms`);
+  console.log(`✅ ${ALL_ROOMS.length} rooms`);
 
-  // ===== DEMO TEACHERS (8 teachers, 1 per department) =====
-  console.log("👨‍🏫 Creating demo teachers...");
-  const demoTeachers = [
-    {
-      prefix: "ครู",
-      firstname: "สมชาย",
-      lastname: "ทองดี",
-      dept: "ภาษาไทย",
-      email: "teacher1@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "สมหญิง",
-      lastname: "ใจดี",
-      dept: "คณิตศาสตร์",
-      email: "teacher2@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "วิชัย",
-      lastname: "เก่งมาก",
-      dept: "วิทยาศาสตร์และเทคโนโลยี",
-      email: "teacher3@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "สุดา",
-      lastname: "รักเรียน",
-      dept: "สังคมศึกษา",
-      email: "teacher4@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "ประสิทธิ์",
-      lastname: "แข็งแรง",
-      dept: "สุขศึกษาและพลศึกษา",
-      email: "teacher5@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "ศิริพร",
-      lastname: "ศิลป์งาม",
-      dept: "ศิลปะ",
-      email: "teacher6@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "บุญส่ง",
-      lastname: "อาชีพดี",
-      dept: "การงานอาชีพ",
-      email: "teacher7@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "จอห์น",
-      lastname: "สมิธ",
-      dept: "ภาษาต่างประเทศ",
-      email: "teacher8@school.ac.th",
-    },
-    {
-      prefix: "ครู",
-      firstname: "E2E",
-      lastname: "ทดสอบ",
-      dept: "คณิตศาสตร์",
-      email: "e2e.teacher@school.ac.th",
-    },
-  ];
-
-  const teachers = [];
-  for (const teacher of demoTeachers) {
-    const createdTeacher = await withRetry(
+  // ── Seed teachers ───────────────────────────────────────────────────────────
+  console.log("👨‍🏫 Seeding teachers...");
+  const teacherMap = new Map<string, number>();
+  for (const t of ALL_TEACHERS) {
+    const teacher = await withRetry(
       () =>
         prisma.teacher.upsert({
-          where: { Email: teacher.email },
+          where: { Email: t.email },
           update: {},
           create: {
-            Prefix: teacher.prefix,
-            Firstname: teacher.firstname,
-            Lastname: teacher.lastname,
-            Department: teacher.dept,
-            Email: teacher.email,
+            Prefix: t.prefix,
+            Firstname: t.firstname,
+            Lastname: t.lastname,
+            Department: t.dept,
+            Email: t.email,
             Role: "teacher",
           },
         }),
-      `Upsert demo teacher ${teacher.email}`,
+      `Upsert teacher ${t.email}`,
     );
-    teachers.push(createdTeacher);
+    teacherMap.set(teacher.Email, teacher.TeacherID);
   }
-  console.log(`✅ Created ${teachers.length} demo teachers`);
+  console.log(`✅ ${ALL_TEACHERS.length} teachers`);
 
-  // ===== DEMO TIMESLOTS (for all 3 semesters) =====
-  console.log("⏰ Creating demo timeslots...");
-  let timeslotCount = 0;
-
-  // Semesters for 2567
-  for (const sem of semesters) {
-    for (const day of days) {
-      for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
-        const period = periods[periodNum - 1];
-        const timeslotId = `${sem.number}-${academicYear}-${day}${periodNum}`;
-
-        await withRetry(
-          () =>
-            prisma.timeslot.upsert({
-              where: { TimeslotID: timeslotId },
-              update: {},
-              create: {
-                TimeslotID: timeslotId,
-                AcademicYear: academicYear,
-                Semester: sem.semester,
-                StartTime: new Date(`2024-01-01T${period.start}:00`),
-                EndTime: new Date(`2024-01-01T${period.end}:00`),
-                Breaktime: period.break,
-                DayOfWeek: day,
-              },
-            }),
-          `Upsert timeslot ${timeslotId}`,
-        );
-        timeslotCount++;
-      }
-    }
-  }
-
-  console.log(`✅ Created ${timeslotCount} demo timeslots`);
-
-  // ===== DEMO TABLE CONFIGS =====
-  console.log("⚙️  Creating demo table configurations...");
-  const configTemplate = {
-    periodsPerDay: 8,
-    startTime: "08:30",
-    periodDuration: 50,
-    schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
-    lunchBreak: { after: 4, duration: 60 },
-    breakTimes: { junior: { after: 4 }, senior: { after: 5 } },
-  };
-
-  await withRetry(
-    () =>
-      prisma.table_config.upsert({
-        where: { ConfigID: `1-${academicYear}` },
-        update: {},
-        create: {
-          ConfigID: `1-${academicYear}`,
-          AcademicYear: academicYear,
-          Semester: "SEMESTER_1",
-          Config: configTemplate,
-        },
-      }),
-    "Upsert table config 1-2567",
-  );
-
-  await withRetry(
-    () =>
-      prisma.table_config.upsert({
-        where: { ConfigID: `2-${academicYear}` },
-        update: {},
-        create: {
-          ConfigID: `2-${academicYear}`,
-          AcademicYear: academicYear,
-          Semester: "SEMESTER_2",
-          Config: configTemplate,
-          status: "DRAFT",
-        },
-      }),
-    "Upsert table config 2-2567",
-  );
-
-  console.log("✅ Created 2 demo table configurations (1-2567, 2-2567)");
-
-  // ===== DEMO TEACHER RESPONSIBILITIES =====
-  console.log("📝 Creating demo teacher responsibilities...");
-  const responsibilities: Awaited<
-    ReturnType<typeof prisma.teachers_responsibility.create>
-  >[] = [];
-
-  // Map MOE subject codes to teachers (by index matching departments)
-  // Teachers are aligned with their department's learning area
-  const subjectTeacherMap = [
-    { subjectCode: "ท21101", teacherIndex: 0, dept: "ภาษาไทย" }, // Thai teacher
-    { subjectCode: "ค21101", teacherIndex: 1, dept: "คณิตศาสตร์" }, // Math teacher
-    { subjectCode: "ว21101", teacherIndex: 2, dept: "วิทยาศาสตร์และเทคโนโลยี" }, // Science teacher
-    { subjectCode: "ส21101", teacherIndex: 3, dept: "สังคมศึกษา" }, // Social teacher
-    { subjectCode: "พ21101", teacherIndex: 4, dept: "สุขศึกษาและพลศึกษา" }, // PE teacher
-    { subjectCode: "ศ21101", teacherIndex: 5, dept: "ศิลปะ" }, // Art teacher
-    { subjectCode: "ง21101", teacherIndex: 6, dept: "การงานอาชีพ" }, // Career teacher
-    { subjectCode: "อ21101", teacherIndex: 7, dept: "ภาษาต่างประเทศ" }, // English teacher
-  ];
-
-  // Normal happy-path semester only. 2-2567 gets its own multi-track data below.
-  const semesterConfigs = [
-    { year: 2567, semester: "SEMESTER_1" as semester, configId: "1-2567" },
-  ];
-
-  const testSemesterConfigs = semesterConfigs;
-  const testGradeLevels =
-    process.env.SEED_FOR_TESTS === "true"
-      ? gradeLevels.slice(0, 3)
-      : gradeLevels;
-
-  for (const semConfig of testSemesterConfigs) {
-    for (const grade of testGradeLevels) {
-      for (const mapping of subjectTeacherMap) {
-        const teacher = teachers[mapping.teacherIndex];
-
-        // Validate teacher department matches subject learning area
-        const expectedDept =
-          SUBJECT_PREFIX_TO_DEPT[mapping.subjectCode.charAt(0)];
-        if (teacher.Department !== expectedDept) {
-          console.warn(
-            `⚠️  Teacher ${teacher.Firstname} (${teacher.Department}) assigned to ${mapping.subjectCode} but expected ${expectedDept}`,
-          );
-        }
-
-        const resp = await withRetry(
-          () =>
-            prisma.teachers_responsibility.findFirst({
-              where: {
-                TeacherID: teacher.TeacherID,
-                GradeID: grade.GradeID,
-                SubjectCode: mapping.subjectCode,
-                AcademicYear: semConfig.year,
-                Semester: semConfig.semester,
-              },
-            }),
-          `Check existing responsibility ${mapping.subjectCode} for ${grade.GradeID} in ${semConfig.configId}`,
-        ).then(async (existing) => {
-          if (existing) return existing;
-
-          // Create new responsibility
-          return prisma.teachers_responsibility.create({
-            data: {
-              TeacherID: teacher.TeacherID,
-              GradeID: grade.GradeID,
-              SubjectCode: mapping.subjectCode,
-              AcademicYear: semConfig.year,
-              Semester: semConfig.semester,
-              TeachHour: 2,
-            },
-          });
-        });
-
-        responsibilities.push(resp);
-      }
-    }
-  }
-  console.log(
-    `✅ Created ${responsibilities.length} normal-semester teacher responsibilities (1-2567 × ${testGradeLevels.length} grades × ${subjectTeacherMap.length} subjects)`,
-  );
-
-  // ===== DEMO CLASS SCHEDULES =====
-  console.log("📅 Creating demo class schedules...");
-  let scheduleCount = 0;
-
-  // Create 3 schedules per grade (showing populated timetables for visual tests)
-  // Each grade gets TH, MA, EN on different days/periods
-  // Sample class schedule template using MOE subject codes for M.1 (ม.1)
-  const scheduleTemplate = [
-    { day: "MON", period: 1, subjectCode: "ท21101", teacherIndex: 0 }, // ภาษาไทย
-    { day: "MON", period: 2, subjectCode: "ค21101", teacherIndex: 1 }, // คณิตศาสตร์
-    { day: "MON", period: 3, subjectCode: "อ21101", teacherIndex: 7 }, // ภาษาอังกฤษ
-    { day: "TUE", period: 1, subjectCode: "ว21101", teacherIndex: 2 }, // วิทยาศาสตร์
-    { day: "TUE", period: 2, subjectCode: "ส21101", teacherIndex: 3 }, // สังคมศึกษา
-    { day: "TUE", period: 3, subjectCode: "พ21101", teacherIndex: 4 }, // พลศึกษา
-    { day: "WED", period: 1, subjectCode: "ศ21101", teacherIndex: 5 }, // ศิลปะ
-    { day: "WED", period: 2, subjectCode: "ง21101", teacherIndex: 6 }, // การงานอาชีพ
-    { day: "THU", period: 1, subjectCode: "ท21101", teacherIndex: 0 }, // ภาษาไทย (คาบที่ 2)
-    { day: "THU", period: 2, subjectCode: "ค21101", teacherIndex: 1 }, // คณิตศาสตร์ (คาบที่ 2)
-    { day: "FRI", period: 1, subjectCode: "อ21101", teacherIndex: 7 }, // ภาษาอังกฤษ (คาบที่ 2)
-    { day: "FRI", period: 2, subjectCode: "ว21101", teacherIndex: 2 }, // วิทยาศาสตร์ (คาบที่ 2)
-  ];
-
-  for (const grade of gradeLevels) {
-    for (const schedule of scheduleTemplate) {
-      const timeslotId = `1-${academicYear}-${schedule.day}${schedule.period}`;
-      const teacher = teachers[schedule.teacherIndex];
-      const room = rooms[schedule.period % rooms.length];
-
-      // Find the responsibility for this teacher/grade/subject for semester 1-2567
-      const resp = responsibilities.find(
-        (r) =>
-          r.TeacherID === teacher.TeacherID &&
-          r.GradeID === grade.GradeID &&
-          r.SubjectCode === schedule.subjectCode &&
-          r.AcademicYear === academicYear &&
-          r.Semester === "SEMESTER_1",
-      );
-
-      if (resp) {
-        try {
-          await withRetry(
-            () =>
-              prisma.class_schedule.create({
-                data: {
-                  TimeslotID: timeslotId,
-                  SubjectCode: schedule.subjectCode,
-                  GradeID: grade.GradeID,
-                  RoomID: room.RoomID,
-                  IsLocked: false,
-                  teachers_responsibility: {
-                    connect: [{ RespID: resp.RespID }],
-                  },
-                },
-              }),
-            `Create schedule for ${grade.GradeID} - ${schedule.subjectCode}`,
-          );
-          scheduleCount++;
-        } catch (error: any) {
-          // Skip if already exists or constraint violation
-          if (!error.message?.includes("Unique constraint")) {
-            console.warn(
-              `⚠️  Skipping schedule for ${grade.GradeID} - ${schedule.subjectCode}: ${error.message}`,
-            );
-          }
-        }
-      }
-    }
-  }
-  console.log(`✅ Created ${scheduleCount} demo class schedules`);
-
-  // ============================================================================
-  // EXAMPLE SEMESTER (2-2567): multi-track + edge cases
-  // ============================================================================
-  console.log("\n🎯 Seeding EXAMPLE semester 2-2567 (multi-track + edge cases)...");
-
-  // ----- 3 Programs (one per track) for ม.4 -----
-  const exampleProgramDefs: Array<{
-    code: string;
-    name: string;
-    track: ProgramTrack;
-    description: string;
-  }> = [
-    {
-      code: "M4-SCI",
-      name: "หลักสูตรวิทย์-คณิต ม.4",
-      track: "SCIENCE_MATH",
-      description: "เน้นวิทยาศาสตร์และคณิตศาสตร์",
-    },
-    {
-      code: "M4-MATH",
-      name: "หลักสูตรศิลป์-คำนวณ ม.4",
-      track: "LANGUAGE_MATH",
-      description: "เน้นคณิตศาสตร์และภาษา",
-    },
-    {
-      code: "M4-LANG",
-      name: "หลักสูตรศิลป์-ภาษา ม.4",
-      track: "LANGUAGE_ARTS",
-      description: "เน้นภาษาต่างประเทศและสังคม",
-    },
-  ];
-
-  const examplePrograms = [];
-  for (const def of exampleProgramDefs) {
-    // Match by (Year, Track) first since that's the unique constraint;
-    // re-use whatever ProgramCode is already in the DB to avoid conflicts.
-    const existing = await prisma.program.findFirst({
-      where: { Year: 4, Track: def.track },
-    });
-    const p =
+  // ── Seed programs ───────────────────────────────────────────────────────────
+  console.log("🎓 Seeding programs...");
+  const programMap = new Map<string, number>();
+  for (const p of ALL_PROGRAMS) {
+    const existing = await prisma.program.findFirst({ where: { Year: p.year, Track: p.track } });
+    const prog =
       existing ??
       (await withRetry(
         () =>
           prisma.program.create({
             data: {
-              ProgramCode: def.code,
-              ProgramName: def.name,
-              Year: 4,
-              Track: def.track,
-              MinTotalCredits: 41,
-              Description: def.description,
+              ProgramCode: p.code,
+              ProgramName: p.name,
+              Year: p.year,
+              Track: p.track,
+              MinTotalCredits: p.minCredits,
             },
           }),
-        `Create example program ${def.code}`,
+        `Create program ${p.code}`,
       ));
-    examplePrograms.push(p);
+    programMap.set(p.code, prog.ProgramID);
   }
-  console.log(`✅ Created ${examplePrograms.length} example M.4 programs (3 tracks)`);
+  console.log(`✅ ${ALL_PROGRAMS.length} programs`);
 
-  // ----- ม.4 grade levels (one per track) -----
-  const exampleGradeDefs = [
-    { id: "M4-1", year: 4, number: 1, programIdx: 0 }, // วิทย์-คณิต
-    { id: "M4-2", year: 4, number: 2, programIdx: 1 }, // ศิลป์-คำนวณ
-    { id: "M4-3", year: 4, number: 3, programIdx: 2 }, // ศิลป์-ภาษา
-  ];
-  const exampleGrades = [];
-  for (const g of exampleGradeDefs) {
-    const grade = await withRetry(
+  // ── Seed grade levels ───────────────────────────────────────────────────────
+  console.log("🏫 Seeding grade levels...");
+  for (const g of ALL_GRADES) {
+    const pid = programMap.get(g.programCode)!;
+    await withRetry(
       () =>
         prisma.gradelevel.upsert({
           where: { GradeID: g.id },
           update: {},
-          create: {
-            GradeID: g.id,
-            Year: g.year,
-            Number: g.number,
-            StudentCount: 32,
-            ProgramID: examplePrograms[g.programIdx].ProgramID,
-          },
+          create: { GradeID: g.id, Year: g.year, Number: g.number, StudentCount: g.students, ProgramID: pid },
         }),
-      `Upsert example grade ${g.id}`,
+      `Upsert grade ${g.id}`,
     );
-    exampleGrades.push(grade);
   }
-  console.log(`✅ Created ${exampleGrades.length} example M.4 grade levels`);
+  console.log(`✅ ${ALL_GRADES.length} grade levels`);
 
-  // Wire core subjects to each track program (re-using demo subjects).
-  // Track-specific emphasis: SCI program weights science/math; LANG program weights foreign-language.
-  let exampleProgSubjLinks = 0;
-  for (let i = 0; i < examplePrograms.length; i++) {
-    const program = examplePrograms[i];
-    for (let j = 0; j < demoSubjects.length; j++) {
-      const subject = demoSubjects[j];
-      const category = subjectCategoryMap[subject.code] || "CORE";
+  // ── Seed program-subject links ──────────────────────────────────────────────
+  console.log("🔗 Seeding program-subject links...");
+  const creditToNum = (c: subject_credit): number =>
+    ({ CREDIT_05: 0.5, CREDIT_10: 1.0, CREDIT_15: 1.5, CREDIT_20: 2.0 } as Record<string, number>)[c] ?? 1.0;
+
+  const PROGRAM_SUBJECTS: Record<string, string[]> = {
+    "M1-GEN": ["ท21101","ค21101","ว21101","ส21101","พ21101","ศ21101","ง21101","อ21101","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M1"],
+    "M2-GEN": ["ท22101","ค22101","ว22101","ส22101","พ22101","ศ22101","ง22101","อ22101","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M2"],
+    "M3-GEN": ["ท23101","ค23101","ว23101","ส23101","พ23101","ศ23101","ง23101","อ23101","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M3"],
+    "M4-SCI":       ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","ค31201","ว31201","ว31202","ว31203","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
+    "M5-SCI":       ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","ค32201","ว32201","ว32202","ว32203","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
+    "M6-SCI":       ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","ค33201","ว33201","ว33202","ว33203","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
+    "M4-LANG-MATH": ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","ค31201","จ31201","ง31201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
+    "M5-LANG-MATH": ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","ค32201","จ32201","ง32201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
+    "M6-LANG-MATH": ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","ค33201","จ33201","ง33201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
+    "M4-LANG-ARTS": ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","จ31201","ญ31201","ส31102","ศ31201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
+    "M5-LANG-ARTS": ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","จ32201","ญ32201","ส32102","ศ32201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
+    "M6-LANG-ARTS": ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","จ33201","ญ33201","ส33102","ศ33201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
+  };
+
+  let psCount = 0;
+  for (const [pCode, codes] of Object.entries(PROGRAM_SUBJECTS)) {
+    const pid = programMap.get(pCode)!;
+    for (let i = 0; i < codes.length; i++) {
+      const code = codes[i];
+      const subj = subjectMap.get(code)!;
       await withRetry(
         () =>
           prisma.program_subject.upsert({
-            where: {
-              ProgramID_SubjectCode: {
-                ProgramID: program.ProgramID,
-                SubjectCode: subject.code,
-              },
-            },
+            where: { ProgramID_SubjectCode: { ProgramID: pid, SubjectCode: code } },
             update: {},
             create: {
-              ProgramID: program.ProgramID,
-              SubjectCode: subject.code,
-              Category: category,
-              IsMandatory: category !== "ACTIVITY",
-              MinCredits: creditToNum(subject.credit),
-              SortOrder: j + 1,
+              ProgramID: pid,
+              SubjectCode: code,
+              Category: subj.category,
+              IsMandatory: subj.category !== "ACTIVITY",
+              MinCredits: creditToNum(subj.credit),
+              SortOrder: i + 1,
             },
           }),
-        `Link ${subject.code} to ${program.ProgramCode}`,
+        `Link ${code} to ${pCode}`,
       );
-      exampleProgSubjLinks++;
+      psCount++;
     }
   }
-  console.log(`✅ Linked ${exampleProgSubjLinks} program-subject relations across 3 tracks`);
+  console.log(`✅ ${psCount} program-subject links`);
 
-  // ----- Responsibilities for 2-2567 (M.4 grades) -----
-  // Edge case: teacher[1] (Math) deliberately overloaded across all 3 grades on multiple subjects
-  const exampleResps: Awaited<
-    ReturnType<typeof prisma.teachers_responsibility.create>
-  >[] = [];
-  for (const grade of exampleGrades) {
-    for (const mapping of subjectTeacherMap) {
-      const teacher = teachers[mapping.teacherIndex];
-      // Overload signal: math teacher (idx 1) gets TeachHour=4 vs default 2
-      const teachHour = mapping.teacherIndex === 1 ? 4 : 2;
-      const existing = await withRetry(
+  // ── Schedule generation helpers ─────────────────────────────────────────────
+  // Lower-sec teacher assignments: subjectPrefix → { yearNum → email }
+  // Each teacher covers all 3 sections of one year (day+period rotation avoids conflicts)
+  const LOWER_TEACHERS: Record<string, Record<number, string>> = {
+    "ท": { 1: "teacher1@school.ac.th",  2: "teacher2@school.ac.th",  3: "teacher3@school.ac.th" },
+    "ค": { 1: "teacher4@school.ac.th",  2: "teacher5@school.ac.th",  3: "teacher6@school.ac.th" },
+    "ว": { 1: "teacher7@school.ac.th",  2: "teacher8@school.ac.th",  3: "teacher9@school.ac.th" },
+    "ส": { 1: "teacher11@school.ac.th", 2: "teacher12@school.ac.th", 3: "teacher13@school.ac.th" },
+    "พ": { 1: "teacher14@school.ac.th", 2: "teacher15@school.ac.th", 3: "teacher14@school.ac.th" },
+    "ศ": { 1: "teacher16@school.ac.th", 2: "teacher17@school.ac.th", 3: "teacher16@school.ac.th" },
+    "ง": { 1: "teacher18@school.ac.th", 2: "teacher19@school.ac.th", 3: "teacher18@school.ac.th" },
+    "อ": { 1: "teacher20@school.ac.th", 2: "teacher21@school.ac.th", 3: "teacher22@school.ac.th" },
+    "ACT": { 1: "teacher27@school.ac.th", 2: "teacher28@school.ac.th", 3: "teacher27@school.ac.th" },
+  };
+
+  type SlotDef = { day: day_of_week; period: number; subjectCode: string; teacherEmail: string; teachHour: number };
+
+  function buildLowerSecSlots(yearNum: number, sectionNum: number): SlotDef[] {
+    // Day-rotation per year prevents activity-teacher cross-year conflicts
+    // Period-rotation per section lets same teacher cover 3 sections without timeslot collision
+    const dayBase = yearNum - 1;
+    const periBase = sectionNum - 1;
+    const d = (offset: number): day_of_week => DAYS[(dayBase + offset) % 5];
+    const p = (offset: number): number => JUNIOR_PERIODS[(periBase + offset) % JUNIOR_PERIODS.length];
+    // Subject code: prefix + "2" (lower-sec level) + yearNum + "101"
+    const sub = (prefix: string) => `${prefix}2${yearNum}101`;
+    const te = (prefix: string) => LOWER_TEACHERS[prefix]?.[yearNum] ?? "teacher27@school.ac.th";
+
+    return [
+      { day: d(0), period: p(0), subjectCode: sub("ท"), teacherEmail: te("ท"), teachHour: 3 },
+      { day: d(1), period: p(0), subjectCode: sub("ท"), teacherEmail: te("ท"), teachHour: 3 },
+      { day: d(2), period: p(0), subjectCode: sub("ท"), teacherEmail: te("ท"), teachHour: 3 },
+      { day: d(0), period: p(1), subjectCode: sub("ค"), teacherEmail: te("ค"), teachHour: 3 },
+      { day: d(1), period: p(1), subjectCode: sub("ค"), teacherEmail: te("ค"), teachHour: 3 },
+      { day: d(2), period: p(1), subjectCode: sub("ค"), teacherEmail: te("ค"), teachHour: 3 },
+      { day: d(0), period: p(2), subjectCode: sub("ว"), teacherEmail: te("ว"), teachHour: 3 },
+      { day: d(1), period: p(2), subjectCode: sub("ว"), teacherEmail: te("ว"), teachHour: 3 },
+      { day: d(2), period: p(2), subjectCode: sub("ว"), teacherEmail: te("ว"), teachHour: 3 },
+      { day: d(3), period: p(0), subjectCode: sub("ส"), teacherEmail: te("ส"), teachHour: 2 },
+      { day: d(4), period: p(0), subjectCode: sub("ส"), teacherEmail: te("ส"), teachHour: 2 },
+      { day: d(3), period: p(1), subjectCode: sub("พ"), teacherEmail: te("พ"), teachHour: 2 },
+      { day: d(4), period: p(1), subjectCode: sub("พ"), teacherEmail: te("พ"), teachHour: 2 },
+      { day: d(3), period: p(2), subjectCode: sub("ศ"), teacherEmail: te("ศ"), teachHour: 2 },
+      { day: d(4), period: p(2), subjectCode: sub("ศ"), teacherEmail: te("ศ"), teachHour: 2 },
+      { day: d(0), period: p(3), subjectCode: sub("ง"), teacherEmail: te("ง"), teachHour: 2 },
+      { day: d(1), period: p(3), subjectCode: sub("ง"), teacherEmail: te("ง"), teachHour: 2 },
+      { day: d(2), period: p(3), subjectCode: sub("อ"), teacherEmail: te("อ"), teachHour: 2 },
+      { day: d(3), period: p(3), subjectCode: sub("อ"), teacherEmail: te("อ"), teachHour: 2 },
+      { day: d(4), period: p(3), subjectCode: `ACT-SCOUT-M${yearNum}`, teacherEmail: te("ACT"), teachHour: 2 },
+      { day: d(4), period: p(4), subjectCode: `ACT-SCOUT-M${yearNum}`, teacherEmail: te("ACT"), teachHour: 2 },
+      { day: d(4), period: p(5), subjectCode: "ACT-GUIDE",             teacherEmail: te("ACT"), teachHour: 1 },
+      { day: d(4), period: p(6), subjectCode: "ACT-CLUB",              teacherEmail: te("ACT"), teachHour: 1 },
+    ];
+  }
+
+  // Upper-sec teacher assignments: track → year → roleKey → email
+  const UPPER_TEACHERS: Record<string, Record<number, Record<string, string>>> = {
+    SCIENCE_MATH: {
+      4: { ท:"teacher1@school.ac.th", ค:"teacher4@school.ac.th", ว:"teacher7@school.ac.th",
+           ส:"teacher11@school.ac.th", พ:"teacher14@school.ac.th", อ:"teacher20@school.ac.th",
+           adv_ค:"teacher5@school.ac.th", adv_ว1:"teacher8@school.ac.th",
+           adv_ว2:"teacher9@school.ac.th", adv_ว3:"teacher10@school.ac.th", ACT:"teacher27@school.ac.th" },
+      5: { ท:"teacher2@school.ac.th", ค:"teacher5@school.ac.th", ว:"teacher8@school.ac.th",
+           ส:"teacher12@school.ac.th", พ:"teacher15@school.ac.th", อ:"teacher21@school.ac.th",
+           adv_ค:"teacher6@school.ac.th", adv_ว1:"teacher9@school.ac.th",
+           adv_ว2:"teacher10@school.ac.th", adv_ว3:"teacher7@school.ac.th", ACT:"teacher28@school.ac.th" },
+      6: { ท:"teacher3@school.ac.th", ค:"teacher6@school.ac.th", ว:"teacher9@school.ac.th",
+           ส:"teacher13@school.ac.th", พ:"teacher14@school.ac.th", อ:"teacher22@school.ac.th",
+           adv_ค:"teacher4@school.ac.th", adv_ว1:"teacher10@school.ac.th",
+           adv_ว2:"teacher7@school.ac.th", adv_ว3:"teacher8@school.ac.th", ACT:"teacher27@school.ac.th" },
+    },
+    LANGUAGE_MATH: {
+      4: { ท:"teacher1@school.ac.th", ค:"teacher4@school.ac.th", ว:"teacher7@school.ac.th",
+           ส:"teacher11@school.ac.th", พ:"teacher14@school.ac.th", อ:"teacher20@school.ac.th",
+           adv_ค:"teacher5@school.ac.th", จ:"teacher24@school.ac.th", ง:"teacher18@school.ac.th", ACT:"teacher28@school.ac.th" },
+      5: { ท:"teacher2@school.ac.th", ค:"teacher5@school.ac.th", ว:"teacher8@school.ac.th",
+           ส:"teacher12@school.ac.th", พ:"teacher15@school.ac.th", อ:"teacher21@school.ac.th",
+           adv_ค:"teacher6@school.ac.th", จ:"teacher25@school.ac.th", ง:"teacher19@school.ac.th", ACT:"teacher27@school.ac.th" },
+      6: { ท:"teacher3@school.ac.th", ค:"teacher6@school.ac.th", ว:"teacher9@school.ac.th",
+           ส:"teacher13@school.ac.th", พ:"teacher14@school.ac.th", อ:"teacher22@school.ac.th",
+           adv_ค:"teacher4@school.ac.th", จ:"teacher24@school.ac.th", ง:"teacher18@school.ac.th", ACT:"teacher28@school.ac.th" },
+    },
+    LANGUAGE_ARTS: {
+      4: { ท:"teacher1@school.ac.th", ค:"teacher4@school.ac.th", ว:"teacher7@school.ac.th",
+           ส:"teacher11@school.ac.th", พ:"teacher14@school.ac.th", อ:"teacher23@school.ac.th",
+           จ:"teacher24@school.ac.th", ญ:"teacher26@school.ac.th",
+           adv_ส:"teacher12@school.ac.th", adv_ศ:"teacher16@school.ac.th", ACT:"teacher28@school.ac.th" },
+      5: { ท:"teacher2@school.ac.th", ค:"teacher5@school.ac.th", ว:"teacher8@school.ac.th",
+           ส:"teacher12@school.ac.th", พ:"teacher15@school.ac.th", อ:"teacher23@school.ac.th",
+           จ:"teacher25@school.ac.th", ญ:"teacher26@school.ac.th",
+           adv_ส:"teacher13@school.ac.th", adv_ศ:"teacher17@school.ac.th", ACT:"teacher27@school.ac.th" },
+      6: { ท:"teacher3@school.ac.th", ค:"teacher6@school.ac.th", ว:"teacher9@school.ac.th",
+           ส:"teacher13@school.ac.th", พ:"teacher14@school.ac.th", อ:"teacher23@school.ac.th",
+           จ:"teacher24@school.ac.th", ญ:"teacher26@school.ac.th",
+           adv_ส:"teacher11@school.ac.th", adv_ศ:"teacher16@school.ac.th", ACT:"teacher28@school.ac.th" },
+    },
+  };
+
+  function buildUpperSecSlots(yearNum: number, track: string): SlotDef[] {
+    // Section mapping: SCI→1, LANG-MATH→2, LANG-ARTS→3
+    const sectionNum = track === "SCIENCE_MATH" ? 1 : track === "LANGUAGE_MATH" ? 2 : 3;
+    const dayBase = yearNum - 4; // M4→0, M5→1, M6→2
+    const periBase = sectionNum - 1;
+    const d = (offset: number): day_of_week => DAYS[(dayBase + offset) % 5];
+    const p = (offset: number): number => SENIOR_PERIODS[(periBase + offset) % SENIOR_PERIODS.length];
+    const x = yearNum - 3; // M4→1, M5→2, M6→3
+    const yr = `3${x}`; // "31", "32", "33"
+    const te = (key: string) => UPPER_TEACHERS[track]?.[yearNum]?.[key] ?? "teacher27@school.ac.th";
+
+    const slots: SlotDef[] = [
+      // Core 6 subjects (2 periods each)
+      { day: d(0), period: p(0), subjectCode: `ท${yr}101`, teacherEmail: te("ท"), teachHour: 2 },
+      { day: d(1), period: p(0), subjectCode: `ท${yr}101`, teacherEmail: te("ท"), teachHour: 2 },
+      { day: d(0), period: p(1), subjectCode: `ค${yr}101`, teacherEmail: te("ค"), teachHour: 2 },
+      { day: d(1), period: p(1), subjectCode: `ค${yr}101`, teacherEmail: te("ค"), teachHour: 2 },
+      { day: d(0), period: p(2), subjectCode: `ว${yr}101`, teacherEmail: te("ว"), teachHour: 2 },
+      { day: d(1), period: p(2), subjectCode: `ว${yr}101`, teacherEmail: te("ว"), teachHour: 2 },
+      { day: d(2), period: p(0), subjectCode: `ส${yr}101`, teacherEmail: te("ส"), teachHour: 2 },
+      { day: d(3), period: p(0), subjectCode: `ส${yr}101`, teacherEmail: te("ส"), teachHour: 2 },
+      { day: d(2), period: p(1), subjectCode: `พ${yr}101`, teacherEmail: te("พ"), teachHour: 2 },
+      { day: d(3), period: p(1), subjectCode: `พ${yr}101`, teacherEmail: te("พ"), teachHour: 2 },
+      { day: d(2), period: p(2), subjectCode: `อ${yr}101`, teacherEmail: te("อ"), teachHour: 2 },
+      { day: d(3), period: p(2), subjectCode: `อ${yr}101`, teacherEmail: te("อ"), teachHour: 2 },
+      // Activities
+      { day: d(4), period: p(0), subjectCode: `ACT-SCOUT-M${yearNum}`, teacherEmail: te("ACT"), teachHour: 2 },
+      { day: d(4), period: p(1), subjectCode: `ACT-SCOUT-M${yearNum}`, teacherEmail: te("ACT"), teachHour: 2 },
+      { day: d(4), period: p(2), subjectCode: "ACT-GUIDE",              teacherEmail: te("ACT"), teachHour: 1 },
+      { day: d(4), period: p(3), subjectCode: "ACT-CLUB",               teacherEmail: te("ACT"), teachHour: 1 },
+    ];
+
+    if (track === "SCIENCE_MATH") {
+      // Advanced Math (4 periods) + Physics/Chem/Bio (3 periods each)
+      slots.push(
+        { day: d(0), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(1), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(2), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(3), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(0), period: p(4), subjectCode: `ว${yr}201`, teacherEmail: te("adv_ว1"), teachHour: 3 },
+        { day: d(1), period: p(4), subjectCode: `ว${yr}201`, teacherEmail: te("adv_ว1"), teachHour: 3 },
+        { day: d(2), period: p(4), subjectCode: `ว${yr}201`, teacherEmail: te("adv_ว1"), teachHour: 3 },
+        { day: d(0), period: p(5), subjectCode: `ว${yr}202`, teacherEmail: te("adv_ว2"), teachHour: 3 },
+        { day: d(1), period: p(5), subjectCode: `ว${yr}202`, teacherEmail: te("adv_ว2"), teachHour: 3 },
+        { day: d(2), period: p(5), subjectCode: `ว${yr}202`, teacherEmail: te("adv_ว2"), teachHour: 3 },
+        { day: d(3), period: p(4), subjectCode: `ว${yr}203`, teacherEmail: te("adv_ว3"), teachHour: 3 },
+        { day: d(4), period: p(4), subjectCode: `ว${yr}203`, teacherEmail: te("adv_ว3"), teachHour: 3 },
+        { day: d(3), period: p(5), subjectCode: `ว${yr}203`, teacherEmail: te("adv_ว3"), teachHour: 3 },
+      );
+    } else if (track === "LANGUAGE_MATH") {
+      slots.push(
+        { day: d(0), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(1), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(2), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(3), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
+        { day: d(0), period: p(4), subjectCode: `จ${yr}201`, teacherEmail: te("จ"),     teachHour: 3 },
+        { day: d(1), period: p(4), subjectCode: `จ${yr}201`, teacherEmail: te("จ"),     teachHour: 3 },
+        { day: d(2), period: p(4), subjectCode: `จ${yr}201`, teacherEmail: te("จ"),     teachHour: 3 },
+        { day: d(0), period: p(5), subjectCode: `ง${yr}201`, teacherEmail: te("ง"),     teachHour: 2 },
+        { day: d(1), period: p(5), subjectCode: `ง${yr}201`, teacherEmail: te("ง"),     teachHour: 2 },
+      );
+    } else { // LANGUAGE_ARTS
+      slots.push(
+        { day: d(0), period: p(3), subjectCode: `จ${yr}201`,  teacherEmail: te("จ"),     teachHour: 3 },
+        { day: d(1), period: p(3), subjectCode: `จ${yr}201`,  teacherEmail: te("จ"),     teachHour: 3 },
+        { day: d(2), period: p(3), subjectCode: `จ${yr}201`,  teacherEmail: te("จ"),     teachHour: 3 },
+        { day: d(0), period: p(4), subjectCode: `ญ${yr}201`,  teacherEmail: te("ญ"),     teachHour: 3 },
+        { day: d(1), period: p(4), subjectCode: `ญ${yr}201`,  teacherEmail: te("ญ"),     teachHour: 3 },
+        { day: d(2), period: p(4), subjectCode: `ญ${yr}201`,  teacherEmail: te("ญ"),     teachHour: 3 },
+        { day: d(0), period: p(5), subjectCode: `ส${yr}102`,  teacherEmail: te("adv_ส"), teachHour: 3 },
+        { day: d(1), period: p(5), subjectCode: `ส${yr}102`,  teacherEmail: te("adv_ส"), teachHour: 3 },
+        { day: d(2), period: p(5), subjectCode: `ส${yr}102`,  teacherEmail: te("adv_ส"), teachHour: 3 },
+        { day: d(3), period: p(3), subjectCode: `ศ${yr}201`,  teacherEmail: te("adv_ศ"), teachHour: 2 },
+        { day: d(4), period: p(3), subjectCode: `ศ${yr}201`,  teacherEmail: te("adv_ศ"), teachHour: 2 },
+      );
+    }
+    return slots;
+  }
+
+  // Grade metadata lookup for schedule dispatch
+  const GRADE_META: Record<string, { yearNum: number; sectionNum: number; track?: string }> = {
+    "M1-1":{yearNum:1,sectionNum:1}, "M1-2":{yearNum:1,sectionNum:2}, "M1-3":{yearNum:1,sectionNum:3},
+    "M2-1":{yearNum:2,sectionNum:1}, "M2-2":{yearNum:2,sectionNum:2}, "M2-3":{yearNum:2,sectionNum:3},
+    "M3-1":{yearNum:3,sectionNum:1}, "M3-2":{yearNum:3,sectionNum:2}, "M3-3":{yearNum:3,sectionNum:3},
+    "M4-1":{yearNum:4,sectionNum:1,track:"SCIENCE_MATH"},
+    "M4-2":{yearNum:4,sectionNum:2,track:"LANGUAGE_MATH"},
+    "M4-3":{yearNum:4,sectionNum:3,track:"LANGUAGE_ARTS"},
+    "M5-1":{yearNum:5,sectionNum:1,track:"SCIENCE_MATH"},
+    "M5-2":{yearNum:5,sectionNum:2,track:"LANGUAGE_MATH"},
+    "M5-3":{yearNum:5,sectionNum:3,track:"LANGUAGE_ARTS"},
+    "M6-1":{yearNum:6,sectionNum:1,track:"SCIENCE_MATH"},
+    "M6-2":{yearNum:6,sectionNum:2,track:"LANGUAGE_MATH"},
+    "M6-3":{yearNum:6,sectionNum:3,track:"LANGUAGE_ARTS"},
+  };
+
+  // ── S1 (1-2568): timeslots ──────────────────────────────────────────────────
+  console.log("\n⏰ Seeding S1-2568 timeslots...");
+  const s1TsMap = new Map<string, string>(); // "MON1" → "1-2568-MON1"
+  for (const day of DAYS) {
+    for (const p of PERIODS_2568) {
+      const id = `1-2568-${day}${p.num}`;
+      await withRetry(
         () =>
-          prisma.teachers_responsibility.findFirst({
-            where: {
-              TeacherID: teacher.TeacherID,
-              GradeID: grade.GradeID,
-              SubjectCode: mapping.subjectCode,
-              AcademicYear: 2567,
-              Semester: "SEMESTER_2",
+          prisma.timeslot.upsert({
+            where: { TimeslotID: id },
+            update: {},
+            create: {
+              TimeslotID: id,
+              AcademicYear: 2568,
+              Semester: "SEMESTER_1",
+              StartTime: new Date(`2024-01-01T${p.start}:00`),
+              EndTime:   new Date(`2024-01-01T${p.end}:00`),
+              Breaktime: p.brk,
+              DayOfWeek: day,
             },
           }),
-        `Check resp ${mapping.subjectCode}/${grade.GradeID}/2-2567`,
+        `Upsert S1 timeslot ${id}`,
       );
-      const resp =
+      s1TsMap.set(`${day}${p.num}`, id);
+    }
+  }
+  console.log("✅ 40 S1-2568 timeslots");
+
+  await withRetry(
+    () =>
+      prisma.table_config.upsert({
+        where: { ConfigID: "1-2568" },
+        update: {},
+        create: { ConfigID: "1-2568", AcademicYear: 2568, Semester: "SEMESTER_1", Config: configTemplate, status: "PUBLISHED" },
+      }),
+    "Upsert table config 1-2568",
+  );
+  console.log("✅ table_config 1-2568 (PUBLISHED)");
+
+  // ── S1 responsibilities + class schedules ───────────────────────────────────
+  console.log("📝 Seeding S1-2568 responsibilities + schedules...");
+  const ROOM_NAMES = ALL_ROOMS.map((r) => r.name);
+  let s1RespCount = 0;
+  let s1SchedCount = 0;
+
+  for (const grade of ALL_GRADES) {
+    const meta = GRADE_META[grade.id]!;
+    const slots =
+      meta.yearNum <= 3
+        ? buildLowerSecSlots(meta.yearNum, meta.sectionNum)
+        : buildUpperSecSlots(meta.yearNum, meta.track!);
+
+    // Deduplicate responsibilities by (teacherEmail, subjectCode)
+    const uniqueResps = new Map<string, { email: string; subCode: string; teachHour: number }>();
+    for (const slot of slots) {
+      const k = `${slot.teacherEmail}::${slot.subjectCode}`;
+      if (!uniqueResps.has(k)) {
+        uniqueResps.set(k, { email: slot.teacherEmail, subCode: slot.subjectCode, teachHour: slot.teachHour });
+      }
+    }
+
+    const respIDMap = new Map<string, number>();
+    for (const [k, resp] of uniqueResps) {
+      const tid = teacherMap.get(resp.email)!;
+      const existing = await prisma.teachers_responsibility.findFirst({
+        where: { TeacherID: tid, GradeID: grade.id, SubjectCode: resp.subCode, AcademicYear: 2568, Semester: "SEMESTER_1" },
+      });
+      const r =
         existing ??
-        (await prisma.teachers_responsibility.create({
-          data: {
-            TeacherID: teacher.TeacherID,
-            GradeID: grade.GradeID,
-            SubjectCode: mapping.subjectCode,
-            AcademicYear: 2567,
-            Semester: "SEMESTER_2",
-            TeachHour: teachHour,
-          },
-        }));
-      exampleResps.push(resp);
+        (await withRetry(
+          () =>
+            prisma.teachers_responsibility.create({
+              data: { TeacherID: tid, GradeID: grade.id, SubjectCode: resp.subCode, AcademicYear: 2568, Semester: "SEMESTER_1", TeachHour: resp.teachHour },
+            }),
+          `Create resp ${resp.subCode}/${grade.id}/S1`,
+        ));
+      respIDMap.set(k, r.RespID);
+      s1RespCount++;
     }
-  }
-  // Add ACT-CLUB resp for each M.4 grade (assigned to art teacher idx 5) so locked assembly slot can be created
-  for (const grade of exampleGrades) {
-    const teacher = teachers[5];
-    const existing = await prisma.teachers_responsibility.findFirst({
-      where: {
-        TeacherID: teacher.TeacherID,
-        GradeID: grade.GradeID,
-        SubjectCode: "ACT-CLUB",
-        AcademicYear: 2567,
-        Semester: "SEMESTER_2",
-      },
-    });
-    const resp =
-      existing ??
-      (await prisma.teachers_responsibility.create({
-        data: {
-          TeacherID: teacher.TeacherID,
-          GradeID: grade.GradeID,
-          SubjectCode: "ACT-CLUB",
-          AcademicYear: 2567,
-          Semester: "SEMESTER_2",
-          TeachHour: 1,
-        },
-      }));
-    exampleResps.push(resp);
-  }
-  console.log(`✅ Created ${exampleResps.length} example responsibilities (math teacher intentionally overloaded; ACT-CLUB linked for assembly)`);
 
-  // ----- Class schedules for 2-2567: PARTIAL coverage + LOCKED Monday P1 (assembly) -----
-  // Only fill ~50% of slots so dashboard shows "incomplete" + publish-readiness issues.
-  let exampleScheduleCount = 0;
-  let exampleLockedCount = 0;
+    for (let si = 0; si < slots.length; si++) {
+      const slot = slots[si];
+      const tsId = s1TsMap.get(`${slot.day}${slot.period}`);
+      if (!tsId) continue;
+      const respId = respIDMap.get(`${slot.teacherEmail}::${slot.subjectCode}`);
+      if (!respId) continue;
+      const roomId = roomMap.get(ROOM_NAMES[si % 12])!;
 
-  // 1) Locked assembly slot: MON-P1 for every M.4 grade (ActivityType-style, but using ACT-CLUB subject)
-  for (let gi = 0; gi < exampleGrades.length; gi++) {
-    const grade = exampleGrades[gi];
-    const timeslotId = `2-${academicYear}-MON1`;
-    const resp = exampleResps.find(
-      (r) =>
-        r.GradeID === grade.GradeID &&
-        r.SubjectCode === "ACT-CLUB" &&
-        r.Semester === "SEMESTER_2",
-    );
-    if (!resp) continue;
-    // Skip silently if the locked slot already exists (idempotent re-runs)
-    const exists = await prisma.class_schedule.findFirst({
-      where: { TimeslotID: timeslotId, GradeID: grade.GradeID },
-    });
-    if (exists) {
-      if (exists.IsLocked) exampleLockedCount++;
-      exampleScheduleCount++;
-      continue;
-    }
-    try {
-      await prisma.class_schedule.create({
-        data: {
-          TimeslotID: timeslotId,
-          SubjectCode: "ACT-CLUB",
-          GradeID: grade.GradeID,
-          RoomID: rooms[gi % rooms.length].RoomID,
-          IsLocked: true,
-          teachers_responsibility: { connect: [{ RespID: resp.RespID }] },
-        },
-      });
-      exampleLockedCount++;
-      exampleScheduleCount++;
-    } catch (err: any) {
-      if (!err.message?.includes("Unique constraint")) {
-        console.warn(`⚠️ locked slot skip ${grade.GradeID}: ${err.message}`);
-      }
-    }
-  }
-
-  // 2) Partial coverage: only 4 subjects/day on TUE+THU (skip WED/FRI to show gaps)
-  const partialTemplate = [
-    { day: "TUE", period: 2, subjectCode: "ค21101", teacherIndex: 1 },
-    { day: "TUE", period: 3, subjectCode: "ว21101", teacherIndex: 2 },
-    { day: "THU", period: 2, subjectCode: "ค21101", teacherIndex: 1 },
-    { day: "THU", period: 3, subjectCode: "อ21101", teacherIndex: 7 },
-  ];
-  for (let gi = 0; gi < exampleGrades.length; gi++) {
-    const grade = exampleGrades[gi];
-    for (let si = 0; si < partialTemplate.length; si++) {
-      const slot = partialTemplate[si];
-      const timeslotId = `2-${academicYear}-${slot.day}${slot.period}`;
-      const teacher = teachers[slot.teacherIndex];
-      const resp = exampleResps.find(
-        (r) =>
-          r.GradeID === grade.GradeID &&
-          r.SubjectCode === slot.subjectCode &&
-          r.TeacherID === teacher.TeacherID &&
-          r.Semester === "SEMESTER_2",
-      );
-      if (!resp) continue;
-      // Idempotent: skip if (timeslot, grade) already scheduled
-      const exists = await prisma.class_schedule.findFirst({
-        where: { TimeslotID: timeslotId, GradeID: grade.GradeID },
-      });
-      if (exists) {
-        exampleScheduleCount++;
-        continue;
-      }
-      // Distinct room per (grade, slot) to avoid (TimeslotID, RoomID) conflicts
-      const roomIdx = (gi * partialTemplate.length + si) % rooms.length;
       try {
-        await prisma.class_schedule.create({
-          data: {
-            TimeslotID: timeslotId,
-            SubjectCode: slot.subjectCode,
-            GradeID: grade.GradeID,
-            RoomID: rooms[roomIdx].RoomID,
-            IsLocked: false,
-            teachers_responsibility: { connect: [{ RespID: resp.RespID }] },
-          },
-        });
-        exampleScheduleCount++;
+        await withRetry(
+          () =>
+            prisma.class_schedule.create({
+              data: {
+                TimeslotID: tsId,
+                SubjectCode: slot.subjectCode,
+                GradeID: grade.id,
+                RoomID: roomId,
+                IsLocked: false,
+                teachers_responsibility: { connect: [{ RespID: respId }] },
+              },
+            }),
+          `Create schedule ${grade.id} ${tsId}`,
+        );
+        s1SchedCount++;
       } catch (err: any) {
         if (!err.message?.includes("Unique constraint")) {
-          console.warn(
-            `⚠️ partial slot skip ${grade.GradeID}/${slot.subjectCode}: ${err.message}`,
-          );
+          console.warn(`⚠️ skip ${grade.id}/${tsId}: ${err.message}`);
         }
       }
     }
   }
-  console.log(
-    `✅ Example semester schedules: ${exampleScheduleCount} total (${exampleLockedCount} locked assembly, rest partial)`,
-  );
+  console.log(`✅ S1-2568: ${s1RespCount} responsibilities, ${s1SchedCount} class schedules`);
 
-  // ===== DEMO SUMMARY =====
+  // ── S2 (2-2568): timeslots ──────────────────────────────────────────────────
+  console.log("\n⏰ Seeding S2-2568 timeslots...");
+  const s2TsMap = new Map<string, string>();
+  for (const day of DAYS) {
+    for (const p of PERIODS_2568) {
+      const id = `2-2568-${day}${p.num}`;
+      await withRetry(
+        () =>
+          prisma.timeslot.upsert({
+            where: { TimeslotID: id },
+            update: {},
+            create: {
+              TimeslotID: id,
+              AcademicYear: 2568,
+              Semester: "SEMESTER_2",
+              StartTime: new Date(`2024-01-01T${p.start}:00`),
+              EndTime:   new Date(`2024-01-01T${p.end}:00`),
+              Breaktime: p.brk,
+              DayOfWeek: day,
+            },
+          }),
+        `Upsert S2 timeslot ${id}`,
+      );
+      s2TsMap.set(`${day}${p.num}`, id);
+    }
+  }
+  console.log("✅ 40 S2-2568 timeslots");
+
+  await withRetry(
+    () =>
+      prisma.table_config.upsert({
+        where: { ConfigID: "2-2568" },
+        update: {},
+        create: { ConfigID: "2-2568", AcademicYear: 2568, Semester: "SEMESTER_2", Config: configTemplate, status: "DRAFT" },
+      }),
+    "Upsert table config 2-2568",
+  );
+  console.log("✅ table_config 2-2568 (DRAFT)");
+
+  // ── S2 conflict scenarios ───────────────────────────────────────────────────
+  console.log("\n⚠️  Seeding S2-2568 conflict scenarios...");
+
+  async function s2Resp(teacherEmail: string, gradeId: string, subjectCode: string, teachHour: number) {
+    const tid = teacherMap.get(teacherEmail)!;
+    const existing = await prisma.teachers_responsibility.findFirst({
+      where: { TeacherID: tid, GradeID: gradeId, SubjectCode: subjectCode, AcademicYear: 2568, Semester: "SEMESTER_2" },
+    });
+    return (
+      existing ??
+      (await prisma.teachers_responsibility.create({
+        data: { TeacherID: tid, GradeID: gradeId, SubjectCode: subjectCode, AcademicYear: 2568, Semester: "SEMESTER_2", TeachHour: teachHour },
+      }))
+    );
+  }
+
+  // Scenario A: Teacher double-booked at same timeslot
+  // No DB constraint on (TimeslotID, TeacherID) — this seeds intentionally
+  console.log("  Scenario A: teacher double-booking...");
+  const aTs1 = s2TsMap.get("MON1")!;
+  const aResp1 = await s2Resp("teacher1@school.ac.th", "M1-1", "ท21101", 3);
+  const aResp2 = await s2Resp("teacher1@school.ac.th", "M1-2", "ท21101", 3);
+  for (const [gid, respId, room] of [
+    ["M1-1", aResp1.RespID, "ห้อง 101"] as [string, number, string],
+    ["M1-2", aResp2.RespID, "ห้อง 102"] as [string, number, string],
+  ]) {
+    try {
+      await prisma.class_schedule.create({
+        data: { TimeslotID: aTs1, SubjectCode: "ท21101", GradeID: gid, RoomID: roomMap.get(room)!, IsLocked: false, teachers_responsibility: { connect: [{ RespID: respId }] } },
+      });
+    } catch (err: any) {
+      if (!err.message?.includes("Unique constraint")) console.warn(`⚠️ A: ${err.message}`);
+    }
+  }
+  const aTs2 = s2TsMap.get("TUE2")!;
+  const bResp1 = await s2Resp("teacher4@school.ac.th", "M2-1", "ค22101", 3);
+  const bResp2 = await s2Resp("teacher4@school.ac.th", "M2-2", "ค22101", 3);
+  for (const [gid, respId, room] of [
+    ["M2-1", bResp1.RespID, "ห้อง 103"] as [string, number, string],
+    ["M2-2", bResp2.RespID, "ห้อง 104"] as [string, number, string],
+  ]) {
+    try {
+      await prisma.class_schedule.create({
+        data: { TimeslotID: aTs2, SubjectCode: "ค22101", GradeID: gid, RoomID: roomMap.get(room)!, IsLocked: false, teachers_responsibility: { connect: [{ RespID: respId }] } },
+      });
+    } catch (err: any) {
+      if (!err.message?.includes("Unique constraint")) console.warn(`⚠️ A2: ${err.message}`);
+    }
+  }
+  console.log("  ✅ Scenario A: T1 and T4 each double-booked at same timeslot");
+
+  // Scenario B: Overloaded teacher — T7 (Science) TeachHour=10 across 6 grades
+  console.log("  Scenario B: teacher overload...");
+  for (const gradeId of ["M1-1","M1-2","M1-3","M3-1","M3-2","M3-3"]) {
+    const subCode = gradeId.startsWith("M1") ? "ว21101" : "ว23101";
+    await s2Resp("teacher7@school.ac.th", gradeId, subCode, 10);
+  }
+  console.log("  ✅ Scenario B: T7 (Science) 10h × 6 grades = 60h/week overload");
+
+  // Scenario C: Missing room assignments (~40% null RoomID)
+  console.log("  Scenario C: missing room assignments...");
+  const cSubjects = [
+    { code: "ท31101", email: "teacher1@school.ac.th" },
+    { code: "ค31101", email: "teacher4@school.ac.th" },
+    { code: "ว31101", email: "teacher7@school.ac.th" },
+    { code: "ส31101", email: "teacher11@school.ac.th" },
+    { code: "อ31101", email: "teacher20@school.ac.th" },
+  ];
+  const cTsKeys = ["MON2","MON3","TUE1","TUE3","WED1"];
+  let cCount = 0;
+  for (let gi = 0; gi < 3; gi++) {
+    const gradeId = ["M4-1","M4-2","M4-3"][gi];
+    for (let si = 0; si < cSubjects.length; si++) {
+      const subj = cSubjects[si];
+      const tsId = s2TsMap.get(cTsKeys[si])!;
+      const resp = await s2Resp(subj.email, gradeId, subj.code, 2);
+      const useRoom = (gi * cSubjects.length + si) % 5 >= 2;
+      try {
+        await prisma.class_schedule.create({
+          data: {
+            TimeslotID: tsId, SubjectCode: subj.code, GradeID: gradeId,
+            RoomID: useRoom ? roomMap.get(ROOM_NAMES[si % 12])! : null,
+            IsLocked: false,
+            teachers_responsibility: { connect: [{ RespID: resp.RespID }] },
+          },
+        });
+        cCount++;
+      } catch (err: any) {
+        if (!err.message?.includes("Unique constraint")) console.warn(`⚠️ C: ${err.message}`);
+      }
+    }
+  }
+  console.log(`  ✅ Scenario C: ${cCount} schedules with ~40% null rooms`);
+
+  // Scenario D: Sparse schedule — M5-2 and M6-3 only ~30% fill
+  console.log("  Scenario D: sparse schedules...");
+  const sparseItems = [
+    { gradeId: "M5-2", subCode: "ค32101", email: "teacher5@school.ac.th", tsKeys: ["MON1","WED1"] },
+    { gradeId: "M6-3", subCode: "ท33101", email: "teacher3@school.ac.th", tsKeys: ["TUE1","THU1"] },
+  ];
+  let dCount = 0;
+  for (const item of sparseItems) {
+    const resp = await s2Resp(item.email, item.gradeId, item.subCode, 2);
+    for (const tsKey of item.tsKeys) {
+      const tsId = s2TsMap.get(tsKey)!;
+      try {
+        await prisma.class_schedule.create({
+          data: {
+            TimeslotID: tsId, SubjectCode: item.subCode, GradeID: item.gradeId,
+            RoomID: roomMap.get("ห้อง 205")!, IsLocked: false,
+            teachers_responsibility: { connect: [{ RespID: resp.RespID }] },
+          },
+        });
+        dCount++;
+      } catch (err: any) {
+        if (!err.message?.includes("Unique constraint")) console.warn(`⚠️ D: ${err.message}`);
+      }
+    }
+  }
+  console.log(`  ✅ Scenario D: ${dCount} sparse schedules (M5-2, M6-3)`);
+
+  // ── Summary ─────────────────────────────────────────────────────────────────
   console.log("\n" + "=".repeat(70));
-  console.log("🌐 Demo Data Seed Completed Successfully!");
+  console.log("🌐 Demo Data Seed 2568 Complete!");
   console.log("=".repeat(70));
-  console.log("📊 Demo Data Summary:");
-  console.log(`   • Subjects: ${demoSubjects.length}`);
-  console.log(`   • Programs: 4 (M1-SCI + 3 M.4 tracks)`);
-  console.log(`   • Program-Subject Links: ${programSubjectCount + exampleProgSubjLinks}`);
-  console.log(
-    `   • Grade Levels: ${demoGrades.length + exampleGrades.length} (M.1/1-3 normal, M.4/1-3 example)`,
-  );
-  console.log(`   • Rooms: ${demoRooms.length}`);
-  console.log(`   • Teachers: ${teachers.length}`);
-  console.log(`   • Timeslots: ${timeslotCount} (2 semesters: 1-2567, 2-2567)`);
-  console.log(`   • Table Configurations: 2 (1-2567 normal, 2-2567 example)`);
-  console.log(
-    `   • Teacher Responsibilities: ${responsibilities.length + exampleResps.length} (normal + example)`,
-  );
-  console.log(
-    `   • Class Schedules: ${scheduleCount + exampleScheduleCount} (${scheduleCount} normal full + ${exampleScheduleCount} example partial w/ ${exampleLockedCount} locked)`,
-  );
-  console.log("=".repeat(70));
-  console.log("\n✨ Demo data ready!");
-  console.log("💡 1-2567 = NORMAL happy path (single program, full schedule)");
-  console.log("💡 2-2567 = EXAMPLE showcase (3 tracks, partial schedule, locked assembly, overloaded teacher)");
+  console.log(`   Subjects: ${ALL_SUBJECTS.length}`);
+  console.log(`   Programs: ${ALL_PROGRAMS.length}`);
+  console.log(`   Grades: ${ALL_GRADES.length}`);
+  console.log(`   Rooms: ${ALL_ROOMS.length}`);
+  console.log(`   Teachers: ${ALL_TEACHERS.length}`);
+  console.log(`   S1-2568: PUBLISHED — full M.1–M.6 timetable (${s1SchedCount} schedules)`);
+  console.log(`   S2-2568: DRAFT — conflict showcase A/B/C/D`);
   console.log("=".repeat(70));
 }
 
