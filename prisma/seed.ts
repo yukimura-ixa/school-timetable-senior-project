@@ -480,6 +480,24 @@ async function seedDemoData() {
   }
   if (stale.length === 0) console.log("   (no stale semesters found)");
 
+  // ── Reset schedules/timeslots/resps in KEEP configs for true idempotence ───
+  // (table_config rows are upserted later — keep them for FK stability)
+  for (const cfg of KEEP_CONFIG_IDS) {
+    const [semStr, yrStr] = cfg.split("-");
+    const semEnum = semStr === "1" ? "SEMESTER_1" : "SEMESTER_2";
+    const yr = parseInt(yrStr, 10);
+    await prisma.class_schedule.deleteMany({
+      where: { timeslot: { AcademicYear: yr, Semester: semEnum } },
+    });
+    await prisma.teachers_responsibility.deleteMany({
+      where: { AcademicYear: yr, Semester: semEnum },
+    });
+    await prisma.timeslot.deleteMany({
+      where: { AcademicYear: yr, Semester: semEnum },
+    });
+  }
+  console.log(`   🔄 Reset schedules/timeslots/resps for [${KEEP_CONFIG_IDS.join(", ")}]`);
+
   // ── Seed subjects ───────────────────────────────────────────────────────────
   console.log("📚 Seeding subjects...");
   const subjectMap = new Map(ALL_SUBJECTS.map((s) => [s.code, s]));
@@ -803,7 +821,7 @@ async function seedDemoData() {
         { day: d(1), period: p(5), subjectCode: `ส${yr}102`,  teacherEmail: te("adv_ส"), teachHour: 3 },
         { day: d(2), period: p(5), subjectCode: `ส${yr}102`,  teacherEmail: te("adv_ส"), teachHour: 3 },
         { day: d(3), period: p(3), subjectCode: `ศ${yr}201`,  teacherEmail: te("adv_ศ"), teachHour: 2 },
-        { day: d(4), period: p(3), subjectCode: `ศ${yr}201`,  teacherEmail: te("adv_ศ"), teachHour: 2 },
+        { day: d(3), period: p(4), subjectCode: `ศ${yr}201`,  teacherEmail: te("adv_ศ"), teachHour: 2 },
       );
     }
     return slots;
@@ -867,6 +885,20 @@ async function seedDemoData() {
   // ── S1 responsibilities + class schedules ───────────────────────────────────
   console.log("📝 Seeding S1-2568 responsibilities + schedules...");
   const ROOM_NAMES = ALL_ROOMS.map((r) => r.name);
+  const ROOM_IDS = ROOM_NAMES.map((n) => roomMap.get(n)!);
+  // Per-timeslot room tracker. Lower/upper dayBase rotations collide
+  // (M1↔M4, M2↔M5, M3↔M6 share dayBase), so we pick first unused room
+  // per timeslot rather than indexing by slot position.
+  const s1RoomUsed = new Map<string, Set<number>>();
+  function pickRoom(tsId: string, gradeIdx: number): number | null {
+    let used = s1RoomUsed.get(tsId);
+    if (!used) { used = new Set(); s1RoomUsed.set(tsId, used); }
+    for (let i = 0; i < ROOM_IDS.length; i++) {
+      const rid = ROOM_IDS[(gradeIdx + i) % ROOM_IDS.length];
+      if (!used.has(rid)) { used.add(rid); return rid; }
+    }
+    return null;
+  }
   let s1RespCount = 0;
   let s1SchedCount = 0;
 
@@ -905,13 +937,15 @@ async function seedDemoData() {
       s1RespCount++;
     }
 
+    const gradeIdx = ALL_GRADES.findIndex((g) => g.id === grade.id);
     for (let si = 0; si < slots.length; si++) {
       const slot = slots[si];
       const tsId = s1TsMap.get(`${slot.day}${slot.period}`);
       if (!tsId) continue;
       const respId = respIDMap.get(`${slot.teacherEmail}::${slot.subjectCode}`);
       if (!respId) continue;
-      const roomId = roomMap.get(ROOM_NAMES[si % 12])!;
+      const roomId = pickRoom(tsId, gradeIdx);
+      if (roomId === null) continue;
 
       try {
         await withRetry(
@@ -1046,6 +1080,16 @@ async function seedDemoData() {
     { code: "อ31101", email: "teacher20@school.ac.th" },
   ];
   const cTsKeys = ["MON2","MON3","TUE1","TUE3","WED1"];
+  const s2RoomUsed = new Map<string, Set<number>>();
+  function pickS2Room(tsId: string, gradeIdx: number): number | null {
+    let used = s2RoomUsed.get(tsId);
+    if (!used) { used = new Set(); s2RoomUsed.set(tsId, used); }
+    for (let i = 0; i < ROOM_IDS.length; i++) {
+      const rid = ROOM_IDS[(gradeIdx + i) % ROOM_IDS.length];
+      if (!used.has(rid)) { used.add(rid); return rid; }
+    }
+    return null;
+  }
   let cCount = 0;
   for (let gi = 0; gi < 3; gi++) {
     const gradeId = ["M4-1","M4-2","M4-3"][gi];
@@ -1058,7 +1102,7 @@ async function seedDemoData() {
         await prisma.class_schedule.create({
           data: {
             TimeslotID: tsId, SubjectCode: subj.code, GradeID: gradeId,
-            RoomID: useRoom ? roomMap.get(ROOM_NAMES[si % 12])! : null,
+            RoomID: useRoom ? pickS2Room(tsId, gi) : null,
             IsLocked: false,
             teachers_responsibility: { connect: [{ RespID: resp.RespID }] },
           },
