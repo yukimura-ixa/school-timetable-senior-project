@@ -1,8 +1,8 @@
 /**
  * E2E Test Data Fixtures
  *
- * This file provides test data constants that match the seeded database.
- * All data comes from prisma/seed.ts to ensure consistency.
+ * Mirrors the data created by `pnpm db:seed:demo` (i.e. seedDemoData() with
+ * KEEP_CONFIG_IDS = ["1-2568", "2-2568"]). Run that command before E2E tests.
  *
  * Usage:
  *   import { testSemester, testTeacher, testSubject } from './fixtures/seed-data.fixture';
@@ -12,85 +12,62 @@ import { semester, day_of_week } from "../../prisma/generated/client";
 
 /**
  * Test Semester Data
- * From seed.ts - Multiple semesters created for testing
+ * From seedDemoData(): 1-2568 (PUBLISHED, full timetable) and 2-2568 (DRAFT, conflict showcase)
  */
 export const testSemesters = {
-  // Semester 1/2567 (first semester, academic year 2024)
-  semester1_2567: {
-    SemesterAndyear: "1-2567" as const,
-    Semester: 1 as semester,
-    Year: 2567,
-    DisplayName: "ภาคเรียนที่ 1/2567",
-    IsActive: true,
-  },
-  // Semester 2/2567 (second semester, academic year 2024)
-  semester2_2567: {
-    SemesterAndyear: "2-2567" as const,
-    Semester: 2 as semester,
-    Year: 2567,
-    DisplayName: "ภาคเรียนที่ 2/2567",
-    IsActive: true,
-  },
-  // Semester 1/2568 (first semester, academic year 2025)
   semester1_2568: {
     SemesterAndyear: "1-2568" as const,
     Semester: 1 as semester,
     Year: 2568,
     DisplayName: "ภาคเรียนที่ 1/2568",
-    IsActive: false, // Not active yet
+    IsActive: true,
+  },
+  semester2_2568: {
+    SemesterAndyear: "2-2568" as const,
+    Semester: 2 as semester,
+    Year: 2568,
+    DisplayName: "ภาคเรียนที่ 2/2568",
+    IsActive: false,
   },
 };
 
 /**
  * Default semester for most tests
  */
-export const testSemester = testSemesters.semester1_2567;
+export const testSemester = testSemesters.semester1_2568;
 
 /**
  * Test Teacher Data
- * From seed.ts - Deterministic teachers created during clean/test seeding
+ *
+ * TeacherID values depend on auto-increment order in the seed and are not stable.
+ * Look up teachers by Email instead. e2eTeacher is pinned to ค21201 / M1-1 / S1-2568
+ * via an explicit responsibility record in seedDemoData().
  */
 export const testTeachers = {
-  // Deterministic E2E teacher (seeded first in test/clean mode)
-  // Has responsibility for subject ค21201 (คณิตศาสตร์เพิ่มเติม) for grade M1-1
   e2eTeacher: {
-    TeacherID: 1,
     Prefix: "ครู",
     Firstname: "E2E",
     Lastname: "ทดสอบ",
     Department: "คณิตศาสตร์",
-    SubjectGroup: "คณิตศาสตร์",
     Email: "e2e.teacher@school.ac.th",
-    // E2E teacher's assigned subject (from seed.ts)
-    SubjectCode: "ค21201", // คณิตศาสตร์เพิ่มเติม ม.1
-    GradeID: "M1-1", // Grade assigned for responsibility
+    SubjectCode: "ค21201",
+    GradeID: "M1-1",
   },
-  // Math teacher (first math dept teacher in clean/test seed after E2E + Thai)
+  thaiTeacher: {
+    Email: "teacher1@school.ac.th",
+    Department: "ภาษาไทย",
+  },
   mathTeacher: {
-    TeacherID: 7,
-    Prefix: "นาย",
-    Firstname: "อนุชา",
-    Lastname: "มั่นคง",
+    Email: "teacher4@school.ac.th",
     Department: "คณิตศาสตร์",
-    SubjectGroup: "คณิตศาสตร์",
   },
-  // Science teacher (first science dept teacher in clean/test seed)
   scienceTeacher: {
-    TeacherID: 12,
-    Prefix: "นาย",
-    Firstname: "นิภา",
-    Lastname: "สุขเจริญ",
+    Email: "teacher7@school.ac.th",
     Department: "วิทยาศาสตร์และเทคโนโลยี",
-    SubjectGroup: "วิทยาศาสตร์",
   },
-  // Foreign language teacher (first foreign languages dept teacher)
   englishTeacher: {
-    TeacherID: 22,
-    Prefix: "นาย",
-    Firstname: "นันทวัน",
-    Lastname: "ภูมิใจ",
+    Email: "teacher20@school.ac.th",
     Department: "ภาษาต่างประเทศ",
-    SubjectGroup: "ภาษาต่างประเทศ",
   },
 };
 
@@ -101,47 +78,47 @@ export const testTeacher = testTeachers.e2eTeacher;
 
 /**
  * Test Subject Data
- * From seed.ts - Thai curriculum subjects
+ * From seedDemoData() ALL_SUBJECTS — Thai MOE curriculum subjects
  */
 export const testSubjects = {
-  // Core Math subject
+  // Core Math subject (M.1)
   math101: {
     SubjectCode: "ค21101",
-    SubjectName: "คณิตศาสตร์ 1",
+    SubjectName: "คณิตศาสตร์ พื้นฐาน ม.1",
     SubjectGroup: "คณิตศาสตร์",
-    Credit: 1.0,
+    Credit: 1.5,
     IsRequired: true,
   },
-  // Core Science subject
+  // Core Science subject (M.1)
   science101: {
     SubjectCode: "ว21101",
-    SubjectName: "วิทยาศาสตร์ 1",
+    SubjectName: "วิทยาศาสตร์และเทคโนโลยี ม.1",
     SubjectGroup: "วิทยาศาสตร์",
     Credit: 1.5,
     IsRequired: true,
   },
-  // Core Thai language
+  // Core Thai language (M.1)
   thai101: {
     SubjectCode: "ท21101",
-    SubjectName: "ภาษาไทย 1",
+    SubjectName: "ภาษาไทย พื้นฐาน ม.1",
     SubjectGroup: "ภาษาไทย",
     Credit: 1.5,
     IsRequired: true,
   },
-  // English language
+  // English language (M.1)
   english101: {
     SubjectCode: "อ21101",
-    SubjectName: "ภาษาอังกฤษ 1",
+    SubjectName: "ภาษาอังกฤษ พื้นฐาน ม.1",
     SubjectGroup: "ภาษาต่างประเทศ",
     Credit: 1.0,
     IsRequired: true,
   },
-  // Elective subject (lower credit)
-  artElective: {
-    SubjectCode: "ศ21101",
-    SubjectName: "ทัศนศิลป์",
-    SubjectGroup: "ศิลปะ",
-    Credit: 0.5,
+  // Math additional (M.1) — pinned to E2E teacher
+  mathAdditional: {
+    SubjectCode: "ค21201",
+    SubjectName: "คณิตศาสตร์เพิ่มเติม ม.1",
+    SubjectGroup: "คณิตศาสตร์",
+    Credit: 1.5,
     IsRequired: false,
   },
 };
@@ -153,32 +130,29 @@ export const testSubject = testSubjects.thai101;
 
 /**
  * Test Grade Level Data
- * From seed.ts - M.1 to M.6 with sections
+ * From seedDemoData() ALL_GRADES — M.1 to M.6 with 3 sections each (18 grades total)
  */
 export const testGradeLevels = {
-  // M.1/1 (Grade 7, Section 1)
   m1_1: {
     GradeID: "M1-1",
-    GradeLevel: 1, // M.1
+    GradeLevel: 1,
     Section: 1,
     DisplayName: "ม.1/1",
-    Program: "GENERAL-M1-2567",
+    Program: "M1-GEN",
   },
-  // M.1/2 (Grade 7, Section 2)
   m1_2: {
     GradeID: "M1-2",
-    GradeLevel: 1, // M.1
+    GradeLevel: 1,
     Section: 2,
     DisplayName: "ม.1/2",
-    Program: "GENERAL-M1-2567",
+    Program: "M1-GEN",
   },
-  // M.4/1 (Grade 10, Section 1) - Science-Math track
   m4_1: {
     GradeID: "M4-1",
-    GradeLevel: 4, // M.4
+    GradeLevel: 4,
     Section: 1,
     DisplayName: "ม.4/1",
-    Program: "SCI_MATH-M4-2567",
+    Program: "M4-SCI",
   },
 };
 
@@ -189,28 +163,22 @@ export const testGradeLevel = testGradeLevels.m1_1;
 
 /**
  * Test Classroom Data
- * From seed.ts - Buildings and room numbers
+ * From seedDemoData() ALL_ROOMS — 22 rooms across multiple buildings
  */
 export const testClassrooms = {
-  // Building 1, Room 101
   room101: {
-    RoomID: 1,
     RoomNo: "101",
     Building: "ตึกเรียน",
     BuildingShort: "1",
     Capacity: 40,
   },
-  // Building 1, Room 102
   room102: {
-    RoomID: 2,
     RoomNo: "102",
     Building: "ตึกเรียน",
     BuildingShort: "1",
     Capacity: 40,
   },
-  // Science Building, Room 201
   scienceRoom: {
-    RoomID: 41,
     RoomNo: "201",
     Building: "ตึกวิทยาศาสตร์",
     BuildingShort: "2",
@@ -251,13 +219,15 @@ export const testTimeslots = {
 };
 
 /**
- * Period numbers (1-8 for standard Thai school)
+ * Period numbers (1-8 for standard Thai school).
+ * P2 BREAK_BOTH (10-min mini-break follows), P4 BREAK_JUNIOR (junior lunch),
+ * P5 BREAK_SENIOR (senior lunch).
  */
 export const testPeriods = {
   period1: 1,
   period2: 2,
   period3: 3,
-  period4: 4, // Often lunch break
+  period4: 4,
   period5: 5,
   period6: 6,
   period7: 7,

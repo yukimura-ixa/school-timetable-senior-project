@@ -293,6 +293,8 @@ async function seedDemoData() {
     { code: "ส33101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม ม.6", credit: "CREDIT_10", learningArea: "SOCIAL", category: "CORE" },
     { code: "พ33101", name: "สุขศึกษาและพลศึกษา ม.6", credit: "CREDIT_10", learningArea: "HEALTH_PE", category: "CORE" },
     { code: "อ33101", name: "ภาษาอังกฤษ พื้นฐาน ม.6", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
+    // Lower-sec additional (used by E2E teacher fixture)
+    { code: "ค21201", name: "คณิตศาสตร์เพิ่มเติม ม.1", credit: "CREDIT_15", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
     // SCI-MATH electives (ค shared with LANG-MATH)
     { code: "ค31201", name: "คณิตศาสตร์เพิ่มเติม ม.4", credit: "CREDIT_20", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
     { code: "ว31201", name: "ฟิสิกส์ ม.4", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
@@ -971,6 +973,22 @@ async function seedDemoData() {
     }
   }
   console.log(`✅ S1-2568: ${s1RespCount} responsibilities, ${s1SchedCount} class schedules`);
+
+  // ── E2E teacher responsibility (ค21201 / M1-1) ──────────────────────────────
+  // Pinned for e2e/fixtures/seed-data.fixture.ts. No class_schedule — fixture
+  // tests only verify the responsibility exists, not that it's scheduled.
+  const e2eTid = teacherMap.get("e2e.teacher@school.ac.th");
+  if (e2eTid) {
+    const existing = await prisma.teachers_responsibility.findFirst({
+      where: { TeacherID: e2eTid, GradeID: "M1-1", SubjectCode: "ค21201", AcademicYear: 2568, Semester: "SEMESTER_1" },
+    });
+    if (!existing) {
+      await prisma.teachers_responsibility.create({
+        data: { TeacherID: e2eTid, GradeID: "M1-1", SubjectCode: "ค21201", AcademicYear: 2568, Semester: "SEMESTER_1", TeachHour: 2 },
+      });
+    }
+    console.log(`   ➕ E2E teacher → ค21201 / M1-1 / S1-2568`);
+  }
 
   // ── S2 (2-2568): timeslots ──────────────────────────────────────────────────
   console.log("\n⏰ Seeding S2-2568 timeslots...");
