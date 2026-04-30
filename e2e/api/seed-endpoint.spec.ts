@@ -25,7 +25,7 @@ test.describe("Seed Semesters API (E2E)", () => {
   test("should require authentication", async ({ request }) => {
     // Call API without secret
     const response = await request.post("/api/admin/seed-semesters", {
-      params: { years: "2567" },
+      params: { years: "2568" },
     });
     const data = await response.json();
 
@@ -38,7 +38,7 @@ test.describe("Seed Semesters API (E2E)", () => {
     // Call API with valid secret
     const response = await request.post("/api/admin/seed-semesters", {
       params: {
-        years: "2567",
+        years: "2568",
       },
       headers: { "x-seed-secret": SEED_SECRET },
     });
@@ -52,11 +52,11 @@ test.describe("Seed Semesters API (E2E)", () => {
     // Verify semester structure
     data.results.forEach((result: any) => {
       expect(result.semester).toBeGreaterThan(0);
-      expect(result.year).toBe(2567);
+      expect(result.year).toBe(2568);
       expect(result.configId).toBeDefined();
       // ConfigID can be either format:
-      // - Seed format: "YEAR-SEMESTER_N" (e.g., "2567-SEMESTER_1")
-      // - Repository format: "SEMESTER-YEAR" (e.g., "1-2567")
+      // - Seed format: "YEAR-SEMESTER_N" (e.g., "2568-SEMESTER_1")
+      // - Repository format: "SEMESTER-YEAR" (e.g., "1-2568")
       expect(result.configId).toMatch(/^(\d{4}-SEMESTER_[12]|[12]-\d{4})$/);
     });
   });
@@ -65,7 +65,7 @@ test.describe("Seed Semesters API (E2E)", () => {
     // First call
     const response1 = await request.post("/api/admin/seed-semesters", {
       params: {
-        years: "2567",
+        years: "2568",
       },
       headers: { "x-seed-secret": SEED_SECRET },
     });
@@ -77,7 +77,7 @@ test.describe("Seed Semesters API (E2E)", () => {
     // Second call - should succeed without errors
     const response2 = await request.post("/api/admin/seed-semesters", {
       params: {
-        years: "2567",
+        years: "2568",
       },
       headers: { "x-seed-secret": SEED_SECRET },
     });
@@ -89,10 +89,10 @@ test.describe("Seed Semesters API (E2E)", () => {
   });
 
   test("should seed multiple years", async ({ request }) => {
-    // Seed years 2567 and 2568
+    // Seed years 2568 and 2568
     const response = await request.post("/api/admin/seed-semesters", {
       params: {
-        years: "2567,2568",
+        years: "2568,2568",
       },
       headers: { "x-seed-secret": SEED_SECRET },
     });
@@ -104,7 +104,7 @@ test.describe("Seed Semesters API (E2E)", () => {
 
     // Verify both years exist
     const years = new Set(data.results.map((r: any) => r.year));
-    expect(years.has(2567)).toBe(true);
+    expect(years.has(2568)).toBe(true);
     expect(years.has(2568)).toBe(true);
   });
 
@@ -132,7 +132,7 @@ test.describe("Seed Semesters API (E2E)", () => {
     });
   });
 
-  test("should default to years 2567,2568 if not specified", async ({
+  test("should default to years 2568,2568 if not specified", async ({
     request,
   }) => {
     const response = await request.post("/api/admin/seed-semesters", {
@@ -145,7 +145,7 @@ test.describe("Seed Semesters API (E2E)", () => {
     expect(data.results.length).toBe(4); // 2 years × 2 semesters
 
     const years = new Set(data.results.map((r: any) => r.year));
-    expect(years.has(2567)).toBe(true);
+    expect(years.has(2568)).toBe(true);
     expect(years.has(2568)).toBe(true);
   });
 
@@ -154,7 +154,7 @@ test.describe("Seed Semesters API (E2E)", () => {
   }) => {
     const response = await request.post("/api/admin/seed-semesters", {
       params: {
-        years: "2567",
+        years: "2568",
       },
       headers: { "x-seed-secret": SEED_SECRET },
     });
@@ -164,8 +164,8 @@ test.describe("Seed Semesters API (E2E)", () => {
     expect(data.ok).toBe(true);
 
     // Check ConfigID format - can be either:
-    // - Seed format: "YEAR-SEMESTER_N" (e.g., "2567-SEMESTER_1")
-    // - Repository format: "SEMESTER-YEAR" (e.g., "1-2567")
+    // - Seed format: "YEAR-SEMESTER_N" (e.g., "2568-SEMESTER_1")
+    // - Repository format: "SEMESTER-YEAR" (e.g., "1-2568")
     data.results.forEach((result: any) => {
       expect(result.configId).toMatch(/^(\d{4}-SEMESTER_[12]|[12]-\d{4})$/);
       // Verify it contains the year and semester info

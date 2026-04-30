@@ -52,7 +52,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
       .or(
         page
           .locator('select, [role="combobox"]')
-          .filter({ hasText: /2567|2568|ภาค/ }),
+          .filter({ hasText: /2568|2568|ภาค/ }),
       );
     if (await semesterSelector.isVisible().catch(() => false)) {
       console.log("✅ Semester selector found");
@@ -91,7 +91,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
   });
 
   test("06. Schedule Configuration", async ({ page }) => {
-    const semester = "2567/1";
+    const semester = "2568/1";
     await page.goto(`/schedule/${semester}/config`);
     await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
@@ -107,7 +107,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
   });
 
   test("07. Teacher Arrangement Interface", async ({ page }) => {
-    const semester = "2567/1";
+    const semester = "2568/1";
     await page.goto(`/schedule/${semester}/arrange`);
     await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
@@ -123,7 +123,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
   });
 
   test("08. Analytics Dashboard", async ({ page }) => {
-    const semester = "2567/1";
+    const semester = "2568/1";
     await page.goto(`/dashboard/${semester}/analytics`);
     await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
@@ -141,7 +141,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
 
 test.describe("Visual Inspection - Component Test IDs", () => {
   test("Verify presence of key test IDs", async ({ page }) => {
-    const semester = "2567/1";
+    const semester = "2568/1";
     await page.goto(`/schedule/${semester}/arrange`);
     await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {

@@ -14,7 +14,7 @@ test.describe.configure({ mode: "parallel" });
  */
 
 test.describe("All Timeslot Page UX", () => {
-  const testSemester = "2567/1";
+  const testSemester = "2568/1";
 
   test("TC-018-01: Admin sees export controls and banner", async ({
     authenticatedAdmin,

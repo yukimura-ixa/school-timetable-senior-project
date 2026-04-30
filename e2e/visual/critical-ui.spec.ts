@@ -59,7 +59,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/config");
+      await page.goto("/schedule/2568/1/config");
       await page.waitForLoadState("networkidle");
 
       // Wait for config form to load
@@ -85,7 +85,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/config", { timeout: 60000 });
+      await page.goto("/schedule/2568/1/config", { timeout: 60000 });
       await page.waitForLoadState("networkidle");
 
       // Wait for config content to be visible (the page doesn't use a <form> element)
@@ -108,7 +108,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/lock");
+      await page.goto("/schedule/2568/1/lock");
       await page.waitForLoadState("networkidle");
 
       // Wait for page content to be ready - either lock grid, empty state, or bulk lock button
@@ -130,7 +130,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/lock", { timeout: 60000 });
+      await page.goto("/schedule/2568/1/lock", { timeout: 60000 });
       await page.waitForLoadState("domcontentloaded");
 
       // Try to open bulk lock modal
@@ -163,7 +163,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       const { page } = authenticatedAdmin;
 
       await page.setViewportSize({ width: 1280, height: 807 });
-      await page.goto("/schedule/2567/1/arrange", { timeout: 60000 });
+      await page.goto("/schedule/2568/1/arrange", { timeout: 60000 });
       await page.waitForLoadState("domcontentloaded");
 
       // Wait for timetable grid to be visible (event-driven)
@@ -193,7 +193,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/arrange");
+      await page.goto("/schedule/2568/1/arrange");
       await page.waitForLoadState("networkidle");
 
       const subjectList = page.locator('[data-testid="subject-list"]').first();
@@ -213,7 +213,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     ) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/arrange", { timeout: 60000 });
+      await page.goto("/schedule/2568/1/arrange", { timeout: 60000 });
       await page.waitForLoadState("domcontentloaded");
 
       const timeslotGrid = page
@@ -247,8 +247,8 @@ test.describe("UI Component Consistency", () => {
     test.setTimeout(180000); // 3 minutes for 3 pages
     const { page } = authenticatedAdmin;
     const pages = [
-      "/dashboard/2567/1/all-timeslot",
-      "/schedule/2567/1/config",
+      "/dashboard/2568/1/all-timeslot",
+      "/schedule/2568/1/config",
       "/management/teacher",
     ];
 

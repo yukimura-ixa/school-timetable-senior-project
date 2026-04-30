@@ -18,7 +18,7 @@ export function getProdBaseURL(): string {
 
 export function getSemesterId(): string {
   const raw =
-    process.env.E2E_SEMESTER_ID ?? process.env.SEMESTER_ID ?? "1-2567";
+    process.env.E2E_SEMESTER_ID ?? process.env.SEMESTER_ID ?? "1-2568";
   if (raw.includes("/")) {
     const [year, semesterNum] = raw.split("/");
     return `${semesterNum}-${year}`;
@@ -31,7 +31,7 @@ export function getSemesterRouteParts(): {
   semester: string;
 } {
   const raw =
-    process.env.E2E_SEMESTER_ID ?? process.env.SEMESTER_ID ?? "1-2567";
+    process.env.E2E_SEMESTER_ID ?? process.env.SEMESTER_ID ?? "1-2568";
   if (raw.includes("/")) {
     const [year, semesterNum] = raw.split("/");
     return { academicYear: year, semester: semesterNum };

@@ -31,7 +31,7 @@ const normalizeSemesterPath = (value: string): string => {
 };
 
 const semester = normalizeSemesterPath(
-  process.env.SEMESTER_ID ?? "2567/1",
+  process.env.SEMESTER_ID ?? "2568/1",
 );
 const screenshotDir = "test-results/prod-visual";
 

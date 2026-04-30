@@ -352,7 +352,7 @@ test.describe("Navigation Edge Cases", () => {
     const page = await context.newPage();
 
     // Try accessing schedule config without auth
-    await page.goto("/schedule/2567/1/config");
+    await page.goto("/schedule/2568/1/config");
 
     // Should redirect to signin
     await expect(page).toHaveURL(/\/signin/, { timeout: 15000 });
@@ -371,7 +371,7 @@ test.describe("Table View Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/student-table");
+    await page.goto("/dashboard/2568/1/student-table");
 
     // Should load without errors
     await expect(page).toHaveURL(/\/student-table/);
@@ -390,7 +390,7 @@ test.describe("Table View Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/all-timeslot");
+    await page.goto("/dashboard/2568/1/all-timeslot");
 
     // Should load without errors
     await expect(page).toHaveURL(/\/all-timeslot/);
@@ -413,7 +413,7 @@ test.describe("Table View Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/teacher-table");
+    await page.goto("/dashboard/2568/1/teacher-table");
     // Wait for table or filter controls to be visible
     await expect(page.locator('table, [role="combobox"], input')).toBeVisible({ timeout: 15000 });
 
@@ -438,7 +438,7 @@ test.describe("Conflict Detection Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/schedule/2567/1/arrange");
+    await page.goto("/schedule/2568/1/arrange");
     // Wait for arrange page content to load
     await expect(page.locator('[class*="timetable"], table, [class*="grid"]').first()).toBeVisible({ timeout: 15000 });
 
@@ -456,7 +456,7 @@ test.describe("Conflict Detection Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
     // Wait for lock page content
     await expect(page.locator('table, [class*="grid"], main')).toBeVisible({ timeout: 15000 });
 

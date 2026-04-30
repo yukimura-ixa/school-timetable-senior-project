@@ -16,11 +16,11 @@
 import { test, expect } from "../fixtures/admin.fixture";
 
 // Both semesters are seeded by prisma/seed.ts (db:seed:clean)
-// 2567/1: PUBLISHED semester with full data
-// 2567/2: DRAFT semester with timeslots and config
+// 2568/1: PUBLISHED semester with full data
+// 2568/2: DRAFT semester with timeslots and config
 const SEEDED_TERMS = [
-  { semester: 1, year: 2567, label: "2567/1", status: "PUBLISHED" },
-  { semester: 2, year: 2567, label: "2567/2", status: "DRAFT" },
+  { semester: 1, year: 2568, label: "2568/1", status: "PUBLISHED" },
+  { semester: 2, year: 2568, label: "2568/2", status: "DRAFT" },
 ];
 
 test.describe("Semester Smoke Tests - Schedule Config", () => {
@@ -198,8 +198,8 @@ test.describe("Cross-Term Navigation", () => {
     page,
   }) => {
     // Navigate to schedule config
-    await page.goto("/schedule/2567/1/config");
-    await expect(page).toHaveURL(/\/schedule\/2567\/1\/config/);
+    await page.goto("/schedule/2568/1/config");
+    await expect(page).toHaveURL(/\/schedule\/2568\/1\/config/);
 
     // Verify config page renders (config form, not table)
     await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
@@ -207,13 +207,13 @@ test.describe("Cross-Term Navigation", () => {
     });
 
     // Navigate to dashboard
-    await page.goto("/dashboard/2567/1/all-timeslot");
-    await expect(page).toHaveURL(/\/dashboard\/2567\/1\/all-timeslot/);
+    await page.goto("/dashboard/2568/1/all-timeslot");
+    await expect(page).toHaveURL(/\/dashboard\/2568\/1\/all-timeslot/);
   });
 
   test("Term-specific data loads correctly", async ({ page }) => {
-    // Verify the seeded semester (1-2567) has content
-    await page.goto("/dashboard/2567/1/all-timeslot");
+    // Verify the seeded semester (1-2568) has content
+    await page.goto("/dashboard/2568/1/all-timeslot");
     const content = await page.textContent("body");
 
     // Content should be present
@@ -229,8 +229,8 @@ test.describe("Cross-Term Navigation", () => {
 test.describe("Multi-Semester Scenarios", () => {
   test("TC-MS-01: Can navigate between semesters via URL", async ({ page }) => {
     // Navigate to semester 1
-    await page.goto("/schedule/2567/1/config");
-    await expect(page).toHaveURL(/\/schedule\/2567\/1\/config/);
+    await page.goto("/schedule/2568/1/config");
+    await expect(page).toHaveURL(/\/schedule\/2568\/1\/config/);
     // Config page has config form, not table
     const configLocator1 = page
       .locator("text=/กำหนดคาบต่อวัน/")
@@ -238,8 +238,8 @@ test.describe("Multi-Semester Scenarios", () => {
     await expect(configLocator1.first()).toBeVisible({ timeout: 15000 });
 
     // Navigate to semester 2
-    await page.goto("/schedule/2567/2/config");
-    await expect(page).toHaveURL(/\/schedule\/2567\/2\/config/);
+    await page.goto("/schedule/2568/2/config");
+    await expect(page).toHaveURL(/\/schedule\/2568\/2\/config/);
     const configLocator2 = page
       .locator("text=/กำหนดคาบต่อวัน/")
       .or(page.locator('[class*="Skeleton"]'));
@@ -281,25 +281,25 @@ test.describe("Multi-Semester Scenarios", () => {
     page,
   }) => {
     // Schedule config URL pattern
-    await page.goto("/schedule/2567/1/config");
-    await expect(page).toHaveURL(/\/schedule\/2567\/1\/config/);
+    await page.goto("/schedule/2568/1/config");
+    await expect(page).toHaveURL(/\/schedule\/2568\/1\/config/);
 
-    await page.goto("/schedule/2567/2/config");
-    await expect(page).toHaveURL(/\/schedule\/2567\/2\/config/);
+    await page.goto("/schedule/2568/2/config");
+    await expect(page).toHaveURL(/\/schedule\/2568\/2\/config/);
 
     // Dashboard URL pattern
-    await page.goto("/dashboard/2567/1/all-timeslot");
-    await expect(page).toHaveURL(/\/dashboard\/2567\/1\/all-timeslot/);
+    await page.goto("/dashboard/2568/1/all-timeslot");
+    await expect(page).toHaveURL(/\/dashboard\/2568\/1\/all-timeslot/);
 
-    await page.goto("/dashboard/2567/2/all-timeslot");
-    await expect(page).toHaveURL(/\/dashboard\/2567\/2\/all-timeslot/);
+    await page.goto("/dashboard/2568/2/all-timeslot");
+    await expect(page).toHaveURL(/\/dashboard\/2568\/2\/all-timeslot/);
   });
 
   test("TC-MS-05: Cross-semester navigation preserves page structure", async ({
     page,
   }) => {
     // Load semester 1 config - config page has form elements
-    await page.goto("/schedule/2567/1/config");
+    await page.goto("/schedule/2568/1/config");
     await page.waitForLoadState("networkidle");
 
     // Wait for config form to fully load (not just skeleton)
@@ -311,7 +311,7 @@ test.describe("Multi-Semester Scenarios", () => {
     const sem1HasConfig = await configText.count();
 
     // Load semester 2 config
-    await page.goto("/schedule/2567/2/config");
+    await page.goto("/schedule/2568/2/config");
     await page.waitForLoadState("networkidle");
 
     await configText
@@ -337,10 +337,10 @@ test.describe("Multi-Semester Scenarios", () => {
     });
 
     // Rapidly switch between semesters
-    await page.goto("/schedule/2567/1/config");
-    await page.goto("/schedule/2567/2/config");
-    await page.goto("/schedule/2567/1/config");
-    await page.goto("/schedule/2567/2/config");
+    await page.goto("/schedule/2568/1/config");
+    await page.goto("/schedule/2568/2/config");
+    await page.goto("/schedule/2568/1/config");
+    await page.goto("/schedule/2568/2/config");
 
     // Wait for final page to stabilize - use web-first assertion
     const configLocator = page

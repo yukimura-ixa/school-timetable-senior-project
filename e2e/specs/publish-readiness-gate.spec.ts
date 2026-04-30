@@ -6,8 +6,8 @@ test.describe("Publish Readiness Gate", () => {
   test.beforeEach(async ({ page }) => {
     if (!GATE) test.skip();
     // Navigate to a DRAFT semester config page
-    // Assumes E2E seed creates a DRAFT semester at year=2567, semester=1
-    await page.goto("/schedule/2567/1/config");
+    // Assumes E2E seed creates a DRAFT semester at year=2568, semester=1
+    await page.goto("/schedule/2568/1/config");
     await page.waitForLoadState("networkidle");
   });
 

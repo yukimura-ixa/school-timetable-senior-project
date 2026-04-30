@@ -534,7 +534,7 @@ test.describe("Analytics Dashboard", () => {
         .locator("text=/ปีการศึกษา/")
         .locator("..");
 
-      // Count year entries (numbers like "2567", "2568")
+      // Count year entries (numbers like "2568", "2568")
       const yearNumbers = await yearSection
         .locator("text=/^25\\d{2}$/")
         .count();

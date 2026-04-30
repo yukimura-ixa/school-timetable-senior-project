@@ -780,8 +780,9 @@ test.describe("Program Management - Data Validation", () => {
       .first();
 
     if ((await yearSelect.count()) > 0) {
-      // Test Year 2567
-      await yearSelect.selectOption({ label: /2567/ });
+      // TODO(seed-2568): historical-year coverage may need rework — 2567 no longer seeded
+      // Test Year 2568
+      await yearSelect.selectOption({ label: /2568/ });
       await expect(
         page.locator('main, [role="main"], body').first(),
       ).toBeVisible({

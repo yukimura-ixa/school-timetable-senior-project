@@ -31,7 +31,7 @@ import { NavigationHelper } from "./helpers/navigation";
 test.describe.configure({ mode: "serial", timeout: 120_000 });
 
 // Test data setup
-const TEST_SEMESTER = "2567/1";
+const TEST_SEMESTER = "2568/1";
 const SCREENSHOT_DIR = "test-results/screenshots/drag-drop";
 
 /**

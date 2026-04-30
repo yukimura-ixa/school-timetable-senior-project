@@ -19,7 +19,7 @@ test.describe.configure({ mode: "serial", timeout: 90_000 });
  */
 
 test.describe("TC-011: Teacher Double Booking Prevention", () => {
-  const testSemester = "2567/1";
+  const testSemester = "2568/1";
 
   test("TC-011-01: Teacher arrange page loads", async ({
     authenticatedAdmin,
@@ -143,7 +143,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
 });
 
 test.describe("TC-012: Class Double Booking Prevention", () => {
-  const testSemester = "2567/1";
+  const testSemester = "2568/1";
 
   test("TC-012-01: Student arrange page loads", async ({
     authenticatedAdmin,
@@ -239,7 +239,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
 });
 
 test.describe("TC-013: Room Availability Conflict Prevention", () => {
-  const testSemester = "2567/1";
+  const testSemester = "2568/1";
 
   test("TC-013-01: Room assignment interface accessible", async ({
     authenticatedAdmin,
@@ -351,7 +351,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
 });
 
 test.describe("TC-011-013: Integrated Conflict Prevention", () => {
-  const testSemester = "2567/1";
+  const testSemester = "2568/1";
 
   test("TC-013-05: All conflict types are checked simultaneously", async ({
     authenticatedAdmin,

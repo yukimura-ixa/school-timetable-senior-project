@@ -38,7 +38,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     // Find bulk lock button
     const bulkLockButton = page.getByTestId("bulk-lock-btn");
@@ -49,7 +49,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
     // Prefer dialog accessible name to avoid strict-mode ambiguity between title wrappers.
@@ -62,7 +62,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
 
@@ -81,7 +81,7 @@ test.describe("Bulk Lock Operations", () => {
 
   test("should display select all buttons", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
 
@@ -97,7 +97,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
     // Find and check first few timeslot checkboxes
@@ -115,7 +115,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
     // Prefer grade-labelled checkbox if present (e.g. "ม.1")
@@ -133,7 +133,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
     // Initial counter should show 0
@@ -165,7 +165,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
 
@@ -189,7 +189,7 @@ test.describe("Bulk Lock Operations", () => {
 
   test("should require subject selection", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     await openBulkLockModal(page);
 
@@ -210,7 +210,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     await openBulkLockModal(page);
 
@@ -232,7 +232,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
 
@@ -255,7 +255,7 @@ test.describe("Bulk Lock Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     const modal = await openBulkLockModal(page);
 
@@ -270,7 +270,7 @@ test.describe("Bulk Lock Operations", () => {
   test("should be responsive on mobile", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     await openBulkLockModal(page);
 
@@ -291,7 +291,7 @@ test.describe("Bulk Lock - Complete Flow", () => {
       !ALLOW_BULK_LOCK_MUTATIONS,
       "Set E2E_BULK_LOCK_MUTATE=true to allow DB mutations",
     );
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     // Open modal
     await page
@@ -370,7 +370,7 @@ test.describe("Bulk Lock - Error Handling", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     await page
       .locator("button")
@@ -402,7 +402,7 @@ test.describe("Bulk Lock - Error Handling", () => {
       });
     });
 
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     // Opening modal should still work (uses cached data or shows error)
     await page
@@ -430,7 +430,7 @@ test.describe("Bulk Lock - Accessibility", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     await page
       .locator("button")
@@ -452,7 +452,7 @@ test.describe("Bulk Lock - Accessibility", () => {
 
   test("should be keyboard navigable", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/schedule/2567/1/lock");
+    await page.goto("/schedule/2568/1/lock");
 
     await page
       .locator("button")

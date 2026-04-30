@@ -16,7 +16,7 @@ import { waitForAppReady } from "./helpers/wait-for-app-ready";
 test.describe("TC-007: Semester Configuration", () => {
   test.describe.configure({ mode: "serial" });
 
-  const testSemester = "2567/1";
+  const testSemester = "2568/1";
 
   test("TC-007-01: Navigate to configuration page", async ({
     authenticatedAdmin,
@@ -218,7 +218,7 @@ test.describe("TC-007: Semester Configuration", () => {
 test.describe("TC-009: Schedule Assignment Interface", () => {
   test.describe.configure({ mode: "serial" });
 
-  const testSemester = "2567/1";
+  const testSemester = "2568/1";
 
   test("TC-009-01: Assignment page loads", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;

@@ -82,8 +82,8 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
   });
 
   test.beforeEach(async ({ arrangePage }) => {
-    // Navigate to arrange page for semester 1/2567
-    await arrangePage.navigateTo("1", "2567");
+    // Navigate to arrange page for semester 1/2568
+    await arrangePage.navigateTo("1", "2568");
     // Don't wait for page ready yet - tests will select teacher first
   });
 
@@ -239,7 +239,7 @@ test.describe("Admin: Schedule Assignment - Cross-Semester Navigation", () => {
     "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
   );
     test.beforeEach(async ({ arrangePage }) => {
-      await arrangePage.navigateTo("1", "2567");
+      await arrangePage.navigateTo("1", "2568");
       // Don't wait for page ready yet - tests will select teacher first
     });
 
@@ -343,7 +343,7 @@ test.describe("Admin: Schedule Assignment - Timeslot Locking", () => {
     "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
   );
   test.beforeEach(async ({ arrangePage }) => {
-    await arrangePage.navigateTo("1", "2567");
+    await arrangePage.navigateTo("1", "2568");
     // Don't wait for page ready yet - tests will select teacher first
   });
 
@@ -398,7 +398,7 @@ test.describe("Admin: Schedule Assignment - Export Functionality", () => {
     "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
   );
   test.beforeEach(async ({ arrangePage }) => {
-    await arrangePage.navigateTo("1", "2567");
+    await arrangePage.navigateTo("1", "2568");
     // Don't wait for page ready yet - tests will select teacher first
   });
 
@@ -488,25 +488,25 @@ test.describe(
     );
     test("should navigate between semesters", async ({ arrangePage }) => {
       // Semester 1
-      await arrangePage.navigateTo("1", "2567");
+      await arrangePage.navigateTo("1", "2568");
       await arrangePage.waitForPageReady();
 
       // Verify we're on semester 1 by checking the page URL
-      expect(arrangePage.page.url()).toContain("2567/1");
+      expect(arrangePage.page.url()).toContain("2568/1");
 
       // Semester 2
-      await arrangePage.navigateTo("2", "2567");
+      await arrangePage.navigateTo("2", "2568");
       await arrangePage.waitForPageReady();
 
       // Verify we're on semester 2
-      expect(arrangePage.page.url()).toContain("2567/2");
+      expect(arrangePage.page.url()).toContain("2568/2");
     });
 
     test("should maintain schedule data per semester", async ({
       arrangePage,
     }) => {
       // Arrange - Assign subject in semester 1
-      await arrangePage.navigateTo("1", "2567");
+      await arrangePage.navigateTo("1", "2568");
       await arrangePage.waitForPageReady();
 
       const teacherName = getTeacherName(1);
@@ -520,7 +520,7 @@ test.describe(
       const sem1Count = await arrangePage.getAssignedSubjectCount();
 
       // Act - Switch to semester 2
-      await arrangePage.navigateTo("2", "2567");
+      await arrangePage.navigateTo("2", "2568");
       await arrangePage.waitForPageReady();
       await arrangePage.selectTeacher(teacherName);
 
@@ -544,7 +544,7 @@ test.describe("Admin: Schedule Assignment - Performance", () => {
     "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
   );
   test.beforeEach(async ({ arrangePage }) => {
-    await arrangePage.navigateTo("1", "2567");
+    await arrangePage.navigateTo("1", "2568");
     // Don't wait for page ready yet - tests will select teacher first
   });
 
@@ -589,7 +589,7 @@ test.describe("Admin: Schedule Assignment - Performance", () => {
   test("should load page within acceptable time", async ({ arrangePage }) => {
     const startTime = Date.now();
 
-    await arrangePage.navigateTo("1", "2567");
+    await arrangePage.navigateTo("1", "2568");
     await arrangePage.waitForPageReady();
 
     const loadTime = Date.now() - startTime;

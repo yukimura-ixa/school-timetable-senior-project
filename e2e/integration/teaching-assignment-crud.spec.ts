@@ -231,9 +231,9 @@ test.describe("Teaching Assignment CRUD", () => {
       // Verify semester context is shown somewhere on page
       const pageContent = await page.textContent("body");
 
-      // Should contain semester reference (1-2567 or ภาคเรียนที่ 1/2567)
+      // Should contain semester reference (1-2568 or ภาคเรียนที่ 1/2568)
       const hasSemesterContext =
-        pageContent?.includes("2567") ||
+        pageContent?.includes("2568") ||
         pageContent?.includes("ภาคเรียน") ||
         page.url().includes(SEMESTER);
 

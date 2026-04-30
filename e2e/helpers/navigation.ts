@@ -5,7 +5,7 @@ import { waitForAppReady } from "./wait-for-app-ready";
  * Navigation helpers for E2E tests
  *
  * URL format: /schedule/{academicYear}/{semester}/...
- * Example: /schedule/2567/1/arrange
+ * Example: /schedule/2568/1/arrange
  */
 
 export class NavigationHelper {

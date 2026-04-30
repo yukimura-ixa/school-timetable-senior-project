@@ -16,7 +16,7 @@ test.describe("Admin regressions (SBTM)", () => {
     try {
       // Warmup teacher arrange page
       await page.goto(
-        `/schedule/${testSemesters.semester1_2567.SemesterAndyear}/arrange`,
+        `/schedule/${testSemesters.semester1_2568.SemesterAndyear}/arrange`,
         { timeout: 90_000 },
       );
       await page.waitForLoadState("networkidle", { timeout: 60_000 });
@@ -42,7 +42,7 @@ test.describe("Admin regressions (SBTM)", () => {
     const { page } = authenticatedAdmin;
     const nav = new NavigationHelper(page);
 
-    await nav.goToConfig(testSemesters.semester1_2567.SemesterAndyear);
+    await nav.goToConfig(testSemesters.semester1_2568.SemesterAndyear);
 
     const editButton = page.getByRole("button", { name: /แก้ไขตั้งค่า/i });
     if (!(await editButton.isVisible({ timeout: 10000 }).catch(() => false))) {
@@ -88,7 +88,7 @@ test.describe("Admin regressions (SBTM)", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToTeacherArrange(
-      testSemesters.semester1_2567.SemesterAndyear,
+      testSemesters.semester1_2568.SemesterAndyear,
       String(testTeacher.TeacherID),
     );
 

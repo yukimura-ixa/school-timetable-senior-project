@@ -22,7 +22,7 @@ test.describe("Conflict Detector", () => {
     const { page } = authenticatedAdmin;
 
     // Start from dashboard (already authenticated via fixture)
-    await page.goto("/dashboard/2567/1");
+    await page.goto("/dashboard/2568/1");
 
     // ✅ Web-first assertion: Wait for dashboard to load (use specific heading)
     await expect(page.getByRole("heading", { name: /Dashboard/i }).first()).toBeVisible({ timeout: 15000 });
@@ -35,7 +35,7 @@ test.describe("Conflict Detector", () => {
     await conflictButton.first().click();
 
     // ✅ Web-first assertion: Wait for URL change
-    await expect(page).toHaveURL(/\/dashboard\/2567\/1\/conflicts/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/2568\/1\/conflicts/, { timeout: 15000 });
 
     // ✅ Web-first assertion: Verify page loaded (matches actual title "ตรวจสอบ Conflict ตารางสอน")
     await expect(
@@ -48,7 +48,7 @@ test.describe("Conflict Detector", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Check page title (actual: "ตรวจสอบ Conflict ตารางสอน")
     await expect(
@@ -66,7 +66,7 @@ test.describe("Conflict Detector", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Wait for summary chips/cards to render (actual: uses Chips for "ครูซ้ำ: N")
     const summaryChips = page.locator(
@@ -83,7 +83,7 @@ test.describe("Conflict Detector", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Wait for page to load
     await expect(
@@ -121,7 +121,7 @@ test.describe("Conflict Detector", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Wait for content to render (card or alert)
     const conflictContent = page.locator(
@@ -148,7 +148,7 @@ test.describe("Conflict Detector", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Verify Thai text is displayed (actual: "ครูซ้ำ:", "ห้องซ้ำ:", "ชั้นซ้ำ:")
     await expect(page.locator("text=/ครูซ้ำ/").first()).toBeVisible({ timeout: 15000 });
@@ -159,7 +159,7 @@ test.describe("Conflict Detector", () => {
   test("should handle empty conflict state", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Wait for initial content (either chips or no-conflict alert)
     await expect(
@@ -182,7 +182,7 @@ test.describe("Conflict Detector", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Verify initial load
     await expect(
@@ -190,11 +190,11 @@ test.describe("Conflict Detector", () => {
     ).toBeVisible({ timeout: 15000 });
 
     // Navigate away
-    await page.goto("/dashboard/2567/1");
+    await page.goto("/dashboard/2568/1");
     await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 15000 });
 
     // Navigate back
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Should still show content
     await expect(
@@ -208,7 +208,7 @@ test.describe("Conflict Detector", () => {
     const { page } = authenticatedAdmin;
 
     await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Page should still be functional
     await expect(
@@ -224,7 +224,7 @@ test.describe("Conflict Detector", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Wait for page to load
     await expect(
@@ -259,7 +259,7 @@ test.describe("Conflict Detector - Error Handling", () => {
     const { page } = authenticatedAdmin;
 
     // Navigate first, then intercept API calls
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Should show either content or error state
     const content = page.locator("text=/Conflict|ข้อผิดพลาด|Error|เกิดข้อผิดพลาด/i");
@@ -290,7 +290,7 @@ test.describe("Conflict Detector - Accessibility", () => {
   test("should have proper ARIA labels", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Wait for page to load
     await expect(
@@ -308,7 +308,7 @@ test.describe("Conflict Detector - Accessibility", () => {
   test("should be keyboard navigable", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/2567/1/conflicts");
+    await page.goto("/dashboard/2568/1/conflicts");
 
     // ✅ Web-first: Wait for page to load
     await expect(page.locator("text=/Conflict|ครูซ้ำ/").first()).toBeVisible({ timeout: 15000 });

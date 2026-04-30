@@ -3,7 +3,7 @@
  *
  * Tests the newly implemented public teacher and class schedule pages with:
  * - Grid-based timetable layout (rows=periods, columns=days)
- * - parseSlotNumber() logic for TimeslotID format "1-2567-MON1"
+ * - parseSlotNumber() logic for TimeslotID format "1-2568-MON1"
  * - Responsive design and print functionality
  * - No authentication required
  *
@@ -355,7 +355,7 @@ test.describe("Public Teacher Schedule Page", () => {
       },
     );
 
-    // Should show semester and year (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2567")
+    // Should show semester and year (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2568")
     await expect(
       page.locator("text=/ภาคเรียน(ที่)?\\s*\\d+\\s*ปีการศึกษา\\s*\\d{4}/i"),
     ).toBeVisible();
@@ -363,7 +363,7 @@ test.describe("Public Teacher Schedule Page", () => {
 
   test("should handle invalid semester format", async ({ guestPage }) => {
     const page = guestPage;
-    // Invalid semester format (should be "2567/1")
+    // Invalid semester format (should be "2568/1")
     await page.goto(`/teachers/${testTeacher.TeacherID}/invalid-semester`, {
       timeout: 60000,
       waitUntil: "domcontentloaded",
@@ -591,7 +591,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const emailPattern = /@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
     expect(emailPattern.test(content)).toBe(false);
 
-    // Should NOT contain phone number patterns (exclude year patterns like 1-2567)
+    // Should NOT contain phone number patterns (exclude year patterns like 1-2568)
     const phonePattern = /(?<!\d-)\d{3}-\d{3}-\d{4}(?!-)|(?<!-)\d{10}(?!-)/;
     expect(phonePattern.test(content)).toBe(false);
   });

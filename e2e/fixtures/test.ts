@@ -29,7 +29,7 @@ type CustomFixtures = {
  * Usage:
  * ```typescript
  * test('my test', async ({ programViewPage }) => {
- *   await programViewPage.navigateTo('1', '2567');
+ *   await programViewPage.navigateTo('1', '2568');
  *   await programViewPage.assertTeacherDataVisible();
  * });
  * ```

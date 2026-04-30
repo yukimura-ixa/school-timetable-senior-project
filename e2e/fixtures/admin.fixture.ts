@@ -68,7 +68,7 @@ export const test = base.extend<AdminFixtures>({
     // Page is already authenticated via storageState from auth.setup.ts
     // Just verify we're not on the signin page
     // Increased timeout for dev server slow compilation
-    await page.goto("/dashboard/2567/1", { timeout: 60000 });
+    await page.goto("/dashboard/2568/1", { timeout: 60000 });
     await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
 
     // Use the authenticated page
@@ -131,7 +131,7 @@ export { expect };
  * File: `e2e/auth.setup.ts`
  * - Runs ONCE before all tests (configured in playwright.config.ts)
  * - Navigates to /signin and logs in with credentials (admin@school.local / admin123)
- * - Pre-selects semester 2567/1 via URL navigation (/dashboard/2567/1)
+ * - Pre-selects semester 2568/1 via URL navigation (/dashboard/2568/1)
  * - Saves authenticated state + localStorage to `playwright/.auth/admin.json`
  * - Total runtime: ~3-5 seconds
  *
@@ -139,7 +139,7 @@ export { expect };
  * All tests in the 'chromium' project automatically:
  * - Load saved auth state from playwright/.auth/admin.json
  * - Start with valid admin session (email: admin@school.local, role: admin)
- * - Have semester 1-2567 pre-selected in localStorage
+ * - Have semester 1-2568 pre-selected in localStorage
  * - NO MANUAL AUTH NEEDED in individual tests
  *
  * ### 3. When to Use Manual Auth

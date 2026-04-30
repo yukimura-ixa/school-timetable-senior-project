@@ -306,7 +306,7 @@ test.describe("Public Statistics API", () => {
       timeout: 15000,
     });
 
-    // Check for current term display (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2567")
+    // Check for current term display (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2568")
     const hasSemesterInfo = await page
       .locator("text=/semester|term|ภาคเรียน|ปีการศึกษา/i")
       .count();
@@ -319,7 +319,7 @@ test.describe("Public Statistics API", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/dashboard/2567/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
+    await page.goto("/dashboard/2568/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -347,7 +347,7 @@ test.describe("Public Statistics API", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/dashboard/2567/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
+    await page.goto("/dashboard/2568/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -370,7 +370,7 @@ test.describe("Public Statistics API", () => {
 
   test("should show room occupancy data", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto("/dashboard/2567/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
+    await page.goto("/dashboard/2568/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });

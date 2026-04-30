@@ -89,10 +89,10 @@ export class BasePage {
    * Wait for semester to be synced from URL params to global store
    * This is critical for pages that use useSemesterSync hook
    *
-   * @param expectedSemester - Expected semester text like "1/2567"
+   * @param expectedSemester - Expected semester text like "1/2568"
    */
   async waitForSemesterSync(expectedSemester: string) {
-    // Extract configId and parts from expected semester (e.g., "1/2567" -> configId "1-2567")
+    // Extract configId and parts from expected semester (e.g., "1/2568" -> configId "1-2568")
     const [semStr, yearStr] = expectedSemester.split("/");
     const semesterNum = Number(semStr);
     const academicYearNum = Number(yearStr);

@@ -16,7 +16,7 @@ test.describe("Publish Gate", () => {
     const { page } = authenticatedAdmin;
 
     // Config status badge (and publish controls) are rendered on the config page.
-    await page.goto("/schedule/2567/1/config");
+    await page.goto("/schedule/2568/1/config");
     await page.waitForLoadState("networkidle");
 
     const statusBadge = page.getByTestId("config-status-badge");
@@ -28,7 +28,7 @@ test.describe("Publish Gate", () => {
     if (!hasBadge) {
       test.skip(
         true,
-        "Config status badge not rendered — SemesterConfig may not exist for 2567/1",
+        "Config status badge not rendered — SemesterConfig may not exist for 2568/1",
       );
       return;
     }
