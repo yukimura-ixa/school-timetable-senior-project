@@ -39,6 +39,7 @@ model gradelevel {
   class_schedule          class_schedule[]
   program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], map: "fk_gradelevel_program")
   teachers_responsibility teachers_responsibility[]
+  break_group_grades      break_group_grade[]
 
   @@unique([Year, Number], map: "gradelevel_year_number_unique")
   @@index([ProgramID])
@@ -134,6 +135,31 @@ model timeslot {
   @@index([AcademicYear], map: "timeslot_year_idx")
 }
 
+model break_group {
+  BreakGroupID    Int                @id @default(autoincrement())
+  Name            String
+  Label           String
+  Color           String             @default("#9E9E9E")
+  ConfigID        String
+  table_config    table_config       @relation(fields: [ConfigID], references: [ConfigID], onDelete: Cascade)
+  grades          break_group_grade[]
+
+  @@unique([ConfigID, Name], map: "break_group_config_name_unique")
+  @@index([ConfigID])
+}
+
+model break_group_grade {
+  BreakGroupGradeID Int          @id @default(autoincrement())
+  BreakGroupID      Int
+  GradeID           String
+  break_group       break_group  @relation(fields: [BreakGroupID], references: [BreakGroupID], onDelete: Cascade)
+  gradelevel        gradelevel   @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
+
+  @@unique([BreakGroupID, GradeID])
+  @@index([BreakGroupID])
+  @@index([GradeID])
+}
+
 model teachers_responsibility {
   RespID         Int              @id @default(autoincrement())
   TeacherID      Int
@@ -167,6 +193,7 @@ model table_config {
   publishedAt        DateTime?
   status             SemesterStatus @default(DRAFT)
   updatedAt          DateTime       @default(now()) @updatedAt
+  break_groups       break_group[]
 
   @@index([status])
   @@index([isPinned], map: "table_config_pinned_idx")
@@ -290,6 +317,7 @@ enum semester {
 }
 
 enum breaktime {
+  BREAK
   BREAK_JUNIOR
   BREAK_SENIOR
   BREAK_BOTH
