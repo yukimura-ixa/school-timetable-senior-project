@@ -11,6 +11,18 @@ import * as v from "valibot";
 import { semester, day_of_week } from "@/prisma/generated/client";
 
 /**
+ * Schema for a single break definition in the new N-group break system
+ */
+export const breakDefinitionSchema = v.object({
+  id: v.pipe(v.string(), v.minLength(1, "รหัสช่วงพักห้ามว่าง")),
+  label: v.pipe(v.string(), v.minLength(1, "ชื่อช่วงพักห้ามว่าง")),
+  slotNumber: v.pipe(v.number(), v.minValue(1, "หมายเลขคาบต้องมากกว่า 0")),
+  duration: v.pipe(v.number(), v.minValue(5, "ระยะเวลาพักต้องไม่น้อยกว่า 5 นาที")),
+  color: v.pipe(v.string(), v.minLength(1)),
+  groups: v.array(v.string(), "ต้องระบุกลุ่มอย่างน้อย 1 กลุ่ม"),
+});
+
+/**
  * Schema for creating timeslots (bulk operation with configuration)
  * Generates multiple timeslots based on schedule configuration
  */
@@ -34,6 +46,7 @@ export const createTimeslotsSchema = v.object({
     Junior: v.number("หมายเลขคาบพักม.ต้นต้องเป็นตัวเลข"),
     Senior: v.number("หมายเลขคาบพักม.ปลายต้องเป็นตัวเลข"),
   }),
+  breakDefinitions: v.optional(v.array(breakDefinitionSchema)),
 });
 
 export type CreateTimeslotsInput = v.InferOutput<typeof createTimeslotsSchema>;

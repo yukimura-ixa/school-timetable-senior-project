@@ -7,6 +7,8 @@
  * @module config.constants
  */
 
+import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+
 /**
  * Configuration constraints for timetable setup
  */
@@ -137,4 +139,5 @@ export type ConfigData = {
     SlotNumber: number;
   };
   HasMinibreak: boolean;
+  breakDefinitions?: BreakDefinition[];
 };
