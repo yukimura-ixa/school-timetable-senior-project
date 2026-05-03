@@ -23,11 +23,20 @@ import {
   Chip,
   Paper,
   Divider,
+  IconButton,
 } from "@mui/material";
-import { AccessTime, CalendarMonth, Schedule } from "@mui/icons-material";
+import { AccessTime, CalendarMonth, Schedule, Add, Delete } from "@mui/icons-material";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import type { day_of_week } from "@/prisma/generated/client";
 import { useCreateSemester } from "./CreateSemesterWizard/CreateSemesterContext";
+import {
+  DEFAULT_BREAK_GROUPS,
+  DEFAULT_BREAK_DEFINITIONS,
+  DEFAULT_JUNIOR_GRADES,
+  DEFAULT_SENIOR_GRADES,
+  type BreakDefinition,
+} from "@/features/timeslot/domain/models/break.types";
+import { generatePreviewSlotsV2, calculateSchoolDayEndTime } from "@/features/timeslot/domain/services/timeslot-config.service";
 
 const DAYS: { value: day_of_week; label: string }[] = [
   { value: "MON", label: "จันทร์" },
@@ -65,6 +74,21 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
     ...initialConfig,
   });
 
+  const [breakGroups, setBreakGroups] = useState(
+    initialConfig?.breakGroups ??
+      DEFAULT_BREAK_GROUPS.map((g) => ({
+        ...g,
+        gradeIds:
+          g.Name === "junior"
+            ? [...DEFAULT_JUNIOR_GRADES]
+            : [...DEFAULT_SENIOR_GRADES],
+      }))
+  );
+
+  const [breakDefs, setBreakDefs] = useState<BreakDefinition[]>(
+    initialConfig?.breakDefinitions ?? [...DEFAULT_BREAK_DEFINITIONS]
+  );
+
   const errors = useMemo(() => {
     const newErrors: Record<string, string> = {};
 
@@ -80,39 +104,8 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
       newErrors.duration = "ระยะเวลาต่อคาบต้องอยู่ระหว่าง 10-120 นาที";
     }
 
-    if (config.BreakDuration < 5 || config.BreakDuration > 60) {
-      newErrors.breakDuration = "ระยะเวลาพักต้องอยู่ระหว่าง 5-60 นาที";
-    }
-
     if (config.TimeslotPerDay < 1 || config.TimeslotPerDay > 15) {
       newErrors.timeslotPerDay = "จำนวนคาบต่อวันต้องอยู่ระหว่าง 1-15";
-    }
-
-    if (config.HasMinibreak) {
-      if (
-        config.MiniBreak.SlotNumber < 1 ||
-        config.MiniBreak.SlotNumber > config.TimeslotPerDay
-      ) {
-        newErrors.miniBreak = "หมายเลขคาบพักเล็กไม่ถูกต้อง";
-      }
-      if (config.MiniBreak.Duration < 5 || config.MiniBreak.Duration > 30) {
-        newErrors.miniBreakDuration =
-          "ระยะเวลาพักเล็กต้องอยู่ระหว่าง 5-30 นาที";
-      }
-    }
-
-    if (
-      config.BreakTimeslots.Junior < 1 ||
-      config.BreakTimeslots.Junior > config.TimeslotPerDay
-    ) {
-      newErrors.juniorBreak = "หมายเลขคาบพักม.ต้นไม่ถูกต้อง";
-    }
-
-    if (
-      config.BreakTimeslots.Senior < 1 ||
-      config.BreakTimeslots.Senior > config.TimeslotPerDay
-    ) {
-      newErrors.seniorBreak = "หมายเลขคาบพักม.ปลายไม่ถูกต้อง";
     }
 
     return newErrors;
@@ -124,9 +117,13 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
     setIsTimeslotConfigValid(isValid);
 
     if (isValid) {
-      setTimeslotConfig(config);
+      setTimeslotConfig({
+        ...config,
+        breakGroups,
+        breakDefinitions: breakDefs,
+      });
     }
-  }, [config, isValid, setTimeslotConfig, setIsTimeslotConfigValid]);
+  }, [config, breakGroups, breakDefs, isValid, setTimeslotConfig, setIsTimeslotConfigValid]);
 
   const handleDayToggle = (day: day_of_week) => {
     setConfig((prev) => ({
@@ -137,63 +134,15 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
     }));
   };
 
-  // Calculate preview schedule
-  const calculateEndTime = (
-    startTime: string,
-    durationMinutes: number,
-  ): string => {
-    const [hours, minutes] = startTime.split(":").map(Number);
-    const totalMinutes = (hours ?? 0) * 60 + (minutes ?? 0) + durationMinutes;
-    const endHours = Math.floor(totalMinutes / 60) % 24;
-    const endMinutes = totalMinutes % 60;
-    return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
-  };
-
-  const generatePreview = () => {
-    const preview: { slot: number; time: string; type: string }[] = [];
-    let currentTime = config.StartTime;
-
-    for (let i = 1; i <= config.TimeslotPerDay; i++) {
-      // Add mini break before slot if configured
-      if (config.HasMinibreak && config.MiniBreak.SlotNumber === i) {
-        currentTime = calculateEndTime(currentTime, config.MiniBreak.Duration);
-      }
-
-      const isJuniorBreak = config.BreakTimeslots.Junior === i;
-      const isSeniorBreak = config.BreakTimeslots.Senior === i;
-      const isBothBreak = isJuniorBreak && isSeniorBreak;
-
-      let duration: number;
-      let type: string;
-
-      if (isBothBreak) {
-        duration = config.BreakDuration;
-        type = "พักทั้งหมด";
-      } else if (isJuniorBreak) {
-        duration = config.BreakDuration;
-        type = "พักม.ต้น";
-      } else if (isSeniorBreak) {
-        duration = config.BreakDuration;
-        type = "พักม.ปลาย";
-      } else {
-        duration = config.Duration;
-        type = "เรียน";
-      }
-
-      const endTime = calculateEndTime(currentTime, duration);
-      preview.push({
-        slot: i,
-        time: `${currentTime}-${endTime}`,
-        type,
-      });
-
-      currentTime = endTime;
-    }
-
-    return preview;
-  };
-
-  const previewSchedule = generatePreview();
+  // Calculate preview schedule using V2
+  const previewSchedule = useMemo(() => {
+    return generatePreviewSlotsV2({
+      StartTime: config.StartTime,
+      Duration: config.Duration,
+      TimeslotPerDay: config.TimeslotPerDay,
+      breakDefinitions: breakDefs,
+    });
+  }, [config.StartTime, config.Duration, config.TimeslotPerDay, breakDefs]);
 
   return (
     <Box sx={{ mt: 2 }}>
@@ -272,20 +221,6 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
             error={!!errors.duration}
             helperText={errors.duration || "ระยะเวลาการเรียนต่อคาบ"}
           />
-          <TextField
-            fullWidth
-            label="ระยะเวลาพัก (นาที)"
-            type="number"
-            value={config.BreakDuration}
-            onChange={(e) =>
-              setConfig((prev) => ({
-                ...prev,
-                BreakDuration: Number(e.target.value),
-              }))
-            }
-            error={!!errors.breakDuration}
-            helperText={errors.breakDuration || "ระยะเวลาพักกลางวัน"}
-          />
         </Stack>
       </Paper>
 
@@ -317,112 +252,116 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
         </Typography>
       </Paper>
 
-      {/* Mini Break Configuration */}
-      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={config.HasMinibreak}
-              onChange={(e) =>
-                setConfig((prev) => ({
-                  ...prev,
-                  HasMinibreak: e.target.checked,
-                }))
-              }
-            />
-          }
-          label={
-            <Typography variant="subtitle1" fontWeight={600}>
-              พักเล็กระหว่างคาบ
-            </Typography>
-          }
-        />
-        {config.HasMinibreak && (
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              label="พักเล็กหลังคาบที่"
-              type="number"
-              value={config.MiniBreak.SlotNumber}
-              onChange={(e) =>
-                setConfig((prev) => ({
-                  ...prev,
-                  MiniBreak: {
-                    ...prev.MiniBreak,
-                    SlotNumber: Number(e.target.value),
-                  },
-                }))
-              }
-              error={!!errors.miniBreak}
-              helperText={errors.miniBreak || "หมายเลขคาบที่ต้องการพักเล็ก"}
-            />
-            <TextField
-              fullWidth
-              label="ระยะเวลาพักเล็ก (นาที)"
-              type="number"
-              value={config.MiniBreak.Duration}
-              onChange={(e) =>
-                setConfig((prev) => ({
-                  ...prev,
-                  MiniBreak: {
-                    ...prev.MiniBreak,
-                    Duration: Number(e.target.value),
-                  },
-                }))
-              }
-              error={!!errors.miniBreakDuration}
-              helperText={errors.miniBreakDuration || "ระยะเวลาพักเล็ก"}
-            />
-          </Stack>
-        )}
-      </Paper>
-
-      {/* Break Periods */}
+      {/* Break Groups */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
-          คาบพักกลางวัน
+          กลุ่มการพัก (Break Groups)
         </Typography>
         <Stack spacing={2}>
-          <TextField
-            fullWidth
-            label="คาบพักม.ต้น (ม.1-3)"
-            type="number"
-            value={config.BreakTimeslots.Junior}
-            onChange={(e) =>
-              setConfig((prev) => ({
-                ...prev,
-                BreakTimeslots: {
-                  ...prev.BreakTimeslots,
-                  Junior: Number(e.target.value),
-                },
-              }))
-            }
-            error={!!errors.juniorBreak}
-            helperText={errors.juniorBreak || "คาบที่ม.ต้นพัก"}
-          />
-          <TextField
-            fullWidth
-            label="คาบพักม.ปลาย (ม.4-6)"
-            type="number"
-            value={config.BreakTimeslots.Senior}
-            onChange={(e) =>
-              setConfig((prev) => ({
-                ...prev,
-                BreakTimeslots: {
-                  ...prev.BreakTimeslots,
-                  Senior: Number(e.target.value),
-                },
-              }))
-            }
-            error={!!errors.seniorBreak}
-            helperText={errors.seniorBreak || "คาบที่ม.ปลายพัก"}
-          />
+          {breakGroups.map((group, idx) => (
+            <Box key={idx} sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <TextField
+                  size="small"
+                  label="รหัสกลุ่ม"
+                  value={group.Name}
+                  onChange={(e) => {
+                    const newGroups = [...breakGroups];
+                    newGroups[idx]!.Name = e.target.value;
+                    setBreakGroups(newGroups);
+                  }}
+                />
+                <TextField
+                  size="small"
+                  label="ชื่อกลุ่ม"
+                  value={group.Label}
+                  onChange={(e) => {
+                    const newGroups = [...breakGroups];
+                    newGroups[idx]!.Label = e.target.value;
+                    setBreakGroups(newGroups);
+                  }}
+                />
+                <TextField
+                  size="small"
+                  type="color"
+                  label="สี"
+                  value={group.Color}
+                  sx={{ width: 100 }}
+                  onChange={(e) => {
+                    const newGroups = [...breakGroups];
+                    newGroups[idx]!.Color = e.target.value;
+                    setBreakGroups(newGroups);
+                  }}
+                />
+              </Stack>
+            </Box>
+          ))}
         </Stack>
-        {config.BreakTimeslots.Junior === config.BreakTimeslots.Senior && (
-          <Alert severity="info" sx={{ mt: 2 }}>
-            พักพร้อมกัน (ม.ต้น + ม.ปลาย)
-          </Alert>
-        )}
+      </Paper>
+
+      {/* Break Definitions */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+          กำหนดเวลาพัก (Break Definitions)
+        </Typography>
+        <Stack spacing={2}>
+          {breakDefs.map((def, idx) => (
+            <Box key={idx} sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <TextField
+                  size="small"
+                  label="ชื่อช่วงพัก"
+                  value={def.label}
+                  onChange={(e) => {
+                    const newDefs = [...breakDefs];
+                    newDefs[idx]!.label = e.target.value;
+                    setBreakDefs(newDefs);
+                  }}
+                />
+                <TextField
+                  size="small"
+                  label="พักก่อนคาบที่"
+                  type="number"
+                  value={def.slotNumber}
+                  onChange={(e) => {
+                    const newDefs = [...breakDefs];
+                    newDefs[idx]!.slotNumber = Number(e.target.value);
+                    setBreakDefs(newDefs);
+                  }}
+                />
+                <TextField
+                  size="small"
+                  label="ระยะเวลา (นาที)"
+                  type="number"
+                  value={def.duration}
+                  onChange={(e) => {
+                    const newDefs = [...breakDefs];
+                    newDefs[idx]!.duration = Number(e.target.value);
+                    setBreakDefs(newDefs);
+                  }}
+                />
+                <IconButton onClick={() => {
+                  const newDefs = breakDefs.filter((_, i) => i !== idx);
+                  setBreakDefs(newDefs);
+                }} color="error">
+                  <Delete />
+                </IconButton>
+              </Stack>
+            </Box>
+          ))}
+          <Box>
+            <Chip 
+              icon={<Add />} 
+              label="เพิ่มช่วงพัก" 
+              onClick={() => {
+                setBreakDefs([
+                  ...breakDefs,
+                  { id: `break-${Date.now()}`, label: "พักใหม่", slotNumber: 1, duration: 15, color: "#9E9E9E", groups: ["*"] }
+                ]);
+              }} 
+            />
+          </Box>
+        </Stack>
       </Paper>
 
       <Divider sx={{ my: 3 }} />
@@ -433,9 +372,9 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
           ตัวอย่างตารางเรียน (วันจันทร์-ศุกร์)
         </Typography>
         <Stack spacing={1}>
-          {previewSchedule.map((slot) => (
+          {previewSchedule.map((slot, idx) => (
             <Box
-              key={slot.slot}
+              key={idx}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -448,20 +387,14 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
               }}
             >
               <Chip
-                label={`คาบที่ ${slot.slot}`}
+                label={slot.type === "class" ? `คาบที่ ${slot.period}` : "พัก"}
                 size="small"
-                color={
-                  slot.type === "เรียน"
-                    ? "primary"
-                    : slot.type === "พักทั้งหมด"
-                      ? "success"
-                      : "warning"
-                }
+                color={slot.type === "class" ? "primary" : "warning"}
               />
               <Typography variant="body2" sx={{ flex: 1 }}>
-                {slot.time}
+                {slot.startTime}-{slot.endTime}
               </Typography>
-              <Chip label={slot.type} size="small" variant="outlined" />
+              <Chip label={slot.label} size="small" variant="outlined" />
             </Box>
           ))}
         </Stack>
@@ -470,20 +403,7 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
           color="text.secondary"
           sx={{ mt: 2, display: "block" }}
         >
-          เวลาเลิก:{" "}
-          {calculateEndTime(
-            config.StartTime,
-            previewSchedule.reduce((acc, slot) => {
-              const [start, end] = slot.time.split("-");
-              const [startH, startM] = (start ?? "").split(":").map(Number);
-              const [endH, endM] = (end ?? "").split(":").map(Number);
-              const duration =
-                (endH ?? 0) * 60 +
-                (endM ?? 0) -
-                ((startH ?? 0) * 60 + (startM ?? 0));
-              return acc + duration;
-            }, 0),
-          )}
+          เวลาเลิก: {previewSchedule.length > 0 ? previewSchedule[previewSchedule.length - 1]!.endTime : "--:--"}
         </Typography>
       </Paper>
     </Box>
