@@ -10,6 +10,7 @@ import {
   generateTimeslotId,
   calculateBreaktime,
   generateTimeslots,
+  generateTimeslotsV2,
   sortTimeslots,
 } from "./timeslot.service";
 
@@ -184,5 +185,57 @@ describe("sortTimeslots", () => {
       "1-2567-FRI1",
       "1-2567-FRI2",
     ]);
+  });
+});
+
+describe("generateTimeslotsV2", () => {
+  const baseConfig = {
+    AcademicYear: 2568,
+    Semester: "SEMESTER_1" as const,
+    TimeslotPerDay: 4,
+    Duration: 50,
+    StartTime: "08:30",
+    Days: ["MON" as const],
+    breakDefinitions: [
+      { id: "lunch", label: "พักเที่ยง", slotNumber: 3, duration: 50, color: "#4CAF50", groups: ["junior"] },
+    ],
+  };
+
+  it("generates correct number of timeslots", () => {
+    const result = generateTimeslotsV2(baseConfig);
+    expect(result).toHaveLength(4);
+  });
+
+  it("marks timeslot before break as BREAK", () => {
+    const result = generateTimeslotsV2(baseConfig);
+    // Break at slot 3 means slot 2 should be BREAK (break follows it)
+    expect(result[1]!.Breaktime).toBe("BREAK");
+  });
+
+  it("inserts time gap for break between periods", () => {
+    const result = generateTimeslotsV2(baseConfig);
+    // P2 ends at 10:10, break is 50min, P3 starts at 11:00
+    expect(result[2]!.StartTime.getHours()).toBe(11);
+    expect(result[2]!.StartTime.getMinutes()).toBe(0);
+  });
+
+  it("handles multiple breaks", () => {
+    const config = {
+      ...baseConfig,
+      breakDefinitions: [
+        { id: "mini", label: "พักเช้า", slotNumber: 2, duration: 10, color: "#FF9800", groups: ["*"] },
+        { id: "lunch", label: "พักเที่ยง", slotNumber: 3, duration: 50, color: "#4CAF50", groups: ["junior"] },
+      ],
+    };
+    const result = generateTimeslotsV2(config);
+    // P1 ends 09:20, 10min gap, P2 starts 09:30
+    expect(result[1]!.StartTime.getMinutes()).toBe(30);
+  });
+
+  it("all timeslots use simplified BREAK enum", () => {
+    const result = generateTimeslotsV2(baseConfig);
+    result.forEach(slot => {
+      expect(["BREAK", "NOT_BREAK"]).toContain(slot.Breaktime);
+    });
   });
 });
