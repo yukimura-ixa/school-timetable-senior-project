@@ -15,10 +15,12 @@ import { timeslotRepository } from "../../infrastructure/repositories/timeslot.r
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   generateTimeslots,
+  generateTimeslotsV2,
   sortTimeslots,
   validateNoExistingTimeslots,
   validateTimeslotsExist,
 } from "../../domain/services/timeslot.service";
+import { breakGroupRepository } from "../../infrastructure/repositories/break-group.repository";
 import {
   createTimeslotsSchema,
   getTimeslotsByTermSchema,
@@ -129,7 +131,12 @@ export const createTimeslotsAction = createAction(
     }
 
     // Generate timeslots from configuration
-    const timeslots = generateTimeslots(input);
+    const timeslots = input.breakDefinitions
+      ? generateTimeslotsV2({
+          ...input,
+          breakDefinitions: input.breakDefinitions,
+        })
+      : generateTimeslots(input);
 
     // Use transaction to create table_config and timeslots atomically
     const semesterNum =
@@ -163,6 +170,16 @@ export const createTimeslotsAction = createAction(
       await tx.timeslot.createMany({
         data: timeslots,
       });
+
+      // Create break groups if provided
+      if (input.breakGroups) {
+        for (const group of input.breakGroups) {
+          await breakGroupRepository.createWithGrades(
+            { ...group, ConfigID: configId },
+            tx,
+          );
+        }
+      }
     });
 
     // Revalidate paths to ensure UI sees fresh data (Next.js 16 cache invalidation)

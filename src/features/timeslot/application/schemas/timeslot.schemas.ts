@@ -22,6 +22,13 @@ export const breakDefinitionSchema = v.object({
   groups: v.array(v.string(), "ต้องระบุกลุ่มอย่างน้อย 1 กลุ่ม"),
 });
 
+export const breakGroupSchema = v.object({
+  Name: v.string(),
+  Label: v.string(),
+  Color: v.string(),
+  gradeIds: v.array(v.string()),
+});
+
 /**
  * Schema for creating timeslots (bulk operation with configuration)
  * Generates multiple timeslots based on schedule configuration
@@ -47,6 +54,7 @@ export const createTimeslotsSchema = v.object({
     Senior: v.number("หมายเลขคาบพักม.ปลายต้องเป็นตัวเลข"),
   }),
   breakDefinitions: v.optional(v.array(breakDefinitionSchema)),
+  breakGroups: v.optional(v.array(breakGroupSchema)),
 });
 
 export type CreateTimeslotsInput = v.InferOutput<typeof createTimeslotsSchema>;
