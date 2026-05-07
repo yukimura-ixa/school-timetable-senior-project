@@ -39,7 +39,7 @@
  * - MOE 8 Learning Areas with proper credit allocation
  * - 70+ Subjects (Thai curriculum: core + additional + activities)
  * - 8 Periods per day, 5 days per week (MON-FRI)
- * - 3 Semesters: 1-2567, 2-2567, 1-2568
+ * - 2 Semesters: 1-2568, 2-2568
  *
  * Features:
  * - ✅ Retry logic for transient database connection errors (Docker Desktop compatibility)
@@ -1445,12 +1445,16 @@ async function main() {
   // ===== SEEDING MODE SELECTION =====
   const isDemoMode = process.env.SEED_DEMO_DATA === "true";
   const isTestMode = process.env.SEED_FOR_TESTS === "true";
+  const isCleanDataMode = process.env.SEED_CLEAN_DATA === "true";
+  // Default to MOE full-rotation when seeding clean/test data so timetables
+  // are populated end-to-end across all M.1-M.6 sections per the canonical
+  // weekly hour standards in src/config/moe-standards.ts.
   const isMoeFullSemesterMode =
-    process.env.SEED_MOE_FULL_SEMESTER === "true";
+    process.env.SEED_MOE_FULL_SEMESTER === "true" ||
+    isCleanDataMode ||
+    isTestMode;
   const shouldCleanData =
-    process.env.SEED_CLEAN_DATA === "true" ||
-    isTestMode ||
-    isMoeFullSemesterMode;
+    isCleanDataMode || isTestMode || isMoeFullSemesterMode;
 
   if (!shouldCleanData && !isDemoMode) {
     console.log(
@@ -2759,20 +2763,21 @@ async function main() {
 
   // ===== TIMESLOTS =====
   console.log("⏰ Creating timeslots...");
-  const academicYear = 2567;
+  const academicYear = 2568;
   const sem: semester = "SEMESTER_1";
   const semesterNumber =
     sem === "SEMESTER_1" ? 1 : sem === "SEMESTER_2" ? 2 : 3;
   const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
+  // Template-compatible times (10:40 junior, 10:55 senior lunch)
   const periods = [
-    { start: "08:30", end: "09:20", break: "NOT_BREAK" },
-    { start: "09:20", end: "10:10", break: "NOT_BREAK" },
-    { start: "10:10", end: "11:00", break: "NOT_BREAK" },
-    { start: "11:00", end: "11:50", break: "NOT_BREAK" },
-    { start: "12:50", end: "13:40", break: "BREAK_JUNIOR" },
-    { start: "13:40", end: "14:30", break: "BREAK_SENIOR" },
-    { start: "14:30", end: "15:20", break: "NOT_BREAK" },
-    { start: "15:20", end: "16:10", break: "NOT_BREAK" },
+    { start: "08:00", end: "08:50", break: "NOT_BREAK" },
+    { start: "08:50", end: "09:40", break: "NOT_BREAK" },
+    { start: "09:50", end: "10:40", break: "NOT_BREAK" },
+    { start: "10:40", end: "10:55", break: "BREAK_JUNIOR" },
+    { start: "10:55", end: "11:10", break: "BREAK_SENIOR" },
+    { start: "11:10", end: "12:00", break: "NOT_BREAK" },
+    { start: "12:00", end: "12:50", break: "NOT_BREAK" },
+    { start: "12:50", end: "13:40", break: "NOT_BREAK" },
   ];
 
   const timeslots: any[] = [];
@@ -2834,47 +2839,6 @@ async function main() {
     `✅ Created ${timeslotsSem2.length} timeslots for Semester 2 (5 days × 8 periods)`,
   );
 
-  // ===== TIMESLOTS (SEMESTER 1-2568) =====
-  console.log("⏰ Creating timeslots for Semester 1-2568...");
-  const academicYear2568 = 2568;
-  // Use template-compatible times for 1-2568 (10:40 junior, 10:55 senior lunch)
-  const periods2568 = [
-    { start: "08:00", end: "08:50", break: "NOT_BREAK" },
-    { start: "08:50", end: "09:40", break: "NOT_BREAK" },
-    { start: "09:50", end: "10:40", break: "NOT_BREAK" }, // 10 min break after period 3
-    { start: "10:40", end: "10:55", break: "BREAK_JUNIOR" }, // Template expects this
-    { start: "10:55", end: "11:10", break: "BREAK_SENIOR" }, // Template expects this
-    { start: "11:10", end: "12:00", break: "NOT_BREAK" },
-    { start: "12:00", end: "12:50", break: "NOT_BREAK" },
-    { start: "12:50", end: "13:40", break: "NOT_BREAK" },
-  ];
-  const timeslotsSem1_2568: any[] = [];
-  for (const day of days) {
-    for (let periodNum = 1; periodNum <= periods2568.length; periodNum++) {
-      const period = periods2568[periodNum - 1];
-      timeslotsSem1_2568.push(
-        await withRetry(
-          () =>
-            prisma.timeslot.create({
-              data: {
-                TimeslotID: `1-${academicYear2568}-${day}${periodNum}`,
-                AcademicYear: academicYear2568,
-                Semester: "SEMESTER_1",
-                StartTime: new Date(`2024-01-01T${period.start}:00`),
-                EndTime: new Date(`2024-01-01T${period.end}:00`),
-                Breaktime: period.break as breaktime,
-                DayOfWeek: day,
-              },
-            }),
-          `Create timeslot S1-2568 ${day}${periodNum}`,
-        ),
-      );
-    }
-  }
-  console.log(
-    `✅ Created ${timeslotsSem1_2568.length} timeslots for Semester 1-2568 (5 days × 8 periods)`,
-  );
-
   // ===== TABLE CONFIG =====
   console.log("⚙️  Creating timetable configuration...");
   await withRetry(
@@ -2920,7 +2884,7 @@ async function main() {
       }),
     "Create table config",
   );
-  console.log("✅ Created timetable configuration for 1-2567");
+  console.log("✅ Created timetable configuration for 1-2568");
 
   // ===== TABLE CONFIG FOR SEMESTER 2 =====
   console.log("⚙️  Creating timetable configuration for Semester 2...");
@@ -2968,55 +2932,7 @@ async function main() {
       }),
     "Create table config for Semester 2",
   );
-  console.log("✅ Created timetable configuration for 2-2567");
-
-  // ===== TABLE CONFIG FOR SEMESTER 1-2568 =====
-  console.log("⚙️  Creating timetable configuration for Semester 1-2568...");
-  await withRetry(
-    () =>
-      prisma.table_config.create({
-        data: {
-          ConfigID: "1-2568",
-          AcademicYear: 2568,
-          Semester: "SEMESTER_1",
-          Config: {
-            periodsPerDay: 8,
-            startTime: "08:30",
-            periodDuration: 50,
-            schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
-            breakDefinitions: [
-              {
-                id: "mini_break",
-                label: "พักสาย",
-                slotNumber: 2,
-                duration: 10,
-                color: "#d1d5db",
-                groups: ["*"],
-              },
-              {
-                id: "junior_break",
-                label: "พักกลางวัน (ม.ต้น)",
-                slotNumber: 4,
-                duration: 50,
-                color: "#fca5a5",
-                groups: ["junior"],
-              },
-              {
-                id: "senior_break",
-                label: "พักกลางวัน (ม.ปลาย)",
-                slotNumber: 5,
-                duration: 50,
-                color: "#fcd34d",
-                groups: ["senior"],
-              },
-            ],
-          },
-          status: "DRAFT",
-        },
-      }),
-    "Create table config for Semester 1-2568",
-  );
-  console.log("✅ Created timetable configuration for 1-2568");
+  console.log("✅ Created timetable configuration for 2-2568");
 
   // ===== BREAK GROUPS =====
   console.log("🗂️  Creating break groups...");
@@ -3024,12 +2940,10 @@ async function main() {
   const seniorGradeIds = gradeLevels.filter(g => g.Year >= 10 && g.Year <= 12).map(g => g.GradeID);
 
   const cleanBreakGroups = [
-    { configId: "1-2567", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },
-    { configId: "1-2567", name: "senior", label: "พักกลางวัน (ม.ปลาย)", color: "#fcd34d", gradeIds: seniorGradeIds },
-    { configId: "2-2567", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },
-    { configId: "2-2567", name: "senior", label: "พักกลางวัน (ม.ปลาย)", color: "#fcd34d", gradeIds: seniorGradeIds },
     { configId: "1-2568", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },
     { configId: "1-2568", name: "senior", label: "พักกลางวัน (ม.ปลาย)", color: "#fcd34d", gradeIds: seniorGradeIds },
+    { configId: "2-2568", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },
+    { configId: "2-2568", name: "senior", label: "พักกลางวัน (ม.ปลาย)", color: "#fcd34d", gradeIds: seniorGradeIds },
   ];
 
   for (const bg of cleanBreakGroups) {
@@ -3089,9 +3003,11 @@ async function main() {
   if (isMoeFullSemesterMode) {
     console.log("🔗 Assigning subjects to all programs (MOE full semester)...");
 
-    const targetAcademicYear = 2567;
-    const targetSemester: semester = "SEMESTER_1";
-    const targetSemesterNumber = 1;
+    const targetAcademicYear = 2568;
+    const targetSemesters: Array<{ sem: semester; num: 1 | 2 }> = [
+      { sem: "SEMESTER_1", num: 1 },
+      { sem: "SEMESTER_2", num: 2 },
+    ];
     const periodsPerDay = 8;
     const scheduleDays: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
 
@@ -3348,64 +3264,6 @@ async function main() {
       return pool[(gradeIndex + subjectIndex) % pool.length];
     };
 
-    const responsibilityByGradeSubject = new Map<string, any>();
-
-    for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
-      const gradeLevel = gradeLevels[gradeIndex];
-      const plan = programPlans.get(gradeLevel.ProgramID ?? -1);
-      if (!plan) {
-        throw new Error(
-          `Missing program plan for grade ${gradeLevel.GradeID}`,
-        );
-      }
-
-      for (let subjectIndex = 0; subjectIndex < plan.length; subjectIndex++) {
-        const item = plan[subjectIndex];
-        const teacher = getTeacherForSubject(
-          item.code,
-          gradeIndex,
-          subjectIndex,
-        );
-
-        const resp = await withRetry(
-          () =>
-            prisma.teachers_responsibility.upsert({
-              where: {
-                TeacherID_GradeID_SubjectCode_AcademicYear_Semester: {
-                  TeacherID: teacher.TeacherID,
-                  GradeID: gradeLevel.GradeID,
-                  SubjectCode: item.code,
-                  AcademicYear: targetAcademicYear,
-                  Semester: targetSemester,
-                },
-              },
-              update: {
-                TeachHour: item.weeklyLessons,
-              },
-              create: {
-                TeacherID: teacher.TeacherID,
-                GradeID: gradeLevel.GradeID,
-                SubjectCode: item.code,
-                AcademicYear: targetAcademicYear,
-                Semester: targetSemester,
-                TeachHour: item.weeklyLessons,
-              },
-            }),
-          `Assign ${item.code} to ${gradeLevel.GradeID}`,
-        );
-
-        responsibilities.push(resp);
-        responsibilityByGradeSubject.set(
-          `${gradeLevel.GradeID}:${item.code}`,
-          resp,
-        );
-      }
-    }
-
-    console.log(
-      `✅ Created ${responsibilities.length} teacher responsibilities (full semester)`,
-    );
-
     const buildWeeklySlots = (plan: ProgramPlanItem[]) => {
       const queue = plan.map((item) => ({
         code: item.code,
@@ -3426,61 +3284,122 @@ async function main() {
       return slots;
     };
 
-    for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
-      const gradeLevel = gradeLevels[gradeIndex];
-      const plan = programPlans.get(gradeLevel.ProgramID ?? -1);
-      if (!plan) continue;
+    for (const { sem: targetSemester, num: targetSemesterNumber } of targetSemesters) {
+      console.log(
+        `🔁 Seeding MOE rotation for ${targetSemesterNumber}-${targetAcademicYear}...`,
+      );
+      const responsibilityByGradeSubject = new Map<string, any>();
 
-      const slots = buildWeeklySlots(plan);
-      if (slots.length > scheduleDays.length * periodsPerDay) {
-        throw new Error(
-          `Weekly lessons exceed available slots for ${gradeLevel.GradeID}`,
-        );
-      }
+      // Per-semester teacher_responsibility creation
+      for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
+        const gradeLevel = gradeLevels[gradeIndex];
+        const plan = programPlans.get(gradeLevel.ProgramID ?? -1);
+        if (!plan) {
+          throw new Error(
+            `Missing program plan for grade ${gradeLevel.GradeID}`,
+          );
+        }
 
-      const room = rooms[gradeIndex] ?? rooms[gradeIndex % rooms.length];
+        for (let subjectIndex = 0; subjectIndex < plan.length; subjectIndex++) {
+          const item = plan[subjectIndex];
+          const teacher = getTeacherForSubject(
+            item.code,
+            gradeIndex,
+            subjectIndex,
+          );
 
-      for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
-        const day = scheduleDays[Math.floor(slotIndex / periodsPerDay)];
-        if (!day) break;
-        const period = (slotIndex % periodsPerDay) + 1;
-        const subjectCode = slots[slotIndex];
-        const timeslotId = generateTimeslotId(
-          targetSemesterNumber,
-          targetAcademicYear,
-          day,
-          period,
-        );
-
-        const resp = responsibilityByGradeSubject.get(
-          `${gradeLevel.GradeID}:${subjectCode}`,
-        );
-        if (!resp) continue;
-
-        const isActivity = subjectCode.startsWith("ACT");
-        classSchedules.push(
-          await withRetry(
+          const resp = await withRetry(
             () =>
-              prisma.class_schedule.create({
-                data: {
-                  TimeslotID: timeslotId,
-                  SubjectCode: subjectCode,
-                  GradeID: gradeLevel.GradeID,
-                  RoomID: isActivity ? null : room.RoomID,
-                  IsLocked: isActivity,
-                  teachers_responsibility: {
-                    connect: [{ RespID: resp.RespID }],
+              prisma.teachers_responsibility.upsert({
+                where: {
+                  TeacherID_GradeID_SubjectCode_AcademicYear_Semester: {
+                    TeacherID: teacher.TeacherID,
+                    GradeID: gradeLevel.GradeID,
+                    SubjectCode: item.code,
+                    AcademicYear: targetAcademicYear,
+                    Semester: targetSemester,
                   },
                 },
+                update: {
+                  TeachHour: item.weeklyLessons,
+                },
+                create: {
+                  TeacherID: teacher.TeacherID,
+                  GradeID: gradeLevel.GradeID,
+                  SubjectCode: item.code,
+                  AcademicYear: targetAcademicYear,
+                  Semester: targetSemester,
+                  TeachHour: item.weeklyLessons,
+                },
               }),
-            `Create schedule ${gradeLevel.GradeID} ${subjectCode}`,
-          ),
-        );
+            `Assign ${item.code} to ${gradeLevel.GradeID} (${targetSemesterNumber}-${targetAcademicYear})`,
+          );
+
+          responsibilities.push(resp);
+          responsibilityByGradeSubject.set(
+            `${gradeLevel.GradeID}:${item.code}`,
+            resp,
+          );
+        }
+      }
+
+      // Per-semester class_schedule creation
+      for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
+        const gradeLevel = gradeLevels[gradeIndex];
+        const plan = programPlans.get(gradeLevel.ProgramID ?? -1);
+        if (!plan) continue;
+
+        const slots = buildWeeklySlots(plan);
+        if (slots.length > scheduleDays.length * periodsPerDay) {
+          throw new Error(
+            `Weekly lessons exceed available slots for ${gradeLevel.GradeID}`,
+          );
+        }
+
+        const room = rooms[gradeIndex] ?? rooms[gradeIndex % rooms.length];
+
+        for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
+          const day = scheduleDays[Math.floor(slotIndex / periodsPerDay)];
+          if (!day) break;
+          const period = (slotIndex % periodsPerDay) + 1;
+          const subjectCode = slots[slotIndex];
+          const timeslotId = generateTimeslotId(
+            targetSemesterNumber,
+            targetAcademicYear,
+            day,
+            period,
+          );
+
+          const resp = responsibilityByGradeSubject.get(
+            `${gradeLevel.GradeID}:${subjectCode}`,
+          );
+          if (!resp) continue;
+
+          const isActivity = subjectCode.startsWith("ACT");
+          classSchedules.push(
+            await withRetry(
+              () =>
+                prisma.class_schedule.create({
+                  data: {
+                    TimeslotID: timeslotId,
+                    SubjectCode: subjectCode,
+                    GradeID: gradeLevel.GradeID,
+                    RoomID: isActivity ? null : room.RoomID,
+                    IsLocked: isActivity,
+                    teachers_responsibility: {
+                      connect: [{ RespID: resp.RespID }],
+                    },
+                  },
+                }),
+              `Create schedule ${gradeLevel.GradeID} ${subjectCode} (${targetSemesterNumber}-${targetAcademicYear})`,
+            ),
+          );
+        }
       }
     }
 
     console.log(
-      `✅ Created ${classSchedules.length} MOE class schedules (full semester)`,
+      `✅ Created ${responsibilities.length} teacher responsibilities and ${classSchedules.length} class schedules across ${targetSemesters.length} semesters`,
     );
   } else {
     // ===== PROGRAM-SUBJECT ASSIGNMENTS (Example for M.1 programs) =====
@@ -3568,7 +3487,7 @@ async function main() {
             TeacherID: teacherID,
             GradeID: gradeID,
             SubjectCode: subjectCode,
-            AcademicYear: 2567,
+            AcademicYear: 2568,
             Semester: "SEMESTER_1",
             TeachHour: teachHour,
           },
@@ -3686,7 +3605,7 @@ async function main() {
               TeacherID: e2eTeacherInList.TeacherID,
               GradeID: firstGrade.GradeID,
               SubjectCode: "ค21201", // Math additional subject (คณิตศาสตร์เพิ่มเติม)
-              AcademicYear: 2567,
+              AcademicYear: 2568,
               Semester: "SEMESTER_1",
               TeachHour: 2,
             },
@@ -3822,6 +3741,45 @@ async function main() {
   );
   }
 
+  // ===== E2E TEACHER FIXTURE (always; required by e2e/21-arrangement-flow.spec.ts) =====
+  // E2E fixture pins ค21201 / M1-1 / 1-2568 to e2e.teacher@school.ac.th.
+  // MOE rotation may assign that subject+grade to a different math teacher;
+  // we still need this explicit row so the fixture lookup resolves deterministically.
+  const e2eFixtureTeacher = teachers.find(
+    (t) => t.Email === "e2e.teacher@school.ac.th",
+  );
+  const firstGradeForFixture = gradeLevels[0]; // M.1/1
+  if (e2eFixtureTeacher && firstGradeForFixture) {
+    console.log("📝 Ensuring E2E teacher fixture (ค21201, M1-1, 1-2568)...");
+    await withRetry(
+      () =>
+        prisma.teachers_responsibility.upsert({
+          where: {
+            TeacherID_GradeID_SubjectCode_AcademicYear_Semester: {
+              TeacherID: e2eFixtureTeacher.TeacherID,
+              GradeID: firstGradeForFixture.GradeID,
+              SubjectCode: "ค21201",
+              AcademicYear: 2568,
+              Semester: "SEMESTER_1",
+            },
+          },
+          update: { TeachHour: 2 },
+          create: {
+            TeacherID: e2eFixtureTeacher.TeacherID,
+            GradeID: firstGradeForFixture.GradeID,
+            SubjectCode: "ค21201",
+            AcademicYear: 2568,
+            Semester: "SEMESTER_1",
+            TeachHour: 2,
+          },
+        }),
+      "Upsert E2E teacher fixture (ค21201/M1-1/1-2568)",
+    );
+    console.log(
+      `✅ E2E teacher fixture ensured (TeacherID: ${e2eFixtureTeacher.TeacherID})`,
+    );
+  }
+
   // ===== SUMMARY =====
   console.log("\n" + "=".repeat(70));
   console.log("🎉 MOE-Compliant Seed Completed Successfully!");
@@ -3843,14 +3801,13 @@ async function main() {
   console.log(`     - Activities (MOE-compliant): ${activitySubjects.length}`);
   const totalTimeslots =
     timeslots.length +
-    (typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0) +
-    (typeof timeslotsSem1_2568 !== "undefined" ? timeslotsSem1_2568.length : 0);
+    (typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0);
   console.log(
-    `   • Timeslots: ${totalTimeslots} (3 semesters: 1-2567, 2-2567, 1-2568)`,
+    `   • Timeslots: ${totalTimeslots} (2 semesters: 1-2568, 2-2568)`,
   );
   console.log(`   • Teacher Responsibilities: ${responsibilities.length}`);
   console.log(`   • Class Schedules: ${classSchedules.length}`);
-  console.log(`   • Table Configurations: 3`);
+  console.log(`   • Table Configurations: 2`);
   console.log("=".repeat(70));
   console.log("\n✨ Your MOE-compliant database is ready!");
   console.log("💡 Features included:");
@@ -3872,7 +3829,7 @@ async function main() {
   }
   console.log("   - ✅ Locked timeslots for school-wide activities");
   console.log("   - ✅ Grade-program assignments");
-  console.log("   - ✅ 3 semesters: 1-2567, 2-2567, 1-2568");
+  console.log("   - ✅ 2 semesters: 1-2568, 2-2568");
   console.log("=".repeat(70));
 }
 
