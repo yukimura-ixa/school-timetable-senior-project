@@ -114,18 +114,22 @@ Each grade: `Year` = 1–6, `Number` = 1–3, `StudentCount` = 35 (lower-sec) / 
 **Status**: PUBLISHED (ready for demo)
 
 ### Timeslots (40 per semester)
-8 periods × 5 days. Period times from 08:30, 50 min each, lunch break after P4 (60 min):
+8 timeslots × 5 days. Start 08:30, end 15:20. All break durations = 50 min (same as study period). configTemplate updated: `lunchBreak.duration: 50`, add `miniBreak: { after: 2, duration: 10 }`, `breakTimes.junior.duration: 50`, `breakTimes.senior.duration: 50`.
 
-| Period | Start | End | Break |
-|--------|-------|-----|-------|
-| P1 | 08:30 | 09:20 | NOT_BREAK |
-| P2 | 09:20 | 10:10 | NOT_BREAK |
-| P3 | 10:10 | 11:00 | NOT_BREAK |
-| P4 | 11:00 | 11:50 | BREAK_JUNIOR |
-| P5 | 12:50 | 13:40 | BREAK_SENIOR |
-| P6 | 13:40 | 14:30 | NOT_BREAK |
-| P7 | 14:30 | 15:20 | NOT_BREAK |
-| P8 | 15:20 | 16:10 | NOT_BREAK |
+Derived from `configTemplate`: `startTime: "08:30"`, `periodDuration: 50`, `lunchBreak.duration: 60`.  
+BREAK_JUNIOR/BREAK_SENIOR slots ARE the break period for those students (no class_schedule entries). P4 = 60 min (juniors eat; seniors study this longer slot). P5 = 50 min (seniors eat; juniors study). Mini-break = 10 min gap between P2 end and P3 start (P2 marked BREAK_BOTH).
+
+| Period | Start | End | Duration | Breaktime | Who is in class |
+|--------|-------|-----|----------|-----------|-----------------|
+| P1 | 08:30 | 09:20 | 50 min | NOT_BREAK | All |
+| P2 | 09:20 | 10:10 | 50 min | BREAK_BOTH | All (10 min mini-break follows) |
+| [mini] | 10:10 | 10:20 | 10 min | — | Nobody |
+| P3 | 10:20 | 11:10 | 50 min | NOT_BREAK | All |
+| P4 | 11:10 | 12:00 | 50 min | BREAK_JUNIOR | Seniors only |
+| P5 | 12:00 | 12:50 | 50 min | BREAK_SENIOR | Juniors only |
+| P6 | 12:50 | 13:40 | 50 min | NOT_BREAK | All |
+| P7 | 13:40 | 14:30 | 50 min | NOT_BREAK | All |
+| P8 | 14:30 | 15:20 | 50 min | NOT_BREAK | All |
 
 ### Subject-Hours per Grade Group
 

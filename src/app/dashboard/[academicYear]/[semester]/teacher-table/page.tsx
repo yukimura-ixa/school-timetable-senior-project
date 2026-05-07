@@ -49,6 +49,7 @@ import { useUIStore } from "@/stores/uiStore";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 import { getTeacherByIdAction } from "@/features/teacher/application/actions/teacher.actions";
+import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
 
 import SelectTeacher from "./component/SelectTeacher";
 import {
@@ -176,6 +177,23 @@ function TeacherTablePage() {
     },
     { revalidateOnFocus: false },
   );
+
+  type ConfigKey = readonly ["timetable-config", string, string];
+  const configKey: ConfigKey | null =
+    canFetch && semester && academicYear
+      ? ["timetable-config", String(academicYear), String(semester)]
+      : null;
+
+  const {
+    data: configData,
+  } = useSWR(configKey, async (key) => {
+    if (!key) throw new Error("Missing config key");
+    const [, year, sem] = key;
+    return await getTimetableConfigAction({
+      academicYear: parseInt(year, 10),
+      semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
+    });
+  }, { revalidateOnFocus: false });
 
   const {
     data: classDataResponse,
@@ -798,10 +816,14 @@ function TeacherTablePage() {
               ) : (
                 <Paper
                   elevation={1}
-                  sx={{ p: 2, overflow: "auto" }}
-                  ref={timetableRef}
+                  sx={{ overflow: "auto" }}
                 >
-                  <TimeSlot timeSlotData={timeSlotData} />
+                  <Box ref={timetableRef} sx={{ p: 2 }}>
+                    <TimeSlot 
+                      timeSlotData={timeSlotData} 
+                      breakDefinitions={configData?.data?.breakDefinitions}
+                    />
+                  </Box>
                 </Paper>
               )}
             </Stack>

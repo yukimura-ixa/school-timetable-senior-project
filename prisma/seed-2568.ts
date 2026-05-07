@@ -431,6 +431,92 @@ async function main() {
     });
   }
 
+  // 8. Create table configuration and break groups
+  console.log("⚙️ Creating table configuration...");
+  const configID = "1-2568";
+  
+  const baseConfig = {
+    periodsPerDay: 8,
+    startTime: "08:00",
+    periodDuration: 50,
+    schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+    breakDefinitions: [
+      {
+        id: "mini_break",
+        label: "พักสาย",
+        slotNumber: 3,
+        duration: 10,
+        color: "#d1d5db",
+        groups: ["*"],
+      },
+      {
+        id: "junior_break",
+        label: "พักกลางวัน (ม.ต้น)",
+        slotNumber: 4,
+        duration: 50,
+        color: "#fca5a5",
+        groups: ["junior"],
+      },
+      {
+        id: "senior_break",
+        label: "พักกลางวัน (ม.ปลาย)",
+        slotNumber: 5,
+        duration: 50,
+        color: "#fcd34d",
+        groups: ["senior"],
+      },
+    ],
+  };
+
+  await prisma.table_config.upsert({
+    where: { ConfigID: configID },
+    update: { Config: baseConfig },
+    create: {
+      ConfigID: configID,
+      AcademicYear: 2568,
+      Semester: "SEMESTER_1",
+      Config: baseConfig,
+      status: "DRAFT",
+    },
+  });
+
+  console.log("🗂️ Creating break groups...");
+  const juniorGrades = grades.filter(g => g.Year >= 7 && g.Year <= 9);
+  const seniorGrades = grades.filter(g => g.Year >= 10 && g.Year <= 12);
+
+  const breakGroups = [
+    {
+      Name: "junior",
+      Label: "พักกลางวัน (ม.ต้น)",
+      Color: "#fca5a5",
+      ConfigID: configID,
+      gradeIds: juniorGrades.map(g => g.GradeID),
+    },
+    {
+      Name: "senior",
+      Label: "พักกลางวัน (ม.ปลาย)",
+      Color: "#fcd34d",
+      ConfigID: configID,
+      gradeIds: seniorGrades.map(g => g.GradeID),
+    },
+  ];
+
+  // Idempotent: clear any existing break_groups for this config before recreating
+  await prisma.break_group.deleteMany({ where: { ConfigID: configID } });
+  for (const bg of breakGroups) {
+    await prisma.break_group.create({
+      data: {
+        Name: bg.Name,
+        Label: bg.Label,
+        Color: bg.Color,
+        ConfigID: bg.ConfigID,
+        grades: {
+          create: bg.gradeIds.map(gid => ({ GradeID: gid })),
+        },
+      },
+    });
+  }
+
   console.log("✅ Seed completed for semester 1/2568!");
   console.log("📊 Summary:");
   console.log(`   - Programs: 2`);

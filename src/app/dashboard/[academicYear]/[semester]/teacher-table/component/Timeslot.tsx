@@ -3,6 +3,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
+import { isBreakForTeacher } from "@/utils/break-utils";
 import {
   Box,
   Typography,
@@ -16,11 +17,10 @@ import { colors } from "@/shared/design-system";
 
 type Props = {
   timeSlotData: TimeSlotTableData;
+  breakDefinitions?: any[];
 };
 
 const formatTime = formatTimeslotTimeUtc;
-
-const isBreakSlot = (breaktime: string) => breaktime !== "NOT_BREAK";
 
 const formatGrade = (gradeId?: string) => {
   if (!gradeId) {
@@ -31,7 +31,7 @@ const formatGrade = (gradeId?: string) => {
   return `ม.${gradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
 };
 
-function TimeSlot({ timeSlotData }: Props) {
+function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
   const theme = useTheme();
 
   return (
@@ -199,7 +199,12 @@ function TimeSlot({ timeSlotData }: Props) {
             {timeSlotData.AllData.filter(
               (item) => dayOfWeekThai[item.DayOfWeek] === day.Day,
             ).map((data) => {
-              const breakSlot = isBreakSlot(data.Breaktime);
+              const slotNumber = data.TimeslotID ? Number(data.TimeslotID.replace(/.*(?:MON|TUE|WED|THU|FRI|SAT|SUN)(\d+)/, "$1")) : 0;
+              const breakSlot = isBreakForTeacher(
+                data.Breaktime,
+                slotNumber,
+                breakDefinitions,
+              );
               const subject = data.subject;
               const subjectCode = subject?.SubjectCode ?? "";
               const isLocked = Boolean(subject?.IsLocked);
@@ -252,7 +257,7 @@ function TimeSlot({ timeSlotData }: Props) {
                         fontSize: "0.7rem",
                       }}
                     >
-                      พักกลางวัน
+                      พัก
                     </Typography>
                   ) : (
                     <Stack spacing={0.25} alignItems="center">

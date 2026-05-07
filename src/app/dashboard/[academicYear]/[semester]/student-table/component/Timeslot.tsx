@@ -3,10 +3,13 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React, { Fragment, useMemo } from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
+import { isBreakForGrade } from "@/utils/break-utils";
 
 type Props = {
   timeSlotData: TimeSlotTableData;
   searchGradeID: string | null;
+  breakDefinitions?: any[];
+  breakGroups?: any[];
 };
 
 const formatTime = formatTimeslotTimeUtc;
@@ -20,20 +23,7 @@ const getGradeLevel = (gradeId: string | null) => {
   return Number.isNaN(level) ? undefined : level;
 };
 
-const shouldShowBreak = (breaktime: string, gradeLevel?: number) => {
-  if (breaktime === "BREAK_BOTH") {
-    return true;
-  }
-  if (breaktime === "BREAK_JUNIOR") {
-    return typeof gradeLevel !== "undefined" && gradeLevel < 4;
-  }
-  if (breaktime === "BREAK_SENIOR") {
-    return typeof gradeLevel !== "undefined" && gradeLevel >= 4;
-  }
-  return false;
-};
-
-function TimeSlot({ timeSlotData, searchGradeID }: Props) {
+export default function TimeSlot({ timeSlotData, searchGradeID, breakDefinitions, breakGroups }: Props) {
   const gradeLevel = useMemo(
     () => getGradeLevel(searchGradeID),
     [searchGradeID],
@@ -97,7 +87,12 @@ function TimeSlot({ timeSlotData, searchGradeID }: Props) {
               {timeSlotData.AllData.filter(
                 (item) => dayOfWeekThai[item.DayOfWeek] === day.Day,
               ).map((data) => {
-                const showBreak = shouldShowBreak(data.Breaktime, gradeLevel);
+                const slotNumber = data.TimeslotID ? Number(data.TimeslotID.replace(/.*(?:MON|TUE|WED|THU|FRI|SAT|SUN)(\d+)/, "$1")) : 0;
+                
+                // If we have precise breakGroups, we can determine the exact grade match. 
+                // Currently, isBreakForGrade doesn't take breakGroups, but it has heuristic logic.
+                // We pass gradeLevel and searchGradeID
+                const showBreak = isBreakForGrade(data.Breaktime, gradeLevel, slotNumber, breakDefinitions, searchGradeID || undefined);
                 const subject = data.subject;
                 const subjectCode = subject?.SubjectCode ?? "";
                 const teacherName =
@@ -148,11 +143,10 @@ function TimeSlot({ timeSlotData, searchGradeID }: Props) {
                 );
               })}
             </tr>
+
           </Fragment>
         ))}
       </tbody>
     </table>
   );
 }
-
-export default TimeSlot;

@@ -66,6 +66,7 @@ export async function getTimetableConfig(
       schoolDays: jsonConfig.schoolDays ?? DEFAULT_TIMETABLE_CONFIG.schoolDays,
       periodDuration:
         jsonConfig.periodDuration ?? DEFAULT_TIMETABLE_CONFIG.periodDuration,
+      breakDefinitions: jsonConfig.breakDefinitions,
     };
   } catch (error) {
     console.error("Error fetching timetable config:", error);

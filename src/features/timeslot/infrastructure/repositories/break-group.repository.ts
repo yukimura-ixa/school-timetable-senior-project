@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type { PrismaClient } from "@/prisma/generated/client";
+import type { TransactionClient } from "@/lib/prisma-transaction";
 
 export const breakGroupRepository = {
   async findByConfigId(configId: string) {
@@ -12,7 +12,7 @@ export const breakGroupRepository = {
 
   async createWithGrades(
     data: { Name: string; Label: string; Color: string; ConfigID: string; gradeIds: string[] },
-    tx?: PrismaClient,
+    tx?: TransactionClient,
   ) {
     const client = tx ?? prisma;
     return client.break_group.create({
@@ -29,7 +29,7 @@ export const breakGroupRepository = {
     });
   },
 
-  async deleteByConfigId(configId: string, tx?: PrismaClient) {
+  async deleteByConfigId(configId: string, tx?: TransactionClient) {
     const client = tx ?? prisma;
     return client.break_group.deleteMany({ where: { ConfigID: configId } });
   },

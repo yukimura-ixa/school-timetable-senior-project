@@ -231,9 +231,32 @@ async function seedDemoData() {
     startTime: "08:30",
     periodDuration: 50,
     schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
-    miniBreak: { after: 2, duration: 10 },
-    lunchBreak: { after: 4, duration: 50 },
-    breakTimes: { junior: { after: 4, duration: 50 }, senior: { after: 5, duration: 50 } },
+    breakDefinitions: [
+      {
+        id: "mini_break",
+        label: "พักสาย",
+        slotNumber: 2,
+        duration: 10,
+        color: "#d1d5db",
+        groups: ["*"],
+      },
+      {
+        id: "junior_break",
+        label: "พักกลางวัน (ม.ต้น)",
+        slotNumber: 4,
+        duration: 50,
+        color: "#fca5a5",
+        groups: ["junior"],
+      },
+      {
+        id: "senior_break",
+        label: "พักกลางวัน (ม.ปลาย)",
+        slotNumber: 5,
+        duration: 50,
+        color: "#fcd34d",
+        groups: ["senior"],
+      },
+    ],
   };
 
   // ── Subjects (77 total) ─────────────────────────────────────────────────────
@@ -2866,11 +2889,32 @@ async function main() {
             startTime: "08:30",
             periodDuration: 50,
             schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
-            lunchBreak: { after: 4, duration: 60 },
-            breakTimes: {
-              junior: { after: 4 },
-              senior: { after: 5 },
-            },
+            breakDefinitions: [
+              {
+                id: "mini_break",
+                label: "พักสาย",
+                slotNumber: 2,
+                duration: 10,
+                color: "#d1d5db",
+                groups: ["*"],
+              },
+              {
+                id: "junior_break",
+                label: "พักกลางวัน (ม.ต้น)",
+                slotNumber: 4,
+                duration: 50,
+                color: "#fca5a5",
+                groups: ["junior"],
+              },
+              {
+                id: "senior_break",
+                label: "พักกลางวัน (ม.ปลาย)",
+                slotNumber: 5,
+                duration: 50,
+                color: "#fcd34d",
+                groups: ["senior"],
+              },
+            ],
           },
         },
       }),
@@ -2892,11 +2936,32 @@ async function main() {
             startTime: "08:30",
             periodDuration: 50,
             schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
-            lunchBreak: { after: 4, duration: 60 },
-            breakTimes: {
-              junior: { after: 4 },
-              senior: { after: 5 },
-            },
+            breakDefinitions: [
+              {
+                id: "mini_break",
+                label: "พักสาย",
+                slotNumber: 2,
+                duration: 10,
+                color: "#d1d5db",
+                groups: ["*"],
+              },
+              {
+                id: "junior_break",
+                label: "พักกลางวัน (ม.ต้น)",
+                slotNumber: 4,
+                duration: 50,
+                color: "#fca5a5",
+                groups: ["junior"],
+              },
+              {
+                id: "senior_break",
+                label: "พักกลางวัน (ม.ปลาย)",
+                slotNumber: 5,
+                duration: 50,
+                color: "#fcd34d",
+                groups: ["senior"],
+              },
+            ],
           },
           status: "DRAFT",
         },
@@ -2919,11 +2984,32 @@ async function main() {
             startTime: "08:30",
             periodDuration: 50,
             schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
-            lunchBreak: { after: 4, duration: 60 },
-            breakTimes: {
-              junior: { after: 4 },
-              senior: { after: 5 },
-            },
+            breakDefinitions: [
+              {
+                id: "mini_break",
+                label: "พักสาย",
+                slotNumber: 2,
+                duration: 10,
+                color: "#d1d5db",
+                groups: ["*"],
+              },
+              {
+                id: "junior_break",
+                label: "พักกลางวัน (ม.ต้น)",
+                slotNumber: 4,
+                duration: 50,
+                color: "#fca5a5",
+                groups: ["junior"],
+              },
+              {
+                id: "senior_break",
+                label: "พักกลางวัน (ม.ปลาย)",
+                slotNumber: 5,
+                duration: 50,
+                color: "#fcd34d",
+                groups: ["senior"],
+              },
+            ],
           },
           status: "DRAFT",
         },
@@ -2931,6 +3017,40 @@ async function main() {
     "Create table config for Semester 1-2568",
   );
   console.log("✅ Created timetable configuration for 1-2568");
+
+  // ===== BREAK GROUPS =====
+  console.log("🗂️  Creating break groups...");
+  const juniorGradeIds = gradeLevels.filter(g => g.Year >= 7 && g.Year <= 9).map(g => g.GradeID);
+  const seniorGradeIds = gradeLevels.filter(g => g.Year >= 10 && g.Year <= 12).map(g => g.GradeID);
+
+  const cleanBreakGroups = [
+    { configId: "1-2567", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },
+    { configId: "1-2567", name: "senior", label: "พักกลางวัน (ม.ปลาย)", color: "#fcd34d", gradeIds: seniorGradeIds },
+    { configId: "2-2567", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },
+    { configId: "2-2567", name: "senior", label: "พักกลางวัน (ม.ปลาย)", color: "#fcd34d", gradeIds: seniorGradeIds },
+    { configId: "1-2568", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },
+    { configId: "1-2568", name: "senior", label: "พักกลางวัน (ม.ปลาย)", color: "#fcd34d", gradeIds: seniorGradeIds },
+  ];
+
+  for (const bg of cleanBreakGroups) {
+    await withRetry(
+      () =>
+        prisma.break_group.create({
+          data: {
+            Name: bg.name,
+            Label: bg.label,
+            Color: bg.color,
+            ConfigID: bg.configId,
+            grades: {
+              create: bg.gradeIds.map(gid => ({ GradeID: gid })),
+            },
+          },
+        }),
+      `Create break group ${bg.configId}/${bg.name}`,
+    );
+  }
+  console.log("✅ Created break groups");
+
 
   // Helper to convert credit to number
   const creditToNumber = (credit: string): number => {

@@ -4,7 +4,7 @@ import { dayOfWeekColor } from "@/models/dayofweek-color";
 import type { timeslot } from "@/prisma/generated/client";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
-const BREAK_TYPES = new Set(["BREAK_BOTH", "BREAK_JUNIOR", "BREAK_SENIOR"]);
+const BREAK_TYPES = new Set(["BREAK", "BREAK_BOTH", "BREAK_JUNIOR", "BREAK_SENIOR"]);
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
 
 const getDayIndex = (dayCode: string) => {

@@ -67,6 +67,23 @@ export const getTimeslotsByTermAction = createAction(
 );
 
 /**
+ * Get break groups for a specific academic year and semester
+ */
+export const getBreakGroupsByTermAction = createAction(
+  getTimeslotsByTermSchema,
+  async (input: GetTimeslotsByTermInput) => {
+    const semesterNum =
+      input.Semester === "SEMESTER_1"
+        ? "1"
+        : input.Semester === "SEMESTER_2"
+          ? "2"
+          : "3";
+    const configId = `${semesterNum}-${input.AcademicYear}`;
+    return breakGroupRepository.findByConfigId(configId);
+  },
+);
+
+/**
  * Get a single timeslot by ID
  *
  * @param input - TimeslotID

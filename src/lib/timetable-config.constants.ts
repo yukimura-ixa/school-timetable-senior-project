@@ -17,6 +17,14 @@ export interface TimetableConfig {
   };
   schoolDays: number; // typically 5 (Mon-Fri)
   periodDuration: number; // minutes per period
+  breakDefinitions?: Array<{
+    id: string;
+    label: string;
+    slotNumber: number;
+    duration: number;
+    color: string;
+    groups: string[];
+  }>;
 }
 
 /**

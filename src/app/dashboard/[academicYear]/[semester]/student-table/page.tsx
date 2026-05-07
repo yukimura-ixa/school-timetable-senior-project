@@ -46,6 +46,7 @@ import { useGradeLevels } from "@/hooks";
 import { useUIStore } from "@/stores/uiStore";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
+import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
 import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
 
 import TimeSlot from "./component/Timeslot";
@@ -145,6 +146,23 @@ function StudentTablePage() {
     },
     { revalidateOnFocus: false },
   );
+
+  type ConfigKey = readonly ["timetable-config", string, string];
+  const configKey: ConfigKey | null =
+    canFetch && semester && academicYear
+      ? ["timetable-config", String(academicYear), String(semester)]
+      : null;
+
+  const {
+    data: configData,
+  } = useSWR(configKey, async (key) => {
+    if (!key) throw new Error("Missing config key");
+    const [, year, sem] = key;
+    return await getTimetableConfigAction({
+      academicYear: parseInt(year, 10),
+      semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
+    });
+  }, { revalidateOnFocus: false });
 
   const {
     data: classDataResponse,
@@ -708,6 +726,7 @@ function StudentTablePage() {
                   <TimeSlot
                     searchGradeID={selectedGradeId}
                     timeSlotData={timeSlotData}
+                    breakDefinitions={configData?.data?.breakDefinitions}
                   />
                 </Paper>
               )}
@@ -725,6 +744,7 @@ function StudentTablePage() {
                 <TimeSlot
                   searchGradeID={selectedGradeId}
                   timeSlotData={timeSlotData}
+                  breakDefinitions={configData?.data?.breakDefinitions}
                 />
                 <div className="mt-8 flex gap-2">
                   <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
