@@ -539,24 +539,22 @@ export const publicDataRepository = {
     if (!config) return [];
 
     const days = ["MON", "TUE", "WED", "THU", "FRI"] as const;
-    const periodLoads: PeriodLoad[] = [];
-
-    for (const day of days) {
-      const count = await prisma.class_schedule.count({
-        where: {
-          timeslot: {
-            DayOfWeek: day,
-            AcademicYear: academicYear,
-            Semester: semester,
+    const counts = await Promise.all(
+      days.map((day) =>
+        prisma.class_schedule.count({
+          where: {
+            timeslot: {
+              DayOfWeek: day,
+              AcademicYear: academicYear,
+              Semester: semester,
+            },
           },
-        },
-        ...cacheStrategy("warm", ["stats"]),
-      });
+          ...cacheStrategy("warm", ["stats"]),
+        }),
+      ),
+    );
 
-      periodLoads.push({ day, periods: count });
-    }
-
-    return periodLoads;
+    return days.map((day, i) => ({ day, periods: counts[i] ?? 0 }));
   },
 
   /**
@@ -594,7 +592,22 @@ export const publicDataRepository = {
 
     if (totalRooms === 0 || timeslots.length === 0) return [];
 
-    // Group by day and calculate occupancy percentage
+    const schedules = await prisma.class_schedule.findMany({
+      where: {
+        TimeslotID: { in: timeslots.map((t) => t.TimeslotID) },
+      },
+      select: { TimeslotID: true },
+      ...cacheStrategy("warm", ["stats"]),
+    });
+
+    const countByTimeslot = new Map<string, number>();
+    for (const s of schedules) {
+      countByTimeslot.set(
+        s.TimeslotID,
+        (countByTimeslot.get(s.TimeslotID) ?? 0) + 1,
+      );
+    }
+
     const occupancyData: RoomOccupancy[] = [];
     const periodCounter: Record<string, number> = {};
 
@@ -604,14 +617,7 @@ export const publicDataRepository = {
         periodCounter[dayKey] = 1;
       }
 
-      // Count schedules for this timeslot
-      const scheduleCount = await prisma.class_schedule.count({
-        where: {
-          TimeslotID: slot.TimeslotID,
-        },
-        ...cacheStrategy("warm", ["stats"]),
-      });
-
+      const scheduleCount = countByTimeslot.get(slot.TimeslotID) ?? 0;
       const occupancyPercent =
         totalRooms > 0 ? Math.round((scheduleCount / totalRooms) * 100) : 0;
 
