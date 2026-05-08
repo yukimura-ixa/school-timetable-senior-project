@@ -4,6 +4,7 @@ import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import { isBreakForTeacher } from "@/utils/break-utils";
+import { formatGradeIdDisplay } from "@/utils/grade-display";
 import {
   Box,
   Typography,
@@ -22,14 +23,8 @@ type Props = {
 
 const formatTime = formatTimeslotTimeUtc;
 
-const formatGrade = (gradeId?: string) => {
-  if (!gradeId) {
-    return "";
-  }
-
-  const roomNumber = Number.parseInt(gradeId.substring(1), 10);
-  return `ม.${gradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
-};
+const formatGrade = (gradeId?: string) =>
+  gradeId ? formatGradeIdDisplay(gradeId) : "";
 
 const LABEL_WIDTH = 90;
 const TEACHING_MIN_WIDTH = 80;
