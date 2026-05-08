@@ -2,6 +2,7 @@
 import React from "react";
 import { Box, Typography, Stack, alpha } from "@mui/material";
 import { colors } from "@/shared/design-system";
+import type { TimetableColumn } from "../../shared/timeSlot";
 
 type DayData = {
   Day: string;
@@ -12,10 +13,22 @@ type DayData = {
 
 type Props = {
   days: DayData[];
-  slotAmount: number[];
+  columns: TimetableColumn[];
 };
 
+const TEACH_WIDTH = 52;
+const BREAK_WIDTH = 24;
+const CELL_GAP = 4;
+
 const TableHead = (props: Props) => {
+  const teachingCount = props.columns.filter((c) => c.kind === "teaching")
+    .length;
+  const breakCount = props.columns.length - teachingCount;
+  const dayMinWidth =
+    teachingCount * TEACH_WIDTH +
+    breakCount * BREAK_WIDTH +
+    Math.max(props.columns.length - 1, 0) * CELL_GAP;
+
   return (
     <Stack
       direction="row"
@@ -26,7 +39,7 @@ const TableHead = (props: Props) => {
         <Stack
           key={item.Day}
           spacing={0.5}
-          sx={{ flex: 1, minWidth: props.slotAmount.length * 56 }}
+          sx={{ flex: 1, minWidth: dayMinWidth }}
         >
           {/* Day Label */}
           <Box
@@ -49,36 +62,39 @@ const TableHead = (props: Props) => {
             </Typography>
           </Box>
 
-          {/* Period Labels */}
-          <Stack
-            direction="row"
-            spacing={0.5}
-            justifyContent="center"
-            sx={{ pt: 0.5 }}
-          >
-            {props.slotAmount.map((slot) => (
-              <Box
-                key={slot}
-                sx={{
-                  width: 52,
-                  height: 24,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  bgcolor: alpha(colors.slate[400], 0.15),
-                  borderRadius: 1,
-                  border: `1px solid ${alpha(colors.slate[300], 0.2)}`,
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  fontWeight="bold"
-                  sx={{ fontSize: "0.7rem", opacity: 0.7 }}
+          {/* Period Labels — left-packed to match TableBody */}
+          <Stack direction="row" spacing={0.5} sx={{ pt: 0.5 }}>
+            {props.columns.map((col) => {
+              const isBreak = col.kind === "break";
+              return (
+                <Box
+                  key={col.TimeslotID}
+                  sx={{
+                    width: isBreak ? BREAK_WIDTH : TEACH_WIDTH,
+                    minWidth: isBreak ? BREAK_WIDTH : TEACH_WIDTH,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: isBreak
+                      ? alpha(colors.slate[400], 0.05)
+                      : alpha(colors.slate[400], 0.15),
+                    borderRadius: 1,
+                    border: `1px solid ${alpha(colors.slate[300], 0.2)}`,
+                  }}
                 >
-                  {slot}
-                </Typography>
-              </Box>
-            ))}
+                  {!isBreak && (
+                    <Typography
+                      variant="caption"
+                      fontWeight="bold"
+                      sx={{ fontSize: "0.7rem", opacity: 0.7 }}
+                    >
+                      {col.periodNumber}
+                    </Typography>
+                  )}
+                </Box>
+              );
+            })}
           </Stack>
         </Stack>
       ))}

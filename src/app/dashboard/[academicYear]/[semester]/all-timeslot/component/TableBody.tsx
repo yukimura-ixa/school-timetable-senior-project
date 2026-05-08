@@ -14,6 +14,7 @@ import type { teacher } from "@/prisma/generated/client";
 import LockIcon from "@mui/icons-material/Lock";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 import { formatGradeIdDisplay } from "@/utils/grade-display";
+import type { TimetableColumn } from "../../shared/timeSlot";
 
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
@@ -32,20 +33,33 @@ type DayData = {
 
 type Props = {
   teachers: teacher[];
-  slotAmount: number[];
+  columns: TimetableColumn[];
   classData: ClassData[];
   days: DayData[];
 };
 
+const TEACH_WIDTH = 52;
+const BREAK_WIDTH = 24;
+const CELL_GAP = 4;
+const ROW_HEIGHT = 60;
+
 const TableBody = (props: Props) => {
   const theme = useTheme();
+
+  const teachingCount = props.columns.filter((c) => c.kind === "teaching")
+    .length;
+  const breakCount = props.columns.length - teachingCount;
+  const dayMinWidth =
+    teachingCount * TEACH_WIDTH +
+    breakCount * BREAK_WIDTH +
+    Math.max(props.columns.length - 1, 0) * CELL_GAP;
 
   const formatGradeLabel = (gradeId: string) => formatGradeIdDisplay(gradeId);
 
   function getClassDataByTeacherID(
     TeacherID: number,
     Day: string,
-    SlotNumber: number,
+    SlotPeriod: number,
   ) {
     const filterClass = props.classData.filter(
       (item) =>
@@ -53,7 +67,7 @@ const TableBody = (props: Props) => {
           .map((tid) => tid.TeacherID)
           .includes(TeacherID) &&
         dayOfWeekThai[item.timeslot.DayOfWeek] === Day &&
-        extractPeriodFromTimeslotId(item.timeslot.TimeslotID) === SlotNumber,
+        extractPeriodFromTimeslotId(item.timeslot.TimeslotID) === SlotPeriod,
     );
 
     if (filterClass.length === 0) {
@@ -66,7 +80,7 @@ const TableBody = (props: Props) => {
       .join(", ");
 
     return (
-      <Stack spacing={0.5} alignItems="center" sx={{ width: "100%", px: 0.5 }}>
+      <Stack spacing={0.5} alignItems="center" sx={{ width: "100%", px: 0.25 }}>
         {firstClass?.IsLocked && (
           <Tooltip title="Locked">
             <LockIcon sx={{ fontSize: 14, color: theme.palette.error.main }} />
@@ -76,7 +90,7 @@ const TableBody = (props: Props) => {
           variant="caption"
           fontWeight={firstClass?.IsLocked ? "bold" : "medium"}
           sx={{
-            fontSize: "0.75rem",
+            fontSize: "0.7rem",
             color: firstClass?.IsLocked ? "error.main" : "text.primary",
             lineHeight: 1.1,
             textAlign: "center",
@@ -103,7 +117,7 @@ const TableBody = (props: Props) => {
 
   return (
     <Stack spacing={0.25} sx={{ width: "100%" }}>
-      {props.teachers.map((tch, _tchIdx) => (
+      {props.teachers.map((tch) => (
         <Stack
           key={`tch-${tch.TeacherID}`}
           direction="row"
@@ -121,57 +135,54 @@ const TableBody = (props: Props) => {
               key={`${tch.TeacherID}-${day.Day}`}
               direction="row"
               spacing={0.5}
-              sx={{ flex: 1, minWidth: props.slotAmount.length * 56 }}
+              sx={{ flex: 1, minWidth: dayMinWidth }}
             >
-              {props.slotAmount.map((slot, _slotIdx) => {
-                const content = getClassDataByTeacherID(
-                  tch.TeacherID,
-                  day.Day,
-                  slot,
-                );
+              {props.columns.map((col) => {
+                const isBreak = col.kind === "break";
+                const slotPeriod = extractPeriodFromTimeslotId(col.TimeslotID);
+                const content = isBreak
+                  ? null
+                  : getClassDataByTeacherID(tch.TeacherID, day.Day, slotPeriod);
                 const hasContent = content !== null;
 
                 return (
                   <Box
-                    key={`slot-${slot}`}
+                    key={`slot-${col.TimeslotID}`}
                     sx={{
-                      width: 52,
-                      height: 60,
+                      width: isBreak ? BREAK_WIDTH : TEACH_WIDTH,
+                      minWidth: isBreak ? BREAK_WIDTH : TEACH_WIDTH,
+                      height: ROW_HEIGHT,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: 1,
-                      border: `1px solid ${hasContent ? alpha(day.BgColor, 0.5) : alpha(theme.palette.divider, 0.05)}`,
-                      bgcolor: hasContent
-                        ? alpha(day.BgColor, 0.05)
-                        : "transparent",
+                      border: `1px solid ${
+                        hasContent
+                          ? alpha(day.BgColor, 0.5)
+                          : alpha(theme.palette.divider, 0.05)
+                      }`,
+                      bgcolor: isBreak
+                        ? alpha(theme.palette.divider, 0.06)
+                        : hasContent
+                          ? alpha(day.BgColor, 0.05)
+                          : "transparent",
                       position: "relative",
                       transition: "all 0.2s",
-                      "&:hover": hasContent
-                        ? {
-                            bgcolor: alpha(day.BgColor, 0.1),
-                            boxShadow: `0 2px 4px ${alpha(day.BgColor, 0.1)}`,
-                            transform: "translateY(-1px)",
-                            zIndex: 1,
-                          }
-                        : {
-                            bgcolor: alpha(theme.palette.action.hover, 0.3),
-                          },
+                      "&:hover":
+                        !isBreak && hasContent
+                          ? {
+                              bgcolor: alpha(day.BgColor, 0.1),
+                              boxShadow: `0 2px 4px ${alpha(day.BgColor, 0.1)}`,
+                              transform: "translateY(-1px)",
+                              zIndex: 1,
+                            }
+                          : !isBreak
+                            ? {
+                                bgcolor: alpha(theme.palette.action.hover, 0.3),
+                              }
+                            : {},
                     }}
                   >
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        position: "absolute",
-                        left: 2,
-                        top: 0,
-                        fontSize: "0.6rem",
-                        color: alpha(theme.palette.text.disabled, 0.3),
-                        pointerEvents: "none",
-                      }}
-                    >
-                      {slot}
-                    </Typography>
                     {content}
                   </Box>
                 );

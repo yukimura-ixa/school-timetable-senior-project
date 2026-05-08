@@ -58,11 +58,20 @@ export type TimeslotWithSubject = timeslot & {
   subject: ScheduleEntry | null;
 };
 
+export type TimetableColumn = {
+  kind: "teaching" | "break";
+  TimeslotID: string;
+  Breaktime: string;
+  slotIndex: number;
+  periodNumber?: number;
+};
+
 export type TimeSlotTableData = {
   AllData: TimeslotWithSubject[];
   SlotAmount: number[];
   DayOfWeek: DayStyle[];
   BreakSlot: BreakSlot[];
+  Columns: TimetableColumn[];
 };
 
 export const emptyTimeSlotTableData: TimeSlotTableData = {
@@ -70,6 +79,7 @@ export const emptyTimeSlotTableData: TimeSlotTableData = {
   SlotAmount: [],
   DayOfWeek: [],
   BreakSlot: [],
+  Columns: [],
 };
 
 const parseSlotNumber = extractPeriodFromTimeslotId;
@@ -123,6 +133,30 @@ export const createTimeSlotTableData = (
   );
   const slotAmount = mondaySlots.map((_, index) => index + 1);
 
+  // Columns drive header/body rendering. Period numbers attach to teaching
+  // slots only — breaks render as narrow unnumbered columns. Day rows are
+  // sorted in the same order as Monday, so `Columns[i]` aligns with each
+  // day's `i`-th slot.
+  let teachingCount = 0;
+  const columns: TimetableColumn[] = mondaySlots.map((slot, slotIndex) => {
+    if (BREAK_TYPES.has(slot.Breaktime)) {
+      return {
+        kind: "break",
+        TimeslotID: slot.TimeslotID,
+        Breaktime: slot.Breaktime,
+        slotIndex,
+      };
+    }
+    teachingCount += 1;
+    return {
+      kind: "teaching",
+      TimeslotID: slot.TimeslotID,
+      Breaktime: slot.Breaktime,
+      slotIndex,
+      periodNumber: teachingCount,
+    };
+  });
+
   const allData = sortedTimeslots.map((slot) => ({
     ...slot,
     subject: scheduleMap.get(slot.TimeslotID) ?? null,
@@ -133,5 +167,6 @@ export const createTimeSlotTableData = (
     SlotAmount: slotAmount,
     DayOfWeek: dayOfWeek,
     BreakSlot: breakSlots,
+    Columns: columns,
   };
 };

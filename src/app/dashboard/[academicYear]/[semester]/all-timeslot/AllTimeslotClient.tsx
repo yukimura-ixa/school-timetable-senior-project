@@ -87,7 +87,17 @@ type AllTimeslotClientProps = {
   configManageHref: string;
 };
 
-import type { TimeslotWithSubject } from "../shared/timeSlot";
+import type {
+  TimeslotWithSubject,
+  TimetableColumn,
+} from "../shared/timeSlot";
+
+const BREAK_TYPES_SET = new Set([
+  "BREAK",
+  "BREAK_BOTH",
+  "BREAK_JUNIOR",
+  "BREAK_SENIOR",
+]);
 
 type TimeSlotData = {
   AllData: TimeslotWithSubject[];
@@ -101,6 +111,8 @@ type TimeSlotData = {
   Duration?: number;
 
   BreakSlot?: { TimeslotID: string; Breaktime: string; SlotNumber: number }[];
+
+  Columns: TimetableColumn[];
 };
 
 const getMinutes = (milliseconds: number) => {
@@ -113,7 +125,7 @@ const getMinutes = (milliseconds: number) => {
 
 const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
   if (!data.length) {
-    return { AllData: [], SlotAmount: [], DayOfWeek: [] };
+    return { AllData: [], SlotAmount: [], DayOfWeek: [], Columns: [] };
   }
 
   const dayofweek = data
@@ -181,6 +193,29 @@ const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
       )
     : 50;
 
+  // Period numbers attach to teaching slots only; breaks render as narrow
+  // unnumbered columns. Day rows align by index with Monday's column order.
+  const monSlotsForCols = data.filter((item) => item.DayOfWeek === "MON");
+  let teachingCount = 0;
+  const columns: TimetableColumn[] = monSlotsForCols.map((slot, slotIndex) => {
+    if (BREAK_TYPES_SET.has(slot.Breaktime)) {
+      return {
+        kind: "break",
+        TimeslotID: slot.TimeslotID,
+        Breaktime: slot.Breaktime,
+        slotIndex,
+      };
+    }
+    teachingCount += 1;
+    return {
+      kind: "teaching",
+      TimeslotID: slot.TimeslotID,
+      Breaktime: slot.Breaktime,
+      slotIndex,
+      periodNumber: teachingCount,
+    };
+  });
+
   return {
     AllData: data.map((item) => ({ ...item, subject: null })),
 
@@ -193,6 +228,8 @@ const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
     Duration: duration,
 
     BreakSlot: breakTime,
+
+    Columns: columns,
   };
 };
 
@@ -735,7 +772,7 @@ const AllTimeslotClient = ({
                 <Box sx={{ flex: 1, overflowX: "hidden" }}>
                   <TableHead
                     days={filteredDays}
-                    slotAmount={timeSlotData.SlotAmount}
+                    columns={timeSlotData.Columns}
                   />
                 </Box>
               </Stack>
@@ -746,7 +783,7 @@ const AllTimeslotClient = ({
                 <Box sx={{ flex: 1, overflowX: "auto", overflowY: "hidden" }}>
                   <TableBody
                     teachers={filteredTeachers}
-                    slotAmount={timeSlotData.SlotAmount}
+                    columns={timeSlotData.Columns}
                     classData={classData}
                     days={filteredDays}
                   />
