@@ -43,7 +43,7 @@ export default async function AllTimeslotPage({
       semester={semester}
       academicYear={year}
       isAdmin={isAdmin}
-      configManageHref={`/schedule/${year}/${semester}/config`}
+      configManageHref={`/dashboard`}
     />
   );
 }
