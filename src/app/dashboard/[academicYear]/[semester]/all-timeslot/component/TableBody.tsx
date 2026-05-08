@@ -75,42 +75,46 @@ const TableBody = (props: Props) => {
     }
 
     const firstClass = filterClass[0];
-    const convertClass = filterClass
-      .map((item) => formatGradeLabel(item.GradeID))
-      .join(", ");
+    const isLocked = Boolean(firstClass?.IsLocked);
+    // Joining multiple grades into a single cell is only valid for locked
+    // timeslots (assemblies, flag ceremony, MOE-pinned activities). For
+    // non-locked classes a teacher can only be in one grade per slot;
+    // any duplicates here indicate a seed/data conflict — display the
+    // first match only.
+    const gradeLabel = isLocked
+      ? filterClass.map((item) => formatGradeLabel(item.GradeID)).join(", ")
+      : formatGradeLabel(firstClass?.GradeID ?? "");
 
     return (
       <Stack spacing={0.5} alignItems="center" sx={{ width: "100%", px: 0.25 }}>
-        {firstClass?.IsLocked && (
+        {isLocked && (
           <Tooltip title="Locked">
             <LockIcon sx={{ fontSize: 14, color: theme.palette.error.main }} />
           </Tooltip>
         )}
         <Typography
           variant="caption"
-          fontWeight={firstClass?.IsLocked ? "bold" : "medium"}
+          fontWeight={isLocked ? "bold" : "medium"}
           sx={{
             fontSize: "0.7rem",
-            color: firstClass?.IsLocked ? "error.main" : "text.primary",
+            color: isLocked ? "error.main" : "text.primary",
             lineHeight: 1.1,
             textAlign: "center",
           }}
         >
-          {firstClass?.IsLocked ? firstClass.SubjectCode : convertClass}
+          {gradeLabel}
         </Typography>
-        {!firstClass?.IsLocked && (
-          <Typography
-            variant="caption"
-            sx={{
-              fontSize: "0.65rem",
-              color: "text.secondary",
-              lineHeight: 1,
-              textAlign: "center",
-            }}
-          >
-            {firstClass?.SubjectCode}
-          </Typography>
-        )}
+        <Typography
+          variant="caption"
+          sx={{
+            fontSize: "0.65rem",
+            color: "text.secondary",
+            lineHeight: 1,
+            textAlign: "center",
+          }}
+        >
+          {firstClass?.SubjectCode}
+        </Typography>
       </Stack>
     );
   }
