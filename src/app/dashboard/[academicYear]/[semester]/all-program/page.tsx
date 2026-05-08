@@ -224,8 +224,12 @@ const Page = (_props: Props) => {
     </TableBody>
   );
 
-  const renderSubjectRows = (data: SubjectRow[], indexStart: number) => (
-    <TableBody key={`subjects-${indexStart}`}>
+  const renderSubjectRows = (
+    data: SubjectRow[],
+    indexStart: number,
+    categoryKey: string,
+  ) => (
+    <TableBody key={`subjects-${categoryKey}-${indexStart}`}>
       {data.map((item, index) => (
         <TableRow
           key={`${currentGradeID || "unknown"}-${item.SubjectCode}`}
@@ -452,7 +456,7 @@ const Page = (_props: Props) => {
               <Table>
                 {renderTableHead()}
                 {renderCategoryRow("สาระการเรียนรู้พิ้นฐาน")}
-                {renderSubjectRows(primarySubjectData(), 1)}
+                {renderSubjectRows(primarySubjectData(), 1, "primary")}
                 {renderSumRow(
                   "รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน",
                   primarySubjectData().reduce(
@@ -464,6 +468,7 @@ const Page = (_props: Props) => {
                 {renderSubjectRows(
                   extraSubjectData(),
                   primarySubjectData().length + 1,
+                  "extra",
                 )}
                 {renderSumRow(
                   "รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม",
@@ -476,6 +481,7 @@ const Page = (_props: Props) => {
                 {renderSubjectRows(
                   activitiesSubjectData(),
                   primarySubjectData().length + extraSubjectData().length + 1,
+                  "activities",
                 )}
                 {renderSumRow("รวมหน่วยกิตทั้งหมด", getSumCreditValue())}
               </Table>
