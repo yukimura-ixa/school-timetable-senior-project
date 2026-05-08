@@ -81,9 +81,9 @@ export default function TimeSlot({
           </td>
           {columns.map((col, idx) => {
             const isBreak = col.kind === "break";
-            const slot = monSlots[idx];
+            const slot = col.slotIndex >= 0 ? monSlots[col.slotIndex] : undefined;
             return (
-              <Fragment key={`time-${col.TimeslotID}`}>
+              <Fragment key={`time-${col.TimeslotID || `syn-${idx}`}`}>
                 <td
                   className={`flex flex-col items-center justify-center rounded py-[10px] text-xs text-gray-600 min-[1440px]:flex-row ${
                     isBreak
@@ -127,7 +127,8 @@ export default function TimeSlot({
                 </td>
                 {columns.map((col, idx) => {
                   const isBreak = col.kind === "break";
-                  const data = daySlots[idx];
+                  const data =
+                    col.slotIndex >= 0 ? daySlots[col.slotIndex] : undefined;
                   const slotNumber = data?.TimeslotID
                     ? Number(
                         data.TimeslotID.replace(
@@ -158,7 +159,7 @@ export default function TimeSlot({
                   const roomName = subject?.room?.RoomName ?? "";
 
                   return (
-                    <Fragment key={`slot-no${col.TimeslotID}`}>
+                    <Fragment key={`slot-no${col.TimeslotID || `syn-${idx}`}`}>
                       <td
                         style={{
                           backgroundColor: showBreak ? "#f3f4f6" : "white",

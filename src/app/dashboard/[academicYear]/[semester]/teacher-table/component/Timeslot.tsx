@@ -160,10 +160,10 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
           </Box>
           {columns.map((col, idx) => {
             const isBreak = col.kind === "break";
-            const slot = monSlots[idx];
+            const slot = col.slotIndex >= 0 ? monSlots[col.slotIndex] : undefined;
             return (
               <Box
-                key={`time-${col.TimeslotID}`}
+                key={`time-${col.TimeslotID || `syn-${idx}`}`}
                 sx={{
                   ...(isBreak ? breakCellSx : teachingCellSx),
                   height: 40,
@@ -251,7 +251,8 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
               </Box>
               {columns.map((col, idx) => {
                 const isBreak = col.kind === "break";
-                const data = daySlots[idx];
+                const data =
+                  col.slotIndex >= 0 ? daySlots[col.slotIndex] : undefined;
                 const slotNumber = data?.TimeslotID
                   ? Number(
                       data.TimeslotID.replace(
@@ -277,7 +278,7 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
 
                 return (
                   <Paper
-                    key={`slot-no${col.TimeslotID}`}
+                    key={`slot-no${col.TimeslotID || `syn-${idx}`}`}
                     elevation={0}
                     sx={{
                       ...(isBreak ? breakCellSx : teachingCellSx),

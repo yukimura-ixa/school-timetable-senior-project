@@ -64,6 +64,10 @@ export type TimetableColumn = {
   Breaktime: string;
   slotIndex: number;
   periodNumber?: number;
+  // Synthetic columns represent visual gaps where no DB timeslot exists
+  // (e.g. the 09:40-09:50 mini break that the seed leaves unrepresented).
+  // Renderers must skip data lookups when synthetic === true.
+  synthetic?: boolean;
 };
 
 export type TimeSlotTableData = {
@@ -135,27 +139,47 @@ export const createTimeSlotTableData = (
 
   // Columns drive header/body rendering. Period numbers attach to teaching
   // slots only — breaks render as narrow unnumbered columns. Day rows are
-  // sorted in the same order as Monday, so `Columns[i]` aligns with each
-  // day's `i`-th slot.
+  // sorted in the same order as Monday, so a real column's `slotIndex`
+  // points at each day's `slotIndex`-th slot. Synthetic break columns are
+  // injected wherever consecutive Monday timeslots have a time gap (e.g.
+  // 09:40-09:50 mini break) so the visual cadence matches wall-clock time.
   let teachingCount = 0;
-  const columns: TimetableColumn[] = mondaySlots.map((slot, slotIndex) => {
+  const columns: TimetableColumn[] = [];
+  for (let i = 0; i < mondaySlots.length; i++) {
+    const slot = mondaySlots[i]!;
     if (BREAK_TYPES.has(slot.Breaktime)) {
-      return {
+      columns.push({
         kind: "break",
         TimeslotID: slot.TimeslotID,
         Breaktime: slot.Breaktime,
-        slotIndex,
-      };
+        slotIndex: i,
+      });
+    } else {
+      teachingCount += 1;
+      columns.push({
+        kind: "teaching",
+        TimeslotID: slot.TimeslotID,
+        Breaktime: slot.Breaktime,
+        slotIndex: i,
+        periodNumber: teachingCount,
+      });
     }
-    teachingCount += 1;
-    return {
-      kind: "teaching",
-      TimeslotID: slot.TimeslotID,
-      Breaktime: slot.Breaktime,
-      slotIndex,
-      periodNumber: teachingCount,
-    };
-  });
+
+    const next = mondaySlots[i + 1];
+    if (next) {
+      const gapMs =
+        new Date(next.StartTime).getTime() - new Date(slot.EndTime).getTime();
+      if (gapMs > 0) {
+        columns.push({
+          kind: "break",
+          TimeslotID: "",
+          Breaktime: "GAP",
+          slotIndex: -1,
+          synthetic: true,
+        });
+      }
+    }
+  }
 
   const allData = sortedTimeslots.map((slot) => ({
     ...slot,

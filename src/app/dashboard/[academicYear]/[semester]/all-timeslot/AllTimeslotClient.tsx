@@ -194,27 +194,55 @@ const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
     : 50;
 
   // Period numbers attach to teaching slots only; breaks render as narrow
-  // unnumbered columns. Day rows align by index with Monday's column order.
-  const monSlotsForCols = data.filter((item) => item.DayOfWeek === "MON");
+  // unnumbered columns. Synthetic break columns are inserted wherever
+  // consecutive Monday timeslots have a wall-clock gap (e.g. 09:40-09:50)
+  // so the visual cadence matches reality even when the seed didn't store
+  // the gap as its own slot.
+  const monSlotsForCols = data
+    .filter((item) => item.DayOfWeek === "MON")
+    .slice()
+    .sort(
+      (a, b) =>
+        extractPeriodFromTimeslotId(a.TimeslotID) -
+        extractPeriodFromTimeslotId(b.TimeslotID),
+    );
   let teachingCount = 0;
-  const columns: TimetableColumn[] = monSlotsForCols.map((slot, slotIndex) => {
+  const columns: TimetableColumn[] = [];
+  for (let i = 0; i < monSlotsForCols.length; i++) {
+    const slot = monSlotsForCols[i]!;
     if (BREAK_TYPES_SET.has(slot.Breaktime)) {
-      return {
+      columns.push({
         kind: "break",
         TimeslotID: slot.TimeslotID,
         Breaktime: slot.Breaktime,
-        slotIndex,
-      };
+        slotIndex: i,
+      });
+    } else {
+      teachingCount += 1;
+      columns.push({
+        kind: "teaching",
+        TimeslotID: slot.TimeslotID,
+        Breaktime: slot.Breaktime,
+        slotIndex: i,
+        periodNumber: teachingCount,
+      });
     }
-    teachingCount += 1;
-    return {
-      kind: "teaching",
-      TimeslotID: slot.TimeslotID,
-      Breaktime: slot.Breaktime,
-      slotIndex,
-      periodNumber: teachingCount,
-    };
-  });
+
+    const next = monSlotsForCols[i + 1];
+    if (next) {
+      const gapMs =
+        new Date(next.StartTime).getTime() - new Date(slot.EndTime).getTime();
+      if (gapMs > 0) {
+        columns.push({
+          kind: "break",
+          TimeslotID: "",
+          Breaktime: "GAP",
+          slotIndex: -1,
+          synthetic: true,
+        });
+      }
+    }
+  }
 
   return {
     AllData: data.map((item) => ({ ...item, subject: null })),
@@ -777,7 +805,7 @@ const AllTimeslotClient = ({
                 </Box>
               </Stack>
 
-              {/* Body Content */}
+              {/* Body Content — TeacherList | grid | per-teacher totals */}
               <Stack direction="row">
                 <TeacherList teachers={filteredTeachers} />
                 <Box sx={{ flex: 1, overflowX: "auto", overflowY: "hidden" }}>
@@ -788,12 +816,12 @@ const AllTimeslotClient = ({
                     days={filteredDays}
                   />
                 </Box>
+                <TableResult
+                  teachers={filteredTeachers}
+                  classData={classData}
+                />
               </Stack>
             </Stack>
-          </Box>
-
-          <Box mt={4}>
-            <TableResult teachers={filteredTeachers} classData={classData} />
           </Box>
         </Paper>
       </Stack>
