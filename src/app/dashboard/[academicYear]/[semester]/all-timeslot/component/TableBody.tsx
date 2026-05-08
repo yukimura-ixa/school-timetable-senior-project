@@ -2,6 +2,7 @@
 import React from "react";
 import {
   Box,
+  Paper,
   Typography,
   Stack,
   alpha,
@@ -150,8 +151,9 @@ const TableBody = (props: Props) => {
                 const hasContent = content !== null;
 
                 return (
-                  <Box
-                    key={`slot-${col.TimeslotID}`}
+                  <Paper
+                    key={`slot-${col.TimeslotID || `syn-${col.slotIndex}`}`}
+                    elevation={0}
                     sx={{
                       width: isBreak ? BREAK_WIDTH : TEACH_WIDTH,
                       minWidth: isBreak ? BREAK_WIDTH : TEACH_WIDTH,
@@ -163,21 +165,28 @@ const TableBody = (props: Props) => {
                       border: `1px solid ${
                         hasContent
                           ? alpha(day.BgColor, 0.5)
-                          : alpha(theme.palette.divider, 0.05)
+                          : alpha(theme.palette.divider, 0.1)
                       }`,
                       bgcolor: isBreak
-                        ? alpha(theme.palette.divider, 0.06)
+                        ? alpha(theme.palette.action.hover, 0.5)
                         : hasContent
-                          ? alpha(day.BgColor, 0.05)
-                          : "transparent",
+                          ? alpha(day.BgColor, 0.08)
+                          : alpha(theme.palette.background.paper, 0.8),
+                      boxShadow:
+                        isBreak || !hasContent
+                          ? "none"
+                          : `0 2px 4px ${alpha(theme.palette.common.black, 0.02)}`,
                       position: "relative",
-                      transition: "all 0.2s",
+                      transition: "all 0.2s ease-in-out",
+                      cursor: "default",
+                      overflow: "hidden",
                       "&:hover":
                         !isBreak && hasContent
                           ? {
-                              bgcolor: alpha(day.BgColor, 0.1),
-                              boxShadow: `0 2px 4px ${alpha(day.BgColor, 0.1)}`,
-                              transform: "translateY(-1px)",
+                              transform: "translateY(-2px)",
+                              bgcolor: alpha(day.BgColor, 0.15),
+                              boxShadow: `0 6px 16px ${alpha(theme.palette.common.black, 0.06)}`,
+                              borderColor: alpha(day.BgColor, 0.7),
                               zIndex: 1,
                             }
                           : !isBreak
@@ -188,7 +197,7 @@ const TableBody = (props: Props) => {
                     }}
                   >
                     {content}
-                  </Box>
+                  </Paper>
                 );
               })}
             </Stack>
