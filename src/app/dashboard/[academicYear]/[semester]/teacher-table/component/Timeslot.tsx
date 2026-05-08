@@ -92,7 +92,7 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: 1.5,
+              borderRadius: 1,
               bgcolor: alpha(colors.emerald.main, 0.08),
               border: `1px solid ${alpha(colors.emerald.main, 0.15)}`,
             }}
@@ -116,7 +116,7 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  borderRadius: 1.5,
+                  borderRadius: 1,
                   bgcolor: isBreak
                     ? alpha(theme.palette.divider, 0.12)
                     : alpha(theme.palette.action.selected, 0.3),
@@ -145,7 +145,7 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: 1.5,
+              borderRadius: 1,
               bgcolor: alpha(theme.palette.text.secondary, 0.05),
               border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
             }}
@@ -171,7 +171,7 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  borderRadius: 1.5,
+                  borderRadius: 1,
                   bgcolor: isBreak
                     ? alpha(theme.palette.divider, 0.06)
                     : alpha(theme.palette.background.paper, 0.5),
@@ -232,7 +232,7 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  borderRadius: 2,
+                  borderRadius: 1,
                   bgcolor: day.BgColor,
                   boxShadow: `0 4px 12px ${alpha(day.BgColor, 0.2)}`,
                   transition: "transform 0.2s",
@@ -287,7 +287,7 @@ function TimeSlot({ timeSlotData, breakDefinitions = [] }: Props) {
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      borderRadius: 2,
+                      borderRadius: 1,
                       bgcolor: breakSlot
                         ? alpha(theme.palette.action.hover, 0.5)
                         : alpha(theme.palette.background.paper, 0.8),
