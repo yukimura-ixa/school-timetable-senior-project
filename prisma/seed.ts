@@ -3290,6 +3290,16 @@ async function main() {
       );
       const responsibilityByGradeSubject = new Map<string, any>();
 
+      // Greedy slot assignment: a teacher can only be in one place per
+      // timeslot, and a grade can only host one non-locked subject per
+      // timeslot. Tracking both prevents the cross-grade collisions the
+      // original `slotIndex / periodsPerDay` distribution produced (every
+      // grade started at MON1, so any teacher with multi-grade
+      // responsibilities was double-booked at slot 1). Locked activities
+      // (ACT*) intentionally span all grades, so they bypass tracking.
+      const usedTeacherSlot = new Set<string>();
+      const usedGradeSlot = new Set<string>();
+
       // Per-semester teacher_responsibility creation
       for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
         const gradeLevel = gradeLevels[gradeIndex];
@@ -3358,24 +3368,52 @@ async function main() {
 
         const room = rooms[gradeIndex] ?? rooms[gradeIndex % rooms.length];
 
+        const totalCapacity = scheduleDays.length * periodsPerDay;
         for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
-          const day = scheduleDays[Math.floor(slotIndex / periodsPerDay)];
-          if (!day) break;
-          const period = (slotIndex % periodsPerDay) + 1;
           const subjectCode = slots[slotIndex];
-          const timeslotId = generateTimeslotId(
-            targetSemesterNumber,
-            targetAcademicYear,
-            day,
-            period,
-          );
-
           const resp = responsibilityByGradeSubject.get(
             `${gradeLevel.GradeID}:${subjectCode}`,
           );
           if (!resp) continue;
 
           const isActivity = subjectCode.startsWith("ACT");
+
+          // Find next free position avoiding teacher/grade collisions.
+          // Both trackers are honored for activities and regular subjects;
+          // (TimeslotID, GradeID) is unique in the DB so no class can ever
+          // double-book a grade, and a real teacher can only be in one
+          // place at a time.
+          let position = slotIndex;
+          let timeslotId = "";
+          let day: string | undefined;
+          let period = 0;
+          let attempts = 0;
+          while (attempts < totalCapacity) {
+            day = scheduleDays[Math.floor(position / periodsPerDay) % scheduleDays.length];
+            if (!day) break;
+            period = (position % periodsPerDay) + 1;
+            timeslotId = generateTimeslotId(
+              targetSemesterNumber,
+              targetAcademicYear,
+              day,
+              period,
+            );
+            const teacherKey = `${resp.TeacherID}|${timeslotId}`;
+            const gradeKey = `${gradeLevel.GradeID}|${timeslotId}`;
+            if (
+              !usedTeacherSlot.has(teacherKey) &&
+              !usedGradeSlot.has(gradeKey)
+            ) {
+              break;
+            }
+            position += 1;
+            attempts += 1;
+          }
+          if (!day) break;
+
+          usedTeacherSlot.add(`${resp.TeacherID}|${timeslotId}`);
+          usedGradeSlot.add(`${gradeLevel.GradeID}|${timeslotId}`);
+
           classSchedules.push(
             await withRetry(
               () =>
