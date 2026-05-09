@@ -30,23 +30,6 @@ export const CONFIG_CONSTRAINTS = {
     label: "ระยะเวลาต่อคาบ (นาที)",
   },
 
-  /** Break duration in minutes */
-  BREAK_DURATION: {
-    min: 30,
-    max: 120,
-    default: 50,
-    step: 5,
-    label: "ระยะเวลาพักเที่ยง (นาที)",
-  },
-
-  /** Mini break duration in minutes */
-  MINI_BREAK_DURATION: {
-    min: 5,
-    max: 20,
-    default: 10,
-    step: 5,
-    label: "ระยะเวลาพักเบรก (นาที)",
-  },
 
   /** Start time */
   START_TIME: {
@@ -75,18 +58,8 @@ export const DEFAULT_DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
 export const DEFAULT_CONFIG = {
   Days: ["MON", "TUE", "WED", "THU", "FRI"],
   StartTime: "08:30" as string,
-  BreakDuration: 50 as number,
-  BreakTimeslots: {
-    Junior: 4, // ม.1-3 break at period 4
-    Senior: 5, // ม.4-6 break at period 5
-  },
   Duration: 50 as number,
   TimeslotPerDay: 8 as number,
-  MiniBreak: {
-    Duration: 10 as number,
-    SlotNumber: 2, // Mini break after period 2
-  },
-  HasMinibreak: false as boolean,
 };
 
 /**
@@ -100,10 +73,6 @@ export const CONFIG_VALIDATION_MESSAGES = {
   DURATION: {
     MIN: `ระยะเวลาคาบต้องไม่น้อยกว่า ${CONFIG_CONSTRAINTS.DURATION.min} นาที`,
     MAX: `ระยะเวลาคาบต้องไม่เกิน ${CONFIG_CONSTRAINTS.DURATION.max} นาที`,
-  },
-  BREAK_SLOT: {
-    INVALID: "คาบพักต้องอยู่ภายในจำนวนคาบทั้งหมด",
-    SAME: "คาบพักมัธยมต้นและมัธยมปลายไม่ควรซ้ำกัน",
   },
   START_TIME: {
     INVALID: "รูปแบบเวลาไม่ถูกต้อง (ต้องเป็น HH:MM)",
@@ -127,17 +96,8 @@ export type ConfigData = {
   AcademicYear: number;
   Semester: string;
   StartTime: string;
-  BreakDuration: number;
-  BreakTimeslots: {
-    Junior: number;
-    Senior: number;
-  };
   Duration: number;
   TimeslotPerDay: number;
-  MiniBreak: {
-    Duration: number;
-    SlotNumber: number;
-  };
-  HasMinibreak: boolean;
   breakDefinitions?: BreakDefinition[];
+  breakGroups?: any[]; // For type safety in JSON
 };

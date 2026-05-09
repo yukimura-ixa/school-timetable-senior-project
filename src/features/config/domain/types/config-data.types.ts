@@ -22,25 +22,6 @@ export const DayOfWeekSchema = v.picklist([
 
 export type DayOfWeek = v.InferOutput<typeof DayOfWeekSchema>;
 
-/**
- * Mini-break configuration (optional break during timeslots)
- */
-export const MiniBreakSchema = v.object({
-  SlotNumber: v.pipe(v.number(), v.integer(), v.minValue(1)),
-  Duration: v.pipe(v.number(), v.integer(), v.minValue(1)),
-});
-
-export type MiniBreak = v.InferOutput<typeof MiniBreakSchema>;
-
-/**
- * Break timeslots configuration for different grade levels
- */
-export const BreakTimeslotsSchema = v.object({
-  Junior: v.pipe(v.number(), v.integer(), v.minValue(1)),
-  Senior: v.pipe(v.number(), v.integer(), v.minValue(1)),
-});
-
-export type BreakTimeslots = v.InferOutput<typeof BreakTimeslotsSchema>;
 
 /**
  * Complete configuration data for timetable generation
@@ -52,11 +33,9 @@ export type BreakTimeslots = v.InferOutput<typeof BreakTimeslotsSchema>;
  *   Days: ['MON', 'TUE', 'WED', 'THU', 'FRI'],
  *   StartTime: '08:30',
  *   Duration: 50,
- *   BreakDuration: 15,
  *   TimeslotPerDay: 9,
- *   HasMinibreak: true,
- *   MiniBreak: { SlotNumber: 3, Duration: 10 },
- *   BreakTimeslots: { Junior: 4, Senior: 5 },
+ *   breakDefinitions: [...],
+ *   breakGroups: [...]
  * };
  * ```
  */
@@ -70,20 +49,14 @@ export const ConfigDataSchema = v.object({
   /** Duration of each timeslot in minutes */
   Duration: v.pipe(v.number(), v.integer(), v.minValue(1)),
 
-  /** Duration of break between timeslots in minutes */
-  BreakDuration: v.pipe(v.number(), v.integer(), v.minValue(0)),
-
   /** Number of timeslots per day */
   TimeslotPerDay: v.pipe(v.number(), v.integer(), v.minValue(1)),
 
-  /** Whether to include a mini-break during the day */
-  HasMinibreak: v.boolean(),
-
-  /** Optional mini-break configuration */
-  MiniBreak: v.optional(MiniBreakSchema),
-
-  /** Break timeslot positions for different grade levels */
-  BreakTimeslots: BreakTimeslotsSchema,
+  /** Break definitions in new system */
+  breakDefinitions: v.optional(v.array(v.any())),
+  
+  /** Break groups in new system */
+  breakGroups: v.optional(v.array(v.any())),
 });
 
 export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;

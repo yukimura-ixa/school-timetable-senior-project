@@ -42,19 +42,9 @@ export const createTimeslotsSchema = v.object({
   ),
   StartTime: v.pipe(v.string(), v.minLength(1, "เวลาเริ่มต้นห้ามว่าง")),
   Duration: v.number("ระยะเวลาต่อคาบต้องเป็นตัวเลข"),
-  BreakDuration: v.number("ระยะเวลาพักต้องเป็นตัวเลข"),
   TimeslotPerDay: v.number("จำนวนคาบต่อวันต้องเป็นตัวเลข"),
-  HasMinibreak: v.boolean("ต้องระบุว่ามีพักเล็กหรือไม่"),
-  MiniBreak: v.object({
-    SlotNumber: v.number("หมายเลขคาบพักเล็กต้องเป็นตัวเลข"),
-    Duration: v.number("ระยะเวลาพักเล็กต้องเป็นตัวเลข"),
-  }),
-  BreakTimeslots: v.object({
-    Junior: v.number("หมายเลขคาบพักม.ต้นต้องเป็นตัวเลข"),
-    Senior: v.number("หมายเลขคาบพักม.ปลายต้องเป็นตัวเลข"),
-  }),
-  breakDefinitions: v.optional(v.array(breakDefinitionSchema)),
-  breakGroups: v.optional(v.array(breakGroupSchema)),
+  breakDefinitions: v.array(breakDefinitionSchema),
+  breakGroups: v.array(breakGroupSchema),
 });
 
 export type CreateTimeslotsInput = v.InferOutput<typeof createTimeslotsSchema>;

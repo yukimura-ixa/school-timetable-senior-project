@@ -279,11 +279,9 @@ export const updateConfigWithTimeslotsAction = createAction(
         Days: configData.Days,
         StartTime: configData.StartTime,
         Duration: configData.Duration,
-        BreakDuration: configData.BreakDuration,
         TimeslotPerDay: configData.TimeslotPerDay,
-        HasMinibreak: configData.HasMinibreak,
-        MiniBreak: configData.MiniBreak ?? { SlotNumber: 0, Duration: 0 },
-        BreakTimeslots: configData.BreakTimeslots,
+        breakDefinitions: configData.breakDefinitions ?? [],
+        breakGroups: configData.breakGroups ?? [],
       });
 
       // Step 5: Create new timeslots

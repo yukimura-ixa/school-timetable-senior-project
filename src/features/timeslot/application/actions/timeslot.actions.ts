@@ -15,7 +15,6 @@ import { timeslotRepository } from "../../infrastructure/repositories/timeslot.r
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   generateTimeslots,
-  generateTimeslotsV2,
   sortTimeslots,
   validateNoExistingTimeslots,
   validateTimeslotsExist,
@@ -148,12 +147,7 @@ export const createTimeslotsAction = createAction(
     }
 
     // Generate timeslots from configuration
-    const timeslots = input.breakDefinitions
-      ? generateTimeslotsV2({
-          ...input,
-          breakDefinitions: input.breakDefinitions,
-        })
-      : generateTimeslots(input);
+    const timeslots = generateTimeslots(input);
 
     // Use transaction to create table_config and timeslots atomically
     const semesterNum =

@@ -13,8 +13,11 @@ export interface PreviewSlot {
   label: string;
   startTime: string;
   endTime: string;
-  type: PreviewSlotType;
+  type: "class" | "break";
   duration: number;
+  color?: string;
+  breakId?: string;
+  groups?: string[];
 }
 
 function formatTime(totalMinutes: number): string {
@@ -23,107 +26,20 @@ function formatTime(totalMinutes: number): string {
   return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 }
 
-export function generatePreviewSlots(config: ConfigData): PreviewSlot[] {
-  const [hours, minutes] = config.StartTime.split(":").map(Number);
-  if (hours === undefined || minutes === undefined) {
-    return [];
-  }
 
-  const slots: PreviewSlot[] = [];
-  let currentTime = hours * 60 + minutes;
-
-  for (let period = 1; period <= config.TimeslotPerDay; period++) {
-    const classStart = formatTime(currentTime);
-    currentTime += config.Duration;
-    const classEnd = formatTime(currentTime);
-
-    slots.push({
-      period,
-      label: `คาบที่ ${period}`,
-      startTime: classStart,
-      endTime: classEnd,
-      type: "class",
-      duration: config.Duration,
-    });
-
-    const isJuniorLunch = period === config.BreakTimeslots.Junior;
-    const isSeniorLunch = period === config.BreakTimeslots.Senior;
-
-    if (isJuniorLunch || isSeniorLunch) {
-      const lunchType: PreviewSlotType =
-        isJuniorLunch && isSeniorLunch
-          ? "lunch-both"
-          : isJuniorLunch
-            ? "lunch-junior"
-            : "lunch-senior";
-
-      const lunchLabel =
-        lunchType === "lunch-both"
-          ? "พักเที่ยง (ทุกระดับ)"
-          : lunchType === "lunch-junior"
-            ? "พักเที่ยง ม.ต้น"
-            : "พักเที่ยง ม.ปลาย";
-
-      const lunchStart = formatTime(currentTime);
-      currentTime += config.BreakDuration;
-      const lunchEnd = formatTime(currentTime);
-
-      slots.push({
-        period,
-        label: lunchLabel,
-        startTime: lunchStart,
-        endTime: lunchEnd,
-        type: lunchType,
-        duration: config.BreakDuration,
-      });
-    }
-
-    if (config.HasMinibreak && period === config.MiniBreak.SlotNumber) {
-      const miniStart = formatTime(currentTime);
-      currentTime += config.MiniBreak.Duration;
-      const miniEnd = formatTime(currentTime);
-
-      slots.push({
-        period,
-        label: `พักเบรก ${config.MiniBreak.Duration} นาที`,
-        startTime: miniStart,
-        endTime: miniEnd,
-        type: "mini-break",
-        duration: config.MiniBreak.Duration,
-      });
-    }
-  }
-
-  return slots;
-}
-
-export type PreviewSlotV2 = {
-  period: number;
-  label: string;
-  startTime: string;
-  endTime: string;
-  type: "class" | "break";
-  duration: number;
-  color?: string;
-  breakId?: string;
-  groups?: string[];
-};
-
-type PreviewV2Config = {
+export function generatePreviewSlots(config: {
   StartTime: string;
   Duration: number;
   TimeslotPerDay: number;
-  breakDefinitions: BreakDefinition[];
-};
-
-export function generatePreviewSlotsV2(config: PreviewV2Config): PreviewSlotV2[] {
+  breakDefinitions?: BreakDefinition[];
+}): PreviewSlot[] {
   const [hours, minutes] = config.StartTime.split(":").map(Number);
   if (hours === undefined || minutes === undefined) return [];
 
-  const slots: PreviewSlotV2[] = [];
+  const slots: PreviewSlot[] = [];
   let currentTime = hours * 60 + minutes;
   const breaksBySlot = new Map<number, BreakDefinition[]>();
-  for (const brk of config.breakDefinitions) {
+  for (const brk of config.breakDefinitions || []) {
     const existing = breaksBySlot.get(brk.slotNumber) ?? [];
     existing.push(brk);
     breaksBySlot.set(brk.slotNumber, existing);

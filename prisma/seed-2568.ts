@@ -306,8 +306,8 @@ async function main() {
     { start: "08:00:00", end: "08:50:00", break: "NOT_BREAK" as const },
     { start: "08:50:00", end: "09:40:00", break: "NOT_BREAK" as const },
     { start: "09:50:00", end: "10:40:00", break: "NOT_BREAK" as const }, // 10 min break after period 3
-    { start: "10:40:00", end: "10:55:00", break: "BREAK_JUNIOR" as const },
-    { start: "10:55:00", end: "11:10:00", break: "BREAK_SENIOR" as const },
+    { start: "10:40:00", end: "10:55:00", break: "BREAK" as const },
+    { start: "10:55:00", end: "11:10:00", break: "BREAK" as const },
     { start: "11:10:00", end: "12:00:00", break: "NOT_BREAK" as const },
     { start: "12:00:00", end: "12:50:00", break: "NOT_BREAK" as const },
     { start: "12:50:00", end: "13:40:00", break: "NOT_BREAK" as const },
@@ -436,10 +436,10 @@ async function main() {
   const configID = "1-2568";
   
   const baseConfig = {
-    periodsPerDay: 8,
-    startTime: "08:00",
-    periodDuration: 50,
-    schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+    TimeslotPerDay: 8,
+    StartTime: "08:00",
+    Duration: 50,
+    Days: ["MON", "TUE", "WED", "THU", "FRI"],
     breakDefinitions: [
       {
         id: "mini_break",

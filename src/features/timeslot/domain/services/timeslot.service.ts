@@ -39,113 +39,26 @@ export function generateTimeslotId(
 }
 
 /**
- * Determine breaktime enum based on slot number and break configuration
- */
-export function calculateBreaktime(
-  slotNumber: number,
-  breakConfig: { Junior: number; Senior: number },
-): breaktime {
-  const isJuniorBreak = breakConfig.Junior === slotNumber;
-  const isSeniorBreak = breakConfig.Senior === slotNumber;
-
-  if (isJuniorBreak && isSeniorBreak) {
-    return breaktimeEnum.BREAK_BOTH;
-  } else if (isSeniorBreak) {
-    return breaktimeEnum.BREAK_SENIOR;
-  } else if (isJuniorBreak) {
-    return breaktimeEnum.BREAK_JUNIOR;
-  } else {
-    return breaktimeEnum.NOT_BREAK;
-  }
-}
-
-/**
- * Generate all timeslots based on configuration
- * Complex algorithm that calculates StartTime and EndTime for each slot
- * Handles mini breaks and regular breaks
- *
- * Note: Times are stored as local time (no UTC conversion) to match
- * how seed data works and ensure consistent display in Thailand timezone.
- */
-export function generateTimeslots(config: CreateTimeslotsInput): timeslot[] {
-  const timeslots: timeslot[] = [];
-
-  for (const day of config.Days) {
-    // Start time for the day (local time, no "Z" suffix)
-    // Using 2024-01-01 as reference date for consistency with seed data
-    let slotStart = new Date(`2024-01-01T${config.StartTime}:00`);
-
-    for (let index = 0; index < config.TimeslotPerDay; index++) {
-      const currentSlotNumber = index + 1;
-
-      // Apply mini break if configured
-      if (
-        config.HasMinibreak &&
-        config.MiniBreak.SlotNumber === currentSlotNumber
-      ) {
-        slotStart.setMinutes(slotStart.getMinutes() + config.MiniBreak.Duration);
-      }
-
-      // Determine if this slot is a break period
-      const isBreak = calculateBreaktime(
-        currentSlotNumber,
-        config.BreakTimeslots,
-      );
-
-      // Calculate end time based on break status
-      const endTime = new Date(slotStart);
-      if (isBreak !== breaktimeEnum.NOT_BREAK) {
-        endTime.setMinutes(endTime.getMinutes() + config.BreakDuration);
-      } else {
-        endTime.setMinutes(endTime.getMinutes() + config.Duration);
-      }
-
-      // Create timeslot record
-      const newSlot: timeslot = {
-        TimeslotID: generateTimeslotId(
-          config.Semester,
-          config.AcademicYear,
-          day,
-          currentSlotNumber,
-        ),
-        DayOfWeek: day,
-        AcademicYear: config.AcademicYear,
-        Semester: config.Semester,
-        StartTime: slotStart,
-        EndTime: endTime,
-        Breaktime: isBreak,
-      };
-
-      timeslots.push(newSlot);
-
-      // Next slot starts when this one ends
-      slotStart = new Date(endTime);
-    }
-  }
-
-  return timeslots;
-}
-
-/**
- * V2 timeslot generation using BreakDefinition[] for configurable N-group breaks.
+ * Generate all timeslots based on configuration using BreakDefinition[] for configurable N-group breaks.
  * Break gaps are inserted before the targeted slot (slotNumber),
  * and the preceding teaching slot is marked with BREAK enum.
  */
-type TimeslotsV2Config = {
+type TimeslotsConfig = {
   AcademicYear: number;
   Semester: semester;
   Days: day_of_week[];
   StartTime: string;
   Duration: number;
   TimeslotPerDay: number;
-  breakDefinitions: BreakDefinition[];
+  breakDefinitions?: BreakDefinition[];
+  breakGroups?: any[];
 };
 
-export function generateTimeslotsV2(config: TimeslotsV2Config): timeslot[] {
+export function generateTimeslots(config: TimeslotsConfig): timeslot[] {
   const timeslots: timeslot[] = [];
   const breaksBySlot = new Map<number, BreakDefinition[]>();
 
-  for (const brk of config.breakDefinitions) {
+  for (const brk of config.breakDefinitions || []) {
     const existing = breaksBySlot.get(brk.slotNumber) ?? [];
     existing.push(brk);
     breaksBySlot.set(brk.slotNumber, existing);
@@ -183,6 +96,8 @@ export function generateTimeslotsV2(config: TimeslotsV2Config): timeslot[] {
 
   return timeslots;
 }
+
+
 
 /**
  * Sort timeslots by day of week and slot number

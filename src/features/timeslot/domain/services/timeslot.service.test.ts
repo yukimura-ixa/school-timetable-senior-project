@@ -8,9 +8,7 @@ vi.mock("../../infrastructure/repositories/timeslot.repository", () => ({
 
 import {
   generateTimeslotId,
-  calculateBreaktime,
   generateTimeslots,
-  generateTimeslotsV2,
   sortTimeslots,
 } from "./timeslot.service";
 
@@ -34,111 +32,6 @@ describe("generateTimeslotId", () => {
   });
 });
 
-describe("calculateBreaktime", () => {
-  it("returns NOT_BREAK when slot matches neither", () => {
-    expect(calculateBreaktime(1, { Junior: 4, Senior: 5 })).toBe(
-      breaktimeEnum.NOT_BREAK,
-    );
-  });
-
-  it("returns BREAK_JUNIOR when only junior matches", () => {
-    expect(calculateBreaktime(4, { Junior: 4, Senior: 5 })).toBe(
-      breaktimeEnum.BREAK_JUNIOR,
-    );
-  });
-
-  it("returns BREAK_SENIOR when only senior matches", () => {
-    expect(calculateBreaktime(5, { Junior: 4, Senior: 5 })).toBe(
-      breaktimeEnum.BREAK_SENIOR,
-    );
-  });
-
-  it("returns BREAK_BOTH when both match same slot", () => {
-    expect(calculateBreaktime(4, { Junior: 4, Senior: 4 })).toBe(
-      breaktimeEnum.BREAK_BOTH,
-    );
-  });
-});
-
-describe("generateTimeslots", () => {
-  const baseConfig = {
-    AcademicYear: 2567,
-    Semester: "SEMESTER_1" as const,
-    TimeslotPerDay: 3,
-    Duration: 50,
-    BreakDuration: 60,
-    StartTime: "08:30",
-    Days: ["MON" as const],
-    BreakTimeslots: { Junior: 2, Senior: 2 },
-    HasMinibreak: false,
-    MiniBreak: { SlotNumber: 0, Duration: 0 },
-  };
-
-  it("generates correct number of timeslots", () => {
-    const result = generateTimeslots(baseConfig);
-    expect(result).toHaveLength(3);
-  });
-
-  it("generates correct TimeslotIDs", () => {
-    const result = generateTimeslots(baseConfig);
-    expect(result[0]!.TimeslotID).toBe("1-2567-MON1");
-    expect(result[1]!.TimeslotID).toBe("1-2567-MON2");
-    expect(result[2]!.TimeslotID).toBe("1-2567-MON3");
-  });
-
-  it("calculates times for normal slots", () => {
-    const result = generateTimeslots(baseConfig);
-    expect(result[0]!.StartTime.getHours()).toBe(8);
-    expect(result[0]!.StartTime.getMinutes()).toBe(30);
-    expect(result[0]!.EndTime.getHours()).toBe(9);
-    expect(result[0]!.EndTime.getMinutes()).toBe(20);
-  });
-
-  it("uses BreakDuration for break slots", () => {
-    const result = generateTimeslots(baseConfig);
-    const breakSlot = result[1]!;
-    expect(breakSlot.Breaktime).toBe(breaktimeEnum.BREAK_BOTH);
-    expect(breakSlot.StartTime.getHours()).toBe(9);
-    expect(breakSlot.StartTime.getMinutes()).toBe(20);
-    expect(breakSlot.EndTime.getHours()).toBe(10);
-    expect(breakSlot.EndTime.getMinutes()).toBe(20);
-  });
-
-  it("chains slot times correctly (next starts where previous ends)", () => {
-    const result = generateTimeslots(baseConfig);
-    expect(result[2]!.StartTime.getTime()).toBe(result[1]!.EndTime.getTime());
-  });
-
-  it("applies mini break before the specified slot", () => {
-    const config = {
-      ...baseConfig,
-      HasMinibreak: true,
-      MiniBreak: { SlotNumber: 2, Duration: 10 },
-    };
-    const result = generateTimeslots(config);
-    expect(result[1]!.StartTime.getHours()).toBe(9);
-    expect(result[1]!.StartTime.getMinutes()).toBe(30);
-  });
-
-  it("generates timeslots for multiple days", () => {
-    const config = {
-      ...baseConfig,
-      Days: ["MON" as const, "TUE" as const],
-    };
-    const result = generateTimeslots(config);
-    expect(result).toHaveLength(6);
-    expect(result[0]!.DayOfWeek).toBe("MON");
-    expect(result[3]!.DayOfWeek).toBe("TUE");
-  });
-
-  it("sets correct AcademicYear and Semester on all slots", () => {
-    const result = generateTimeslots(baseConfig);
-    result.forEach((slot) => {
-      expect(slot.AcademicYear).toBe(2567);
-      expect(slot.Semester).toBe("SEMESTER_1");
-    });
-  });
-});
 
 describe("sortTimeslots", () => {
   const makeSlot = (
@@ -188,7 +81,7 @@ describe("sortTimeslots", () => {
   });
 });
 
-describe("generateTimeslotsV2", () => {
+describe("generateTimeslots", () => {
   const baseConfig = {
     AcademicYear: 2568,
     Semester: "SEMESTER_1" as const,
@@ -202,18 +95,18 @@ describe("generateTimeslotsV2", () => {
   };
 
   it("generates correct number of timeslots", () => {
-    const result = generateTimeslotsV2(baseConfig);
+    const result = generateTimeslots(baseConfig);
     expect(result).toHaveLength(4);
   });
 
   it("marks timeslot before break as BREAK", () => {
-    const result = generateTimeslotsV2(baseConfig);
+    const result = generateTimeslots(baseConfig);
     // Break at slot 3 means slot 2 should be BREAK (break follows it)
     expect(result[1]!.Breaktime).toBe("BREAK");
   });
 
   it("inserts time gap for break between periods", () => {
-    const result = generateTimeslotsV2(baseConfig);
+    const result = generateTimeslots(baseConfig);
     // P2 ends at 10:10, break is 50min, P3 starts at 11:00
     expect(result[2]!.StartTime.getHours()).toBe(11);
     expect(result[2]!.StartTime.getMinutes()).toBe(0);
@@ -227,13 +120,13 @@ describe("generateTimeslotsV2", () => {
         { id: "lunch", label: "พักเที่ยง", slotNumber: 3, duration: 50, color: "#4CAF50", groups: ["junior"] },
       ],
     };
-    const result = generateTimeslotsV2(config);
+    const result = generateTimeslots(config);
     // P1 ends 09:20, 10min gap, P2 starts 09:30
     expect(result[1]!.StartTime.getMinutes()).toBe(30);
   });
 
   it("all timeslots use simplified BREAK enum", () => {
-    const result = generateTimeslotsV2(baseConfig);
+    const result = generateTimeslots(baseConfig);
     result.forEach(slot => {
       expect(["BREAK", "NOT_BREAK"]).toContain(slot.Breaktime);
     });

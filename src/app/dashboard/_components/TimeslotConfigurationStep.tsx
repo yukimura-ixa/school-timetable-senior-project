@@ -36,7 +36,7 @@ import {
   DEFAULT_SENIOR_GRADES,
   type BreakDefinition,
 } from "@/features/timeslot/domain/models/break.types";
-import { generatePreviewSlotsV2, calculateSchoolDayEndTime } from "@/features/timeslot/domain/services/timeslot-config.service";
+import { generatePreviewSlots, calculateSchoolDayEndTime } from "@/features/timeslot/domain/services/timeslot-config.service";
 
 const DAYS: { value: day_of_week; label: string }[] = [
   { value: "MON", label: "จันทร์" },
@@ -66,11 +66,9 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
     Days: ["MON", "TUE", "WED", "THU", "FRI"],
     StartTime: "08:30",
     Duration: 50,
-    BreakDuration: 15,
     TimeslotPerDay: 8,
-    HasMinibreak: true,
-    MiniBreak: { SlotNumber: 3, Duration: 10 },
-    BreakTimeslots: { Junior: 4, Senior: 5 },
+    breakDefinitions: [],
+    breakGroups: [],
     ...initialConfig,
   });
 
@@ -136,7 +134,7 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
 
   // Calculate preview schedule using V2
   const previewSchedule = useMemo(() => {
-    return generatePreviewSlotsV2({
+    return generatePreviewSlots({
       StartTime: config.StartTime,
       Duration: config.Duration,
       TimeslotPerDay: config.TimeslotPerDay,

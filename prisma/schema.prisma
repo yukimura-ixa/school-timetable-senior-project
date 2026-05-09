@@ -136,24 +136,24 @@ model timeslot {
 }
 
 model break_group {
-  BreakGroupID    Int                @id @default(autoincrement())
-  Name            String
-  Label           String
-  Color           String             @default("#9E9E9E")
-  ConfigID        String
-  table_config    table_config       @relation(fields: [ConfigID], references: [ConfigID], onDelete: Cascade)
-  grades          break_group_grade[]
+  BreakGroupID Int                 @id @default(autoincrement())
+  Name         String
+  Label        String
+  Color        String              @default("#9E9E9E")
+  ConfigID     String
+  table_config table_config        @relation(fields: [ConfigID], references: [ConfigID], onDelete: Cascade)
+  grades       break_group_grade[]
 
   @@unique([ConfigID, Name], map: "break_group_config_name_unique")
   @@index([ConfigID])
 }
 
 model break_group_grade {
-  BreakGroupGradeID Int          @id @default(autoincrement())
+  BreakGroupGradeID Int         @id @default(autoincrement())
   BreakGroupID      Int
   GradeID           String
-  break_group       break_group  @relation(fields: [BreakGroupID], references: [BreakGroupID], onDelete: Cascade)
-  gradelevel        gradelevel   @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
+  break_group       break_group @relation(fields: [BreakGroupID], references: [BreakGroupID], onDelete: Cascade)
+  gradelevel        gradelevel  @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
 
   @@unique([BreakGroupID, GradeID])
   @@index([BreakGroupID])
@@ -202,20 +202,19 @@ model table_config {
 }
 
 model User {
-  id            String        @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String
-  email         String        @unique
+  email         String    @unique
   image         String?
   password      String?
-  role          String        @default("user")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  role          String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   banExpires    DateTime?
   banReason     String?
-  banned        Boolean?      @default(false)
-  emailVerified Boolean       @default(false)
+  banned        Boolean?  @default(false)
+  emailVerified Boolean   @default(false)
   accounts      Account[]
-  emailOutbox   EmailOutbox[]
   sessions      Session[]
 
   @@index([createdAt], map: "user_created_at_idx")
@@ -253,40 +252,6 @@ model Session {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([identifier, value])
-}
-
-model EmailOutbox {
-  id                String            @id @default(cuid())
-  kind              EmailOutboxKind
-  userId            String?
-  toEmail           String
-  subject           String
-  verificationUrl   String
-  status            EmailOutboxStatus @default(PENDING)
-  providerMessageId String?
-  lastError         String?
-  expiresAt         DateTime
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  user              User?             @relation(fields: [userId], references: [id])
-
-  @@index([createdAt])
-  @@index([expiresAt])
-  @@index([status])
-  @@index([kind])
-  @@index([toEmail])
-  @@index([userId])
-}
-
 enum SemesterStatus {
   DRAFT
   PUBLISHED
@@ -318,9 +283,6 @@ enum semester {
 
 enum breaktime {
   BREAK
-  BREAK_JUNIOR
-  BREAK_SENIOR
-  BREAK_BOTH
   NOT_BREAK
 }
 
@@ -353,17 +315,4 @@ enum ActivityType {
   SCOUT
   GUIDANCE
   SOCIAL_SERVICE
-}
-
-enum EmailOutboxKind {
-  EMAIL_VERIFICATION
-  CHANGE_EMAIL
-  PASSWORD_RESET
-}
-
-enum EmailOutboxStatus {
-  PENDING
-  SENT
-  FAILED
-  SKIPPED
 }

@@ -227,10 +227,10 @@ async function seedDemoData() {
   // ── Config ──────────────────────────────────────────────────────────────────
   const KEEP_CONFIG_IDS = ["1-2568", "2-2568"];
   const configTemplate = {
-    periodsPerDay: 8,
-    startTime: "08:30",
-    periodDuration: 50,
-    schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+    TimeslotPerDay: 8,
+    StartTime: "08:30",
+    Duration: 50,
+    Days: ["MON", "TUE", "WED", "THU", "FRI"],
     breakDefinitions: [
       {
         id: "mini_break",
@@ -465,18 +465,18 @@ async function seedDemoData() {
   ];
 
   // ── Period schedule ─────────────────────────────────────────────────────────
-  // P2 BREAK_BOTH: mini-break gap (10:10–10:20) follows after P2 ends at 10:10
-  // P4 BREAK_JUNIOR: juniors at lunch; no class_schedule for junior grades at P4
-  // P5 BREAK_SENIOR: seniors at lunch; no class_schedule for senior grades at P5
+  // P2 BREAK: mini-break gap (10:10–10:20) follows after P2 ends at 10:10
+  // P4 BREAK: juniors at lunch; no class_schedule for junior grades at P4
+  // P5 BREAK: seniors at lunch; no class_schedule for senior grades at P5
   const PERIODS_2568 = [
-    { num: 1, start: "08:30", end: "09:20", brk: "NOT_BREAK"    as breaktime },
-    { num: 2, start: "09:20", end: "10:10", brk: "BREAK_BOTH"   as breaktime },
-    { num: 3, start: "10:20", end: "11:10", brk: "NOT_BREAK"    as breaktime },
-    { num: 4, start: "11:10", end: "12:00", brk: "BREAK_JUNIOR" as breaktime },
-    { num: 5, start: "12:00", end: "12:50", brk: "BREAK_SENIOR" as breaktime },
-    { num: 6, start: "12:50", end: "13:40", brk: "NOT_BREAK"    as breaktime },
-    { num: 7, start: "13:40", end: "14:30", brk: "NOT_BREAK"    as breaktime },
-    { num: 8, start: "14:30", end: "15:20", brk: "NOT_BREAK"    as breaktime },
+    { num: 1, start: "08:30", end: "09:20", brk: "NOT_BREAK" as breaktime },
+    { num: 2, start: "09:20", end: "10:10", brk: "BREAK"     as breaktime },
+    { num: 3, start: "10:20", end: "11:10", brk: "NOT_BREAK" as breaktime },
+    { num: 4, start: "11:10", end: "12:00", brk: "BREAK"     as breaktime },
+    { num: 5, start: "12:00", end: "12:50", brk: "BREAK"     as breaktime },
+    { num: 6, start: "12:50", end: "13:40", brk: "NOT_BREAK" as breaktime },
+    { num: 7, start: "13:40", end: "14:30", brk: "NOT_BREAK" as breaktime },
+    { num: 8, start: "14:30", end: "15:20", brk: "NOT_BREAK" as breaktime },
   ];
 
   const DAYS: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
@@ -2773,8 +2773,8 @@ async function main() {
     { start: "08:00", end: "08:50", break: "NOT_BREAK" },
     { start: "08:50", end: "09:40", break: "NOT_BREAK" },
     { start: "09:50", end: "10:40", break: "NOT_BREAK" },
-    { start: "10:40", end: "10:55", break: "BREAK_JUNIOR" },
-    { start: "10:55", end: "11:10", break: "BREAK_SENIOR" },
+    { start: "10:40", end: "10:55", break: "BREAK" },
+    { start: "10:55", end: "11:10", break: "BREAK" },
     { start: "11:10", end: "12:00", break: "NOT_BREAK" },
     { start: "12:00", end: "12:50", break: "NOT_BREAK" },
     { start: "12:50", end: "13:40", break: "NOT_BREAK" },
@@ -2849,10 +2849,10 @@ async function main() {
           AcademicYear: academicYear,
           Semester: sem,
           Config: {
-            periodsPerDay: 8,
-            startTime: "08:30",
-            periodDuration: 50,
-            schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+            TimeslotPerDay: 8,
+            StartTime: "08:30",
+            Duration: 50,
+            Days: ["MON", "TUE", "WED", "THU", "FRI"],
             breakDefinitions: [
               {
                 id: "mini_break",
@@ -2896,10 +2896,10 @@ async function main() {
           AcademicYear: academicYear,
           Semester: "SEMESTER_2",
           Config: {
-            periodsPerDay: 8,
-            startTime: "08:30",
-            periodDuration: 50,
-            schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+            TimeslotPerDay: 8,
+            StartTime: "08:30",
+            Duration: 50,
+            Days: ["MON", "TUE", "WED", "THU", "FRI"],
             breakDefinitions: [
               {
                 id: "mini_break",

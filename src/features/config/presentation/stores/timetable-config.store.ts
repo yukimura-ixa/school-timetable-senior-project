@@ -48,9 +48,6 @@ interface ConfigStoreState {
     field: K,
     value: ConfigData[K],
   ) => void;
-  updateBreakSlot: (level: "Junior" | "Senior", slot: number) => void;
-  updateMiniBreak: (field: "Duration" | "SlotNumber", value: number) => void;
-  toggleMiniBreak: () => void;
   setMode: (mode: ConfigMode) => void;
   validateConfig: () => boolean;
   resetToDefault: (academicYear: number, semester: string) => void;
@@ -86,32 +83,6 @@ function validateConfigData(config: ConfigData): ValidationErrors {
     errors.startTime = "รูปแบบเวลาไม่ถูกต้อง (ต้องเป็น HH:MM)";
   }
 
-  // Validate BreakTimeslots
-  // Break is inserted AFTER the selected period, so value must leave at least one
-  // period afterwards (i.e. value < TimeslotPerDay, not <=).
-  if (config.BreakTimeslots.Junior >= config.TimeslotPerDay) {
-    errors.breakSlotJunior = "คาบพักมัธยมต้นต้องอยู่ก่อนคาบสุดท้าย";
-  }
-  if (config.BreakTimeslots.Senior >= config.TimeslotPerDay) {
-    errors.breakSlotSenior = "คาบพักมัธยมปลายต้องอยู่ก่อนคาบสุดท้าย";
-  }
-
-  // Warn if break slots are the same (not an error, but worth noting)
-  if (config.BreakTimeslots.Junior === config.BreakTimeslots.Senior) {
-    errors.breakSlotWarning = "คาบพักมัธยมต้นและมัธยมปลายซ้ำกัน";
-  }
-
-  // Validate MiniBreak
-  if (config.HasMinibreak) {
-    if (config.MiniBreak.SlotNumber >= config.TimeslotPerDay) {
-      errors.miniBreakSlot = "คาบพักเบรกต้องอยู่ก่อนคาบสุดท้าย";
-    }
-    if (
-      config.MiniBreak.Duration < CONFIG_CONSTRAINTS.MINI_BREAK_DURATION.min
-    ) {
-      errors.miniBreakDuration = `ระยะเวลาพักเบรกต้องไม่น้อยกว่า ${CONFIG_CONSTRAINTS.MINI_BREAK_DURATION.min} นาที`;
-    }
-  }
 
   return errors;
 }
@@ -152,27 +123,9 @@ export const useConfigStore = create<ConfigStoreState>()(
         state.config[field] = value;
         state.isDirty = true;
 
-        // Auto-adjust break slots if TimeslotPerDay changes
+        // Auto-adjust state options if TimeslotPerDay changes
         if (field === "TimeslotPerDay" && typeof value === "number") {
           state.breakSlotOptions = generateTimeslotRange(value);
-
-          // Clamp break slots to value - 1 (break is inserted AFTER the chosen
-          // period, so the chosen period must be strictly less than the total).
-          const maxBreakSlot = Math.max(value - 1, 1);
-          if (state.config.BreakTimeslots.Junior >= value) {
-            state.config.BreakTimeslots.Junior = maxBreakSlot;
-          }
-          if (state.config.BreakTimeslots.Senior >= value) {
-            state.config.BreakTimeslots.Senior = maxBreakSlot;
-          }
-          if (state.config.MiniBreak.SlotNumber >= value) {
-            state.config.MiniBreak.SlotNumber = Math.min(2, maxBreakSlot);
-          }
-        }
-
-        // Auto-sync BreakDuration with Duration
-        if (field === "Duration" && typeof value === "number") {
-          state.config.BreakDuration = value;
         }
 
         // Re-validate
@@ -180,30 +133,6 @@ export const useConfigStore = create<ConfigStoreState>()(
         state.hasErrors = Object.keys(state.validationErrors).length > 0;
       }),
 
-    // Update break timeslot for specific level
-    updateBreakSlot: (level, slot) =>
-      set((state) => {
-        state.config.BreakTimeslots[level] = slot;
-        state.isDirty = true;
-        state.validationErrors = validateConfigData(state.config);
-        state.hasErrors = Object.keys(state.validationErrors).length > 0;
-      }),
-
-    // Update mini break settings
-    updateMiniBreak: (field, value) =>
-      set((state) => {
-        state.config.MiniBreak[field] = value;
-        state.isDirty = true;
-        state.validationErrors = validateConfigData(state.config);
-        state.hasErrors = Object.keys(state.validationErrors).length > 0;
-      }),
-
-    // Toggle mini break on/off
-    toggleMiniBreak: () =>
-      set((state) => {
-        state.config.HasMinibreak = !state.config.HasMinibreak;
-        state.isDirty = true;
-      }),
 
     // Set mode
     setMode: (mode) =>
