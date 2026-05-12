@@ -16,8 +16,6 @@ import {
   Stack,
   Autocomplete,
   TextField,
-  Tabs,
-  Tab,
   Button,
   Snackbar,
   Alert,
@@ -35,29 +33,16 @@ type Teacher = {
   Role: string;
 };
 
-type GradeLevel = {
-  GradeID: string;
-  Year: number;
-  Number: number;
-  GradeName: string;
-};
-
 type Props = {
   teachers: Teacher[];
-  gradeLevels: GradeLevel[];
-  gradeCounts: Record<number, number>;
   selectedTeacher?: string;
-  currentTab: string;
   academicYear: string;
   semester: string;
 };
 
 export function HeaderClient({
   teachers,
-  gradeLevels: _gradeLevels,
-  gradeCounts,
   selectedTeacher,
-  currentTab,
   academicYear,
   semester,
 }: Props) {
@@ -131,18 +116,9 @@ export function HeaderClient({
   ) => {
     if (value) {
       router.push(
-        `/schedule/${academicYear}/${semester}/arrange?teacher=${value.TeacherID}&tab=${currentTab}`,
+        `/schedule/${academicYear}/${semester}/arrange?teacher=${value.TeacherID}`,
       );
     }
-  };
-
-  const handleTabChange = (_: React.SyntheticEvent, newTab: string) => {
-    const queryParams = new URLSearchParams();
-    if (selectedTeacher) queryParams.set("teacher", selectedTeacher);
-    queryParams.set("tab", newTab);
-    router.push(
-      `/schedule/${academicYear}/${semester}/arrange?${queryParams.toString()}`,
-    );
   };
 
   return (
@@ -172,26 +148,8 @@ export function HeaderClient({
         />
       </Box>
 
-      {/* Tabs + Actions */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        {/* Grade Level Tabs */}
-        <Tabs value={currentTab} onChange={handleTabChange}>
-          <Tab label="ครู" value="teacher" />
-          <Tab label={`ม.1 (${gradeCounts[1] || 0})`} value="grade1" />
-          <Tab label={`ม.2 (${gradeCounts[2] || 0})`} value="grade2" />
-          <Tab label={`ม.3 (${gradeCounts[3] || 0})`} value="grade3" />
-          <Tab label={`ม.4 (${gradeCounts[4] || 0})`} value="grade4" />
-          <Tab label={`ม.5 (${gradeCounts[5] || 0})`} value="grade5" />
-          <Tab label={`ม.6 (${gradeCounts[6] || 0})`} value="grade6" />
-        </Tabs>
-
-        {/* Action Buttons */}
+      {/* Actions */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Stack direction="row" spacing={1}>
           <Button
             variant="contained"

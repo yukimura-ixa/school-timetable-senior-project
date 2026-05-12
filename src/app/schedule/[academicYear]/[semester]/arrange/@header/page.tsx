@@ -1,8 +1,9 @@
 /**
  * Header Slot - Server Component
  *
- * Fetches teachers and grade levels server-side, passes to client components.
- * No SWR needed here - direct Prisma queries in Server Component.
+ * Fetches teachers server-side, passes to client component. Grade tabs were
+ * removed because schedule = teacher arrangement; read-only grade views live
+ * in /dashboard/.../student-table.
  */
 
 import { prisma } from "@/lib/prisma";
@@ -13,12 +14,11 @@ export default async function HeaderSlot({
   searchParams,
 }: {
   params: Promise<{ academicYear: string; semester: string }>;
-  searchParams: Promise<{ teacher?: string; tab?: string }>;
+  searchParams: Promise<{ teacher?: string }>;
 }) {
   const { academicYear, semester } = await params;
-  const { teacher, tab = "teacher" } = await searchParams;
+  const { teacher } = await searchParams;
 
-  // SERVER-SIDE: Fetch teachers (no SWR, no Server Action)
   const teachers = await prisma.teacher.findMany({
     orderBy: [{ Firstname: "asc" }, { Lastname: "asc" }],
     select: {
@@ -31,35 +31,10 @@ export default async function HeaderSlot({
     },
   });
 
-  // SERVER-SIDE: Fetch grade levels for tabs
-  const gradeLevels = await prisma.gradelevel.findMany({
-    orderBy: [{ Year: "asc" }, { Number: "asc" }],
-    select: {
-      GradeID: true,
-      Year: true,
-      Number: true,
-      // GradeName not in DB, derived
-    },
-  });
-
-  const formattedGradeLevels = gradeLevels.map((g) => ({
-    ...g,
-    GradeName: `M.${g.Year}/${g.Number}`,
-  }));
-
-  // Count classes per grade for tab badges
-  const gradeCounts: Record<number, number> = {};
-  gradeLevels.forEach((g) => {
-    gradeCounts[g.Year] = (gradeCounts[g.Year] || 0) + 1;
-  });
-
   return (
     <HeaderClient
       teachers={teachers}
-      gradeLevels={formattedGradeLevels}
-      gradeCounts={gradeCounts}
       selectedTeacher={teacher}
-      currentTab={tab}
       academicYear={academicYear}
       semester={semester}
     />
