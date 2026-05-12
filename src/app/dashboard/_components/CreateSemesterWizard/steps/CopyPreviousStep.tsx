@@ -27,6 +27,8 @@ export function CopyPreviousStep({
     setCopyConfig,
     copyTimeslots,
     setCopyTimeslots,
+    copyAssignments,
+    setCopyAssignments,
   } = useCreateSemester();
 
   return (
@@ -72,8 +74,17 @@ export function CopyPreviousStep({
             }
             label="คัดลอกช่วงเวลา (Timeslots)"
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={copyAssignments}
+                onChange={(e) => setCopyAssignments(e.target.checked)}
+              />
+            }
+            label="คัดลอกการมอบหมายครู (Teaching Assignments)"
+          />
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-            หมายเหตุ: ข้อมูลครู นักเรียน และวิชาจะไม่ถูกคัดลอก
+            หมายเหตุ: ข้อมูลนักเรียนและรายวิชาจะไม่ถูกคัดลอก
           </Typography>
         </FormGroup>
       )}

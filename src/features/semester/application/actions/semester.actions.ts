@@ -32,6 +32,7 @@ import {
 } from "../schemas/semester.schemas";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
+import { mapAssignmentsForTarget } from "@/features/teaching-assignment/domain/utils/copy-assignments";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
@@ -185,6 +186,7 @@ export async function createSemesterWithTimeslotsAction(input: {
   semester: number;
   copyFromConfigId?: string;
   copyConfig?: boolean;
+  copyAssignments?: boolean;
   timeslotConfig?: CreateTimeslotsInput;
 }): Promise<ActionResult<SemesterDTO>> {
   try {
@@ -319,6 +321,34 @@ export async function createSemesterWithTimeslotsAction(input: {
             await tx.table_config.update({
               where: { ConfigID: semester.ConfigID },
               data: { configCompleteness: 25 },
+            });
+          }
+        }
+      }
+
+      // 5. Copy teaching assignments if requested
+      if (input.copyFromConfigId && input.copyAssignments) {
+        const source = await tx.table_config.findUnique({
+          where: { ConfigID: input.copyFromConfigId },
+        });
+
+        if (source) {
+          const sourceAssignments = await tx.teachers_responsibility.findMany({
+            where: {
+              AcademicYear: source.AcademicYear,
+              Semester: source.Semester,
+            },
+          });
+
+          const targetRows = mapAssignmentsForTarget(sourceAssignments, {
+            academicYear: input.academicYear,
+            semester: semesterEnum,
+          });
+
+          if (targetRows.length > 0) {
+            await tx.teachers_responsibility.createMany({
+              data: targetRows,
+              skipDuplicates: true,
             });
           }
         }

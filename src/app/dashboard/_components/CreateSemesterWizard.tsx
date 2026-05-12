@@ -60,6 +60,7 @@ function WizardNavigation({
     academicYear,
     semester,
     copyConfig,
+    copyAssignments,
     timeslotConfig,
     reset,
   } = useCreateSemester();
@@ -91,6 +92,7 @@ function WizardNavigation({
         semester,
         copyFromConfigId: copyFrom || undefined,
         copyConfig: copyFrom ? copyConfig : undefined,
+        copyAssignments: copyFrom ? copyAssignments : undefined,
         timeslotConfig: timeslotConfig || undefined,
       });
 

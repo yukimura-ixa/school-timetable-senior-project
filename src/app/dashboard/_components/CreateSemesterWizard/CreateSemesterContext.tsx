@@ -10,6 +10,7 @@ type CreateSemesterState = {
   copyFrom: string;
   copyConfig: boolean;
   copyTimeslots: boolean;
+  copyAssignments: boolean;
   timeslotConfig: CreateTimeslotsInput | null;
   isTimeslotConfigValid: boolean;
 };
@@ -20,6 +21,7 @@ type CreateSemesterActions = {
   setCopyFrom: (id: string) => void;
   setCopyConfig: (copy: boolean) => void;
   setCopyTimeslots: (copy: boolean) => void;
+  setCopyAssignments: (copy: boolean) => void;
   setTimeslotConfig: (config: CreateTimeslotsInput | null) => void;
   setIsTimeslotConfigValid: (valid: boolean) => void;
   reset: () => void;
@@ -49,6 +51,7 @@ export function CreateSemesterProvider({ children }: { children: ReactNode }) {
   const [copyFrom, setCopyFrom] = useState<string>("");
   const [copyConfig, setCopyConfig] = useState(true);
   const [copyTimeslots, setCopyTimeslots] = useState(true);
+  const [copyAssignments, setCopyAssignments] = useState(false);
   const [timeslotConfig, setTimeslotConfig] =
     useState<CreateTimeslotsInput | null>(null);
   const [isTimeslotConfigValid, setIsTimeslotConfigValid] = useState(false);
@@ -59,6 +62,7 @@ export function CreateSemesterProvider({ children }: { children: ReactNode }) {
     setCopyFrom("");
     setCopyConfig(true);
     setCopyTimeslots(true);
+    setCopyAssignments(false);
     setTimeslotConfig(null);
     setIsTimeslotConfigValid(false);
   };
@@ -71,6 +75,7 @@ export function CreateSemesterProvider({ children }: { children: ReactNode }) {
         copyFrom,
         copyConfig,
         copyTimeslots,
+        copyAssignments,
         timeslotConfig,
         isTimeslotConfigValid,
         setAcademicYear,
@@ -78,6 +83,7 @@ export function CreateSemesterProvider({ children }: { children: ReactNode }) {
         setCopyFrom,
         setCopyConfig,
         setCopyTimeslots,
+        setCopyAssignments,
         setTimeslotConfig,
         setIsTimeslotConfigValid,
         reset,
