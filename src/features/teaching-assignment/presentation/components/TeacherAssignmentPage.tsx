@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { resolveAssignmentMode } from "../../application/mode";
+import { resolveTeacherIdFromParams } from "../../application/teacher-id-param";
+import { useTeachers } from "@/hooks/use-teachers";
+import { TeacherPicker, type TeacherPickerOption } from "./TeacherPicker";
+import { LockedScheduleList } from "./LockedScheduleList";
+import { useTeacherLockedSchedules } from "../../application/hooks/useTeacherLockedSchedules";
 import {
   Box,
   Container,
@@ -38,8 +43,51 @@ export function TeacherAssignmentPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const { confirm, dialog } = useConfirmDialog();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const mode = resolveAssignmentMode(searchParams);
+  const teachersData = useTeachers();
+  const teacherOptions = useMemo<TeacherPickerOption[]>(
+    () =>
+      teachersData.data.map((t) => ({
+        id: t.TeacherID,
+        prefix: t.Prefix,
+        firstname: t.Firstname,
+        lastname: t.Lastname,
+        department: t.Department,
+      })),
+    [teachersData.data],
+  );
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
+    null,
+  );
+  useEffect(() => {
+    setSelectedTeacherId(resolveTeacherIdFromParams(searchParams));
+  }, [searchParams]);
+  const selectedTeacher = useMemo(
+    () =>
+      selectedTeacherId
+        ? teacherOptions.find((t) => t.id === selectedTeacherId) ?? null
+        : null,
+    [selectedTeacherId, teacherOptions],
+  );
+  const handleTeacherChange = (teacher: TeacherPickerOption | null) => {
+    setSelectedTeacherId(teacher?.id ?? null);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    if (teacher) {
+      params.set("teacherId", String(teacher.id));
+    } else {
+      params.delete("teacherId");
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+  const semesterNum = semester === "SEMESTER_1" ? "1" : "2";
+  const { lockedSchedules, isLoading: isLockedLoading } =
+    useTeacherLockedSchedules(
+      selectedTeacherId ?? undefined,
+      academicYear,
+      semesterNum,
+    );
 
   const handleCopyFromPrevious = async () => {
     if (!gradeId) {
@@ -174,11 +222,37 @@ export function TeacherAssignmentPage() {
       )}
 
       {mode === "by-teacher" && (
-        <Paper sx={{ p: 4, textAlign: "center" }}>
-          <Typography variant="body1" color="text.secondary">
-            โหมดมอบหมายตามครู — กำลังพัฒนา (ดู beads dn3)
-          </Typography>
-        </Paper>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="subtitle1" sx={{ mb: 2 }}>
+              เลือกครูผู้สอน
+            </Typography>
+            <TeacherPicker
+              teachers={teacherOptions}
+              value={selectedTeacher}
+              onChange={handleTeacherChange}
+              disabled={teachersData.isLoading}
+            />
+          </Paper>
+
+          {selectedTeacher ? (
+            <Paper sx={{ p: 0 }}>
+              {isLockedLoading ? (
+                <Box sx={{ p: 4, textAlign: "center" }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                <LockedScheduleList items={lockedSchedules} />
+              )}
+            </Paper>
+          ) : (
+            <Paper sx={{ p: 4, textAlign: "center" }}>
+              <Typography variant="body1" color="text.secondary">
+                กรุณาเลือกครูผู้สอนเพื่อดูข้อมูล
+              </Typography>
+            </Paper>
+          )}
+        </Box>
       )}
 
       {/* Actions */}
