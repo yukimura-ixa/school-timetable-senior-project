@@ -153,6 +153,7 @@ export function TeacherAssignmentPage() {
           onGradeChange={setGradeId}
           onSemesterChange={setSemester}
           onYearChange={setAcademicYear}
+          hideGradeSelector={mode === "by-teacher"}
         />
       </Paper>
 

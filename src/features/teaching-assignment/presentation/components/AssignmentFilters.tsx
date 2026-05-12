@@ -20,6 +20,7 @@ interface AssignmentFiltersProps {
   onGradeChange: (gradeId: string) => void;
   onSemesterChange: (semester: semester) => void;
   onYearChange: (year: number) => void;
+  hideGradeSelector?: boolean;
 }
 
 /**
@@ -33,6 +34,7 @@ export function AssignmentFilters({
   onGradeChange,
   onSemesterChange,
   onYearChange,
+  hideGradeSelector = false,
 }: AssignmentFiltersProps) {
   const [gradeLevels, setGradeLevels] = useState<gradelevel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,28 +120,30 @@ export function AssignmentFilters({
     <Box>
       <Grid container spacing={2}>
         {/* Grade Level Selector */}
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <FormControl fullWidth>
-            <InputLabel id="grade-select-label">ระดับชั้น</InputLabel>
-            <Select
-              labelId="grade-select-label"
-              id="grade-select"
-              value={gradeId}
-              label="ระดับชั้น"
-              onChange={handleGradeChange}
-              disabled={isLoading}
-            >
-              <MenuItem value="">
-                <em>เลือกระดับชั้น</em>
-              </MenuItem>
-              {gradeLevels.map((grade) => (
-                <MenuItem key={grade.GradeID} value={grade.GradeID}>
-                  ม.{grade.Year}/{grade.Number}
+        {!hideGradeSelector && (
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <FormControl fullWidth>
+              <InputLabel id="grade-select-label">ระดับชั้น</InputLabel>
+              <Select
+                labelId="grade-select-label"
+                id="grade-select"
+                value={gradeId}
+                label="ระดับชั้น"
+                onChange={handleGradeChange}
+                disabled={isLoading}
+              >
+                <MenuItem value="">
+                  <em>เลือกระดับชั้น</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
+                {gradeLevels.map((grade) => (
+                  <MenuItem key={grade.GradeID} value={grade.GradeID}>
+                    ม.{grade.Year}/{grade.Number}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
 
         {/* Semester Selector */}
         <Grid size={{ xs: 12, sm: 4 }}>
