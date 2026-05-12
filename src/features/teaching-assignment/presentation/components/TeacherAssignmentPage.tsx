@@ -8,6 +8,13 @@ import { useTeachers } from "@/hooks/use-teachers";
 import { TeacherPicker, type TeacherPickerOption } from "./TeacherPicker";
 import { LockedScheduleList } from "./LockedScheduleList";
 import { useTeacherLockedSchedules } from "../../application/hooks/useTeacherLockedSchedules";
+import { TeacherWorkloadCard } from "./TeacherWorkloadCard";
+import {
+  computeTeacherStats,
+  type TeacherStatsRow,
+} from "../../domain/utils/teacher-stats";
+import useSWR from "swr";
+import { getAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
 import {
   Box,
   Container,
@@ -88,6 +95,23 @@ export function TeacherAssignmentPage() {
       academicYear,
       semesterNum,
     );
+  const teacherAssignmentsSWR = useSWR(
+    selectedTeacherId
+      ? ["teacher-assignments", selectedTeacherId, semester, academicYear]
+      : null,
+    async ([, teacherId, sem, year]) => {
+      const result = await getAssignmentsAction({
+        TeacherID: teacherId as number,
+        Semester: sem as "SEMESTER_1" | "SEMESTER_2",
+        AcademicYear: year as number,
+      });
+      return result.success && Array.isArray(result.data) ? result.data : [];
+    },
+  );
+  const teacherStats = useMemo(
+    () => computeTeacherStats((teacherAssignmentsSWR.data ?? []) as TeacherStatsRow[]),
+    [teacherAssignmentsSWR.data],
+  );
 
   const handleCopyFromPrevious = async () => {
     if (!gradeId) {
@@ -236,15 +260,22 @@ export function TeacherAssignmentPage() {
           </Paper>
 
           {selectedTeacher ? (
-            <Paper sx={{ p: 0 }}>
-              {isLockedLoading ? (
-                <Box sx={{ p: 4, textAlign: "center" }}>
-                  <CircularProgress size={24} />
-                </Box>
-              ) : (
-                <LockedScheduleList items={lockedSchedules} />
-              )}
-            </Paper>
+            <>
+              <TeacherWorkloadCard
+                teachHour={teacherStats.teachHour}
+                subjectCount={teacherStats.subjectCount}
+                classCount={teacherStats.classCount}
+              />
+              <Paper sx={{ p: 0 }}>
+                {isLockedLoading ? (
+                  <Box sx={{ p: 4, textAlign: "center" }}>
+                    <CircularProgress size={24} />
+                  </Box>
+                ) : (
+                  <LockedScheduleList items={lockedSchedules} />
+                )}
+              </Paper>
+            </>
           ) : (
             <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography variant="body1" color="text.secondary">
