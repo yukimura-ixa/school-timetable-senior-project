@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { resolveAssignmentMode } from "../../application/mode";
 import {
   Box,
   Container,
@@ -37,6 +38,8 @@ export function TeacherAssignmentPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const { confirm, dialog } = useConfirmDialog();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const mode = resolveAssignmentMode(searchParams);
 
   const handleCopyFromPrevious = async () => {
     if (!gradeId) {
@@ -169,8 +172,16 @@ export function TeacherAssignmentPage() {
         </Alert>
       )}
 
+      {mode === "by-teacher" && (
+        <Paper sx={{ p: 4, textAlign: "center" }}>
+          <Typography variant="body1" color="text.secondary">
+            โหมดมอบหมายตามครู — กำลังพัฒนา (ดู beads dn3)
+          </Typography>
+        </Paper>
+      )}
+
       {/* Actions */}
-      {gradeId && (
+      {mode === "by-grade" && gradeId && (
         <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
           <Button
             variant="outlined"
@@ -197,19 +208,20 @@ export function TeacherAssignmentPage() {
       )}
 
       {/* Assignment Table */}
-      {gradeId ? (
-        <SubjectAssignmentTable
-          gradeId={gradeId}
-          semester={semester}
-          academicYear={academicYear}
-        />
-      ) : (
-        <Paper sx={{ p: 4, textAlign: "center" }}>
-          <Typography variant="body1" color="text.secondary">
-            กรุณาเลือกระดับชั้น ภาคเรียน และปีการศึกษา
-          </Typography>
-        </Paper>
-      )}
+      {mode === "by-grade" &&
+        (gradeId ? (
+          <SubjectAssignmentTable
+            gradeId={gradeId}
+            semester={semester}
+            academicYear={academicYear}
+          />
+        ) : (
+          <Paper sx={{ p: 4, textAlign: "center" }}>
+            <Typography variant="body1" color="text.secondary">
+              กรุณาเลือกระดับชั้น ภาคเรียน และปีการศึกษา
+            </Typography>
+          </Paper>
+        ))}
       {dialog}
     </Container>
   );
