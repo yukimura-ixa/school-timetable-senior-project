@@ -115,7 +115,7 @@ Phrasongsa Timetable = Next.js 16 school timetable platform for Thai secondary s
 - Follow `AGENTS.md` as primary local contract for all coding agents.
 - Use MCP tools before assumptions when evidence available.
 - Keep Thai MOE and TimeslotID/ConfigID format rules intact.
-- Email disabled: skip `src/lib/mailer.ts`, auth mail wiring, `/management/email-outbox` until mail service chosen.
+- Email removed (2026-05-26, no mail server): `mailer.ts`, ACS dep, `email-outbox` UI/cron, and auth mail wiring deleted. Email/password login kept; password reset is admin-only. Don't reintroduce email wiring unless asked.
 - UI verification: use `browser_eval` MCP tool, not curl — curl misses hydration/runtime JS errors.
 
 ## Detailed Guidance

@@ -282,8 +282,11 @@ enum semester {
 }
 
 enum breaktime {
-  BREAK
+  BREAK_JUNIOR
+  BREAK_SENIOR
+  BREAK_BOTH
   NOT_BREAK
+  BREAK
 }
 
 enum ProgramTrack {
