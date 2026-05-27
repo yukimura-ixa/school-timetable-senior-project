@@ -1,8 +1,19 @@
-import { redirect } from "next/navigation";
+import { ConfigSummaryClient } from "./_components/ConfigSummaryClient";
+export default async function ConfigStepPage({
+  params,
+}: {
+  params: Promise<{ academicYear: string; semester: string }>;
+}) {
+  const { academicYear, semester } = await params;
+  const year = parseInt(academicYear, 10);
+  const sem = parseInt(semester, 10) as 1 | 2;
+  const configId = `${sem}-${year}`;
 
-// Config moved to /dashboard (CreateSemesterWizard / ConfigureTimeslotsDialog).
-// Keep this route as a redirect so existing bookmarks and links the team
-// hasn't migrated yet still land somewhere useful.
-export default async function LegacyScheduleConfigRedirect() {
-  redirect("/dashboard");
+  return (
+    <ConfigSummaryClient
+      academicYear={year}
+      semester={sem}
+      configId={configId}
+    />
+  );
 }

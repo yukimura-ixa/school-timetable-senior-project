@@ -51,10 +51,8 @@ test.describe("Scheduling Wizard", () => {
   test("stepper renders all six steps", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
-    // NB: the "config" step segment redirects to /dashboard (config editing lives
-    // there), so it never renders the wizard layout. Assert the stepper on a step
-    // that does render it — curriculum (reachable whenever the grid exists).
-    await page.goto(`${BASE}/curriculum`, { waitUntil: "domcontentloaded" });
+    // Config step now renders the in-wizard summary grid (not a redirect).
+    await page.goto(`${BASE}/config`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     for (const label of STEP_LABELS) {
@@ -62,6 +60,22 @@ test.describe("Scheduling Wizard", () => {
         page.getByRole("button", { name: new RegExp(label) }),
       ).toBeVisible({ timeout: 15000 });
     }
+  });
+
+  test("step 1 shows config summary or empty state", async ({
+    authenticatedAdmin,
+  }) => {
+    const { page } = authenticatedAdmin;
+
+    await page.goto(`${BASE}/config`, { waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+
+    // Either the config summary table (config exists) or the empty-state CTA.
+    await expect(
+      page
+        .getByTestId("config-status-badge")
+        .or(page.getByText("ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้")),
+    ).toBeVisible({ timeout: 15000 });
   });
 
   test("step 2 surfaces MOE compliance status", async ({

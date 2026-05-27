@@ -17,6 +17,7 @@
     "e2e/**/*",
     "prisma/**/*",
     ".next/**/*",
+    ".next-test/**/*",
     "dist/**/*",
     "coverage/**/*"
   ]
