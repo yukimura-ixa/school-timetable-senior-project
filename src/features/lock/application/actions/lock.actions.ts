@@ -28,6 +28,7 @@ import {
   type DeleteLocksInput,
 } from "../schemas/lock.schemas";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 
 /**
  * Get all locked schedules for a given academic year and semester
@@ -144,14 +145,17 @@ export const getLockedScheduleCountAction = createAction(
  */
 export const createBulkLocksAction = createAction(
   v.object({
-    locks: v.array(
-      v.object({
-        SubjectCode: v.string(),
-        RoomID: v.number(),
-        TimeslotID: v.string(),
-        GradeID: v.string(),
-        RespID: v.number(),
-      }),
+    locks: v.pipe(
+      v.array(
+        v.object({
+          SubjectCode: v.string(),
+          RoomID: v.number(),
+          TimeslotID: v.string(),
+          GradeID: v.string(),
+          RespID: v.number(),
+        }),
+      ),
+      v.minLength(1, "ต้องมีอย่างน้อย 1 รายการ"),
     ),
   }),
   async (input: {
@@ -163,21 +167,24 @@ export const createBulkLocksAction = createAction(
       RespID: number;
     }>;
   }) => {
-    const created: class_schedule[] = [];
-
-    // Use transaction for atomicity
-    for (const lock of input.locks) {
-      const schedule: class_schedule = await lockRepository.createLock({
-        IsLocked: true,
-        SubjectCode: lock.SubjectCode,
-        TimeslotID: lock.TimeslotID,
-        RoomID: lock.RoomID,
-        GradeID: lock.GradeID,
-        RespIDs: [{ RespID: lock.RespID }],
-      });
-
-      created.push(schedule);
-    }
+    const created = await withPrismaTransaction(async (tx) => {
+      const schedules: class_schedule[] = [];
+      for (const lock of input.locks) {
+        const schedule = await lockRepository.createLock(
+          {
+            IsLocked: true,
+            SubjectCode: lock.SubjectCode,
+            TimeslotID: lock.TimeslotID,
+            RoomID: lock.RoomID,
+            GradeID: lock.GradeID,
+            RespIDs: [{ RespID: lock.RespID }],
+          },
+          tx,
+        );
+        schedules.push(schedule);
+      }
+      return schedules;
+    });
 
     await invalidatePublicCache(["classes", "teachers", "stats"]);
     return {

@@ -1,16 +1,24 @@
-import { Alert, Box } from "@mui/material";
+import { GenerateClient } from "./_components/GenerateClient";
 
 /**
- * Step 4 — Whole-school auto-generate. Placeholder shell; the headline
- * generate action (POST /api/schedule/auto-arrange-all) and results panel
- * are implemented separately.
+ * Step 4 — Whole-school auto-generate (headline action).
+ *
+ * Thin server shell: resolves the term params and mounts the client island
+ * that POSTs to /api/schedule/auto-arrange-all and renders the result panel.
  */
-export default function GenerateStepPage() {
+export default async function GenerateStepPage({
+  params,
+}: {
+  params: Promise<{ academicYear: string; semester: string }>;
+}) {
+  const { academicYear, semester } = await params;
+  const reviewHref = `/schedule/${academicYear}/${semester}/arrange`;
+
   return (
-    <Box sx={{ py: 2 }}>
-      <Alert severity="info">
-        สร้างตารางสอนอัตโนมัติทั้งโรงเรียน — กำลังพัฒนา
-      </Alert>
-    </Box>
+    <GenerateClient
+      academicYear={academicYear}
+      semester={semester}
+      reviewHref={reviewHref}
+    />
   );
 }

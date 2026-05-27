@@ -7,6 +7,7 @@
 
 import prisma from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
+import type { TransactionClient } from "@/lib/prisma-transaction";
 
 /**
  * Type for raw locked schedule data from database
@@ -101,8 +102,11 @@ export type CreateLockData = {
  * Create a single locked class schedule
  * Connects all required relations
  */
-export async function createLock(data: CreateLockData) {
-  return await prisma.class_schedule.create({
+export async function createLock(
+  data: CreateLockData,
+  client: TransactionClient | typeof prisma = prisma,
+) {
+  return await client.class_schedule.create({
     data: {
       IsLocked: data.IsLocked,
       teachers_responsibility: {

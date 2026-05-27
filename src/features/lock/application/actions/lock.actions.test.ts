@@ -23,6 +23,13 @@ vi.mock("@/lib/cache-invalidation", () => ({
   invalidatePublicCache: vi.fn(),
 }));
 
+const mockTx = { __tx: true } as unknown;
+vi.mock("@/lib/prisma-transaction", () => ({
+  withPrismaTransaction: vi.fn((fn: (tx: unknown) => Promise<unknown>) =>
+    fn(mockTx),
+  ),
+}));
+
 vi.mock("../../infrastructure/repositories/lock.repository", () => ({
   findLockedSchedules: vi.fn(),
   createLock: vi.fn(),
@@ -33,10 +40,14 @@ vi.mock("../../infrastructure/repositories/lock.repository", () => ({
 import {
   getLockedSchedulesAction,
   createLockAction,
+  createBulkLocksAction,
   deleteLocksAction,
   getLockedScheduleCountAction,
 } from "./lock.actions";
 import * as lockRepository from "../../infrastructure/repositories/lock.repository";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
+
+const mockWithPrismaTransaction = withPrismaTransaction as ReturnType<typeof vi.fn>;
 
 const mockFindLockedSchedules = lockRepository.findLockedSchedules as ReturnType<typeof vi.fn>;
 const mockCreateLock = lockRepository.createLock as ReturnType<typeof vi.fn>;
@@ -216,6 +227,59 @@ describe("Lock Actions", () => {
         GradeIDs: ["M1-1"],
         RespIDs: [1],
       });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe("VALIDATION_ERROR");
+    });
+  });
+
+  describe("createBulkLocksAction", () => {
+    const validInput = {
+      locks: [
+        {
+          SubjectCode: "MATH101",
+          RoomID: 1,
+          TimeslotID: "1-2567-MON1",
+          GradeID: "M1-1",
+          RespID: 1,
+        },
+        {
+          SubjectCode: "SCI101",
+          RoomID: 2,
+          TimeslotID: "1-2567-MON2",
+          GradeID: "M1-1",
+          RespID: 2,
+        },
+      ],
+    };
+
+    it("runs every createLock inside a single shared transaction", async () => {
+      mockCreateLock.mockResolvedValue({ ClassID: 1 });
+
+      const result = await createBulkLocksAction(validInput);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.count).toBe(2);
+      expect(mockWithPrismaTransaction).toHaveBeenCalledTimes(1);
+      expect(mockCreateLock).toHaveBeenCalledTimes(2);
+      // Both writes share the one tx client passed into the transaction callback.
+      for (const call of mockCreateLock.mock.calls) {
+        expect(call[1]).toBe(mockTx);
+      }
+    });
+
+    it("fails atomically when one lock in the batch throws", async () => {
+      mockCreateLock
+        .mockResolvedValueOnce({ ClassID: 1 })
+        .mockRejectedValueOnce(new Error("duplicate slot"));
+
+      const result = await createBulkLocksAction(validInput);
+
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects empty locks array via schema validation", async () => {
+      const result = await createBulkLocksAction({ locks: [] });
 
       expect(result.success).toBe(false);
       expect(result.error?.code).toBe("VALIDATION_ERROR");
