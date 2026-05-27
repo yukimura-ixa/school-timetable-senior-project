@@ -99,14 +99,22 @@ export async function GET(): Promise<
       prisma.subject.count(),
     ]);
 
-    // Define minimum expected counts for a properly seeded database
-    // These are conservative minimums that work for both demo and full test modes
+    // Define minimum expected counts for a properly seeded database.
+    // Defaults are conservative minimums for both demo and full test modes.
+    // The isolated publish-happy E2E suite seeds a deliberately tiny world, so
+    // it overrides these via HEALTH_MIN_* env vars on its dev server. Defaults
+    // are unchanged, so the main suite's readiness gate is unaffected.
+    const minOverride = (name: string, fallback: number): number => {
+      const raw = process.env[name];
+      const parsed = raw === undefined ? NaN : Number(raw);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    };
     const minExpected = {
-      teachers: 8, // Demo mode has 8 teachers, full test has 40+
-      schedules: 30, // Demo mode has ~36 schedules
-      timeslots: 80, // 2 semesters × 5 days × 8 periods = 80
-      grades: 3, // Demo mode has 3 grade levels (M.1/1-3)
-      subjects: 8, // Demo mode has 10 subjects (8 core + 2 activities)
+      teachers: minOverride("HEALTH_MIN_TEACHERS", 8),
+      schedules: minOverride("HEALTH_MIN_SCHEDULES", 30),
+      timeslots: minOverride("HEALTH_MIN_TIMESLOTS", 80),
+      grades: minOverride("HEALTH_MIN_GRADES", 3),
+      subjects: minOverride("HEALTH_MIN_SUBJECTS", 8),
     };
 
     // Database is considered "ready" if all counts meet minimums
