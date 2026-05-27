@@ -1,10 +1,14 @@
 import { ReactNode } from "react";
 import { redirect, notFound, forbidden } from "next/navigation";
 import { headers } from "next/headers";
+import { Box, Link } from "@mui/material";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 import { SemesterUrlSync } from "@/components/SemesterUrlSync";
+import { getWizardState } from "@/features/schedule-wizard/application/services/wizard-state.service";
+import { WizardStepper } from "@/features/schedule-wizard/presentation/components/WizardStepper";
 
 // NOTE: Cannot export segment configs (dynamic, runtime, etc.) in Next.js 16
 // when using async params. The layout is already dynamic due to async params.
@@ -60,9 +64,43 @@ export default async function ScheduleSemesterLayout({
 
   // Semester exists (configured or not) - allow access
   // Child pages will handle unconfigured state with helpful messages
+  const basePath = `/schedule/${academicYear}/${semester}`;
+  const wizardState = await getWizardState(year, sem);
+
   return (
     <>
       <SemesterUrlSync academicYear={year} semester={sem} />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          py: 3,
+        }}
+      >
+        <h1 className="text-xl font-bold">
+          ตารางสอน ภาคเรียนที่ {sem} ปีการศึกษา {year}
+        </h1>
+        <Link
+          sx={{
+            display: "flex",
+            gap: 1,
+            alignItems: "center",
+            cursor: "pointer",
+            textDecoration: "none",
+          }}
+          href="/dashboard"
+        >
+          <KeyboardBackspaceIcon sx={{ color: "text.secondary" }} />
+          <Box
+            component="span"
+            sx={{ color: "text.secondary", fontSize: "0.875rem" }}
+          >
+            เปลี่ยนภาคเรียน
+          </Box>
+        </Link>
+      </Box>
+      <WizardStepper state={wizardState} basePath={basePath} />
       {children}
     </>
   );

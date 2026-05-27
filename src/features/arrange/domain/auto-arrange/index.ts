@@ -5,6 +5,13 @@
  */
 
 export { solve } from "./solver";
+export { solveWholeSchool } from "./whole-school-solver";
+export type {
+  TeacherSolveTask,
+  TeacherSolveOutcome,
+  WholeSchoolSolverInput,
+  WholeSchoolSolverResult,
+} from "./whole-school-solver";
 export {
   checkAllHardConstraints,
   checkBreakConstraint,
