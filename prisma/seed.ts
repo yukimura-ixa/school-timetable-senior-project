@@ -1484,14 +1484,10 @@ async function main() {
   // Clean existing timetable data (preserve better-auth tables)
   console.log("🧹 Cleaning existing data...");
 
-  // Clean better-auth sessions and verification tokens for test mode to prevent stale auth conflicts
+  // Clean better-auth sessions for test mode to prevent stale auth conflicts
   if (isTestMode) {
     console.log("🔐 Cleaning auth sessions for test mode...");
     await withRetry(() => prisma.session.deleteMany({}), "Delete sessions");
-    await withRetry(
-      () => prisma.verification.deleteMany({}),
-      "Delete verification tokens",
-    );
     console.log("✅ Auth sessions cleaned");
   }
 

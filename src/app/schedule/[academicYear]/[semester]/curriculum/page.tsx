@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   Alert,
   Box,
@@ -42,7 +41,6 @@ export default async function CurriculumStepPage({
           ยังไม่มีหลักสูตรสำหรับภาคเรียนนี้ กรุณาตั้งค่าหลักสูตรก่อน
         </Alert>
         <Button
-          component={Link}
           href="/management/program"
           endIcon={<OpenInNewIcon />}
           sx={{ mt: 2 }}
@@ -146,7 +144,6 @@ export default async function CurriculumStepPage({
       </Stack>
 
       <Button
-        component={Link}
         href="/management/program"
         endIcon={<OpenInNewIcon />}
         sx={{ mt: 3 }}

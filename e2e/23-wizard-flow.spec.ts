@@ -51,7 +51,10 @@ test.describe("Scheduling Wizard", () => {
   test("stepper renders all six steps", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`${BASE}/config`, { waitUntil: "domcontentloaded" });
+    // NB: the "config" step segment redirects to /dashboard (config editing lives
+    // there), so it never renders the wizard layout. Assert the stepper on a step
+    // that does render it — curriculum (reachable whenever the grid exists).
+    await page.goto(`${BASE}/curriculum`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     for (const label of STEP_LABELS) {
@@ -106,8 +109,12 @@ test.describe("Scheduling Wizard", () => {
     await expect(confirm).toBeVisible({ timeout: 10000 });
     await confirm.click();
 
-    // Result panel: stats summary appears once the POST resolves.
-    await expect(page.getByText(/จัดสำเร็จ/)).toBeVisible({ timeout: 90000 });
+    // Result panel: stats summary appears once the POST resolves. The phrase
+    // appears as both the stats label and a per-teacher column header, so scope
+    // to the first match.
+    await expect(page.getByText(/จัดสำเร็จ/).first()).toBeVisible({
+      timeout: 90000,
+    });
   });
 
   test("step 6 shows the publish readiness gate", async ({
