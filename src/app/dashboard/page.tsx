@@ -330,6 +330,7 @@ export default function SelectSemesterPage() {
       <CreateSemesterWizard
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
+        existingSemesters={allSemesters}
         onSuccess={(newSemester) => {
           void loadData();
           void handleSelectSemester(newSemester);
