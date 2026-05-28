@@ -101,9 +101,9 @@ export function TeacherAssignmentPage() {
       : null,
     async ([, teacherId, sem, year]) => {
       const result = await getAssignmentsAction({
-        TeacherID: teacherId as number,
+        TeacherID: teacherId,
         Semester: sem as "SEMESTER_1" | "SEMESTER_2",
-        AcademicYear: year as number,
+        AcademicYear: year,
       });
       return result.success && Array.isArray(result.data) ? result.data : [];
     },
