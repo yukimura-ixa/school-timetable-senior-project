@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from "vitest";
+import { useEffect, useRef } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CopyPreviousStep } from "./CopyPreviousStep";
@@ -26,13 +27,15 @@ function ProviderHarness({
 
 function CopyFromSeeder({ initialCopyFrom }: { initialCopyFrom?: string }) {
   const { setCopyFrom } = useCreateSemester();
-  if (initialCopyFrom && !seedDone.current) {
-    seedDone.current = true;
-    setCopyFrom(initialCopyFrom);
-  }
+  const seedDoneRef = useRef(false);
+  useEffect(() => {
+    if (initialCopyFrom && !seedDoneRef.current) {
+      seedDoneRef.current = true;
+      setCopyFrom(initialCopyFrom);
+    }
+  }, [initialCopyFrom, setCopyFrom]);
   return null;
 }
-const seedDone = { current: false };
 
 function StateProbe() {
   const { copyAssignments } = useCreateSemester() as ReturnType<
@@ -74,7 +77,6 @@ describe("CopyPreviousStep — copy assignments checkbox", () => {
   });
 
   it("renders the assignments checkbox when a source semester is selected, default unchecked", () => {
-    seedDone.current = false;
     render(
       <ProviderHarness initialCopyFrom="1-2567">
         <CopyPreviousStep existingSemesters={existingSemesters} />
@@ -87,7 +89,6 @@ describe("CopyPreviousStep — copy assignments checkbox", () => {
   });
 
   it("toggles copyAssignments state when clicked", async () => {
-    seedDone.current = false;
     const user = userEvent.setup();
     render(
       <ProviderHarness initialCopyFrom="1-2567">
