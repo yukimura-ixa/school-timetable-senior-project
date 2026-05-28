@@ -126,3 +126,7 @@ tmp/
 *.db
 .beads-credential-key
 .claude/settings.local.json
+
+# Superpowers brainstorm session files (gitignored)
+.superpowers/
+
