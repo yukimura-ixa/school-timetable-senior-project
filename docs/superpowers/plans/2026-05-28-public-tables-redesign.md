@@ -46,7 +46,7 @@
 - Create: `src/lib/ui/subject-color.ts`
 - Create: `src/lib/ui/subject-color.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/lib/ui/subject-color.test.ts
@@ -95,12 +95,12 @@ describe("subjectColors", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure**
 
 Run: `pnpm test src/lib/ui/subject-color.test.ts`
 Expected: FAIL — `Cannot find module './subject-color'`.
 
-- [ ] **Step 3: Implement subject color util**
+- [x] **Step 3: Implement subject color util**
 
 ```ts
 // src/lib/ui/subject-color.ts
@@ -131,12 +131,12 @@ export function subjectColors(code: string): SubjectColors {
 }
 ```
 
-- [ ] **Step 4: Run test to verify passing**
+- [x] **Step 4: Run test to verify passing**
 
 Run: `pnpm test src/lib/ui/subject-color.test.ts`
 Expected: 6 PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/ui/subject-color.ts src/lib/ui/subject-color.test.ts
