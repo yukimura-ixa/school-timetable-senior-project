@@ -924,6 +924,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 
 ## Task 8: Migrate dashboard all-timeslot to TimeslotGrid
 
+> **🚫 DESCOPED 2026-05-29 — do not implement.** This task assumed `all-timeslot` was a single-entity day×period `<table>` like the public pages. It is not: it is a teacher-row × period-column matrix aggregating **all teachers at once** (`TeacherList` + `TableHead`/`TableBody`/`TableResult`), with Excel/PDF export coupled to `timeSlotData.Columns`. `TimeslotGrid` (one `ScheduleCell` per `TimeslotID`) cannot represent parallel teachers in one slot. Per user decision, the matrix stays and the spec was amended (§4). The steps below are retained for history only. Follow-up tracked in beads.
+
 **Files:**
 - Modify: `src/app/dashboard/[academicYear]/[semester]/all-timeslot/AllTimeslotClient.tsx`
 
@@ -1607,6 +1609,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 ---
 
 ## Task 13: Dashboard student-table + teacher-table parity
+
+> **🚫 DESCOPED 2026-05-29 — do not implement.** Both pages are multi-entity selection + per-entity schedule matrices (MUI `Select` w/ checkboxes, per-entity `TimeSlot` component, bulk Excel/PDF export coupled to `createTimeSlotTableData` / `ExportTeacherTable` + `html2canvas`/`jsPDF`) — the same family as the descoped Task 8 `all-timeslot`. `TimeslotGrid` (one cell per `TimeslotID`) can't represent them and the swap would break export. Per user decision, kept as-is; spec §2.5 amended. Optional follow-up: restyle only the entity-selection list with `PersonCard` (tracked in beads). Steps below retained for history only.
 
 **Files:**
 - Modify: `src/app/dashboard/[academicYear]/[semester]/student-table/page.tsx`

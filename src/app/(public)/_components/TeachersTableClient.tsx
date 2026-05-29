@@ -2,18 +2,17 @@
 
 /**
  * TeachersTableClient - Client Component
- * Renders teachers table with data passed from server
+ * Renders the teacher list as a responsive PersonCard grid.
+ * Filtering/sorting/pagination are owned by the parent DataTableSection;
+ * this component is a pure display of the current page slice.
  */
 
-import Link from "next/link";
-import { ArrowForward } from "./Icons";
+import { PersonCard } from "@/components/public/PersonCard";
 import type { PublicTeacher } from "@/lib/public/teachers";
 
 type Props = {
   data: PublicTeacher[];
   search?: string;
-  sortBy?: "name" | "hours" | "utilization";
-  sortOrder?: "asc" | "desc";
   "data-testid"?: string;
   configId?: string; // e.g. "1-2567" for building term-specific public schedule links
 };
@@ -32,21 +31,14 @@ const parseConfigId = (
 export function TeachersTableClient({
   data,
   search,
-  sortBy = "name",
-  sortOrder = "asc",
   "data-testid": testId,
   configId,
 }: Props) {
   const term = parseConfigId(configId);
-  // Map sortOrder to aria-sort values
-  const getAriaSort = (column: string): "ascending" | "descending" | "none" => {
-    if (sortBy !== column) return "none";
-    return sortOrder === "asc" ? "ascending" : "descending";
-  };
 
   if (!data || data.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" data-testid={testId}>
         <p className="text-gray-500 text-lg">
           {search ? `ไม่พบครูที่ค้นหา "${search}"` : "ไม่มีข้อมูลครู"}
         </p>
@@ -56,111 +48,23 @@ export function TeachersTableClient({
 
   return (
     <div
-      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
       data-testid={testId}
+      className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th
-                scope="col"
-                className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                aria-sort={getAriaSort("name")}
-              >
-                ชื่อ-นามสกุล
-              </th>
-              <th
-                scope="col"
-                className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                ภาควิชา
-              </th>
-              <th
-                scope="col"
-                className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                วิชาที่สอน
-              </th>
-              <th
-                scope="col"
-                className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                aria-sort={getAriaSort("hours")}
-              >
-                <span className="hidden sm:inline">ชั่วโมง/สัปดาห์</span>
-                <span className="sm:hidden">ชม.</span>
-              </th>
-              <th
-                scope="col"
-                className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                aria-sort={getAriaSort("utilization")}
-              >
-                อัตราการใช้งาน
-              </th>
-              <th scope="col" className="px-3 sm:px-6 py-2 sm:py-3 relative">
-                <span className="sr-only">Actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((teacher) => (
-              <tr
-                key={teacher.teacherId}
-                className="hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">
-                    {teacher.name}
-                  </div>
-                </td>
-                <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-700 truncate max-w-[100px] md:max-w-none">
-                    {teacher.department}
-                  </div>
-                </td>
-                <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {teacher.subjectCount} วิชา
-                  </span>
-                </td>
-                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
-                  <div className="text-sm font-semibold text-gray-900">
-                    {teacher.weeklyHours} <span className="hidden sm:inline">ชม.</span>
-                  </div>
-                </td>
-                <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
-                  <div className="flex items-center justify-center">
-                    <span
-                      className={`inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium ${
-                        teacher.utilization > 80
-                          ? "bg-red-100 text-red-800"
-                          : teacher.utilization > 60
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {teacher.utilization}%
-                    </span>
-                  </div>
-                </td>
-                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={
-                      term
-                        ? `/teachers/${teacher.teacherId}/${term.academicYear}/${term.semester}`
-                        : `/teachers/${teacher.teacherId}`
-                    }
-                    className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
-                  >
-                    <span className="hidden sm:inline">ดูตาราง</span>
-                    <ArrowForward className="w-4 h-4" />
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {data.map((teacher) => (
+        <PersonCard
+          key={teacher.teacherId}
+          id={teacher.teacherId}
+          primary={teacher.name}
+          secondary={`${teacher.department || "ไม่ระบุ"} · ${teacher.weeklyHours} คาบ`}
+          href={
+            term
+              ? `/teachers/${teacher.teacherId}/${term.academicYear}/${term.semester}`
+              : `/teachers/${teacher.teacherId}`
+          }
+          accentClass="text-accent-teacher"
+        />
+      ))}
     </div>
   );
 }

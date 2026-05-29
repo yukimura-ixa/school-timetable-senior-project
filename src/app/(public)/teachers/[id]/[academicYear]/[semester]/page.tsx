@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
-import type { timeslot, semester } from "@/prisma/generated/client";
-import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
+import type { semester } from "@/prisma/generated/client";
+import { getTimetableConfig } from "@/lib/timetable-config";
+import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+import { TimeslotGrid, type ScheduleCell } from "@/components/schedule/TimeslotGrid";
 
 
 type PageProps = {
@@ -41,16 +43,6 @@ type PublicScheduleEntry = NonNullable<
   ResponsibilityWithSchedules["class_schedule"]
 >[number];
 
-const dayNames: Record<string, string> = {
-  MON: "จันทร์",
-  TUE: "อังคาร",
-  WED: "พุธ",
-  THU: "พฤหัสบดี",
-  FRI: "ศุกร์",
-};
-
-const dayOrder = ["MON", "TUE", "WED", "THU", "FRI"] as const;
-
 export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   const { id, academicYear: yearStr, semester: semStr } = await params;
   const teacherId = parseInt(id, 10);
@@ -79,69 +71,22 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
     (resp) => resp.class_schedule ?? [],
   );
 
-  // Get all timeslots for this term to build grid structure
-  // Note: semesterEnum is already typed as "SEMESTER_1" | "SEMESTER_2" from parseConfigId
+  // Get all timeslots + break config for this term to build the grid
   const semesterValue: semester = semesterEnum;
   const timeslots = await publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue);
+  const config = await getTimetableConfig(academicYear, semesterValue);
+  const breakDefs: BreakDefinition[] = config.breakDefinitions ?? [];
 
-  // Extract slot numbers and create mapping
-  const parseSlotNumber = extractPeriodFromTimeslotId;
-
-  const slotNumbers = Array.from(
-    new Set<number>(
-      timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)),
-    ),
-  ).sort((a: number, b: number) => a - b);
-  const noSlots = slotNumbers.length === 0;
-  const displaySlotNumbers = noSlots ? [1] : slotNumbers;
-
-  // Build schedule lookup by timeslot ID
-  const scheduleLookup = new Map<string, PublicScheduleEntry>();
-  schedules.forEach((s) => {
-    scheduleLookup.set(s.timeslot.TimeslotID, s);
-  });
-
-  // Build time range for each slot number
-  const slotTimeRanges = new Map<number, { start: string; end: string }>();
-  timeslots.forEach((t: timeslot) => {
-    const slotNum = parseSlotNumber(t.TimeslotID);
-    if (!slotTimeRanges.has(slotNum)) {
-      const startTime = new Date(t.StartTime);
-      const endTime = new Date(t.EndTime);
-      slotTimeRanges.set(slotNum, {
-        start: startTime.toLocaleTimeString("th-TH", {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: "Asia/Bangkok",
-        }),
-        end: endTime.toLocaleTimeString("th-TH", {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: "Asia/Bangkok",
-        }),
-      });
-    }
-  });
-
-  // Build grid data: day x slot
-  const gridData: Record<string, Map<number, PublicScheduleEntry | null>> = {};
-  dayOrder.forEach((day) => {
-    gridData[day] = new Map();
-    displaySlotNumbers.forEach((slotNum: number) => {
-      const timeslotForDaySlot = timeslots.find(
-        (t: timeslot) =>
-          t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum,
-      );
-      if (timeslotForDaySlot) {
-        gridData[day]!.set(
-          slotNum,
-          scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null,
-        );
-      } else {
-        gridData[day]!.set(slotNum, null);
-      }
+  const cellsByTimeslotId = new Map<string, ScheduleCell>();
+  for (const s of schedules) {
+    cellsByTimeslotId.set(s.timeslot.TimeslotID, {
+      timeslotId: s.timeslot.TimeslotID,
+      subjectCode: s.subject.SubjectCode,
+      subjectName: s.subject.SubjectName,
+      gradeLabel: `ม.${s.gradelevel.Year}/${s.gradelevel.Number}`,
+      roomLabel: s.room?.RoomName ?? undefined,
     });
-  });
+  }
 
   return (
     <div className="container mx-auto max-w-7xl p-4 space-y-4">
@@ -174,93 +119,13 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       </div>
 
       {/* Schedule Grid */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="overflow-x-auto">
-          <table
-            className="min-w-full border-collapse"
-            data-testid="schedule-grid"
-            role="table"
-          >
-            <thead>
-              <tr className="bg-blue-600 text-white">
-                <th className="border border-gray-300 px-2 py-2 text-sm">
-                  คาบ/เวลา
-                </th>
-                {dayOrder.map((day) => (
-                  <th
-                    key={day}
-                    className="border border-gray-300 px-2 py-2 text-sm"
-                  >
-                    {dayNames[day]}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {noSlots ? (
-                <tr>
-                  <td
-                    className="border border-gray-200 px-4 py-6 text-center text-sm text-gray-500"
-                    colSpan={dayOrder.length + 1}
-                    data-testid="schedule-empty"
-                  >
-                    ไม่มีตารางสอนในภาคเรียนนี้
-                  </td>
-                </tr>
-              ) : (
-                displaySlotNumbers.map((slotNum: number) => {
-                  const timeRange = slotTimeRanges.get(slotNum);
-                  return (
-                    <tr key={slotNum} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 px-2 py-2 text-center text-sm font-medium whitespace-nowrap">
-                        คาบ {slotNum}
-                        {timeRange && (
-                          <div className="text-xs text-gray-500">
-                            {timeRange.start} - {timeRange.end}
-                          </div>
-                        )}
-                      </td>
-                      {dayOrder.map((day) => {
-                        const schedule = gridData[day]!.get(slotNum);
-                        return (
-                          <td
-                            key={day}
-                            className="border border-gray-300 px-2 py-2 text-sm align-top"
-                          >
-                            {schedule ? (
-                              <div className="space-y-1">
-                                <div className="font-medium text-gray-900">
-                                  {schedule.subject.SubjectName}
-                                </div>
-                                <div className="text-xs text-gray-600">
-                                  ({schedule.subject.SubjectCode})
-                                </div>
-                                <div className="text-xs text-gray-600">
-                                  ม.{schedule.gradelevel.Year}/
-                                  {schedule.gradelevel.Number}
-                                </div>
-                                {schedule.room && (
-                                  <div className="text-xs text-gray-500">
-                                    ห้อง: {schedule.room.RoomName}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="text-xs text-gray-400 text-center">
-                                -
-                              </div>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <TimeslotGrid
+        timeslots={timeslots}
+        breakDefs={breakDefs}
+        view={{ mode: "teacher" }}
+        cellsByTimeslotId={cellsByTimeslotId}
+        show={{ grade: true, room: true }}
+      />
 
       {/* Print instructions */}
       <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
