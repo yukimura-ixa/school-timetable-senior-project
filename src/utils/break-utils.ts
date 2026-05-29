@@ -52,3 +52,29 @@ export function isBreakForTeacher(
   
   return false;
 }
+
+/**
+ * Whether a timeslot is a break slot of ANY kind, without grade/teacher
+ * scoping. For aggregate views (e.g. the all-teacher summary matrix) that only
+ * need "is this a break column?" rather than "is it a break for this grade?".
+ *
+ * V2-aware: a break definition at this slotNumber marks it a break. Falls back
+ * to the Breaktime enum (legacy BREAK_JUNIOR/SENIOR/BOTH and v2 BREAK all count;
+ * only NOT_BREAK is teaching). Returns a superset of the raw-enum check, so it
+ * never drops a break that the enum already marks.
+ */
+export function isBreakSlot(
+  breaktime: string,
+  slotNumber?: number,
+  breakDefinitions?: BreakDefinition[]
+): boolean {
+  if (
+    slotNumber !== undefined &&
+    breakDefinitions &&
+    breakDefinitions.length > 0 &&
+    breakDefinitions.some((def) => def.slotNumber === slotNumber)
+  ) {
+    return true;
+  }
+  return breaktime !== "NOT_BREAK" && breaktime.length > 0;
+}
