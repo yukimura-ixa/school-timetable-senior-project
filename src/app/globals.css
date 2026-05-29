@@ -308,3 +308,17 @@
     transform: rotate(360deg);
   }
 }
+
+@media print {
+  .timeslot-grid {
+    box-shadow: none !important;
+    border-color: #000 !important;
+  }
+  .timeslot-cell {
+    background-color: white !important;
+    /* Keep the left stripe; it carries subject identity on B&W */
+  }
+  [data-testid="break-row"] {
+    background-color: white !important;
+  }
+}
