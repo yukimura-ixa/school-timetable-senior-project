@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { Container, Box, Grid, Paper, Stack, Typography, Button } from "@mui/material";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import { prisma } from "@/lib/prisma";
@@ -63,7 +62,6 @@ export default async function ArrangeLayout({
               เพื่อให้ระบบรู้ว่ามีรายวิชาใดต้องวางลงในตาราง
             </Typography>
             <Button
-              component={Link}
               href={`/schedule/${yearStr}/${semStr}/assign`}
               variant="contained"
               size="large"
