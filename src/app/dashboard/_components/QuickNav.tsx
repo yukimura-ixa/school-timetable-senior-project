@@ -24,6 +24,7 @@ export function QuickNav({ year, semester }: { year: number; semester: number })
     { href: `${base}/all-timeslot`, label: "จัดการคาบเรียน", Icon: ScheduleIcon },
     { href: `${base}/all-program`, label: "หลักสูตร", Icon: MenuBookIcon },
     { href: `${base}/conflicts`, label: "ตรวจสอบความซ้ำซ้อน", Icon: WarningAmberIcon },
+    // lock page lives under /schedule, not /dashboard
     { href: `/schedule/${year}/${semester}/lock`, label: "ล็อกคาบเรียน", Icon: LockIcon },
     { href: `${base}/analytics`, label: "วิเคราะห์ข้อมูล", Icon: BarChartIcon },
   ];
