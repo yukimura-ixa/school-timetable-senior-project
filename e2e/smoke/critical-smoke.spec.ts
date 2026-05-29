@@ -352,10 +352,11 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
       await page.waitForLoadState("networkidle");
 
-      // Look for config labels that show current values (Thai text)
-      // "กำหนดเวลาเริ่มคาบแรก" (Set first period start time), "กำหนดคาบพักเที่ยง" (Set lunch break)
+      // Look for config summary labels that show current values (Thai text).
+      // ConfigSummaryClient renders: "คาบเรียนต่อวัน" (periods per day),
+      // "ความยาวคาบ" (period duration), "เวลาเริ่ม" (start time), "วันเรียน" (school days).
       const configLabels = page.locator(
-        "text=/กำหนดเวลาเริ่มคาบแรก|กำหนดคาบพักเที่ยง|กำหนดวันในตารางสอน/i",
+        "text=/คาบเรียนต่อวัน|ความยาวคาบ|เวลาเริ่ม|วันเรียน/i",
       );
       await expect(configLabels.first()).toBeVisible({ timeout: 15000 });
 
