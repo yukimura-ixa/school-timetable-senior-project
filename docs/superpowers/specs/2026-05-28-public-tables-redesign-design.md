@@ -68,6 +68,9 @@ Symmetric pattern; one component family, two configs.
 Reuse existing `TablePagination` component with page-N navigation. URL `?page=N` for shareability and print. Landing currently loads all rows once and filters client-side (per `src/app/(public)/page.tsx:48`) — keep that pattern; dashboard variants paginate server-side over larger sets.
 
 ### 2.5 Dashboard parity
+
+> **DESCOPED 2026-05-29 (Task 13):** The dashboard `teacher-table` and `student-table` pages are not list tables like the public landing — they are multi-entity selection + per-entity schedule **matrices** (MUI `Select` with checkboxes, a per-entity `TimeSlot` component, bulk Excel/PDF export coupled to `createTimeSlotTableData` / `ExportTeacherTable` + `html2canvas`/`jsPDF`). They are the same family as the descoped `all-timeslot` (§4). Per user decision they keep their matrix + export and are **excluded** from the shared `PersonCard`/`TimeslotGrid` migration. Optional follow-up: restyle only the entity-selection list with `PersonCard`. The parity notes below describe the original (unbuilt) intent.
+
 Same layout, plus row-hover overlay with:
 - Edit pencil → `/management/teacher/[id]` or `/management/gradelevel/[id]`
 - Lock badge (small icon) when teacher/grade has any locked schedule entry for current term.
@@ -112,7 +115,9 @@ Same look as public would be — except this table is dashboard-only today (`src
 
 ## 4. Weekly Timeslot Grid
 
-Shared component for all three contexts.
+Shared component for the two **single-entity** contexts: public teacher page and public class page.
+
+> **DESCOPED 2026-05-29 (Task 8):** The dashboard `all-timeslot` view is a teacher-row × period-column matrix that aggregates **every teacher at once** (rows = `TeacherList`, columns = `TableHead`/`TableBody`/`TableResult`, header "ตารางสรุปภาครวม"), with Excel/PDF export coupled to its `timeSlotData.Columns` structure. `TimeslotGrid` holds one `ScheduleCell` per `TimeslotID` and structurally cannot represent N teachers teaching in parallel during the same slot. Per user decision, the matrix stays and `all-timeslot` is **excluded** from this shared-grid migration. Wherever this spec (§4.3 "all view", §4.6, §4.7) describes `all-timeslot` as a day×period grid, that no longer applies. `buildGridRows` retains its `mode: "all"` branch as a tested utility; it is simply unused by `all-timeslot`. A follow-up issue may align only the matrix's break detection with the v2 model for consistency.
 
 ### 4.1 Cell color
 Deterministic hash: `SubjectCode → HSL`.
