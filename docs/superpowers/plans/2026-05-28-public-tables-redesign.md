@@ -1610,6 +1610,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 
 ## Task 13: Dashboard student-table + teacher-table parity
 
+> **🚫 DESCOPED 2026-05-29 — do not implement.** Both pages are multi-entity selection + per-entity schedule matrices (MUI `Select` w/ checkboxes, per-entity `TimeSlot` component, bulk Excel/PDF export coupled to `createTimeSlotTableData` / `ExportTeacherTable` + `html2canvas`/`jsPDF`) — the same family as the descoped Task 8 `all-timeslot`. `TimeslotGrid` (one cell per `TimeslotID`) can't represent them and the swap would break export. Per user decision, kept as-is; spec §2.5 amended. Optional follow-up: restyle only the entity-selection list with `PersonCard` (tracked in beads). Steps below retained for history only.
+
 **Files:**
 - Modify: `src/app/dashboard/[academicYear]/[semester]/student-table/page.tsx`
 - Modify: `src/app/dashboard/[academicYear]/[semester]/teacher-table/page.tsx`

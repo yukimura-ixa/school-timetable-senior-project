@@ -68,6 +68,9 @@ Symmetric pattern; one component family, two configs.
 Reuse existing `TablePagination` component with page-N navigation. URL `?page=N` for shareability and print. Landing currently loads all rows once and filters client-side (per `src/app/(public)/page.tsx:48`) — keep that pattern; dashboard variants paginate server-side over larger sets.
 
 ### 2.5 Dashboard parity
+
+> **DESCOPED 2026-05-29 (Task 13):** The dashboard `teacher-table` and `student-table` pages are not list tables like the public landing — they are multi-entity selection + per-entity schedule **matrices** (MUI `Select` with checkboxes, a per-entity `TimeSlot` component, bulk Excel/PDF export coupled to `createTimeSlotTableData` / `ExportTeacherTable` + `html2canvas`/`jsPDF`). They are the same family as the descoped `all-timeslot` (§4). Per user decision they keep their matrix + export and are **excluded** from the shared `PersonCard`/`TimeslotGrid` migration. Optional follow-up: restyle only the entity-selection list with `PersonCard`. The parity notes below describe the original (unbuilt) intent.
+
 Same layout, plus row-hover overlay with:
 - Edit pencil → `/management/teacher/[id]` or `/management/gradelevel/[id]`
 - Lock badge (small icon) when teacher/grade has any locked schedule entry for current term.
