@@ -120,7 +120,7 @@ jobs:
           workflow: ci.yml
           commit: ${{ github.sha }}
           name: build-output
-          path: .
+          path: ${{ runner.temp }}/ci-artifact
           check_artifacts: true
           search_artifacts: true
           if_no_artifact_found: warn
@@ -129,9 +129,16 @@ jobs:
       - name: Check for .next directory
         id: check-build
         run: |
+          ARTIFACT_NEXT="${{ runner.temp }}/ci-artifact/.next"
+
           if [ -d ".next" ] && [ -f ".next/BUILD_ID" ]; then
             echo "found=true" >> "$GITHUB_OUTPUT"
-            echo "✅ CI build artifact found, skipping build"
+            echo "✅ Local .next already present, skipping build"
+          elif [ -d "$ARTIFACT_NEXT" ] && [ -f "$ARTIFACT_NEXT/BUILD_ID" ]; then
+            rm -rf .next
+            cp -a "$ARTIFACT_NEXT" .next
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "✅ CI build artifact found in temp dir, promoted .next, skipping build"
           else
             echo "found=false" >> "$GITHUB_OUTPUT"
             echo "⚠️ No CI build artifact, will build locally"
