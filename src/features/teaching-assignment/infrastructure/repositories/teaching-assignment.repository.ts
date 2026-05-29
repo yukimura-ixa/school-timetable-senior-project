@@ -72,6 +72,11 @@ export const findTeacherWorkload = cache(
     semester: semester,
     academicYear: number,
   ): Promise<AssignmentWithRelations[]> => {
+    // Guard against missing/NaN ids (e.g. a malformed ?teacher= or route param);
+    // passing NaN to Prisma throws "Argument `TeacherID` is missing" → 500.
+    if (!Number.isFinite(teacherId) || !Number.isFinite(academicYear)) {
+      return [] as unknown as AssignmentWithRelations[];
+    }
     return prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: teacherId,

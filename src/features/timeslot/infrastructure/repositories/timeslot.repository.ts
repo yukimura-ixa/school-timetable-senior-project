@@ -27,6 +27,11 @@ export const timeslotRepository = {
    * Returns unsorted data (sorting handled in domain layer)
    */
   async findByTerm(academicYear: number, semester: semester) {
+    // Guard against NaN academic year (malformed route param) reaching Prisma,
+    // which throws an "Invalid findMany invocation" validation error → 500.
+    if (!Number.isFinite(academicYear)) {
+      return [];
+    }
     return prisma.timeslot.findMany({
       where: {
         AcademicYear: academicYear,

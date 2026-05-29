@@ -343,6 +343,125 @@ const Page = (_props: Props) => {
     </TableBody>
   );
 
+  const renderMobileCategoryCard = (
+    categoryName: string,
+    data: SubjectRow[],
+    band: BandKey,
+  ) => (
+    <Paper
+      key={`mobile-card-${band}`}
+      variant="outlined"
+      sx={{
+        borderLeft: `4px solid ${CATEGORY_BAND[band].stripe}`,
+        borderRadius: 2,
+        overflow: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          px: 2,
+          py: 1.25,
+          bgcolor: CATEGORY_BAND[band].bg,
+        }}
+      >
+        <Typography
+          variant="subtitle2"
+          fontWeight="bold"
+          sx={{ color: CATEGORY_BAND[band].text }}
+        >
+          {categoryName}
+        </Typography>
+      </Box>
+      {data.length === 0 ? (
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="caption" color="text.disabled">
+            ไม่มีรายวิชา
+          </Typography>
+        </Box>
+      ) : (
+        <Stack
+          divider={
+            <Box
+              sx={{
+                borderTop: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+              }}
+            />
+          }
+        >
+          {data.map((item) => (
+            <Box
+              key={`${currentGradeID || "unknown"}-mobile-${item.SubjectCode}`}
+              sx={{ px: 2, py: 1.5 }}
+            >
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="flex-start"
+                spacing={1}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ flex: 1, wordBreak: "break-word" }}
+                >
+                  {item.SubjectName}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight="medium"
+                  color="info.main"
+                  sx={{ whiteSpace: "nowrap" }}
+                >
+                  {item.Category === "กิจกรรมพัฒนาผู้เรียน"
+                    ? "-"
+                    : subjectCreditTitles[item.Credit]}
+                </Typography>
+              </Stack>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontFamily: "monospace", letterSpacing: 0.5 }}
+              >
+                {item.SubjectCode}
+              </Typography>
+              {item.teachers && item.teachers.length > 0 ? (
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  flexWrap="wrap"
+                  useFlexGap
+                  sx={{ mt: 0.75 }}
+                >
+                  {item.teachers.map((t, idx) => (
+                    <Chip
+                      key={idx}
+                      label={t.TeacherFullName}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        fontSize: "0.7rem",
+                        height: 20,
+                        bgcolor: alpha(theme.palette.background.paper, 0.5),
+                        borderColor: alpha(theme.palette.divider, 0.1),
+                      }}
+                    />
+                  ))}
+                </Stack>
+              ) : (
+                <Typography
+                  variant="caption"
+                  color="text.disabled"
+                  sx={{ display: "block", mt: 0.75 }}
+                >
+                  ไม่ระบุ
+                </Typography>
+              )}
+            </Box>
+          ))}
+        </Stack>
+      )}
+    </Paper>
+  );
+
   const getSumCreditValue = () => {
     return subjects
       .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
@@ -476,7 +595,11 @@ const Page = (_props: Props) => {
               </Typography>
             </Paper>
           ) : (
-            <TableContainer component={Paper}>
+            <>
+            <TableContainer
+              component={Paper}
+              sx={{ display: { xs: "none", md: "block" } }}
+            >
               <Table>
                 {renderTableHead()}
                 {renderCategoryRow("สาระการเรียนรู้พิ้นฐาน", "core")}
@@ -512,6 +635,27 @@ const Page = (_props: Props) => {
                 {renderSumRow("รวมหน่วยกิตทั้งหมด", getSumCreditValue())}
               </Table>
             </TableContainer>
+            <Stack
+              spacing={2}
+              sx={{ display: { xs: "flex", md: "none" } }}
+            >
+              {renderMobileCategoryCard(
+                "สาระการเรียนรู้พิ้นฐาน",
+                primarySubjectData(),
+                "core",
+              )}
+              {renderMobileCategoryCard(
+                "สาระการเรียนรู้เพิ่มเติม",
+                extraSubjectData(),
+                "additional",
+              )}
+              {renderMobileCategoryCard(
+                "กิจกรรมพัฒนาผู้เรียน",
+                activitiesSubjectData(),
+                "activity",
+              )}
+            </Stack>
+            </>
           )}
         </Stack>
       )}
