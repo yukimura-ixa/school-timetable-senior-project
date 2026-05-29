@@ -2,11 +2,13 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import type { timeslot, semester } from "@/prisma/generated/client";
+import type { semester } from "@/prisma/generated/client";
 import { PrintButton } from "@/app/(public)/_components/PrintButton";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
-import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
+import { getTimetableConfig } from "@/lib/timetable-config";
+import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+import { TimeslotGrid, type ScheduleCell } from "@/components/schedule/TimeslotGrid";
 
 
 type PageProps = {
@@ -33,16 +35,6 @@ export async function generateMetadata({
   };
 }
 
-const dayNames: Record<string, string> = {
-  MON: "จันทร์",
-  TUE: "อังคาร",
-  WED: "พุธ",
-  THU: "พฤหัสบดี",
-  FRI: "ศุกร์",
-};
-
-const dayOrder = ["MON", "TUE", "WED", "THU", "FRI"] as const;
-
 export default async function ClassScheduleByTermPage({ params }: PageProps) {
   const { gradeId, academicYear: yearStr, semester: semStr } = await params;
   const academicYear = parseInt(yearStr, 10);
@@ -63,68 +55,24 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
     semesterValue,
   );
 
-  // Get all timeslots for this term to build grid structure
+  // Get all timeslots + break config for this term to build the grid
   const timeslots = await publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue);
+  const config = await getTimetableConfig(academicYear, semesterValue);
+  const breakDefs: BreakDefinition[] = config.breakDefinitions ?? [];
 
-  // Extract slot numbers and create mapping
-  const parseSlotNumber = extractPeriodFromTimeslotId;
-
-  const slotNumbers = Array.from(
-    new Set<number>(
-      timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)),
-    ),
-  ).sort((a: number, b: number) => a - b);
-
-  // Build schedule lookup by timeslot ID
-  const scheduleLookup = new Map<string, (typeof schedules)[0]>();
-  schedules.forEach((s) => {
-    scheduleLookup.set(s.timeslot.TimeslotID, s);
-  });
-
-  // Build time range for each slot number
-  const slotTimeRanges = new Map<number, { start: string; end: string }>();
-  timeslots.forEach((t: timeslot) => {
-    const slotNum = parseSlotNumber(t.TimeslotID);
-    if (!slotTimeRanges.has(slotNum)) {
-      const startTime = new Date(t.StartTime);
-      const endTime = new Date(t.EndTime);
-      slotTimeRanges.set(slotNum, {
-        start: startTime.toLocaleTimeString("th-TH", {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: "Asia/Bangkok",
-        }),
-        end: endTime.toLocaleTimeString("th-TH", {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: "Asia/Bangkok",
-        }),
-      });
-    }
-  });
-
-  // Build grid data: day x slot
-  const gridData: Record<
-    string,
-    Map<number, (typeof schedules)[0] | null>
-  > = {};
-  dayOrder.forEach((day) => {
-    gridData[day] = new Map();
-    slotNumbers.forEach((slotNum: number) => {
-      const timeslotForDaySlot = timeslots.find(
-        (t: timeslot) =>
-          t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum,
-      );
-      if (timeslotForDaySlot) {
-        gridData[day]!.set(
-          slotNum,
-          scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null,
-        );
-      } else {
-        gridData[day]!.set(slotNum, null);
-      }
+  const cellsByTimeslotId = new Map<string, ScheduleCell>();
+  for (const s of schedules) {
+    cellsByTimeslotId.set(s.timeslot.TimeslotID, {
+      timeslotId: s.timeslot.TimeslotID,
+      subjectCode: s.subject.SubjectCode,
+      subjectName: s.subject.SubjectName,
+      teacherLabel:
+        s.teachers_responsibility
+          .map((tr) => `${tr.teacher.Prefix}${tr.teacher.Firstname} ${tr.teacher.Lastname}`)
+          .join(", ") || undefined,
+      roomLabel: s.room?.RoomName ?? undefined,
     });
-  });
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 py-4 md:py-8 print:p-0 print:bg-white">
@@ -151,103 +99,14 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
           </p>
         </div>
 
-        {/* Schedule Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none">
-          <div className="overflow-x-auto">
-            <table
-              className="min-w-full border-collapse"
-              data-testid="schedule-grid"
-              role="table"
-            >
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 w-20 md:w-24">
-                    คาบ/วัน
-                  </th>
-                  {dayOrder.map((day) => (
-                    <th
-                      key={day}
-                      className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-white bg-green-600"
-                    >
-                      {dayNames[day]}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {slotNumbers.length === 0 ? (
-                  <tr>
-                    <td
-                      className="border border-gray-200 px-4 py-6 text-center text-sm md:text-base text-gray-500"
-                      colSpan={dayOrder.length + 1}
-                      data-testid="schedule-empty"
-                    >
-                      ไม่มีตารางเรียนในภาคเรียนนี้
-                    </td>
-                  </tr>
-                ) : (
-                  slotNumbers.map((slotNum: number) => {
-                    const timeRange = slotTimeRanges.get(slotNum);
-                    return (
-                      <tr key={slotNum} className="hover:bg-gray-50">
-                        <td className="border border-gray-300 px-2 md:px-3 py-2 text-center bg-gray-50">
-                          <div className="text-xs md:text-sm font-semibold text-gray-900">
-                            คาบ {slotNum}
-                          </div>
-                          {timeRange && (
-                            <div className="text-[10px] md:text-xs text-gray-600 mt-1">
-                              {timeRange.start}-{timeRange.end}
-                            </div>
-                          )}
-                        </td>
-                        {dayOrder.map((day) => {
-                          const schedule = gridData[day]!.get(slotNum);
-                          return (
-                            <td
-                              key={`${day}-${slotNum}`}
-                              className="border border-gray-300 px-2 md:px-3 py-2 align-top"
-                            >
-                              {schedule ? (
-                                <div className="text-xs md:text-sm">
-                                  <div className="font-semibold text-gray-900 mb-1">
-                                    {schedule.subject.SubjectName}
-                                  </div>
-                                  <div className="text-gray-600">
-                                    {schedule.subject.SubjectCode}
-                                  </div>
-                                  {schedule.room && (
-                                    <div className="text-gray-500 mt-1">
-                                      ห้อง {schedule.room.RoomName}
-                                    </div>
-                                  )}
-                                  {schedule.teachers_responsibility.length >
-                                    0 && (
-                                    <div className="text-gray-500 mt-1 text-[10px] md:text-xs">
-                                      {schedule.teachers_responsibility
-                                        .map(
-                                          (tr) =>
-                                            `${tr.teacher.Prefix}${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
-                                        )
-                                        .join(", ")}
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="text-xs md:text-sm text-gray-400 text-center">
-                                  -
-                                </div>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {/* Schedule Grid */}
+        <TimeslotGrid
+          timeslots={timeslots}
+          breakDefs={breakDefs}
+          view={{ mode: "class", gradeId: gradeLevel.GradeID, gradeLevel: gradeLevel.Year }}
+          cellsByTimeslotId={cellsByTimeslotId}
+          show={{ teacher: true, room: true }}
+        />
 
         {/* Print Button */}
         <div className="mt-4 md:mt-6 flex justify-center print:hidden">
