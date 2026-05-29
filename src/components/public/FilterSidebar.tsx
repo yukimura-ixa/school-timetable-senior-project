@@ -1,5 +1,4 @@
 "use client";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 export type FilterFacet = {
   key: string;       // e.g. "dept" or "year"
@@ -9,24 +8,15 @@ export type FilterFacet = {
 
 export type FilterSidebarProps = {
   facet: FilterFacet;
+  /** Currently selected value ("" = ทั้งหมด). Controlled by the parent. */
+  value: string;
+  /** Called with the new selection ("" clears the filter). */
+  onChange: (value: string) => void;
   /** Set true on mobile drawer wrapper; default = static sidebar. */
   drawer?: boolean;
 };
 
-export function FilterSidebar({ facet, drawer = false }: FilterSidebarProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const active = params.get(facet.key) ?? "";
-
-  function select(value: string) {
-    const next = new URLSearchParams(params.toString());
-    if (value === "") next.delete(facet.key);
-    else next.set(facet.key, value);
-    next.delete("page"); // reset paging when filter changes
-    router.push(`${pathname}?${next.toString()}`);
-  }
-
+export function FilterSidebar({ facet, value, onChange, drawer = false }: FilterSidebarProps) {
   const total = facet.options.reduce((acc, o) => acc + o.count, 0);
 
   return (
@@ -44,9 +34,9 @@ export function FilterSidebar({ facet, drawer = false }: FilterSidebarProps) {
       </div>
       <button
         type="button"
-        onClick={() => select("")}
+        onClick={() => onChange("")}
         className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors ${
-          active === ""
+          value === ""
             ? "bg-blue-50 font-semibold text-blue-700"
             : "text-slate-700 hover:bg-slate-50"
         }`}
@@ -59,9 +49,9 @@ export function FilterSidebar({ facet, drawer = false }: FilterSidebarProps) {
           <li key={o.value}>
             <button
               type="button"
-              onClick={() => select(o.value)}
+              onClick={() => onChange(o.value)}
               className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors ${
-                active === o.value
+                value === o.value
                   ? "bg-blue-50 font-semibold text-blue-700"
                   : "text-slate-700 hover:bg-slate-50"
               }`}

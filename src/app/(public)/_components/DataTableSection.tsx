@@ -8,9 +8,10 @@
  */
 
 import { useState, useMemo, useRef } from "react";
-import { TableSearch } from "./TableSearch";
 import { TeachersTableClient } from "./TeachersTableClient";
 import { ClassesTableClient } from "./ClassesTableClient";
+import { FilterSidebar, type FilterFacet } from "@/components/public/FilterSidebar";
+import { ListToolbar } from "@/components/public/ListToolbar";
 import type { PublicTeacher } from "@/lib/public/teachers";
 import type { PublicClass } from "@/lib/public/classes";
 
@@ -50,56 +51,119 @@ export function DataTableSection({
   classesData,
   currentConfigId,
 }: Props) {
-  // All state is local - no URL manipulation
+  const TEACHER_DEFAULT_SORT = "name";
+  const CLASS_DEFAULT_SORT = "grade";
+
+  // All state is local - no URL manipulation (deliberate: the landing keeps
+  // browser history clean and shares no filter state via the address bar).
   const [activeTab, setActiveTab] = useState<TabValue>(initialTab);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [facetValue, setFacetValue] = useState("");
+  const [sortValue, setSortValue] = useState(
+    initialTab === "teachers" ? TEACHER_DEFAULT_SORT : CLASS_DEFAULT_SORT,
+  );
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Store fetched data
   const [teachersState] = useState(teachersData);
   const [classesState] = useState(classesData);
 
-  // totalItems/totalPages removed; pagination is derived from filtered lists below
+  // Facets are computed from the full (unfiltered) dataset so counts are stable.
+  const teacherFacet: FilterFacet = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const t of teachersState.data) {
+      const k = t.department || "ไม่ระบุ";
+      counts.set(k, (counts.get(k) ?? 0) + 1);
+    }
+    return {
+      key: "dept",
+      label: "ภาควิชา",
+      options: [...counts.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0], "th"))
+        .map(([value, count]) => ({ value, label: value, count })),
+    };
+  }, [teachersState.data]);
 
-  // Filter data based on search query
+  const classFacet: FilterFacet = useMemo(() => {
+    const counts = new Map<number, number>();
+    for (const c of classesState.data) counts.set(c.year, (counts.get(c.year) ?? 0) + 1);
+    return {
+      key: "year",
+      label: "ระดับชั้น",
+      options: [...counts.entries()]
+        .sort((a, b) => a[0] - b[0])
+        .map(([year, count]) => ({ value: String(year), label: `ม.${year}`, count })),
+    };
+  }, [classesState.data]);
+
+  // Filter + facet + sort
   const filteredTeachers = useMemo(() => {
-    if (!searchQuery) return teachersState.data;
     const query = searchQuery.toLowerCase();
-    return teachersState.data.filter(
-      (teacher) =>
-        teacher.name.toLowerCase().includes(query) ||
-        (teacher.department &&
-          teacher.department.toLowerCase().includes(query)),
-    );
-  }, [teachersState.data, searchQuery]);
+    let xs = teachersState.data;
+    if (query) {
+      xs = xs.filter(
+        (t) =>
+          t.name.toLowerCase().includes(query) ||
+          (t.department && t.department.toLowerCase().includes(query)),
+      );
+    }
+    if (facetValue) xs = xs.filter((t) => (t.department || "ไม่ระบุ") === facetValue);
+    return [...xs].sort((a, b) => {
+      if (sortValue === "hours") return b.weeklyHours - a.weeklyHours;
+      if (sortValue === "subjects") return b.subjectCount - a.subjectCount;
+      return a.name.localeCompare(b.name, "th");
+    });
+  }, [teachersState.data, searchQuery, facetValue, sortValue]);
 
   const filteredClasses = useMemo(() => {
-    if (!searchQuery) return classesState.data;
     const query = searchQuery.toLowerCase();
-    return classesState.data.filter(
-      (cls) =>
-        cls.gradeId.toLowerCase().includes(query) ||
-        cls.homeroomTeacher?.toLowerCase().includes(query),
-    );
-  }, [classesState.data, searchQuery]);
+    let xs = classesState.data;
+    if (query) {
+      xs = xs.filter(
+        (cls) =>
+          cls.gradeId.toLowerCase().includes(query) ||
+          cls.homeroomTeacher?.toLowerCase().includes(query),
+      );
+    }
+    if (facetValue) xs = xs.filter((cls) => String(cls.year) === facetValue);
+    return [...xs].sort((a, b) => {
+      if (sortValue === "hours") return b.weeklyHours - a.weeklyHours;
+      if (sortValue === "subjects") return b.subjectCount - a.subjectCount;
+      if (a.year !== b.year) return a.year - b.year;
+      return a.section - b.section;
+    });
+  }, [classesState.data, searchQuery, facetValue, sortValue]);
 
   // Get current page data
   const currentTeachers = useMemo(() => {
     const start = (currentPage - 1) * 25;
-    const end = start + 25;
-    return filteredTeachers.slice(start, end);
+    return filteredTeachers.slice(start, start + 25);
   }, [filteredTeachers, currentPage]);
 
   const currentClasses = useMemo(() => {
     const start = (currentPage - 1) * 25;
-    const end = start + 25;
-    return filteredClasses.slice(start, end);
+    return filteredClasses.slice(start, start + 25);
   }, [filteredClasses, currentPage]);
 
   // Recalculate total pages based on filtered data
   const actualTotalItems =
     activeTab === "teachers" ? filteredTeachers.length : filteredClasses.length;
   const actualTotalPages = Math.ceil(actualTotalItems / 25);
+
+  const activeFacet = activeTab === "teachers" ? teacherFacet : classFacet;
+  const sortOptions =
+    activeTab === "teachers"
+      ? [
+          { value: "name", label: "ชื่อ ก-ฮ" },
+          { value: "hours", label: "คาบมากสุด" },
+          { value: "subjects", label: "วิชามากสุด" },
+        ]
+      : [
+          { value: "grade", label: "ตามชั้น" },
+          { value: "hours", label: "คาบมากสุด" },
+          { value: "subjects", label: "วิชามากสุด" },
+        ];
 
   // Refs for keyboard navigation between tabs (WAI-ARIA tabs pattern)
   const teachersTabRef = useRef<HTMLButtonElement>(null);
@@ -109,8 +173,11 @@ export function DataTableSection({
   const handleTabChange = (tab: TabValue) => {
     if (tab === activeTab) return;
     setActiveTab(tab);
-    setCurrentPage(1); // Reset to first page
-    setSearchQuery(""); // Clear search when switching tabs
+    setCurrentPage(1);
+    setSearchQuery("");
+    setFacetValue("");
+    setSortValue(tab === "teachers" ? TEACHER_DEFAULT_SORT : CLASS_DEFAULT_SORT);
+    setDrawerOpen(false);
   };
 
   // Left/Right arrow keys move focus between tabs and activate the focused tab
@@ -130,10 +197,20 @@ export function DataTableSection({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Search handler - no URL changes
   const handleSearch = (search: string) => {
     setSearchQuery(search);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
+  };
+
+  const handleFacet = (value: string) => {
+    setFacetValue(value);
+    setCurrentPage(1);
+    setDrawerOpen(false);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortValue(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -194,58 +271,78 @@ export function DataTableSection({
         </nav>
       </div>
 
-      {/* Search Bar - Modern styled area */}
-      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 bg-white/20">
-        <div className="max-w-2xl w-full">
-          <TableSearch
-            key={activeTab} // Reset search when tab changes
-            initialValue={searchQuery}
-            onSearch={handleSearch}
-            placeholder={
-              activeTab === "teachers"
-                ? "ค้นหาครูที่ต้องการ เช่น ชื่อจริง, ภาควิชา..."
-                : "ค้นหาชั้นเรียนที่ต้องการ เช่น M.1/2..."
-            }
-          />
-        </div>
+      {/* Toolbar: search + sort + count + mobile filter trigger */}
+      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white/20">
+        <ListToolbar
+          placeholder={
+            activeTab === "teachers"
+              ? "ค้นหาครูที่ต้องการ เช่น ชื่อจริง, ภาควิชา..."
+              : "ค้นหาชั้นเรียนที่ต้องการ เช่น M.1/2..."
+          }
+          sortOptions={sortOptions}
+          searchValue={searchQuery}
+          onSearchChange={handleSearch}
+          sort={sortValue}
+          onSortChange={handleSortChange}
+          matchCount={actualTotalItems}
+          onOpenFilters={() => setDrawerOpen(true)}
+        />
       </div>
 
-      {/* Table Content - both tabpanels are rendered so aria-controls always
-          points to an element in the DOM; the inactive one is hidden. */}
+      {/* Content: faceted sidebar + card grid */}
       <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
-        <div
-          id="teachers-panel"
-          role="tabpanel"
-          aria-labelledby="teachers-tab"
-          tabIndex={0}
-          hidden={activeTab !== "teachers"}
-          className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/60 shadow-sm overflow-hidden"
-        >
-          {activeTab === "teachers" && (
-            <TeachersTableClient
-              data={currentTeachers}
-              search={searchQuery}
-              data-testid="teacher-list"
-              configId={currentConfigId}
-            />
+        <div className="flex gap-4 md:gap-6">
+          <FilterSidebar facet={activeFacet} value={facetValue} onChange={handleFacet} />
+
+          {drawerOpen && (
+            <div
+              className="fixed inset-0 z-40 md:hidden"
+              onClick={() => setDrawerOpen(false)}
+            >
+              <div className="absolute inset-0 bg-slate-900/40" />
+              <div
+                className="absolute left-0 top-0 h-full w-72 bg-white p-3 overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FilterSidebar facet={activeFacet} value={facetValue} onChange={handleFacet} drawer />
+              </div>
+            </div>
           )}
-        </div>
-        <div
-          id="classes-panel"
-          role="tabpanel"
-          aria-labelledby="classes-tab"
-          tabIndex={0}
-          hidden={activeTab !== "classes"}
-          className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/60 shadow-sm overflow-hidden"
-        >
-          {activeTab === "classes" && (
-            <ClassesTableClient
-              data={currentClasses}
-              search={searchQuery}
-              data-testid="class-list"
-              configId={currentConfigId}
-            />
-          )}
+
+          <div className="min-w-0 flex-1">
+            <div
+              id="teachers-panel"
+              role="tabpanel"
+              aria-labelledby="teachers-tab"
+              tabIndex={0}
+              hidden={activeTab !== "teachers"}
+            >
+              {activeTab === "teachers" && (
+                <TeachersTableClient
+                  data={currentTeachers}
+                  search={searchQuery}
+                  data-testid="teacher-list"
+                  configId={currentConfigId}
+                />
+              )}
+            </div>
+            <div
+              id="classes-panel"
+              role="tabpanel"
+              aria-labelledby="classes-tab"
+              tabIndex={0}
+              hidden={activeTab !== "classes"}
+            >
+              {activeTab === "classes" && (
+                <ClassesTableClient
+                  data={currentClasses}
+                  search={searchQuery}
+                  data-testid="class-list"
+                  configId={currentConfigId}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
