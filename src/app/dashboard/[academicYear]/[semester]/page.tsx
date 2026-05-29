@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Skeleton, Stack, Typography } from "@mui/material";
 import { dashboardRepository } from "@/features/dashboard/infrastructure/repositories/dashboard.repository";
 import {
   calculateTeacherWorkload,
@@ -89,10 +89,10 @@ export default async function DashboardPage({
 function ActionCenterSkeleton() {
   return (
     <Paper sx={{ p: 2.75 }}>
-      <Box sx={{ height: 28, width: 180, bgcolor: "grey.200", borderRadius: 1, mb: 2 }} />
+      <Skeleton variant="text" width={180} height={28} sx={{ mb: 2 }} />
       <Stack spacing={1.25}>
-        {[1, 2, 3].map((i) => (
-          <Box key={i} sx={{ height: 70, borderRadius: 2, bgcolor: "grey.100" }} />
+        {[1, 2].map((i) => (
+          <Skeleton key={i} variant="rounded" height={70} />
         ))}
       </Stack>
     </Paper>
@@ -104,10 +104,10 @@ function ChartsSkeleton() {
     <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" }, gap: 3 }}>
       {[1, 2].map((i) => (
         <Paper key={i} sx={{ p: 3 }}>
-          <Box sx={{ height: 24, width: 160, bgcolor: "grey.200", borderRadius: 1, mb: 2 }} />
+          <Skeleton variant="text" width={160} height={24} sx={{ mb: 2 }} />
           <Stack spacing={1.5}>
-            {[1, 2, 3].map((j) => (
-              <Box key={j} sx={{ height: 40, bgcolor: "grey.100", borderRadius: 1 }} />
+            {[1, 2, 3, 4, 5].map((j) => (
+              <Skeleton key={j} variant="rounded" height={28} />
             ))}
           </Stack>
         </Paper>
