@@ -49,6 +49,12 @@ export async function GET(
 
     const { id } = await params;
     const teacherId = parseInt(id);
+    if (Number.isNaN(teacherId)) {
+      return NextResponse.json(
+        { success: false, error: { message: "Invalid teacher id" } },
+        { status: 400 },
+      );
+    }
     const searchParams = request.nextUrl.searchParams;
     const year = searchParams.get("year");
     const semesterNum = searchParams.get("semester");

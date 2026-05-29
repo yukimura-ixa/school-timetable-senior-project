@@ -156,7 +156,7 @@ export default function GridSlot() {
     isLoading: scheduleLoading,
     mutate,
   } = useSWR(
-    teacher
+    teacher && /^\d+$/.test(teacher)
       ? `/api/schedule/teacher/${teacher}?year=${academicYear}&semester=${semester}`
       : null,
     (url) => fetch(url).then((r) => r.json()),
