@@ -56,6 +56,27 @@
   --color-ds-slate-900: #0f172a;
 
   /* ============================================
+   * SEMANTIC ACCENT TOKENS
+   * One per redesigned table surface
+   * ============================================ */
+  --color-accent-teacher: #2563eb;
+  --color-accent-class: #10b981;
+  --color-accent-program: #f59e0b;
+
+  /* ============================================
+   * CATEGORY BAND COLORS (all-program table)
+   * ============================================ */
+  --color-band-core-bg: #eff6ff;
+  --color-band-core-text: #1e40af;
+  --color-band-core-stripe: #3b82f6;
+  --color-band-additional-bg: #fef3c7;
+  --color-band-additional-text: #92400e;
+  --color-band-additional-stripe: #f59e0b;
+  --color-band-activity-bg: #dcfce7;
+  --color-band-activity-text: #166534;
+  --color-band-activity-stripe: #10b981;
+
+  /* ============================================
    * DESIGN SYSTEM ANIMATIONS
    * Usage: animate-ds-float, animate-ds-shimmer, etc.
    * ============================================ */
