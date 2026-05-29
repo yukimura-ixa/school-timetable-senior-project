@@ -2,15 +2,14 @@ import { test, expect } from "./fixtures/admin.fixture";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
 
 /**
- * TC-007 & TC-008: Timetable Configuration Tests
+ * TC-007: Timetable Configuration Tests
  *
- * Comprehensive tests for semester configuration including:
- * - Navigation and page load
- * - Setting all configuration parameters
- * - Saving and verifying configuration
- * - Mini break configuration
- * - Reset functionality
- * - Clone from previous semester
+ * The config step at /schedule/[academicYear]/[semester]/config renders the
+ * read-only <ConfigSummaryClient> summary (post-wizard refactor). The old
+ * editable config form — with "กำหนดคาบต่อวัน" labels, a "ตั้งค่า" submit button,
+ * reset, and clone-from-previous-semester — no longer exists, so those
+ * assertions were removed. These tests now verify the page loads and shows the
+ * saved configuration summary (or the empty-state CTA when no config exists).
  */
 
 test.describe("TC-007: Semester Configuration", () => {
@@ -28,23 +27,28 @@ test.describe("TC-007: Semester Configuration", () => {
       timeout: 60000,
     });
 
-    // Wait for page load
     await waitForAppReady(page);
 
-    // Verify config page elements are present
-    await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible({ timeout: 30000 });
-    await expect(page.getByText("กำหนดระยะเวลาต่อคาบ")).toBeVisible({ timeout: 30000 });
-    await expect(page.getByText("กำหนดเวลาเริ่มคาบแรก")).toBeVisible({ timeout: 30000 });
-    await expect(page.getByText("กำหนดคาบพักเที่ยง")).toBeVisible({ timeout: 30000 });
+    // Step 1 of the wizard stepper is always present on the config route.
+    await expect(
+      page.getByRole("button", { name: /ตั้งค่าคาบเรียน/ }),
+    ).toBeVisible({ timeout: 30000 });
 
-    // Take screenshot
+    // ConfigSummaryClient settles to either the status badge (config exists)
+    // or the empty-state warning. Wait past the SWR loading spinner here.
+    const statusBadge = page.getByTestId("config-status-badge");
+    const emptyState = page.getByText(
+      "ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้",
+    );
+    await expect(statusBadge.or(emptyState)).toBeVisible({ timeout: 30000 });
+
     await page.screenshot({
       path: "test-results/screenshots/20-config-page.png",
       fullPage: true,
     });
   });
 
-  test("TC-007-02: Verify default configuration values", async ({
+  test("TC-007-02: Shows saved configuration summary or empty state", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
@@ -55,162 +59,31 @@ test.describe("TC-007: Semester Configuration", () => {
     });
     await waitForAppReady(page);
 
-    // Wait for save button to be visible (data loaded)
-    const saveButton = page.getByRole("button", { name: "ตั้งค่า", exact: true });
-    await expect(saveButton).toBeVisible({ timeout: 10000 });
-    
-    // Check if already configured - use exact match to avoid matching "ตั้งค่าตาราง" buttons
-    const isConfigured = await saveButton.isDisabled();
+    const statusBadge = page.getByTestId("config-status-badge");
+    const emptyState = page.getByText(
+      "ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้",
+    );
 
-    if (!isConfigured) {
-      // Not configured yet - verify default values in counters
-      await expect(page.locator("text=คาบ")).toBeVisible({ timeout: 30000 });
-      await expect(page.locator("text=นาที")).toBeVisible({ timeout: 30000 });
+    // Settle past the SWR spinner before branching on which state rendered.
+    await expect(statusBadge.or(emptyState)).toBeVisible({ timeout: 30000 });
 
-      // Verify start time input exists
-      const timeInput = page.locator('input[type="time"]');
-      await expect(timeInput).toBeVisible({ timeout: 30000 });
+    if (await statusBadge.isVisible()) {
+      // Config exists: read-only summary table with the saved parameters.
+      await expect(page.getByText("คาบเรียนต่อวัน")).toBeVisible();
+      await expect(page.getByText("ความยาวคาบ")).toBeVisible();
+      await expect(page.getByText("เวลาเริ่ม")).toBeVisible();
+      await expect(page.getByText("วันเรียน")).toBeVisible();
+
+      // Edit action (opens the configure dialog) is rendered for the summary.
+      await expect(
+        page.getByRole("button", { name: "แก้ไขการตั้งค่า" }),
+      ).toBeVisible();
     } else {
-      console.log("Configuration already exists - displayed as read-only");
-      // Verify values are displayed (not editable)
-      await expect(page.locator("b").first()).toBeVisible({ timeout: 30000 });
-    }
-  });
-
-  test("TC-007-03: Configure and save timetable parameters", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${testSemester}/config`, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-    await waitForAppReady(page);
-
-    // Wait for save button to be visible (data loaded)
-    const saveButton = page.getByRole("button", { name: "ตั้งค่า", exact: true });
-    await expect(saveButton).toBeVisible({ timeout: 10000 });
-    const isConfigured = await saveButton.isDisabled();
-
-    if (isConfigured) {
-      console.log("Configuration already exists - skipping save test");
-      // Verify existing config is shown
-      await expect(page.getByRole("button", { name: "ลบเทอม" })).toBeEnabled();
-      return;
-    }
-
-    // Set start time
-    const startTimeInput = page.locator('input[type="time"]');
-    if (await startTimeInput.isVisible()) {
-      await startTimeInput.fill("08:30");
-    }
-
-    // Verify configuration sections are present
-    await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible({ timeout: 30000 });
-    await expect(page.getByText("กำหนดระยะเวลาต่อคาบ")).toBeVisible({ timeout: 30000 });
-
-    // Save configuration
-    await saveButton.click();
-
-    // Wait for success notification
-    await expect(page.getByText("ตั้งค่าตารางสำเร็จ")).toBeVisible({
-      timeout: 30000,
-    });
-
-    // Verify the save button is now disabled (config is set)
-    await expect(saveButton).toBeDisabled();
-
-    // Take screenshot of saved state
-    await page.screenshot({
-      path: "test-results/screenshots/21-config-saved.png",
-      fullPage: true,
-    });
-  });
-
-  test("TC-007-04: Verify saved configuration persists", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${testSemester}/config`, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-    await waitForAppReady(page);
-
-    // Wait for configuration UI to load
-    const saveButton = page.getByRole("button", { name: /^ตั้งค่า$/ });
-    await expect(saveButton).toBeVisible({ timeout: 30000 });
-
-    // Configuration should be displayed as read-only
-    // When configured, the save/reset buttons are disabled - use exact match
-    await expect(saveButton).toBeDisabled();
-    await expect(
-      page.getByRole("button", { name: "คืนค่าเริ่มต้น" }),
-    ).toBeDisabled();
-
-    // Delete button should be enabled
-    await expect(page.getByRole("button", { name: "ลบเทอม" })).toBeEnabled();
-
-    // Values should be displayed (look for bold text elements)
-    const boldElements = page.locator("b");
-    const count = await boldElements.count();
-    expect(count).toBeGreaterThan(0);
-  });
-
-  test("TC-007-05: Reset to default values (if not configured)", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${testSemester}/config`, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-    await waitForAppReady(page);
-
-    const resetButton = page.getByRole("button", { name: "คืนค่าเริ่มต้น" });
-    const isEnabled = await resetButton.isEnabled().catch(() => false);
-
-    if (!isEnabled) {
-      console.log("Reset not available - configuration already saved");
-      return;
-    }
-
-    try {
-      await expect(resetButton).toBeEnabled({ timeout: 3000 });
-    } catch {
-      console.log("Reset became disabled before click - skipping reset");
-      return;
-    }
-
-    await resetButton.click();
-
-    // Verify success message
-    await expect(page.getByText("คืนค่าเริ่มต้นสำเร็จ")).toBeVisible({ timeout: 30000 });
-  });
-
-  test("TC-007-06: Clone from previous semester option", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${testSemester}/config`, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-    await waitForAppReady(page);
-
-    // Clone link only visible if not configured
-    const cloneLink = page.getByText("เรียกข้อมูลตารางสอนที่มีอยู่");
-
-    if (await cloneLink.isVisible()) {
-      console.log("Clone option available");
-      // Don't click to avoid changing config, just verify it's there
-      await expect(cloneLink).toBeVisible({ timeout: 30000 });
-    } else {
-      console.log("Clone option not available (config already exists)");
+      // No config: empty-state warning plus the create CTA.
+      await expect(emptyState).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "ตั้งค่าคาบเรียน" }),
+      ).toBeVisible();
     }
   });
 });
