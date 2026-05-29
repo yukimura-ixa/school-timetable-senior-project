@@ -45,7 +45,7 @@ function ActionRow({ item }: { item: ActionItem }) {
         borderRadius: 2,
         border: "1px solid",
         borderColor: "divider",
-        borderLeft: "4px solid",
+        borderLeftWidth: 4,
         borderLeftColor: `${color}.main`,
         bgcolor: "background.paper",
         transition: "box-shadow .15s",
@@ -74,7 +74,12 @@ function ActionRow({ item }: { item: ActionItem }) {
           {item.detail}
         </Typography>
       </Box>
-      <Button href={item.href} variant="contained" size="small">
+      <Button
+        href={item.href}
+        variant="contained"
+        size="small"
+        aria-label={`แก้ไข: ${item.title}`}
+      >
         แก้
       </Button>
     </Box>
@@ -130,7 +135,7 @@ export async function ActionCenter({
             gap: 1.5,
             p: 2.5,
             borderRadius: 2,
-            bgcolor: "success.light",
+            bgcolor: "rgba(16, 185, 129, 0.12)",
             color: "success.dark",
           }}
         >
