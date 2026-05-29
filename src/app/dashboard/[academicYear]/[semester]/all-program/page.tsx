@@ -68,6 +68,26 @@ const categoryMap: Record<SubjectCategory, CategoryType> = {
   ACTIVITY: "กิจกรรมพัฒนาผู้เรียน",
 };
 
+// Category color bands (spec §3.1). Tokens defined in globals.css @theme.
+const CATEGORY_BAND = {
+  core: {
+    bg: "var(--color-band-core-bg)",
+    text: "var(--color-band-core-text)",
+    stripe: "var(--color-band-core-stripe)",
+  },
+  additional: {
+    bg: "var(--color-band-additional-bg)",
+    text: "var(--color-band-additional-text)",
+    stripe: "var(--color-band-additional-stripe)",
+  },
+  activity: {
+    bg: "var(--color-band-activity-bg)",
+    text: "var(--color-band-activity-text)",
+    stripe: "var(--color-band-activity-stripe)",
+  },
+} as const;
+type BandKey = keyof typeof CATEGORY_BAND;
+
 const Page = (_props: Props) => {
   const theme = useTheme();
   const params = useParams();
@@ -191,7 +211,7 @@ const Page = (_props: Props) => {
     </TableHead>
   );
 
-  const renderCategoryRow = (categoryName: string) => (
+  const renderCategoryRow = (categoryName: string, band: BandKey) => (
     <TableBody key={`category-${categoryName}`}>
       <TableRow>
         <TableCell
@@ -199,7 +219,7 @@ const Page = (_props: Props) => {
           sx={{
             py: 1,
             px: 2,
-            bgcolor: alpha(theme.palette.primary.main, 0.04),
+            bgcolor: CATEGORY_BAND[band].bg,
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1.5}>
@@ -208,13 +228,13 @@ const Page = (_props: Props) => {
                 width: 4,
                 height: 18,
                 borderRadius: 1,
-                bgcolor: "primary.main",
+                bgcolor: CATEGORY_BAND[band].stripe,
               }}
             />
             <Typography
               variant="subtitle2"
               fontWeight="bold"
-              color="primary.main"
+              sx={{ color: CATEGORY_BAND[band].text }}
             >
               {categoryName}
             </Typography>
@@ -228,6 +248,7 @@ const Page = (_props: Props) => {
     data: SubjectRow[],
     indexStart: number,
     categoryKey: string,
+    band: BandKey,
   ) => (
     <TableBody key={`subjects-${categoryKey}-${indexStart}`}>
       {data.map((item, index) => (
@@ -243,7 +264,10 @@ const Page = (_props: Props) => {
             },
           }}
         >
-          <TableCell align="center">
+          <TableCell
+            align="center"
+            sx={{ borderLeft: `3px solid ${CATEGORY_BAND[band].stripe}` }}
+          >
             <Typography variant="body2" color="text.secondary">
               {indexStart + index}
             </Typography>
@@ -455,8 +479,8 @@ const Page = (_props: Props) => {
             <TableContainer component={Paper}>
               <Table>
                 {renderTableHead()}
-                {renderCategoryRow("สาระการเรียนรู้พิ้นฐาน")}
-                {renderSubjectRows(primarySubjectData(), 1, "primary")}
+                {renderCategoryRow("สาระการเรียนรู้พิ้นฐาน", "core")}
+                {renderSubjectRows(primarySubjectData(), 1, "primary", "core")}
                 {renderSumRow(
                   "รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน",
                   primarySubjectData().reduce(
@@ -464,11 +488,12 @@ const Page = (_props: Props) => {
                     0,
                   ),
                 )}
-                {renderCategoryRow("สาระการเรียนรู้เพิ่มเติม")}
+                {renderCategoryRow("สาระการเรียนรู้เพิ่มเติม", "additional")}
                 {renderSubjectRows(
                   extraSubjectData(),
                   primarySubjectData().length + 1,
                   "extra",
+                  "additional",
                 )}
                 {renderSumRow(
                   "รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม",
@@ -477,11 +502,12 @@ const Page = (_props: Props) => {
                     0,
                   ),
                 )}
-                {renderCategoryRow("กิจกรรมพัฒนาผู้เรียน")}
+                {renderCategoryRow("กิจกรรมพัฒนาผู้เรียน", "activity")}
                 {renderSubjectRows(
                   activitiesSubjectData(),
                   primarySubjectData().length + extraSubjectData().length + 1,
                   "activities",
+                  "activity",
                 )}
                 {renderSumRow("รวมหน่วยกิตทั้งหมด", getSumCreditValue())}
               </Table>
