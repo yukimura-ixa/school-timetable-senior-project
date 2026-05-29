@@ -924,6 +924,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 
 ## Task 8: Migrate dashboard all-timeslot to TimeslotGrid
 
+> **🚫 DESCOPED 2026-05-29 — do not implement.** This task assumed `all-timeslot` was a single-entity day×period `<table>` like the public pages. It is not: it is a teacher-row × period-column matrix aggregating **all teachers at once** (`TeacherList` + `TableHead`/`TableBody`/`TableResult`), with Excel/PDF export coupled to `timeSlotData.Columns`. `TimeslotGrid` (one `ScheduleCell` per `TimeslotID`) cannot represent parallel teachers in one slot. Per user decision, the matrix stays and the spec was amended (§4). The steps below are retained for history only. Follow-up tracked in beads.
+
 **Files:**
 - Modify: `src/app/dashboard/[academicYear]/[semester]/all-timeslot/AllTimeslotClient.tsx`
 

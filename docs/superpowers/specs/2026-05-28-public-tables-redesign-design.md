@@ -112,7 +112,9 @@ Same look as public would be — except this table is dashboard-only today (`src
 
 ## 4. Weekly Timeslot Grid
 
-Shared component for all three contexts.
+Shared component for the two **single-entity** contexts: public teacher page and public class page.
+
+> **DESCOPED 2026-05-29 (Task 8):** The dashboard `all-timeslot` view is a teacher-row × period-column matrix that aggregates **every teacher at once** (rows = `TeacherList`, columns = `TableHead`/`TableBody`/`TableResult`, header "ตารางสรุปภาครวม"), with Excel/PDF export coupled to its `timeSlotData.Columns` structure. `TimeslotGrid` holds one `ScheduleCell` per `TimeslotID` and structurally cannot represent N teachers teaching in parallel during the same slot. Per user decision, the matrix stays and `all-timeslot` is **excluded** from this shared-grid migration. Wherever this spec (§4.3 "all view", §4.6, §4.7) describes `all-timeslot` as a day×period grid, that no longer applies. `buildGridRows` retains its `mode: "all"` branch as a tested utility; it is simply unused by `all-timeslot`. A follow-up issue may align only the matrix's break detection with the v2 model for consistency.
 
 ### 4.1 Cell color
 Deterministic hash: `SubjectCode → HSL`.
