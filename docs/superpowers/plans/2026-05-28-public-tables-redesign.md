@@ -181,7 +181,7 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 - Create: `src/lib/ui/break-rows.ts`
 - Create: `src/lib/ui/break-rows.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/lib/ui/break-rows.test.ts
@@ -314,12 +314,12 @@ describe("buildGridRows", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure** (confirmed: Cannot find module './break-rows')
 
 Run: `pnpm test src/lib/ui/break-rows.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Implement break-rows builder**
+- [x] **Step 3: Implement break-rows builder** (shipped as written; all 7 deps + test cases verified before coding)
 
 ```ts
 // src/lib/ui/break-rows.ts
@@ -438,12 +438,12 @@ function pickApplicable(defs: BreakDefinition[], view: ViewMode): BreakDefinitio
 }
 ```
 
-- [ ] **Step 4: Run test to verify passing**
+- [x] **Step 4: Run test to verify passing** (7/7 pass)
 
 Run: `pnpm test src/lib/ui/break-rows.test.ts`
 Expected: 7 PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/ui/break-rows.ts src/lib/ui/break-rows.test.ts
