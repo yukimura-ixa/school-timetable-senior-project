@@ -4,6 +4,7 @@ import ErrorState from "@/components/mui/ErrorState";
 import type { gradelevel } from "@/prisma/generated/client";
 import React, { useEffect, useMemo, useState } from "react";
 import { formatGradeDisplay, formatGradeIdDisplay } from "@/utils/grade-display";
+import { gradeMonogram, monogramGradient } from "@/lib/ui/monogram";
 
 type Props = {
   setGradeID: (gradeId: string | null) => void;
@@ -87,7 +88,14 @@ function SelectClassRoom({
         renderItem={({ data }: { data: unknown }) => {
           const g = data as gradelevel;
           return (
-            <li>
+            <li className="flex items-center gap-2">
+              <span
+                aria-hidden
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white"
+                style={{ background: monogramGradient(g.GradeID) }}
+              >
+                {gradeMonogram(g.Year)}
+              </span>
               <p>{formatGradeFromLevel(g)}</p>
             </li>
           );

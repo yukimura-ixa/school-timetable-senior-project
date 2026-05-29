@@ -4,6 +4,7 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
 import React, { useEffect, useState } from "react";
 import type { teacher } from "@/prisma/generated/client";
+import { extractMonogram, monogramGradient } from "@/lib/ui/monogram";
 
 type Props = {
   setTeacherID: (teacherId: number | null) => void;
@@ -62,9 +63,17 @@ function SelectTeacher({
         placeHolder="ตัวเลือก"
         renderItem={({ data }: { data: unknown }) => {
           const t = data as Partial<teacher>;
+          const fullName = `${t.Prefix ?? ""}${t.Firstname ?? ""} ${t.Lastname ?? ""}`;
           return (
-            <li>
-              <p>{`${t.Prefix ?? ""}${t.Firstname ?? ""} ${t.Lastname ?? ""}`}</p>
+            <li className="flex items-center gap-2">
+              <span
+                aria-hidden
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
+                style={{ background: monogramGradient(t.TeacherID ?? fullName) }}
+              >
+                {extractMonogram(`${t.Prefix ?? ""}${t.Firstname ?? ""}`)}
+              </span>
+              <p>{fullName}</p>
             </li>
           );
         }}
