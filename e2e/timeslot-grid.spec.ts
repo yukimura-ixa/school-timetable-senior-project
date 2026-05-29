@@ -5,6 +5,10 @@ import { test, expect } from "@playwright/test";
 // schedule and at least one break row, so it exercises the period-skip logic.
 const TERM = "2568/1";
 
+// These pages are public — no admin session needed. Override the project's
+// stored auth state so the spec doesn't depend on the auth.setup fixture.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe("timeslot grid period numbering", () => {
   test("class view: period numbers skip break rows", async ({ page }) => {
     await page.goto(`/classes/M6-1/${TERM}`);
