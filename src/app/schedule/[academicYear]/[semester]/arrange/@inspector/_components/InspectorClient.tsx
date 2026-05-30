@@ -48,6 +48,11 @@ export default function InspectorClient({ required, requiredTotal }: Props) {
   const progress = computeProgress(entries.length, requiredTotal);
   const remaining = computeRemaining(required, placedBySubject);
   const failures = useAutoArrangeResult((s) => s.failures);
+  const clearAutoArrangeResult = useAutoArrangeResult((s) => s.clear);
+
+  useEffect(() => {
+    clearAutoArrangeResult();
+  }, [teacher, clearAutoArrangeResult]);
 
   return (
     <Stack spacing={2} sx={{ p: 2 }} data-testid="arrange-inspector">
