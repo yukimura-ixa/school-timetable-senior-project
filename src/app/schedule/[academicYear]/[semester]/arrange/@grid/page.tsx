@@ -242,9 +242,9 @@ export default function GridSlot() {
                 return (
                   <th key={p} style={{ minWidth: 120 }}>
                     <div style={{ fontWeight: 700 }}>{p}</div>
-                    <div style={{ fontWeight: 400, fontSize: "0.75rem", color: "#94A3B8" }}>
+                    <Box component="div" sx={{ fontWeight: 400, fontSize: "0.75rem", color: "text.secondary" }}>
                       {anySlot ? formatPeriodTime(anySlot.StartTime) : ""}
-                    </div>
+                    </Box>
                   </th>
                 );
               })}
