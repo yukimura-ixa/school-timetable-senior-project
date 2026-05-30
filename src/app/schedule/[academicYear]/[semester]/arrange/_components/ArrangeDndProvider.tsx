@@ -181,7 +181,7 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext id="arrange-dnd" sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       {children}
       <DragOverlay>
         {activeSubject ? (
