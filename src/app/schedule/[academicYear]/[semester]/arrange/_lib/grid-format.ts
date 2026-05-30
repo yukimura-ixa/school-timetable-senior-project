@@ -36,11 +36,15 @@ export function getCellState(
   return { kind, label: LABELS[kind] };
 }
 
+// Timeslots are seeded with `new Date("YYYY-MM-DDTHH:MM:00")` (no Z), i.e.
+// parsed in the write server's local zone. Read back with local getters so the
+// wall-clock HH:MM roundtrips in the same deployment (dev +07 and prod UTC
+// both match) — using getUTC* here showed shifted times (e.g. 01:00 for 08:30).
 export function formatPeriodTime(time: string | Date | undefined): string {
   if (!time) return "";
   const d = typeof time === "string" ? new Date(time) : time;
   if (Number.isNaN(d.getTime())) return "";
-  const hh = String(d.getUTCHours()).padStart(2, "0");
-  const mm = String(d.getUTCMinutes()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
   return `${hh}:${mm}`;
 }

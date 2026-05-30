@@ -32,8 +32,8 @@ describe("getCellState", () => {
 });
 
 describe("formatPeriodTime", () => {
-  it("formats an ISO time to HH:mm in UTC", () => {
-    expect(formatPeriodTime("1970-01-01T08:30:00.000Z")).toBe("08:30");
+  it("formats a local (no-Z) DateTime to HH:mm — matches how timeslots are seeded, timezone-independent", () => {
+    expect(formatPeriodTime("2024-01-01T08:30:00")).toBe("08:30");
   });
   it("returns empty string for missing input", () => {
     expect(formatPeriodTime(undefined)).toBe("");
