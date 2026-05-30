@@ -33,6 +33,12 @@ vi.mock("next/image", () => ({
   },
 }));
 
+// Mock next/font/google to avoid font loading in tests
+vi.mock("next/font/google", () => ({
+  Inter: () => ({ style: { fontFamily: "Inter, sans-serif" } }),
+  Sarabun: () => ({ style: { fontFamily: "Sarabun, sans-serif" } }),
+}));
+
 // Mock Prisma client globally for all tests
 // This prevents real database connections during unit tests
 vi.mock("@/lib/prisma", () => {
