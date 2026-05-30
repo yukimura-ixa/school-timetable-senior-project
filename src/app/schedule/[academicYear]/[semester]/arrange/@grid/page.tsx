@@ -16,26 +16,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useDroppable } from "@dnd-kit/core";
 import { useSnackbar } from "notistack";
 import { deleteScheduleAction } from "@/features/schedule-arrangement/application/actions/schedule-arrangement.actions";
-
-type Timeslot = {
-  TimeslotID: string;
-  DayOfWeek: string;
-  Period: number;
-  StartTime: Date;
-  EndTime: Date;
-  Breaktime: string;
-};
-
-type ScheduleEntry = {
-  ClassID: number;
-  TimeslotID: string;
-  SubjectCode: string;
-  GradeID: string;
-  RoomID: number;
-  subject: { SubjectName: string };
-  gradelevel: { GradeName: string };
-  room: { RoomName: string };
-};
+import {
+  type Timeslot,
+  type ScheduleEntry,
+  jsonFetcher,
+  timeslotsKey,
+  teacherScheduleKey,
+} from "../_lib/teacher-schedule";
 
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
 
@@ -140,8 +127,8 @@ export default function GridSlot() {
     error: timeslotsError,
     isLoading: timeslotsLoading,
   } = useSWR(
-    `/api/timeslots?year=${academicYear}&semester=${semester}`,
-    (url) => fetch(url).then((r) => r.json()),
+    timeslotsKey(academicYear, semester),
+    jsonFetcher,
     {
       onError: () =>
         enqueueSnackbar("ไม่สามารถโหลดข้อมูลช่วงเวลาได้ กรุณาลองใหม่อีกครั้ง", {
@@ -156,10 +143,8 @@ export default function GridSlot() {
     isLoading: scheduleLoading,
     mutate,
   } = useSWR(
-    teacher && /^\d+$/.test(teacher)
-      ? `/api/schedule/teacher/${teacher}?year=${academicYear}&semester=${semester}`
-      : null,
-    (url) => fetch(url).then((r) => r.json()),
+    teacherScheduleKey(teacher, academicYear, semester),
+    jsonFetcher,
     {
       refreshInterval: 0,
       onError: () =>
