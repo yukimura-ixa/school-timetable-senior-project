@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { AutoFixHigh as AutoFixHighIcon } from "@mui/icons-material";
 import { autoArrangeAction } from "@/features/arrange/application/actions/auto-arrange.action";
+import { useAutoArrangeResult } from "../../_lib/auto-arrange-result.store";
 
 type Teacher = {
   TeacherID: number;
@@ -53,8 +54,9 @@ export function HeaderClient({
     message: string;
     severity: "success" | "error" | "info" | "warning";
   }>({ open: false, message: "", severity: "info" });
+  const setAutoArrangeResult = useAutoArrangeResult((s) => s.setResult);
 
-  const handleAutoArrange = useCallback(async () => {
+  async function handleAutoArrange() {
     if (!selectedTeacher) {
       setSnackbar({
         open: true,
@@ -81,10 +83,12 @@ export function HeaderClient({
           message: `จัดตารางไม่สำเร็จ: ${result.message || "เกิดข้อผิดพลาด"}${failureMsg}`,
           severity: "error",
         });
+        setAutoArrangeResult(result.failures ?? []);
         return;
       }
 
       const { stats } = result;
+      setAutoArrangeResult(result.failures);
       setSnackbar({
         open: true,
         message: `✅ จัดตารางสำเร็จ ${stats.successfullyPlaced} คาบ${stats.failed > 0 ? ` (ไม่สำเร็จ ${stats.failed} คาบ)` : ""} (${stats.durationMs}ms)`,
@@ -103,7 +107,7 @@ export function HeaderClient({
     } finally {
       setAutoArrangeLoading(false);
     }
-  }, [selectedTeacher, academicYear, semester, router]);
+  }
 
   // Find selected teacher object
   const teacherObj = teachers.find(

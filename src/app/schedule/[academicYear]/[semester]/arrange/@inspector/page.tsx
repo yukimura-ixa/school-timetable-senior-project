@@ -1,23 +1,55 @@
-import { Alert, Stack, Typography } from "@mui/material";
+import { prisma } from "@/lib/prisma";
+import { semester as semesterEnum } from "@/prisma/generated/client";
+import { Alert } from "@mui/material";
+import InspectorClient from "./_components/InspectorClient";
+import type { RequiredSubject } from "../_lib/arrange-progress";
 
 export default async function InspectorSlot({
+  params,
   searchParams,
 }: {
+  params: Promise<{ academicYear: string; semester: string }>;
   searchParams: Promise<{ teacher?: string }>;
 }) {
-  const params = await searchParams;
-  const teacherParam = params.teacher;
+  const [{ academicYear, semester }, { teacher }] = await Promise.all([params, searchParams]);
+
+  if (!teacher || !/^\d+$/.test(teacher)) {
+    return (
+      <Alert severity="info" variant="outlined" sx={{ m: 2 }}>
+        เลือกครูเพื่อดูข้อมูล
+      </Alert>
+    );
+  }
+
+  const sem = semester === "2" ? semesterEnum.SEMESTER_2 : semesterEnum.SEMESTER_1;
+  const responsibilities = await prisma.teachers_responsibility.findMany({
+    where: {
+      TeacherID: parseInt(teacher, 10),
+      AcademicYear: parseInt(academicYear, 10),
+      Semester: sem,
+    },
+    include: { subject: { select: { SubjectCode: true, SubjectName: true } } },
+  });
+
+  const bySubject = new Map<string, RequiredSubject>();
+  let requiredTotal = 0;
+  for (const r of responsibilities) {
+    const { SubjectCode, SubjectName } = r.subject;
+    requiredTotal += r.TeachHour;
+    const existing = bySubject.get(SubjectCode);
+    if (existing) existing.requiredHours += r.TeachHour;
+    else
+      bySubject.set(SubjectCode, {
+        SubjectCode,
+        SubjectName,
+        requiredHours: r.TeachHour,
+      });
+  }
 
   return (
-    <Stack spacing={1} sx={{ p: 2, height: "100%" }}>
-      <Typography variant="subtitle2" color="text.secondary">
-        ตรวจสอบตารางสอน
-      </Typography>
-      <Alert severity="info" variant="outlined">
-        {teacherParam
-          ? "ลากรายวิชาจากแผงด้านซ้ายไปวางในช่วงเวลาที่ต้องการ"
-          : "เลือกครูเพื่อดูข้อมูล"}
-      </Alert>
-    </Stack>
+    <InspectorClient
+      required={[...bySubject.values()]}
+      requiredTotal={requiredTotal}
+    />
   );
 }

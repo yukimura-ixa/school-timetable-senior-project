@@ -25,9 +25,6 @@ import {
   Add as AddIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
-  Edit as EditIcon,
-  Save as SaveIcon,
-  Cancel as CancelIcon,
   Assignment as AssignmentIcon,
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
@@ -61,7 +58,6 @@ interface QuickAssignmentPanelProps {
     TeachHour: number;
   }>;
   onAssignmentAdded?: () => void;
-  onAssignmentUpdated?: () => void;
   onAssignmentDeleted?: () => void;
 }
 
@@ -73,7 +69,6 @@ function QuickAssignmentPanel({
   grades,
   currentAssignments,
   onAssignmentAdded,
-  onAssignmentUpdated: _onAssignmentUpdated, // Unused - edit feature disabled (see handleSaveEdit)
   onAssignmentDeleted,
 }: QuickAssignmentPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -94,10 +89,6 @@ function QuickAssignmentPanel({
       setWeeklyHours(0);
     }
   }, [selectedSubject]);
-
-  // Editing state
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingHours, setEditingHours] = useState<number>(0);
 
   // Check for subject-grade level mismatch (MOE compliance)
   const gradeLevelMismatch = useMemo(() => {
@@ -224,111 +215,6 @@ function QuickAssignmentPanel({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleEdit = (assignment: (typeof currentAssignments)[0]) => {
-    setEditingId(assignment.RespID);
-    setEditingHours(assignment.TeachHour);
-  };
-
-  const handleSaveEdit = async (respId: string) => {
-    const assignmentToEdit = currentAssignments.find(
-      (a) => a.RespID === respId,
-    );
-    if (!assignmentToEdit) return;
-
-    if (editingHours <= 0 || editingHours > 30) {
-      enqueueSnackbar("กรุณาระบุชั่วโมงสอนที่ถูกต้อง (1-30)", {
-        variant: "warning",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      // Strategy: "Delete + Create" to update
-      // 1. Keep other assignments as-is (with RespID)
-      // 2. Add edited assignment WITHOUT RespID (treated as new) and with new TeachHour
-      const otherAssignments = currentAssignments
-        .filter((a) => a.RespID !== respId)
-        .map((a) => {
-          // Find subject to get Credit (needed for schema validation)
-          // If subject not found (unlikely), fallback to 1.0 logic
-          let formattedCredit: ResponsibilityInput["Credit"] = "1.0";
-          const subj = subjects.find((s) => s.SubjectCode === a.SubjectCode);
-          if (subj) {
-            const rawCredit = subj.Credit;
-            const creditVal =
-              subjectCreditValues[
-                rawCredit as keyof typeof subjectCreditValues
-              ] ?? 1.0;
-            formattedCredit = creditVal.toFixed(
-              1,
-            ) as ResponsibilityInput["Credit"];
-          }
-
-          return {
-            RespID: parseInt(a.RespID),
-            SubjectCode: a.SubjectCode,
-            GradeID: a.GradeID,
-            Credit: formattedCredit,
-            TeachHour: a.TeachHour,
-          };
-        });
-
-      // Prepare edited item
-      let editedCredit: ResponsibilityInput["Credit"] = "1.0";
-      const subj = subjects.find(
-        (s) => s.SubjectCode === assignmentToEdit.SubjectCode,
-      );
-      if (subj) {
-        const rawCredit = subj.Credit;
-        const creditVal =
-          subjectCreditValues[rawCredit as keyof typeof subjectCreditValues] ??
-          1.0;
-        editedCredit = creditVal.toFixed(1) as ResponsibilityInput["Credit"];
-      }
-
-      const editedItem: ResponsibilityInput = {
-        SubjectCode: assignmentToEdit.SubjectCode,
-        GradeID: assignmentToEdit.GradeID,
-        Credit: editedCredit,
-        TeachHour: editingHours, // Pass manual hours
-      };
-
-      // Combine
-      const allAssignments = [...otherAssignments, editedItem];
-
-      const result = await syncAssignmentsAction({
-        TeacherID: _teacher.TeacherID,
-        AcademicYear: _academicYear,
-        Semester: _semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
-        Resp: allAssignments,
-      });
-
-      if (!result?.success) {
-        throw new Error(
-          result?.error?.message || "แก้ไขการมอบหมายไม่สำเร็จ",
-        );
-      }
-
-      enqueueSnackbar("บันทึกการแก้ไขสำเร็จ", { variant: "success" });
-      setEditingId(null);
-      setEditingHours(0);
-
-      // Refresh data
-      if (onAssignmentAdded) onAssignmentAdded();
-    } catch (error) {
-      console.error("Update failed:", error);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึก", { variant: "error" });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditingHours(0);
   };
 
   const handleDelete = async (assignment: (typeof currentAssignments)[0]) => {
@@ -515,7 +401,7 @@ function QuickAssignmentPanel({
                   sx={{ mt: 2 }}
                   icon={<WarningAmberIcon />}
                 >
-                  <strong>⚠️ ไม่ตรงตามหลักสูตร:</strong> วิชา{" "}
+                  <strong>ไม่ตรงตามหลักสูตร:</strong> วิชา{" "}
                   {selectedSubject?.SubjectCode} เป็นวิชาสำหรับ{" "}
                   {gradeLevelMismatch.expectedRange} แต่เลือกชั้น{" "}
                   {gradeLevelMismatch.mismatchedGrades.join(", ")}{" "}
@@ -532,18 +418,18 @@ function QuickAssignmentPanel({
                   sx={{ mt: gradeLevelMismatch ? 1 : 2 }}
                   icon={<CheckCircleIcon />}
                 >
-                  {!selectedSubject && "• เลือกวิชาที่ต้องการมอบหมาย"}
+                  {!selectedSubject && "เลือกวิชาที่ต้องการมอบหมาย"}
                   {selectedSubject &&
                     selectedGrades.length === 0 &&
-                    "• เลือกชั้นเรียน"}
+                    "เลือกชั้นเรียน"}
                   {selectedSubject &&
                     selectedGrades.length > 0 &&
                     weeklyHours <= 0 &&
-                    "• ระบุจำนวนชั่วโมงต่อสัปดาห์"}
+                    "ระบุจำนวนชั่วโมงต่อสัปดาห์"}
                   {selectedSubject &&
                     selectedGrades.length > 0 &&
                     weeklyHours > 0 &&
-                    `✓ พร้อมเพิ่ม: ${selectedSubject.SubjectCode} ให้ ${selectedGrades.length} ห้อง ห้องละ ${weeklyHours} ชม. (รวมเพิ่ม ${weeklyHours * selectedGrades.length} ชม.)`}
+                    `พร้อมเพิ่ม: ${selectedSubject.SubjectCode} ให้ ${selectedGrades.length} ห้อง ห้องละ ${weeklyHours} ชม. (รวมเพิ่ม ${weeklyHours * selectedGrades.length} ชม.)`}
                 </Alert>
               )}
             </CardContent>
@@ -591,73 +477,23 @@ function QuickAssignmentPanel({
                         <Chip label={assignment.GradeName} size="small" />
                       </TableCell>
                       <TableCell align="center">
-                        {editingId === assignment.RespID ? (
-                          <TextField
-                            type="number"
-                            value={editingHours}
-                            onChange={(e) =>
-                              setEditingHours(parseInt(e.target.value) || 0)
-                            }
-                            size="small"
-                            sx={{ width: 80 }}
-                            inputProps={{ min: 1, max: 20 }}
-                          />
-                        ) : (
-                          <Chip
-                            label={`${assignment.TeachHour} ชม.`}
-                            size="small"
-                            color="primary"
-                            variant="outlined"
-                          />
-                        )}
+                        <Chip
+                          label={`${assignment.TeachHour} ชม.`}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                        />
                       </TableCell>
                       <TableCell align="right">
-                        {editingId === assignment.RespID ? (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: 1,
-                              justifyContent: "flex-end",
-                            }}
-                          >
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              onClick={() => {
-                                void handleSaveEdit(assignment.RespID);
-                              }}
-                            >
-                              <SaveIcon fontSize="small" />
-                            </IconButton>
-                            <IconButton size="small" onClick={handleCancelEdit}>
-                              <CancelIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        ) : (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: 1,
-                              justifyContent: "flex-end",
-                            }}
-                          >
-                            <IconButton
-                              size="small"
-                              onClick={() => handleEdit(assignment)}
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => {
-                                void handleDelete(assignment);
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        )}
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => {
+                            void handleDelete(assignment);
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   ))}

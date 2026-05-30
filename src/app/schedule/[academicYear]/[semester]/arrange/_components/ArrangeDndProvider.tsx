@@ -4,13 +4,16 @@ import { useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
   PointerSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
 } from "@dnd-kit/core";
+import { Paper, Typography } from "@mui/material";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useSnackbar } from "notistack";
 import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
@@ -48,6 +51,17 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
     respId?: number;
   } | null>(null);
 
+  const [activeSubject, setActiveSubject] = useState<{
+    SubjectName?: string;
+    GradeName?: string;
+  } | null>(null);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveSubject(
+      (event.active.data.current as { SubjectName?: string; GradeName?: string }) ?? null,
+    );
+  };
+
   const {
     suggestions,
     isLoading: isLoadingSuggestions,
@@ -61,6 +75,7 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveSubject(null);
     const { active, over } = event;
     if (!over || !teacher) return;
 
@@ -166,8 +181,22 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext id="arrange-dnd" sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       {children}
+      <DragOverlay>
+        {activeSubject ? (
+          <Paper sx={{ p: 1, px: 1.5, boxShadow: 4 }}>
+            <Typography variant="body2" fontWeight="bold">
+              {activeSubject.SubjectName ?? "รายวิชา"}
+            </Typography>
+            {activeSubject.GradeName && (
+              <Typography variant="caption" color="text.secondary">
+                {activeSubject.GradeName}
+              </Typography>
+            )}
+          </Paper>
+        ) : null}
+      </DragOverlay>
       {conflictModal && (
         <ConflictDetailsModal
           open
