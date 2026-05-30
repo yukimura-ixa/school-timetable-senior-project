@@ -57,6 +57,7 @@ const theme = createTheme({
       main: "#10B981", // emerald-500
       light: "#34D399",
       dark: "#047857",
+      lighter: "#ECFDF5",
     },
     warning: {
       main: "#F59E0B", // amber-500
@@ -67,6 +68,7 @@ const theme = createTheme({
       main: "#EF4444", // red-500
       light: "#F87171",
       dark: "#B91C1C",
+      lighter: "#FEF2F2",
     },
     info: {
       main: "#06B6D4", // cyan-500
