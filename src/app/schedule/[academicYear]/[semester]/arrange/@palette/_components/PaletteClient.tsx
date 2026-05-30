@@ -93,9 +93,10 @@ export function PaletteClient({ subjects }: Props) {
 
   return (
     <Paper sx={{ p: 2, height: "100%" }} data-testid="subject-palette">
-      <Typography variant="h6" gutterBottom>
-        รายวิชาที่สอน
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+        <Typography variant="h6">รายวิชาที่สอน</Typography>
+        <Chip label={`${subjects.length} วิชา`} size="small" color="primary" variant="outlined" />
+      </Box>
 
       {/* Search Box */}
       <TextField
@@ -110,7 +111,7 @@ export function PaletteClient({ subjects }: Props) {
 
       {/* Subject List */}
       <Box
-        sx={{ maxHeight: "calc(100vh - 300px)", overflow: "auto" }}
+        sx={{ maxHeight: "calc(100vh - 240px)", overflow: "auto" }}
         aria-live="polite"
       >
         {filteredSubjects.length === 0 ? (

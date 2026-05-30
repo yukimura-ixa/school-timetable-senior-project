@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Box, Grid, Paper, Stack, Typography, Button } from "@mui/material";
+import { Container, Box, Paper, Stack, Typography, Button } from "@mui/material";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import { prisma } from "@/lib/prisma";
 import type { semester } from "@/prisma/generated/client";
@@ -87,20 +87,26 @@ export default async function ArrangeLayout({
           companion panels. DndContext wraps the whole arrangement so DnD
           flows from palette → grid (and inspector → grid via conflicts). */}
       <ArrangeDndProvider>
-        <Stack spacing={2}>
-          <Box data-slot="grid" sx={{ width: "100%" }}>
-            {grid}
+        <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+          <Box
+            data-slot="palette"
+            sx={{
+              width: 320,
+              flexShrink: 0,
+              position: "sticky",
+              top: 16,
+              alignSelf: "flex-start",
+            }}
+          >
+            {palette}
           </Box>
-
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 6 }} data-slot="palette">
-              {palette}
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }} data-slot="inspector">
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Box data-slot="grid">{grid}</Box>
+            <Box data-slot="inspector" sx={{ mt: 2 }}>
               {inspector}
-            </Grid>
-          </Grid>
-        </Stack>
+            </Box>
+          </Box>
+        </Box>
       </ArrangeDndProvider>
 
       {/* Modal Slot: Intercepting routes */}
