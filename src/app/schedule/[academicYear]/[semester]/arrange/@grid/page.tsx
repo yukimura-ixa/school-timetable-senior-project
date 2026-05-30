@@ -13,6 +13,8 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { getCellState, formatPeriodTime, DAY_FULL_LABEL } from "../_lib/grid-format";
 import { useDroppable } from "@dnd-kit/core";
 import { useSnackbar } from "notistack";
 import { deleteScheduleAction } from "@/features/schedule-arrangement/application/actions/schedule-arrangement.actions";
@@ -25,14 +27,6 @@ import {
 } from "../_lib/teacher-schedule";
 
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
-
-const DAY_LABEL: Record<string, string> = {
-  MON: "จ",
-  TUE: "อ",
-  WED: "พ",
-  THU: "พฤ",
-  FRI: "ศ",
-};
 
 function DroppableCell({
   timeslot,
@@ -48,53 +42,55 @@ function DroppableCell({
     data: timeslot,
   });
 
-  const isBreak = timeslot.Breaktime !== "NOT_BREAK";
+  const state = getCellState(timeslot, entry, isOver);
+
+  const bg = {
+    break: "action.disabledBackground",
+    "drop-target": "primary.lighter",
+    placed: "success.lighter",
+    empty: "background.paper",
+  }[state.kind];
+
+  const borderColor = {
+    break: "divider",
+    "drop-target": "primary.main",
+    placed: "success.main",
+    empty: "divider",
+  }[state.kind];
 
   return (
     <Box
       ref={setNodeRef}
       data-testid="timeslot-card"
       data-timeslot-id={timeslot.TimeslotID}
-      data-is-break={isBreak}
+      data-is-break={state.kind === "break"}
       data-subject-code={entry?.SubjectCode}
       sx={{
-        border: "1px solid",
-        borderColor: isOver ? "primary.main" : entry ? "success.main" : "divider",
+        border: state.kind === "empty" ? "1px dashed" : "1px solid",
+        borderColor,
         borderRadius: 1,
         p: 1,
         minHeight: 80,
         position: "relative",
-        bgcolor: isBreak
-          ? "action.disabledBackground"
-          : isOver
-            ? "action.hover"
-            : entry
-              ? "success.lighter"
-              : "background.paper",
+        bgcolor: bg,
         transition: "all 0.2s",
       }}
     >
-      {isBreak ? (
-        <Typography variant="caption" color="text.disabled">
-          พัก
-        </Typography>
-      ) : entry ? (
+      {state.kind === "placed" && entry ? (
         <Box>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <Typography variant="body2" fontWeight="bold" noWrap sx={{ flex: 1 }}>
-              {entry.subject.SubjectName}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: 1, minWidth: 0 }}>
+              <CheckCircleIcon sx={{ fontSize: 16, color: "success.main", flexShrink: 0 }} />
+              <Typography variant="body2" fontWeight="bold" noWrap>
+                {entry.subject.SubjectName}
+              </Typography>
+            </Box>
             <IconButton
               data-testid="timeslot-remove"
               aria-label="ลบรายวิชาออกจากคาบเรียน"
               size="small"
               onClick={() => onRemove?.(entry.ClassID)}
-              sx={{
-                p: 0.25,
-                ml: 0.5,
-                color: "error.main",
-                "&:hover": { bgcolor: "error.lighter" },
-              }}
+              sx={{ p: 0.25, ml: 0.5, color: "error.main", "&:hover": { bgcolor: "error.lighter" } }}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -105,8 +101,11 @@ function DroppableCell({
           </Box>
         </Box>
       ) : (
-        <Typography variant="caption" color="text.secondary">
-          คาบว่าง
+        <Typography
+          variant="caption"
+          color={state.kind === "drop-target" ? "primary.main" : "text.secondary"}
+        >
+          {state.kind === "drop-target" ? `⤓ ${state.label}` : state.label}
         </Typography>
       )}
     </Box>
@@ -237,19 +236,25 @@ export default function GridSlot() {
         >
           <thead>
             <tr>
-              <th style={{ minWidth: 48 }}>วัน \ คาบ</th>
-              {periods.map((p) => (
-                <th key={p} style={{ minWidth: 120 }}>
-                  {p}
-                </th>
-              ))}
+              <th style={{ minWidth: 64 }}>วัน \ คาบ</th>
+              {periods.map((p) => {
+                const anySlot = DAYS.map((d) => grid[d]?.[p]).find(Boolean);
+                return (
+                  <th key={p} style={{ minWidth: 120 }}>
+                    <div style={{ fontWeight: 700 }}>{p}</div>
+                    <div style={{ fontWeight: 400, fontSize: "0.75rem", color: "#94A3B8" }}>
+                      {anySlot ? formatPeriodTime(anySlot.StartTime) : ""}
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
             {DAYS.map((day) => (
               <tr key={day}>
                 <td style={{ textAlign: "center", fontWeight: "bold", whiteSpace: "nowrap" }}>
-                  {DAY_LABEL[day]}
+                  {DAY_FULL_LABEL[day] ?? day}
                 </td>
                 {periods.map((period) => {
                   const timeslot = grid[day]?.[period];
