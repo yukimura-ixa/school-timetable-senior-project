@@ -7,6 +7,7 @@
 
 import * as v from "valibot";
 import { createAction, type ActionResult } from "@/shared/lib/action-wrapper";
+import { requireAdminAccess } from "@/lib/auth-guard";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
 import { Prisma } from "@/prisma/generated/client";
 import type {
@@ -189,6 +190,18 @@ export async function createSemesterWithTimeslotsAction(input: {
   copyAssignments?: boolean;
   timeslotConfig?: CreateTimeslotsInput;
 }): Promise<ActionResult<SemesterDTO>> {
+  const authzError = await requireAdminAccess();
+  if (authzError) {
+    return {
+      success: false,
+      error: {
+        message: authzError.error,
+        code:
+          authzError.error === "Unauthorized" ? "UNAUTHORIZED" : "FORBIDDEN",
+      },
+    };
+  }
+
   try {
     // Validate semester number
     if (input.semester !== 1 && input.semester !== 2) {

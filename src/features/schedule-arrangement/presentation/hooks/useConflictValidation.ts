@@ -7,7 +7,6 @@
  * Week 5.4 - Custom Hooks Extraction
  */
 
-import { useCallback, useMemo } from "react";
 import { useArrangementUIStore } from "../stores/arrangement-ui.store";
 // Import from schedule.types.ts (strict camelCase types) instead of @/types (legacy PascalCase)
 import type { SubjectData } from "@/types/schedule.types";
@@ -71,7 +70,7 @@ export function useConflictValidation(): ConflictValidationOperations {
   /**
    * Get set of locked timeslot IDs
    */
-  const lockedTimeslots = useMemo(() => {
+  const lockedTimeslots = (() => {
     const locked = new Set<string>();
     lockData.forEach((lock) => {
       if (lock.TimeslotID) {
@@ -79,152 +78,144 @@ export function useConflictValidation(): ConflictValidationOperations {
       }
     });
     return locked;
-  }, [lockData]);
+  })();
 
   /**
    * Check if timeslot is locked
    */
-  const checkLockConflict = useCallback(
-    (timeslotID: string): boolean => {
-      return lockedTimeslots.has(timeslotID);
-    },
-    [lockedTimeslots],
-  );
+  const checkLockConflict = (timeslotID: string): boolean => {
+    return lockedTimeslots.has(timeslotID);
+  };
 
   /**
    * Check if teacher has conflict at timeslot
    * (Teacher already scheduled in another class at this time)
    */
-  const checkTeacherConflict = useCallback(
-    (timeslotID: string, teacherID: number): boolean => {
-      if (!teacherID) return false;
+  const checkTeacherConflict = (
+    timeslotID: string,
+    teacherID: number,
+  ): boolean => {
+    if (!teacherID) return false;
 
-      // Find timeslot details
-      const timeslot = timeSlotData.AllData.find(
-        (slot) => slot.TimeslotID === timeslotID,
+    // Find timeslot details
+    const timeslot = timeSlotData.AllData.find(
+      (slot) => slot.TimeslotID === timeslotID,
+    );
+    if (!timeslot) return false;
+
+    // Check if teacher is scheduled in any other timeslot at the same time
+    const conflictingSlots = timeSlotData.AllData.filter((slot) => {
+      return (
+        slot.TimeslotID !== timeslotID &&
+        slot.DayOfWeek === timeslot.DayOfWeek &&
+        slot.StartTime === timeslot.StartTime &&
+        slot.subject?.teacherID === teacherID
       );
-      if (!timeslot) return false;
+    });
 
-      // Check if teacher is scheduled in any other timeslot at the same time
-      const conflictingSlots = timeSlotData.AllData.filter((slot) => {
-        return (
-          slot.TimeslotID !== timeslotID &&
-          slot.DayOfWeek === timeslot.DayOfWeek &&
-          slot.StartTime === timeslot.StartTime &&
-          slot.subject?.teacherID === teacherID
-        );
-      });
-
-      return conflictingSlots.length > 0;
-    },
-    [timeSlotData],
-  );
+    return conflictingSlots.length > 0;
+  };
 
   /**
    * Check if room has conflict at timeslot
    * (Room already occupied by another class at this time)
    */
-  const checkRoomConflict = useCallback(
-    (timeslotID: string, roomID: number | null): boolean => {
-      if (!roomID) return false;
+  const checkRoomConflict = (
+    timeslotID: string,
+    roomID: number | null,
+  ): boolean => {
+    if (!roomID) return false;
 
-      // Find timeslot details
-      const timeslot = timeSlotData.AllData.find(
-        (slot) => slot.TimeslotID === timeslotID,
+    // Find timeslot details
+    const timeslot = timeSlotData.AllData.find(
+      (slot) => slot.TimeslotID === timeslotID,
+    );
+    if (!timeslot) return false;
+
+    // Check if room is occupied in any other timeslot at the same time
+    const conflictingSlots = timeSlotData.AllData.filter((slot) => {
+      return (
+        slot.TimeslotID !== timeslotID &&
+        slot.DayOfWeek === timeslot.DayOfWeek &&
+        slot.StartTime === timeslot.StartTime &&
+        slot.subject?.roomID === roomID // Fixed: RoomID → roomID (camelCase)
       );
-      if (!timeslot) return false;
+    });
 
-      // Check if room is occupied in any other timeslot at the same time
-      const conflictingSlots = timeSlotData.AllData.filter((slot) => {
-        return (
-          slot.TimeslotID !== timeslotID &&
-          slot.DayOfWeek === timeslot.DayOfWeek &&
-          slot.StartTime === timeslot.StartTime &&
-          slot.subject?.roomID === roomID // Fixed: RoomID → roomID (camelCase)
-        );
-      });
-
-      return conflictingSlots.length > 0;
-    },
-    [timeSlotData],
-  );
+    return conflictingSlots.length > 0;
+  };
 
   /**
    * Check for any conflicts when adding subject to timeslot
    */
-  const checkTimeslotConflict = useCallback(
-    (timeslotID: string, subject: SubjectData): ConflictType => {
-      // Check lock conflict first (highest priority)
-      if (checkLockConflict(timeslotID)) {
-        return {
-          type: "lock",
-          message: "This timeslot is locked and cannot be modified",
-          severity: "error",
-        };
-      }
-
-      // Check teacher conflict
-      if (
-        currentTeacherID &&
-        checkTeacherConflict(timeslotID, parseInt(currentTeacherID))
-      ) {
-        return {
-          type: "teacher",
-          message: "Teacher is already scheduled in another class at this time",
-          severity: "error",
-        };
-      }
-
-      // Check room conflict
-      if (subject.roomID && checkRoomConflict(timeslotID, subject.roomID)) {
-        return {
-          type: "room",
-          message: "Room is already occupied by another class at this time",
-          severity: "error",
-        };
-      }
-
-      // No conflicts
+  const checkTimeslotConflict = (
+    timeslotID: string,
+    subject: SubjectData,
+  ): ConflictType => {
+    // Check lock conflict first (highest priority)
+    if (checkLockConflict(timeslotID)) {
       return {
-        type: "none",
-        message: "",
-        severity: "info",
+        type: "lock",
+        message: "This timeslot is locked and cannot be modified",
+        severity: "error",
       };
-    },
-    [
-      checkLockConflict,
-      checkTeacherConflict,
-      checkRoomConflict,
-      currentTeacherID,
-    ],
-  );
+    }
+
+    // Check teacher conflict
+    if (
+      currentTeacherID &&
+      checkTeacherConflict(timeslotID, parseInt(currentTeacherID))
+    ) {
+      return {
+        type: "teacher",
+        message: "Teacher is already scheduled in another class at this time",
+        severity: "error",
+      };
+    }
+
+    // Check room conflict
+    if (subject.roomID && checkRoomConflict(timeslotID, subject.roomID)) {
+      return {
+        type: "room",
+        message: "Room is already occupied by another class at this time",
+        severity: "error",
+      };
+    }
+
+    // No conflicts
+    return {
+      type: "none",
+      message: "",
+      severity: "info",
+    };
+  };
 
   /**
    * Check if timeslot is available for subject
    */
-  const isTimeslotAvailable = useCallback(
-    (timeslotID: string, subject: SubjectData): boolean => {
-      const conflict = checkTimeslotConflict(timeslotID, subject);
-      return conflict.type === "none";
-    },
-    [checkTimeslotConflict],
-  );
+  const isTimeslotAvailable = (
+    timeslotID: string,
+    subject: SubjectData,
+  ): boolean => {
+    const conflict = checkTimeslotConflict(timeslotID, subject);
+    return conflict.type === "none";
+  };
 
   /**
    * Get conflict message for timeslot
    */
-  const getConflictMessage = useCallback(
-    (timeslotID: string, subject: SubjectData): string => {
-      const conflict = checkTimeslotConflict(timeslotID, subject);
-      return conflict.message;
-    },
-    [checkTimeslotConflict],
-  );
+  const getConflictMessage = (
+    timeslotID: string,
+    subject: SubjectData,
+  ): string => {
+    const conflict = checkTimeslotConflict(timeslotID, subject);
+    return conflict.message;
+  };
 
   /**
-   * Get conflicts for all timeslots (memoized)
+   * Get conflicts for all timeslots
    */
-  const conflictsByTimeslot = useMemo(() => {
+  const conflictsByTimeslot = (() => {
     const conflicts = new Map<string, ConflictType>();
 
     timeSlotData.AllData.forEach((slot) => {
@@ -237,28 +228,25 @@ export function useConflictValidation(): ConflictValidationOperations {
     });
 
     return conflicts;
-  }, [timeSlotData, checkTimeslotConflict]);
+  })();
 
   /**
    * Validate multiple timeslots for a subject
    * Useful for finding all available timeslots for a subject
    */
-  const validateMultipleTimeslots = useCallback(
-    (
-      timeslotIDs: string[],
-      subject: SubjectData,
-    ): Map<string, ConflictType> => {
-      const results = new Map<string, ConflictType>();
+  const validateMultipleTimeslots = (
+    timeslotIDs: string[],
+    subject: SubjectData,
+  ): Map<string, ConflictType> => {
+    const results = new Map<string, ConflictType>();
 
-      timeslotIDs.forEach((timeslotID) => {
-        const conflict = checkTimeslotConflict(timeslotID, subject);
-        results.set(timeslotID, conflict);
-      });
+    timeslotIDs.forEach((timeslotID) => {
+      const conflict = checkTimeslotConflict(timeslotID, subject);
+      results.set(timeslotID, conflict);
+    });
 
-      return results;
-    },
-    [checkTimeslotConflict],
-  );
+    return results;
+  };
 
   return {
     checkTimeslotConflict,

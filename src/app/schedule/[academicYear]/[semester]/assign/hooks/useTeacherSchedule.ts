@@ -14,7 +14,6 @@
  * @module useTeacherSchedule
  */
 
-import { useMemo } from "react";
 import type { SubjectData } from "@/types/schedule.types"; // Added import
 
 // ============================================================================
@@ -253,102 +252,57 @@ export function useTeacherSchedule({
   // COMPUTED STATES
   // ============================================================================
 
-  const isLoading = useMemo(() => {
-    return (
-      !teacherQuery.data &&
-      !teacherQuery.error &&
-      !responsibilitiesQuery.data &&
-      !responsibilitiesQuery.error &&
-      !timeslotsQuery.data &&
-      !timeslotsQuery.error &&
-      !schedulesQuery.data &&
-      !schedulesQuery.error
-    );
-  }, [
-    teacherQuery.data,
-    teacherQuery.error,
-    responsibilitiesQuery.data,
-    responsibilitiesQuery.error,
-    timeslotsQuery.data,
-    timeslotsQuery.error,
-    schedulesQuery.data,
-    schedulesQuery.error,
-  ]);
+  const isLoading =
+    !teacherQuery.data &&
+    !teacherQuery.error &&
+    !responsibilitiesQuery.data &&
+    !responsibilitiesQuery.error &&
+    !timeslotsQuery.data &&
+    !timeslotsQuery.error &&
+    !schedulesQuery.data &&
+    !schedulesQuery.error;
 
-  const isValidating = useMemo(() => {
-    return (
-      teacherQuery.isValidating ||
-      responsibilitiesQuery.isValidating ||
-      timeslotsQuery.isValidating ||
-      schedulesQuery.isValidating ||
-      conflictsQuery.isValidating
-    );
-  }, [
-    teacherQuery.isValidating,
-    responsibilitiesQuery.isValidating,
-    timeslotsQuery.isValidating,
-    schedulesQuery.isValidating,
-    conflictsQuery.isValidating,
-  ]);
+  const isValidating =
+    teacherQuery.isValidating ||
+    responsibilitiesQuery.isValidating ||
+    timeslotsQuery.isValidating ||
+    schedulesQuery.isValidating ||
+    conflictsQuery.isValidating;
 
-  const hasError = useMemo(() => {
-    return !!(
-      teacherQuery.error ||
-      responsibilitiesQuery.error ||
-      timeslotsQuery.error ||
-      schedulesQuery.error ||
-      conflictsQuery.error
-    );
-  }, [
-    teacherQuery.error,
-    responsibilitiesQuery.error,
-    timeslotsQuery.error,
-    schedulesQuery.error,
-    conflictsQuery.error,
-  ]);
+  const hasError = !!(
+    teacherQuery.error ||
+    responsibilitiesQuery.error ||
+    timeslotsQuery.error ||
+    schedulesQuery.error ||
+    conflictsQuery.error
+  );
 
-  const errors = useMemo(() => {
-    return {
-      teacher: teacherQuery.error as Error | undefined,
-      responsibilities: responsibilitiesQuery.error as Error | undefined,
-      timeslots: timeslotsQuery.error as Error | undefined,
-      schedules: schedulesQuery.error as Error | undefined,
-      conflicts: conflictsQuery.error as Error | undefined,
-    };
-  }, [
-    teacherQuery.error,
-    responsibilitiesQuery.error,
-    timeslotsQuery.error,
-    schedulesQuery.error,
-    conflictsQuery.error,
-  ]);
+  const errors = {
+    teacher: teacherQuery.error as Error | undefined,
+    responsibilities: responsibilitiesQuery.error as Error | undefined,
+    timeslots: timeslotsQuery.error as Error | undefined,
+    schedules: schedulesQuery.error as Error | undefined,
+    conflicts: conflictsQuery.error as Error | undefined,
+  };
 
   // ============================================================================
   // REFETCH FUNCTIONS
   // ============================================================================
 
-  const refetch = useMemo(() => {
-    return {
-      teacher: () => void teacherQuery.mutate(),
-      responsibilities: () => void responsibilitiesQuery.mutate(),
-      timeslots: () => void timeslotsQuery.mutate(),
-      schedules: () => void schedulesQuery.mutate(),
-      conflicts: () => void conflictsQuery.mutate(),
-      all: () => {
-        void teacherQuery.mutate();
-        void responsibilitiesQuery.mutate();
-        void timeslotsQuery.mutate();
-        void schedulesQuery.mutate();
-        void conflictsQuery.mutate();
-      },
-    };
-  }, [
-    teacherQuery,
-    responsibilitiesQuery,
-    timeslotsQuery,
-    schedulesQuery,
-    conflictsQuery,
-  ]);
+  const refetch = {
+    teacher: () => void teacherQuery.mutate(),
+    responsibilities: () => void responsibilitiesQuery.mutate(),
+    timeslots: () => void timeslotsQuery.mutate(),
+    schedules: () => void schedulesQuery.mutate(),
+    conflicts: () => void conflictsQuery.mutate(),
+    all: () => {
+      void teacherQuery.mutate();
+      void responsibilitiesQuery.mutate();
+      void timeslotsQuery.mutate();
+      void schedulesQuery.mutate();
+      void conflictsQuery.mutate();
+    },
+  };
 
   // ============================================================================
   // RETURN

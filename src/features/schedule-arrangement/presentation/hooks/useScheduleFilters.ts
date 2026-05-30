@@ -7,7 +7,6 @@
  * Week 5.4 - Custom Hooks Extraction
  */
 
-import { useMemo, useCallback } from "react";
 import { useArrangementUIStore } from "../stores/arrangement-ui.store";
 import type { SubjectData } from "@/types/schedule.types";
 
@@ -63,124 +62,104 @@ export function useScheduleFilters(): ScheduleFiltersOperations {
   /**
    * Extract unique grade levels from subjects
    */
-  const extractAvailableYears = useCallback(
-    (subjects: SubjectData[]): number[] => {
-      const yearsSet = new Set<number>();
+  const extractAvailableYears = (subjects: SubjectData[]): number[] => {
+    const yearsSet = new Set<number>();
 
-      subjects.forEach((subject) => {
-        if (subject.gradelevel?.year) {
-          yearsSet.add(subject.gradelevel.year);
-        }
-      });
+    subjects.forEach((subject) => {
+      if (subject.gradelevel?.year) {
+        yearsSet.add(subject.gradelevel.year);
+      }
+    });
 
-      return Array.from(yearsSet).sort((a, b) => a - b);
-    },
-    [],
-  );
+    return Array.from(yearsSet).sort((a, b) => a - b);
+  };
 
   /**
    * Get available years from current subject data
    */
-  const availableYears = useMemo(() => {
-    return extractAvailableYears(subjectData);
-  }, [subjectData, extractAvailableYears]);
+  const availableYears = extractAvailableYears(subjectData);
 
   /**
    * Filter subjects by search text (subjectCode or subjectName)
    */
-  const filterBySearchText = useCallback(
-    (subjects: SubjectData[], searchText: string): SubjectData[] => {
-      if (!searchText || searchText.trim() === "") {
-        return subjects;
-      }
+  const filterBySearchText = (
+    subjects: SubjectData[],
+    searchText: string,
+  ): SubjectData[] => {
+    if (!searchText || searchText.trim() === "") {
+      return subjects;
+    }
 
-      const search = searchText.toLowerCase().trim();
+    const search = searchText.toLowerCase().trim();
 
-      return subjects.filter((subject) => {
-        const code = subject.subjectCode?.toLowerCase() || "";
-        const name = subject.subjectName?.toLowerCase() || "";
+    return subjects.filter((subject) => {
+      const code = subject.subjectCode?.toLowerCase() || "";
+      const name = subject.subjectName?.toLowerCase() || "";
 
-        return code.includes(search) || name.includes(search);
-      });
-    },
-    [],
-  );
+      return code.includes(search) || name.includes(search);
+    });
+  };
 
   /**
    * Filter subjects by grade level (year)
    */
-  const filterByGradeLevel = useCallback(
-    (subjects: SubjectData[], year: number | null): SubjectData[] => {
-      if (year === null) {
-        return subjects;
-      }
+  const filterByGradeLevel = (
+    subjects: SubjectData[],
+    year: number | null,
+  ): SubjectData[] => {
+    if (year === null) {
+      return subjects;
+    }
 
-      return subjects.filter((subject) => subject.gradelevel?.year === year);
-    },
-    [],
-  );
+    return subjects.filter((subject) => subject.gradelevel?.year === year);
+  };
 
   /**
    * Filter subjects by scheduled status
    */
-  const filterByScheduledStatus = useCallback(
-    (subjects: SubjectData[], includeScheduled: boolean): SubjectData[] => {
-      if (includeScheduled) {
-        return subjects;
-      }
+  const filterByScheduledStatus = (
+    subjects: SubjectData[],
+    includeScheduled: boolean,
+  ): SubjectData[] => {
+    if (includeScheduled) {
+      return subjects;
+    }
 
-      return subjects.filter((subject) => !subject.scheduled);
-    },
-    [],
-  );
+    return subjects.filter((subject) => !subject.scheduled);
+  };
 
   /**
    * Get available subjects with optional search text
    * Combines grade level filter and scheduled status filter
    */
-  const getAvailableSubjects = useCallback(
-    (searchText = ""): SubjectData[] => {
-      let filtered = subjectData;
+  const getAvailableSubjects = (searchText = ""): SubjectData[] => {
+    let filtered = subjectData;
 
-      // Filter by grade level if selected
-      if (yearSelected !== null) {
-        filtered = filterByGradeLevel(filtered, yearSelected);
-      }
+    // Filter by grade level if selected
+    if (yearSelected !== null) {
+      filtered = filterByGradeLevel(filtered, yearSelected);
+    }
 
-      // Filter out scheduled subjects
-      filtered = filterByScheduledStatus(filtered, false);
+    // Filter out scheduled subjects
+    filtered = filterByScheduledStatus(filtered, false);
 
-      // Filter by search text
-      filtered = filterBySearchText(filtered, searchText);
+    // Filter by search text
+    filtered = filterBySearchText(filtered, searchText);
 
-      return filtered;
-    },
-    [
-      subjectData,
-      yearSelected,
-      filterByGradeLevel,
-      filterByScheduledStatus,
-      filterBySearchText,
-    ],
-  );
+    return filtered;
+  };
 
   /**
    * Get subjects for a specific year/grade level
    */
-  const getSubjectsByYear = useCallback(
-    (year: number): SubjectData[] => {
-      return filterByGradeLevel(subjectData, year);
-    },
-    [subjectData, filterByGradeLevel],
-  );
+  const getSubjectsByYear = (year: number): SubjectData[] => {
+    return filterByGradeLevel(subjectData, year);
+  };
 
   /**
    * Get filtered subjects based on current year selection
-   * Memoized for performance
    */
-  const filteredSubjects = useMemo(() => {
-    return getAvailableSubjects();
-  }, [getAvailableSubjects]);
+  const filteredSubjects = getAvailableSubjects();
 
   return {
     filteredSubjects,

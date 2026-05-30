@@ -12,7 +12,7 @@
  * @see https://mui.com/x/react-data-grid/editing/
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState } from "react";
 import {
   DataGrid,
   GridColDef,
@@ -138,52 +138,49 @@ export function GradeLevelDataGrid({
     }
   };
 
-  const handleEditClick = useCallback((id: GridRowId) => {
+  const handleEditClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.Edit },
     }));
-  }, []);
+  };
 
-  const handleSaveClick = useCallback((id: GridRowId) => {
+  const handleSaveClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.View },
     }));
-  }, []);
+  };
 
-  const handleCancelClick = useCallback((id: GridRowId) => {
+  const handleCancelClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
     }));
-  }, []);
+  };
 
-  const handleDeleteClick = useCallback(
-    async (id: GridRowId) => {
-      const confirmed = await confirm({
-        title: "ลบระดับชั้น",
-        message: "คุณแน่ใจหรือไม่ว่าต้องการลบระดับชั้นนี้?",
-        variant: "danger",
-        confirmText: "ลบ",
-        cancelText: "ยกเลิก",
-      });
+  const handleDeleteClick = async (id: GridRowId) => {
+    const confirmed = await confirm({
+      title: "ลบระดับชั้น",
+      message: "คุณแน่ใจหรือไม่ว่าต้องการลบระดับชั้นนี้?",
+      variant: "danger",
+      confirmText: "ลบ",
+      cancelText: "ยกเลิก",
+    });
 
-      if (confirmed) {
-        const result = await deleteGradeLevelsAction([id as string]);
-        if (result.success) {
-          enqueueSnackbar("ลบระดับชั้นสำเร็จ", { variant: "success" });
-          setRows((prev) => prev.filter((row) => row.GradeID !== id));
-          await onMutate();
-        } else {
-          enqueueSnackbar("ลบระดับชั้นไม่สำเร็จ", { variant: "error" });
-        }
+    if (confirmed) {
+      const result = await deleteGradeLevelsAction([id as string]);
+      if (result.success) {
+        enqueueSnackbar("ลบระดับชั้นสำเร็จ", { variant: "success" });
+        setRows((prev) => prev.filter((row) => row.GradeID !== id));
+        await onMutate();
+      } else {
+        enqueueSnackbar("ลบระดับชั้นไม่สำเร็จ", { variant: "error" });
       }
-    },
-    [confirm, onMutate],
-  );
+    }
+  };
 
-  const handleBulkDelete = useCallback(async () => {
+  const handleBulkDelete = async () => {
     const selectedIds = Array.from(rowSelectionModel.ids) as string[];
     if (selectedIds.length === 0) return;
 
@@ -210,174 +207,161 @@ export function GradeLevelDataGrid({
         enqueueSnackbar("ลบระดับชั้นไม่สำเร็จ", { variant: "error" });
       }
     }
-  }, [rowSelectionModel, confirm, onMutate]);
+  };
 
   // ==================== Update Handler ====================
 
-  const processRowUpdate = useCallback(
-    async (
-      newRow: GridRowModel,
-      _oldRow: GridRowModel,
-    ): Promise<gradelevel> => {
-      const updated = newRow as gradelevel;
+  const processRowUpdate = async (
+    newRow: GridRowModel,
+    _oldRow: GridRowModel,
+  ): Promise<gradelevel> => {
+    const updated = newRow as gradelevel;
 
-      // Validate
-      if (!updated.Year || updated.Year < 1 || updated.Year > 6) {
-        throw new Error("ชั้นปีต้องอยู่ระหว่าง 1-6 (ม.1 - ม.6)");
+    // Validate
+    if (!updated.Year || updated.Year < 1 || updated.Year > 6) {
+      throw new Error("ชั้นปีต้องอยู่ระหว่าง 1-6 (ม.1 - ม.6)");
+    }
+    if (!updated.Number || updated.Number < 1) {
+      throw new Error("ห้องต้องมากกว่า 0");
+    }
+    if (updated.StudentCount != null && updated.StudentCount < 0) {
+      throw new Error("จำนวนนักเรียนต้องไม่น้อยกว่า 0");
+    }
+
+    // Validate program matches year
+    if (updated.ProgramID != null) {
+      const validPrograms = programsByYear[updated.Year] ?? [];
+      const isValid = validPrograms.some(
+        (p) => p.ProgramID === updated.ProgramID,
+      );
+      if (!isValid) {
+        throw new Error(`หลักสูตรที่เลือกไม่ตรงกับชั้นปี ม.${updated.Year}`);
       }
-      if (!updated.Number || updated.Number < 1) {
-        throw new Error("ห้องต้องมากกว่า 0");
-      }
-      if (updated.StudentCount != null && updated.StudentCount < 0) {
-        throw new Error("จำนวนนักเรียนต้องไม่น้อยกว่า 0");
-      }
+    }
 
-      // Validate program matches year
-      if (updated.ProgramID != null) {
-        const validPrograms = programsByYear[updated.Year] ?? [];
-        const isValid = validPrograms.some(
-          (p) => p.ProgramID === updated.ProgramID,
-        );
-        if (!isValid) {
-          throw new Error(`หลักสูตรที่เลือกไม่ตรงกับชั้นปี ม.${updated.Year}`);
-        }
-      }
+    // Call server action
+    const result = await updateGradeLevelsAction([
+      {
+        GradeID: updated.GradeID,
+        Year: updated.Year,
+        Number: updated.Number,
+        StudentCount: updated.StudentCount ?? 0,
+        ProgramID: updated.ProgramID ?? null,
+      },
+    ]);
 
-      // Call server action
-      const result = await updateGradeLevelsAction([
-        {
-          GradeID: updated.GradeID,
-          Year: updated.Year,
-          Number: updated.Number,
-          StudentCount: updated.StudentCount ?? 0,
-          ProgramID: updated.ProgramID ?? null,
-        },
-      ]);
+    if (!result.success) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message || "บันทึกไม่สำเร็จ",
+      );
+    }
 
-      if (!result.success) {
-        throw new Error(
-          typeof result.error === "string"
-            ? result.error
-            : result.error?.message || "บันทึกไม่สำเร็จ",
-        );
-      }
+    enqueueSnackbar("บันทึกระดับชั้นสำเร็จ", { variant: "success" });
+    await onMutate();
+    return updated;
+  };
 
-      enqueueSnackbar("บันทึกระดับชั้นสำเร็จ", { variant: "success" });
-      await onMutate();
-      return updated;
-    },
-    [onMutate, programsByYear],
-  );
-
-  const handleProcessRowUpdateError = useCallback((error: Error) => {
+  const handleProcessRowUpdateError = (error: Error) => {
     enqueueSnackbar(`บันทึกไม่สำเร็จ: ${error.message}`, { variant: "error" });
-  }, []);
+  };
 
   // ==================== Columns ====================
 
-  const columns: GridColDef<gradelevel>[] = useMemo(
-    () => [
-      {
-        field: "GradeID",
-        headerName: "รหัส",
-        width: 90,
-        editable: false,
+  const columns: GridColDef<gradelevel>[] = [
+    {
+      field: "GradeID",
+      headerName: "รหัส",
+      width: 90,
+      editable: false,
+    },
+    {
+      field: "Year",
+      headerName: "ชั้นปี (ม.)",
+      width: 100,
+      editable: true,
+      type: "number",
+      valueFormatter: (value: number) => `ม.${value}`,
+    },
+    {
+      field: "Number",
+      headerName: "ห้อง",
+      width: 80,
+      editable: true,
+      type: "number",
+    },
+    {
+      field: "ProgramID",
+      headerName: "หลักสูตร",
+      flex: 1,
+      minWidth: 200,
+      editable: true,
+      valueFormatter: (value: number | null, row) => {
+        const anyRow = row as gradelevel & { program?: program | null };
+        if (anyRow?.program) {
+          return anyRow.program.ProgramName;
+        }
+        if (value != null) return `#${value}`;
+        return "-";
       },
-      {
-        field: "Year",
-        headerName: "ชั้นปี (ม.)",
-        width: 100,
-        editable: true,
-        type: "number",
-        valueFormatter: (value: number) => `ม.${value}`,
-      },
-      {
-        field: "Number",
-        headerName: "ห้อง",
-        width: 80,
-        editable: true,
-        type: "number",
-      },
-      {
-        field: "ProgramID",
-        headerName: "หลักสูตร",
-        flex: 1,
-        minWidth: 200,
-        editable: true,
-        valueFormatter: (value: number | null, row) => {
-          const anyRow = row as gradelevel & { program?: program | null };
-          if (anyRow?.program) {
-            return anyRow.program.ProgramName;
-          }
-          if (value != null) return `#${value}`;
-          return "-";
-        },
-        renderEditCell: (params) => (
-          <ProgramEditComponent {...params} programsByYear={programsByYear} />
-        ),
-      },
-      {
-        field: "StudentCount",
-        headerName: "จำนวนนักเรียน",
-        width: 120,
-        editable: true,
-        type: "number",
-      },
-      {
-        field: "actions",
-        type: "actions",
-        headerName: "จัดการ",
-        width: 80,
-        cellClassName: "actions",
-        getActions: ({ id }) => {
-          const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+      renderEditCell: (params) => (
+        <ProgramEditComponent {...params} programsByYear={programsByYear} />
+      ),
+    },
+    {
+      field: "StudentCount",
+      headerName: "จำนวนนักเรียน",
+      width: 120,
+      editable: true,
+      type: "number",
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "จัดการ",
+      width: 80,
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
-          if (isInEditMode) {
-            return [
-              <GridActionsCellItem
-                key="save"
-                icon={<SaveIcon color="primary" />}
-                label="บันทึก"
-                onClick={() => handleSaveClick(id)}
-              />,
-              <GridActionsCellItem
-                key="cancel"
-                icon={<CancelIcon />}
-                label="ยกเลิก"
-                onClick={() => handleCancelClick(id)}
-                color="inherit"
-              />,
-            ];
-          }
-
+        if (isInEditMode) {
           return [
             <GridActionsCellItem
-              key="edit"
-              icon={<EditIcon />}
-              label="แก้ไข"
-              onClick={() => handleEditClick(id)}
-              color="inherit"
+              key="save"
+              icon={<SaveIcon color="primary" />}
+              label="บันทึก"
+              onClick={() => handleSaveClick(id)}
             />,
             <GridActionsCellItem
-              key="delete"
-              icon={<DeleteIcon />}
-              label="ลบ"
-              onClick={() => void handleDeleteClick(id)}
+              key="cancel"
+              icon={<CancelIcon />}
+              label="ยกเลิก"
+              onClick={() => handleCancelClick(id)}
               color="inherit"
             />,
           ];
-        },
+        }
+
+        return [
+          <GridActionsCellItem
+            key="edit"
+            icon={<EditIcon />}
+            label="แก้ไข"
+            onClick={() => handleEditClick(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            key="delete"
+            icon={<DeleteIcon />}
+            label="ลบ"
+            onClick={() => void handleDeleteClick(id)}
+            color="inherit"
+          />,
+        ];
       },
-    ],
-    [
-      programsByYear,
-      rowModesModel,
-      handleEditClick,
-      handleSaveClick,
-      handleCancelClick,
-      handleDeleteClick,
-    ],
-  );
+    },
+  ];
 
   // ==================== Render ====================
 

@@ -12,7 +12,7 @@
  * @see https://mui.com/x/react-data-grid/editing/
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   DataGrid,
   GridColDef,
@@ -116,54 +116,51 @@ export function SubjectDataGrid({
     }
   };
 
-  const handleEditClick = useCallback((id: GridRowId) => {
+  const handleEditClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.Edit },
     }));
-  }, []);
+  };
 
-  const handleSaveClick = useCallback((id: GridRowId) => {
+  const handleSaveClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.View },
     }));
-  }, []);
+  };
 
-  const handleCancelClick = useCallback((id: GridRowId) => {
+  const handleCancelClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
     }));
-  }, []);
+  };
 
-  const handleDeleteClick = useCallback(
-    async (id: GridRowId) => {
-      const confirmed = await confirm({
-        title: "ลบวิชา",
-        message: "คุณแน่ใจหรือไม่ว่าต้องการลบวิชานี้?",
-        variant: "danger",
-        confirmText: "ลบ",
-        cancelText: "ยกเลิก",
+  const handleDeleteClick = async (id: GridRowId) => {
+    const confirmed = await confirm({
+      title: "ลบวิชา",
+      message: "คุณแน่ใจหรือไม่ว่าต้องการลบวิชานี้?",
+      variant: "danger",
+      confirmText: "ลบ",
+      cancelText: "ยกเลิก",
+    });
+
+    if (confirmed) {
+      const result = await deleteSubjectsAction({
+        subjectCodes: [id as string],
       });
-
-      if (confirmed) {
-        const result = await deleteSubjectsAction({
-          subjectCodes: [id as string],
-        });
-        if (result.success) {
-          enqueueSnackbar("ลบวิชาสำเร็จ", { variant: "success" });
-          setRows((prev) => prev.filter((row) => row.SubjectCode !== id));
-          await onMutate();
-        } else {
-          enqueueSnackbar("ลบวิชาไม่สำเร็จ", { variant: "error" });
-        }
+      if (result.success) {
+        enqueueSnackbar("ลบวิชาสำเร็จ", { variant: "success" });
+        setRows((prev) => prev.filter((row) => row.SubjectCode !== id));
+        await onMutate();
+      } else {
+        enqueueSnackbar("ลบวิชาไม่สำเร็จ", { variant: "error" });
       }
-    },
-    [confirm, onMutate],
-  );
+    }
+  };
 
-  const handleBulkDelete = useCallback(async () => {
+  const handleBulkDelete = async () => {
     const selectedIds = Array.from(rowSelectionModel.ids) as string[];
     if (selectedIds.length === 0) return;
 
@@ -190,67 +187,67 @@ export function SubjectDataGrid({
         enqueueSnackbar("ลบวิชาไม่สำเร็จ", { variant: "error" });
       }
     }
-  }, [rowSelectionModel, confirm, onMutate]);
+  };
 
   // ==================== Update Handler with MOE Validation ====================
 
-  const processRowUpdate = useCallback(
-    async (newRow: GridRowModel, _oldRow: GridRowModel): Promise<subject> => {
-      const updated = newRow as subject;
+  const processRowUpdate = async (
+    newRow: GridRowModel,
+    _oldRow: GridRowModel,
+  ): Promise<subject> => {
+    const updated = newRow as subject;
 
-      // Validate required fields
-      if (!updated.SubjectName?.trim()) {
-        throw new Error("ชื่อวิชาต้องไม่เป็นค่าว่าง");
-      }
-      if (!updated.Credit) {
-        throw new Error("กรุณาเลือกหน่วยกิต");
-      }
-      if (!updated.Category) {
-        throw new Error("กรุณาเลือกประเภทวิชา");
-      }
+    // Validate required fields
+    if (!updated.SubjectName?.trim()) {
+      throw new Error("ชื่อวิชาต้องไม่เป็นค่าว่าง");
+    }
+    if (!updated.Credit) {
+      throw new Error("กรุณาเลือกหน่วยกิต");
+    }
+    if (!updated.Category) {
+      throw new Error("กรุณาเลือกประเภทวิชา");
+    }
 
-      // MOE Compliance validation
-      if (updated.Category !== "ACTIVITY" && !updated.LearningArea) {
-        throw new Error(
-          "กรุณาเลือกสาระการเรียนรู้สำหรับรายวิชาพื้นฐานและเพิ่มเติม",
-        );
-      }
-      if (updated.Category === "ACTIVITY" && !updated.ActivityType) {
-        throw new Error("กรุณาเลือกประเภทกิจกรรมสำหรับกิจกรรมพัฒนาผู้เรียน");
-      }
+    // MOE Compliance validation
+    if (updated.Category !== "ACTIVITY" && !updated.LearningArea) {
+      throw new Error(
+        "กรุณาเลือกสาระการเรียนรู้สำหรับรายวิชาพื้นฐานและเพิ่มเติม",
+      );
+    }
+    if (updated.Category === "ACTIVITY" && !updated.ActivityType) {
+      throw new Error("กรุณาเลือกประเภทกิจกรรมสำหรับกิจกรรมพัฒนาผู้เรียน");
+    }
 
-      // Call server action
-      const result = await updateSubjectsAction([
-        {
-          SubjectCode: updated.SubjectCode,
-          SubjectName: updated.SubjectName.trim(),
-          Credit: updated.Credit,
-          Category: updated.Category,
-          LearningArea: updated.LearningArea || null,
-          ActivityType: updated.ActivityType || null,
-          IsGraded: updated.IsGraded ?? true,
-          Description: updated.Description?.trim() || null,
-        },
-      ]);
+    // Call server action
+    const result = await updateSubjectsAction([
+      {
+        SubjectCode: updated.SubjectCode,
+        SubjectName: updated.SubjectName.trim(),
+        Credit: updated.Credit,
+        Category: updated.Category,
+        LearningArea: updated.LearningArea || null,
+        ActivityType: updated.ActivityType || null,
+        IsGraded: updated.IsGraded ?? true,
+        Description: updated.Description?.trim() || null,
+      },
+    ]);
 
-      if (!result.success) {
-        throw new Error(
-          typeof result.error === "string"
-            ? result.error
-            : result.error?.message || "บันทึกไม่สำเร็จ",
-        );
-      }
+    if (!result.success) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message || "บันทึกไม่สำเร็จ",
+      );
+    }
 
-      enqueueSnackbar("บันทึกวิชาสำเร็จ", { variant: "success" });
-      await onMutate();
-      return updated;
-    },
-    [onMutate],
-  );
+    enqueueSnackbar("บันทึกวิชาสำเร็จ", { variant: "success" });
+    await onMutate();
+    return updated;
+  };
 
-  const handleProcessRowUpdateError = useCallback((error: Error) => {
+  const handleProcessRowUpdateError = (error: Error) => {
     enqueueSnackbar(`บันทึกไม่สำเร็จ: ${error.message}`, { variant: "error" });
-  }, []);
+  };
 
   // ==================== Columns ====================
 

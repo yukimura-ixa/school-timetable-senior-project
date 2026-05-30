@@ -87,7 +87,7 @@ export default function ExportAllProgram(
       subjects.filter((item) => item.Category === "กิจกรรมพัฒนาผู้เรียน"),
     );
   };
-  const CategoryObject = (catName: string) => {
+  const categoryObject = (catName: string) => {
     return {
       order: "",
       subjectcode: "",
@@ -166,7 +166,7 @@ export default function ExportAllProgram(
     return sortedData;
   };
   const jsonData = [
-    CategoryObject("สาระการเรียนรู้พื้นฐาน"),
+    categoryObject("สาระการเรียนรู้พื้นฐาน"),
     ...primarySubjectData().map((item: ProgramSubject, index: number) => ({
       order: index + 1,
       subjectcode: item.SubjectCode,
@@ -180,7 +180,7 @@ export default function ExportAllProgram(
       getSumCreditValue("PRIMARY"),
     ),
     blankObject(),
-    CategoryObject("สาระการเรียนรู้เพิ่มเติม"),
+    categoryObject("สาระการเรียนรู้เพิ่มเติม"),
     ...extraSubjectData().map((item: ProgramSubject, index: number) => ({
       order: primarySubjectData().length + (index + 1),
       subjectcode: item.SubjectCode,
@@ -194,7 +194,7 @@ export default function ExportAllProgram(
       getSumCreditValue("EXTRA"),
     ),
     blankObject(),
-    CategoryObject("กิจกรรมพัฒนาผู้เรียน"),
+    categoryObject("กิจกรรมพัฒนาผู้เรียน"),
     ...activitiesSubjectData().map((item: ProgramSubject, index: number) => ({
       order:
         primarySubjectData().length + extraSubjectData().length + (index + 1),

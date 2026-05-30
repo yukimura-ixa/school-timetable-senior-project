@@ -10,6 +10,7 @@
 import { checkPublishReadiness } from "../../domain/services/publish-readiness.service";
 import type { PublishReadinessResult } from "../../domain/types/publish-readiness-types";
 import { findFullConfigData } from "../../infrastructure/repositories/config.repository";
+import { requireAdminAccess } from "@/lib/auth-guard";
 
 /**
  * Fetches all necessary data for a semester configuration and checks its publish readiness.
@@ -20,6 +21,9 @@ import { findFullConfigData } from "../../infrastructure/repositories/config.rep
 export async function getPublishReadiness(
   configId: string,
 ): Promise<PublishReadinessResult | null> {
+  const authzError = await requireAdminAccess();
+  if (authzError) throw new Error(authzError.error);
+
   const configData = await findFullConfigData(configId);
 
   if (!configData) {

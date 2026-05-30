@@ -12,7 +12,7 @@
  * @see https://mui.com/x/react-data-grid/editing/
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   DataGrid,
   GridColDef,
@@ -89,52 +89,49 @@ export function TeacherDataGrid({
     }
   };
 
-  const handleEditClick = useCallback((id: GridRowId) => {
+  const handleEditClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.Edit },
     }));
-  }, []);
+  };
 
-  const handleSaveClick = useCallback((id: GridRowId) => {
+  const handleSaveClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.View },
     }));
-  }, []);
+  };
 
-  const handleCancelClick = useCallback((id: GridRowId) => {
+  const handleCancelClick = (id: GridRowId) => {
     setRowModesModel((prev) => ({
       ...prev,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
     }));
-  }, []);
+  };
 
-  const handleDeleteClick = useCallback(
-    async (id: GridRowId) => {
-      const confirmed = await confirm({
-        title: "ลบข้อมูลครู",
-        message: "คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลครูนี้?",
-        variant: "danger",
-        confirmText: "ลบ",
-        cancelText: "ยกเลิก",
-      });
+  const handleDeleteClick = async (id: GridRowId) => {
+    const confirmed = await confirm({
+      title: "ลบข้อมูลครู",
+      message: "คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลครูนี้?",
+      variant: "danger",
+      confirmText: "ลบ",
+      cancelText: "ยกเลิก",
+    });
 
-      if (confirmed) {
-        const result = await deleteTeachersAction([id as number]);
-        if (result.success) {
-          enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
-          setRows((prev) => prev.filter((row) => row.TeacherID !== id));
-          void onMutate();
-        } else {
-          enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ", { variant: "error" });
-        }
+    if (confirmed) {
+      const result = await deleteTeachersAction([id as number]);
+      if (result.success) {
+        enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
+        setRows((prev) => prev.filter((row) => row.TeacherID !== id));
+        void onMutate();
+      } else {
+        enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ", { variant: "error" });
       }
-    },
-    [confirm, onMutate],
-  );
+    }
+  };
 
-  const handleBulkDelete = useCallback(async () => {
+  const handleBulkDelete = async () => {
     const selectedIds = Array.from(rowSelectionModel.ids) as number[];
     if (selectedIds.length === 0) return;
 
@@ -161,53 +158,53 @@ export function TeacherDataGrid({
         enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ", { variant: "error" });
       }
     }
-  }, [rowSelectionModel, confirm, onMutate]);
+  };
 
   // ==================== Update Handler ====================
 
-  const processRowUpdate = useCallback(
-    async (newRow: GridRowModel, _oldRow: GridRowModel): Promise<teacher> => {
-      const updatedTeacher = newRow as teacher;
+  const processRowUpdate = async (
+    newRow: GridRowModel,
+    _oldRow: GridRowModel,
+  ): Promise<teacher> => {
+    const updatedTeacher = newRow as teacher;
 
-      // Validate
-      if (!updatedTeacher.Firstname?.trim()) {
-        throw new Error("ชื่อต้องไม่เป็นค่าว่าง");
-      }
-      if (!updatedTeacher.Lastname?.trim()) {
-        throw new Error("นามสกุลต้องไม่เป็นค่าว่าง");
-      }
+    // Validate
+    if (!updatedTeacher.Firstname?.trim()) {
+      throw new Error("ชื่อต้องไม่เป็นค่าว่าง");
+    }
+    if (!updatedTeacher.Lastname?.trim()) {
+      throw new Error("นามสกุลต้องไม่เป็นค่าว่าง");
+    }
 
-      // Call server action
-      const result = await updateTeachersAction([
-        {
-          TeacherID: updatedTeacher.TeacherID,
-          Prefix: updatedTeacher.Prefix?.trim() || "นาย",
-          Firstname: updatedTeacher.Firstname.trim(),
-          Lastname: updatedTeacher.Lastname.trim(),
-          Department: updatedTeacher.Department?.trim() || "-",
-          Email: updatedTeacher.Email?.trim() || "",
-          Role: updatedTeacher.Role || "teacher",
-        },
-      ]);
+    // Call server action
+    const result = await updateTeachersAction([
+      {
+        TeacherID: updatedTeacher.TeacherID,
+        Prefix: updatedTeacher.Prefix?.trim() || "นาย",
+        Firstname: updatedTeacher.Firstname.trim(),
+        Lastname: updatedTeacher.Lastname.trim(),
+        Department: updatedTeacher.Department?.trim() || "-",
+        Email: updatedTeacher.Email?.trim() || "",
+        Role: updatedTeacher.Role || "teacher",
+      },
+    ]);
 
-      if (!result.success) {
-        throw new Error(
-          typeof result.error === "string"
-            ? result.error
-            : result.error?.message || "บันทึกไม่สำเร็จ",
-        );
-      }
+    if (!result.success) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message || "บันทึกไม่สำเร็จ",
+      );
+    }
 
-      enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
-      void onMutate();
-      return updatedTeacher;
-    },
-    [onMutate],
-  );
+    enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
+    void onMutate();
+    return updatedTeacher;
+  };
 
-  const handleProcessRowUpdateError = useCallback((error: Error) => {
+  const handleProcessRowUpdateError = (error: Error) => {
     enqueueSnackbar(`บันทึกไม่สำเร็จ: ${error.message}`, { variant: "error" });
-  }, []);
+  };
 
   // ==================== Columns ====================
 

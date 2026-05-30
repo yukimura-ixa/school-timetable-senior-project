@@ -11,6 +11,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { requireAdminAccess } from "@/lib/auth-guard";
 import { timeslotRepository } from "../../infrastructure/repositories/timeslot.repository";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
@@ -288,6 +289,9 @@ export const deleteTimeslotsByTermAction = createAction(
  * ```
  */
 export async function getTimeslotCountAction() {
+  const authzError = await requireAdminAccess();
+  if (authzError) return authzError;
+
   try {
     const count = await timeslotRepository.count();
     return { success: true as const, data: { count } };
