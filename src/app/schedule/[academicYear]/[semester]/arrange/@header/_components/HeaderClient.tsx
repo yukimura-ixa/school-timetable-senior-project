@@ -83,15 +83,12 @@ export function HeaderClient({
           message: `จัดตารางไม่สำเร็จ: ${result.message || "เกิดข้อผิดพลาด"}${failureMsg}`,
           severity: "error",
         });
-        setAutoArrangeResult({ failures: result.failures ?? [], stats: null });
+        setAutoArrangeResult(result.failures ?? []);
         return;
       }
 
       const { stats } = result;
-      setAutoArrangeResult({
-        failures: result.failures,
-        stats: { successfullyPlaced: stats.successfullyPlaced, failed: stats.failed },
-      });
+      setAutoArrangeResult(result.failures);
       setSnackbar({
         open: true,
         message: `✅ จัดตารางสำเร็จ ${stats.successfullyPlaced} คาบ${stats.failed > 0 ? ` (ไม่สำเร็จ ${stats.failed} คาบ)` : ""} (${stats.durationMs}ms)`,
