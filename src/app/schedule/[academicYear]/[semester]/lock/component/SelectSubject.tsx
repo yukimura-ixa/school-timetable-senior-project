@@ -1,7 +1,7 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { CircularProgress } from "@mui/material";
 import { useParams } from "next/navigation";
-import React, { useMemo, useState, type JSX } from "react";
+import React, { useState, type JSX } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
@@ -42,18 +42,18 @@ function SelectSubject(props: Props) {
     },
   );
   const [searchText, setSearchText] = useState("");
-  const subjects = useMemo(() => {
+  const subjects = (() => {
     const result = respData.data as
       | ActionResult<SubjectWithResponsibilities[]>
       | undefined;
     return result?.success && result.data ? result.data : [];
-  }, [respData.data]);
-  const filteredSubjects = useMemo(() => {
+  })();
+  const filteredSubjects = (() => {
     if (!searchText) return subjects;
     return subjects.filter((item) =>
       `${item.SubjectCode} ${item.SubjectName}`.match(searchText),
     );
-  }, [subjects, searchText]);
+  })();
 
   const searchHandle: InputChangeHandler = (event) => {
     const text = event.target.value;

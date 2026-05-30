@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import useSWR from "swr";
 import {
   Box,
@@ -91,7 +91,7 @@ export default function ConflictDetector() {
     },
   );
 
-  const conflicts: ConflictSummary | null = useMemo(() => {
+  const conflicts: ConflictSummary | null = (() => {
     if (
       conflictsResponse &&
       "success" in conflictsResponse &&
@@ -101,7 +101,7 @@ export default function ConflictDetector() {
       return conflictsResponse.data;
     }
     return null;
-  }, [conflictsResponse]);
+  })();
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

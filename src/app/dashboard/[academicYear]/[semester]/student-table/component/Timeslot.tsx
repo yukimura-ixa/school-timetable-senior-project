@@ -1,6 +1,6 @@
 "use client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import React, { useMemo } from "react";
+import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import { isBreakForGrade } from "@/utils/break-utils";
@@ -41,10 +41,7 @@ export default function TimeSlot({
   breakDefinitions,
 }: Props) {
   const theme = useTheme();
-  const gradeLevel = useMemo(
-    () => getGradeLevel(searchGradeID),
-    [searchGradeID],
-  );
+  const gradeLevel = getGradeLevel(searchGradeID);
 
   const columns = timeSlotData.Columns;
   const monSlots = timeSlotData.AllData.filter(
@@ -344,9 +341,7 @@ export default function TimeSlot({
                             fontWeight="bold"
                             sx={{
                               fontSize:
-                                subjectCode.length > 8
-                                  ? "0.75rem"
-                                  : "0.875rem",
+                                subjectCode.length > 8 ? "0.75rem" : "0.875rem",
                               color: theme.palette.text.primary,
                               lineHeight: 1.2,
                             }}

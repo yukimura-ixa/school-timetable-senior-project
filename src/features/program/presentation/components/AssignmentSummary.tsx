@@ -7,7 +7,7 @@
  * - Category breakdown
  */
 
-import React, { useMemo } from "react";
+import React from "react";
 import { Box, Typography, Chip, Stack } from "@mui/material";
 import { SubjectCategory } from "@/features/program/domain/types/enums";
 import type { SubjectConfig } from "../hooks/useSubjectAssignment";
@@ -26,7 +26,7 @@ export function AssignmentSummary({
   subjects,
 }: AssignmentSummaryProps) {
   // Calculate category breakdown
-  const categoryStats = useMemo(() => {
+  const categoryStats = (() => {
     const stats: Record<string, { count: number; credits: number }> = {};
 
     Object.values(subjectConfigs)
@@ -47,7 +47,7 @@ export function AssignmentSummary({
       });
 
     return stats;
-  }, [subjectConfigs, subjects]);
+  })();
 
   const selectedCount = Object.values(subjectConfigs).filter(
     (c) => c.selected,

@@ -9,7 +9,7 @@
  * config changes back via setTimeslotConfig / setIsTimeslotConfigValid.
  */
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -25,7 +25,13 @@ import {
   Divider,
   IconButton,
 } from "@mui/material";
-import { AccessTime, CalendarMonth, Schedule, Add, Delete } from "@mui/icons-material";
+import {
+  AccessTime,
+  CalendarMonth,
+  Schedule,
+  Add,
+  Delete,
+} from "@mui/icons-material";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import type { day_of_week } from "@/prisma/generated/client";
 import { useCreateSemester } from "./CreateSemesterWizard/CreateSemesterContext";
@@ -36,7 +42,10 @@ import {
   DEFAULT_SENIOR_GRADES,
   type BreakDefinition,
 } from "@/features/timeslot/domain/models/break.types";
-import { generatePreviewSlots, calculateSchoolDayEndTime } from "@/features/timeslot/domain/services/timeslot-config.service";
+import {
+  generatePreviewSlots,
+  calculateSchoolDayEndTime,
+} from "@/features/timeslot/domain/services/timeslot-config.service";
 
 const DAYS: { value: day_of_week; label: string }[] = [
   { value: "MON", label: "จันทร์" },
@@ -80,14 +89,14 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
           g.Name === "junior"
             ? [...DEFAULT_JUNIOR_GRADES]
             : [...DEFAULT_SENIOR_GRADES],
-      }))
+      })),
   );
 
   const [breakDefs, setBreakDefs] = useState<BreakDefinition[]>(
-    initialConfig?.breakDefinitions ?? [...DEFAULT_BREAK_DEFINITIONS]
+    initialConfig?.breakDefinitions ?? [...DEFAULT_BREAK_DEFINITIONS],
   );
 
-  const errors = useMemo(() => {
+  const errors = (() => {
     const newErrors: Record<string, string> = {};
 
     if (config.Days.length === 0) {
@@ -107,7 +116,7 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
     }
 
     return newErrors;
-  }, [config]);
+  })();
 
   const isValid = Object.keys(errors).length === 0;
 
@@ -121,7 +130,14 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
         breakDefinitions: breakDefs,
       });
     }
-  }, [config, breakGroups, breakDefs, isValid, setTimeslotConfig, setIsTimeslotConfigValid]);
+  }, [
+    config,
+    breakGroups,
+    breakDefs,
+    isValid,
+    setTimeslotConfig,
+    setIsTimeslotConfigValid,
+  ]);
 
   const handleDayToggle = (day: day_of_week) => {
     setConfig((prev) => ({
@@ -133,14 +149,12 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
   };
 
   // Calculate preview schedule using V2
-  const previewSchedule = useMemo(() => {
-    return generatePreviewSlots({
-      StartTime: config.StartTime,
-      Duration: config.Duration,
-      TimeslotPerDay: config.TimeslotPerDay,
-      breakDefinitions: breakDefs,
-    });
-  }, [config.StartTime, config.Duration, config.TimeslotPerDay, breakDefs]);
+  const previewSchedule = generatePreviewSlots({
+    StartTime: config.StartTime,
+    Duration: config.Duration,
+    TimeslotPerDay: config.TimeslotPerDay,
+    breakDefinitions: breakDefs,
+  });
 
   return (
     <Box sx={{ mt: 2 }}>
@@ -257,7 +271,15 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
         </Typography>
         <Stack spacing={2}>
           {breakGroups.map((group, idx) => (
-            <Box key={idx} sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+            <Box
+              key={idx}
+              sx={{
+                p: 2,
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 1,
+              }}
+            >
               <Stack direction="row" spacing={2} alignItems="center">
                 <TextField
                   size="small"
@@ -304,7 +326,15 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
         </Typography>
         <Stack spacing={2}>
           {breakDefs.map((def, idx) => (
-            <Box key={idx} sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+            <Box
+              key={idx}
+              sx={{
+                p: 2,
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 1,
+              }}
+            >
               <Stack direction="row" spacing={2} alignItems="center">
                 <TextField
                   size="small"
@@ -338,25 +368,35 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
                     setBreakDefs(newDefs);
                   }}
                 />
-                <IconButton onClick={() => {
-                  const newDefs = breakDefs.filter((_, i) => i !== idx);
-                  setBreakDefs(newDefs);
-                }} color="error">
+                <IconButton
+                  onClick={() => {
+                    const newDefs = breakDefs.filter((_, i) => i !== idx);
+                    setBreakDefs(newDefs);
+                  }}
+                  color="error"
+                >
                   <Delete />
                 </IconButton>
               </Stack>
             </Box>
           ))}
           <Box>
-            <Chip 
-              icon={<Add />} 
-              label="เพิ่มช่วงพัก" 
+            <Chip
+              icon={<Add />}
+              label="เพิ่มช่วงพัก"
               onClick={() => {
                 setBreakDefs([
                   ...breakDefs,
-                  { id: `break-${Date.now()}`, label: "พักใหม่", slotNumber: 1, duration: 15, color: "#9E9E9E", groups: ["*"] }
+                  {
+                    id: `break-${Date.now()}`,
+                    label: "พักใหม่",
+                    slotNumber: 1,
+                    duration: 15,
+                    color: "#9E9E9E",
+                    groups: ["*"],
+                  },
                 ]);
-              }} 
+              }}
             />
           </Box>
         </Stack>
@@ -401,7 +441,10 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
           color="text.secondary"
           sx={{ mt: 2, display: "block" }}
         >
-          เวลาเลิก: {previewSchedule.length > 0 ? previewSchedule[previewSchedule.length - 1]!.endTime : "--:--"}
+          เวลาเลิก:{" "}
+          {previewSchedule.length > 0
+            ? previewSchedule[previewSchedule.length - 1]!.endTime
+            : "--:--"}
         </Typography>
       </Paper>
     </Box>

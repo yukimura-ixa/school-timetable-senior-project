@@ -1,7 +1,7 @@
 import { useTimeslots } from "@/hooks";
 import { subjectCreditValues } from "@/models/credit-value";
 import { useParams } from "next/navigation";
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
 
 import type { subject } from "@/prisma/generated/client";
@@ -20,19 +20,20 @@ function SelectMultipleTimeSlot(props: Props) {
 
   // Use useSemesterSync to extract and sync semester with global store
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
 
-  const timeSlotData = useTimeslots(
-    academicYear ?? 0,
-    semester ?? 0,
-  );
-  const timeSlot = useMemo(() => {
+  const timeSlotData = useTimeslots(academicYear ?? 0, semester ?? 0);
+  const timeSlot = (() => {
     if (timeSlotData.isLoading) return [];
     return timeSlotData.data
       .filter((item) => item.DayOfWeek === props.daySelected)
       .map((item) => item.TimeslotID);
-  }, [timeSlotData.isLoading, timeSlotData.data, props.daySelected]);
+  })();
 
   const checkTimeslotCond = (index: number) => {
     if (!props.subject?.Credit) return false;

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Menubar from "./Menubar";
 import DashboardMenubar from "./DashboardMenubar";
@@ -62,9 +62,9 @@ function Content(props: Props) {
   }, [pathName]);
 
   // Callback to close sidebar (used by backdrop click)
-  const handleBackdropClick = useCallback(() => {
+  const handleBackdropClick = () => {
     setSidebarOpen(false);
-  }, [setSidebarOpen]);
+  };
 
   // Hydration-safe: avoid SSR/client mismatch by only rendering the sidebar
   // after Zustand has rehydrated on the client.

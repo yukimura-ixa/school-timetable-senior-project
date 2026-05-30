@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -86,7 +86,7 @@ function LockCalendarView({
     useState<GroupedLockedSchedule | null>(null);
 
   // Group timeslots by day and period
-  const timeslotGrid = useMemo(() => {
+  const timeslotGrid = (() => {
     if (!timeslotsData.data) return null;
 
     const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
@@ -108,10 +108,10 @@ function LockCalendarView({
     });
 
     return grid;
-  }, [timeslotsData.data]);
+  })();
 
   // Map locks to timeslot grid
-  const lockMap = useMemo(() => {
+  const lockMap = (() => {
     const map: Record<string, GroupedLockedSchedule> = {};
 
     lockData.forEach((lock) => {
@@ -121,7 +121,7 @@ function LockCalendarView({
     });
 
     return map;
-  }, [lockData]);
+  })();
 
   // Get lock type (heuristic-based classification)
   // Note: Exam periods should use dedicated "Exam Arrange Mode" feature instead

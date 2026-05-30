@@ -7,10 +7,13 @@
  * entirely on the client side without page refreshes or URL changes.
  */
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useRef } from "react";
 import { TeachersTableClient } from "./TeachersTableClient";
 import { ClassesTableClient } from "./ClassesTableClient";
-import { FilterSidebar, type FilterFacet } from "@/components/public/FilterSidebar";
+import {
+  FilterSidebar,
+  type FilterFacet,
+} from "@/components/public/FilterSidebar";
 import { ListToolbar } from "@/components/public/ListToolbar";
 import type { PublicTeacher } from "@/lib/public/teachers";
 import type { PublicClass } from "@/lib/public/classes";
@@ -70,7 +73,7 @@ export function DataTableSection({
   const [classesState] = useState(classesData);
 
   // Facets are computed from the full (unfiltered) dataset so counts are stable.
-  const teacherFacet: FilterFacet = useMemo(() => {
+  const teacherFacet: FilterFacet = (() => {
     const counts = new Map<string, number>();
     for (const t of teachersState.data) {
       const k = t.department || "ไม่ระบุ";
@@ -83,22 +86,27 @@ export function DataTableSection({
         .sort((a, b) => a[0].localeCompare(b[0], "th"))
         .map(([value, count]) => ({ value, label: value, count })),
     };
-  }, [teachersState.data]);
+  })();
 
-  const classFacet: FilterFacet = useMemo(() => {
+  const classFacet: FilterFacet = (() => {
     const counts = new Map<number, number>();
-    for (const c of classesState.data) counts.set(c.year, (counts.get(c.year) ?? 0) + 1);
+    for (const c of classesState.data)
+      counts.set(c.year, (counts.get(c.year) ?? 0) + 1);
     return {
       key: "year",
       label: "ระดับชั้น",
       options: [...counts.entries()]
         .sort((a, b) => a[0] - b[0])
-        .map(([year, count]) => ({ value: String(year), label: `ม.${year}`, count })),
+        .map(([year, count]) => ({
+          value: String(year),
+          label: `ม.${year}`,
+          count,
+        })),
     };
-  }, [classesState.data]);
+  })();
 
   // Filter + facet + sort
-  const filteredTeachers = useMemo(() => {
+  const filteredTeachers = (() => {
     const query = searchQuery.toLowerCase();
     let xs = teachersState.data;
     if (query) {
@@ -108,15 +116,16 @@ export function DataTableSection({
           (t.department && t.department.toLowerCase().includes(query)),
       );
     }
-    if (facetValue) xs = xs.filter((t) => (t.department || "ไม่ระบุ") === facetValue);
+    if (facetValue)
+      xs = xs.filter((t) => (t.department || "ไม่ระบุ") === facetValue);
     return [...xs].sort((a, b) => {
       if (sortValue === "hours") return b.weeklyHours - a.weeklyHours;
       if (sortValue === "subjects") return b.subjectCount - a.subjectCount;
       return a.name.localeCompare(b.name, "th");
     });
-  }, [teachersState.data, searchQuery, facetValue, sortValue]);
+  })();
 
-  const filteredClasses = useMemo(() => {
+  const filteredClasses = (() => {
     const query = searchQuery.toLowerCase();
     let xs = classesState.data;
     if (query) {
@@ -133,18 +142,18 @@ export function DataTableSection({
       if (a.year !== b.year) return a.year - b.year;
       return a.section - b.section;
     });
-  }, [classesState.data, searchQuery, facetValue, sortValue]);
+  })();
 
   // Get current page data
-  const currentTeachers = useMemo(() => {
+  const currentTeachers = (() => {
     const start = (currentPage - 1) * 25;
     return filteredTeachers.slice(start, start + 25);
-  }, [filteredTeachers, currentPage]);
+  })();
 
-  const currentClasses = useMemo(() => {
+  const currentClasses = (() => {
     const start = (currentPage - 1) * 25;
     return filteredClasses.slice(start, start + 25);
-  }, [filteredClasses, currentPage]);
+  })();
 
   // Recalculate total pages based on filtered data
   const actualTotalItems =
@@ -176,7 +185,9 @@ export function DataTableSection({
     setCurrentPage(1);
     setSearchQuery("");
     setFacetValue("");
-    setSortValue(tab === "teachers" ? TEACHER_DEFAULT_SORT : CLASS_DEFAULT_SORT);
+    setSortValue(
+      tab === "teachers" ? TEACHER_DEFAULT_SORT : CLASS_DEFAULT_SORT,
+    );
     setDrawerOpen(false);
   };
 
@@ -292,7 +303,11 @@ export function DataTableSection({
       {/* Content: faceted sidebar + card grid */}
       <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
         <div className="flex gap-4 md:gap-6">
-          <FilterSidebar facet={activeFacet} value={facetValue} onChange={handleFacet} />
+          <FilterSidebar
+            facet={activeFacet}
+            value={facetValue}
+            onChange={handleFacet}
+          />
 
           {drawerOpen && (
             <div
@@ -304,7 +319,12 @@ export function DataTableSection({
                 className="absolute left-0 top-0 h-full w-72 bg-white p-3 overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                <FilterSidebar facet={activeFacet} value={facetValue} onChange={handleFacet} drawer />
+                <FilterSidebar
+                  facet={activeFacet}
+                  value={facetValue}
+                  onChange={handleFacet}
+                  drawer
+                />
               </div>
             </div>
           )}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   managementMenu,
@@ -27,7 +27,7 @@ function Menubar() {
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
 
   // Resolve term: URL first (current page context), persisted store second
-  const currentTerm = useMemo(() => {
+  const currentTerm = (() => {
     const match = pathName.match(/\/(schedule|dashboard)\/(25\d{2})\/(\d)/);
     if (match) return { year: match[2], semester: match[3] };
     if (persistedYear && persistedSemester) {
@@ -37,7 +37,7 @@ function Menubar() {
       };
     }
     return null;
-  }, [pathName, persistedYear, persistedSemester]);
+  })();
   return (
     <>
       {pathName === "/signin" ? null : (
@@ -52,71 +52,20 @@ function Menubar() {
             <p className="text-gray-700 mb-3 font-bold text-sm uppercase tracking-wider select-none">
               การจัดการข้อมูล
             </p>
-            {(managementMenu as MenuItem[]).map((item: MenuItem, index: number) => {
-              if (item.link === null) return null;
-              const itemLink = item.link;
-              return (
-                <React.Fragment key={item.id}>
-                  {itemLink === linkSelected ? (
-                    <Link
-                      href={itemLink}
-                      onClick={() => setLinkSelected(itemLink)}
-                      className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md transform scale-105 transition-all duration-300`}
-                      style={{
-                        marginBottom:
-                          index === managementMenu.length - 1 ? "10px" : 0,
-                      }}
-                    >
-                      <item.IconStyle.Icon className={`w-5 h-5 fill-white`} />
-                      <p className="text-md font-medium">{item.title}</p>
-                    </Link>
-                  ) : (
-                    <Link
-                      href={itemLink}
-                      onClick={() => setLinkSelected(itemLink)}
-                      className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer text-gray-600 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-600 hover:shadow-sm transition-all duration-300`}
-                      style={{
-                        marginBottom:
-                          index === managementMenu.length - 1 ? "10px" : 0,
-                      }}
-                    >
-                      <item.IconStyle.Icon
-                        className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`}
-                      />
-                      <p className="text-md font-medium">{item.title}</p>
-                    </Link>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
-          {/* schedule */}
-          <div className="flex flex-col w-full gap-1 h-fit border-b border-gray-200 pb-4 select-none">
-            <p className="text-gray-700 mb-3 font-bold text-sm uppercase tracking-wider select-none">
-              ตารางสอน
-            </p>
-            {(scheduleMenu as MenuItem[]).map((item: MenuItem, index: number) => {
-              // For dynamic links (จัดตารางสอน), use current/persisted semester
-              // Fallback to /dashboard (semester picker) when no term known
-              const linkHref = item.dynamicLink
-                ? currentTerm
-                  ? `/schedule/${currentTerm.year}/${currentTerm.semester}/arrange`
-                  : "/dashboard"
-                : item.link || "/dashboard";
-
-              const isSelected = linkHref === linkSelected;
-
-              return (
-                <React.Fragment key={item.id}>
-                  <>
-                    {isSelected ? (
+            {(managementMenu as MenuItem[]).map(
+              (item: MenuItem, index: number) => {
+                if (item.link === null) return null;
+                const itemLink = item.link;
+                return (
+                  <React.Fragment key={item.id}>
+                    {itemLink === linkSelected ? (
                       <Link
-                        href={linkHref}
-                        onClick={() => setLinkSelected(linkHref)}
+                        href={itemLink}
+                        onClick={() => setLinkSelected(itemLink)}
                         className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md transform scale-105 transition-all duration-300`}
                         style={{
                           marginBottom:
-                            index === scheduleMenu.length - 1 ? "10px" : 0,
+                            index === managementMenu.length - 1 ? "10px" : 0,
                         }}
                       >
                         <item.IconStyle.Icon className={`w-5 h-5 fill-white`} />
@@ -124,12 +73,12 @@ function Menubar() {
                       </Link>
                     ) : (
                       <Link
-                        href={linkHref}
-                        onClick={() => setLinkSelected(linkHref)}
+                        href={itemLink}
+                        onClick={() => setLinkSelected(itemLink)}
                         className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer text-gray-600 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-600 hover:shadow-sm transition-all duration-300`}
                         style={{
                           marginBottom:
-                            index === scheduleMenu.length - 1 ? "10px" : 0,
+                            index === managementMenu.length - 1 ? "10px" : 0,
                         }}
                       >
                         <item.IconStyle.Icon
@@ -138,10 +87,67 @@ function Menubar() {
                         <p className="text-md font-medium">{item.title}</p>
                       </Link>
                     )}
-                  </>
-                </React.Fragment>
-              );
-            })}
+                  </React.Fragment>
+                );
+              },
+            )}
+          </div>
+          {/* schedule */}
+          <div className="flex flex-col w-full gap-1 h-fit border-b border-gray-200 pb-4 select-none">
+            <p className="text-gray-700 mb-3 font-bold text-sm uppercase tracking-wider select-none">
+              ตารางสอน
+            </p>
+            {(scheduleMenu as MenuItem[]).map(
+              (item: MenuItem, index: number) => {
+                // For dynamic links (จัดตารางสอน), use current/persisted semester
+                // Fallback to /dashboard (semester picker) when no term known
+                const linkHref = item.dynamicLink
+                  ? currentTerm
+                    ? `/schedule/${currentTerm.year}/${currentTerm.semester}/arrange`
+                    : "/dashboard"
+                  : item.link || "/dashboard";
+
+                const isSelected = linkHref === linkSelected;
+
+                return (
+                  <React.Fragment key={item.id}>
+                    <>
+                      {isSelected ? (
+                        <Link
+                          href={linkHref}
+                          onClick={() => setLinkSelected(linkHref)}
+                          className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md transform scale-105 transition-all duration-300`}
+                          style={{
+                            marginBottom:
+                              index === scheduleMenu.length - 1 ? "10px" : 0,
+                          }}
+                        >
+                          <item.IconStyle.Icon
+                            className={`w-5 h-5 fill-white`}
+                          />
+                          <p className="text-md font-medium">{item.title}</p>
+                        </Link>
+                      ) : (
+                        <Link
+                          href={linkHref}
+                          onClick={() => setLinkSelected(linkHref)}
+                          className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer text-gray-600 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-600 hover:shadow-sm transition-all duration-300`}
+                          style={{
+                            marginBottom:
+                              index === scheduleMenu.length - 1 ? "10px" : 0,
+                          }}
+                        >
+                          <item.IconStyle.Icon
+                            className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`}
+                          />
+                          <p className="text-md font-medium">{item.title}</p>
+                        </Link>
+                      )}
+                    </>
+                  </React.Fragment>
+                );
+              },
+            )}
           </div>
           {/* others */}
           {/* <div className="flex flex-col w-full h-fit border-b gap-1 border-[#C8C9CD]">

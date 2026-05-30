@@ -1,5 +1,5 @@
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useState } from "react";
 
 import { AiOutlineClose } from "react-icons/ai";
 import { useGradeLevels } from "@/hooks";
@@ -28,7 +28,7 @@ function SelectClassRoomModal({
   year,
 }: props) {
   const { data, isLoading } = useGradeLevels();
-  const baseClassRooms = useMemo(() => {
+  const baseClassRooms = (() => {
     // ตัวอย่างข้อมูลแบบคร่าวๆ //
     // {GradeID : 101}
     // {GradeID : 201}
@@ -49,18 +49,14 @@ function SelectClassRoomModal({
         : ({ GradeID: item.GradeID || "" } as ClassRoomItem);
     }); //ตรงนี่จะ Map ข้อมูลด้วยการเช็คว่า ข้อมูลที่ส่งมานั้นเคยมีแล้วหรือยัง ถ้ามาแล้วจะใส่ isSelected = true ถ้าไม่เคยมีก็ false
     //ทำเพื่ออะไร ? เพื่อตอนกดสลับเลือกห้องเรียนไปมา ข้อมูลของวิชาที่ติดอยู่กับห้องเรียนที่เคยเลือกแล้วจะได้ไม่หายไปไหน ของเก่าเนี่ย ถ้าเรากดลบห้องเรียนแล้วเพิ่มกลับมาใหม่ ข้อมูลวิชาในนั้นจะหายไป
-  }, [data, classList, year]);
-  const [selectedGradeIds, setSelectedGradeIds] = useState<string[]>(
-    () => classList.map((item) => item.GradeID),
+  })();
+  const [selectedGradeIds, setSelectedGradeIds] = useState<string[]>(() =>
+    classList.map((item) => item.GradeID),
   );
-  const classRoomList = useMemo(
-    () =>
-      baseClassRooms.map((classRoom) => ({
-        ...classRoom,
-        isSelected: selectedGradeIds.includes(classRoom.GradeID),
-      })),
-    [baseClassRooms, selectedGradeIds],
-  );
+  const classRoomList = baseClassRooms.map((classRoom) => ({
+    ...classRoom,
+    isSelected: selectedGradeIds.includes(classRoom.GradeID),
+  }));
   const addSelectedList = (item: ClassRoomItem) => {
     setSelectedGradeIds((prev) =>
       prev.includes(item.GradeID) ? prev : [...prev, item.GradeID],
@@ -84,11 +80,7 @@ function SelectClassRoomModal({
             {/* Content */}
             <div className="flex flex-col w-full gap-3 h-auto">
               <div className="flex justify-between">
-                <p
-                  className="text-lg select-none"
-                >
-                  เลือกชั้นเรียน
-                </p>
+                <p className="text-lg select-none">เลือกชั้นเรียน</p>
                 <AiOutlineClose
                   className="cursor-pointer"
                   onClick={closeModal}

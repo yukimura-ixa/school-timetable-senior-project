@@ -2,7 +2,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { Skeleton } from "@mui/material";
 import type { subject } from "@/prisma/generated/client";
 import { useParams } from "next/navigation";
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
@@ -60,7 +60,7 @@ function SelectedClassRoom(props: Props) {
     },
   );
 
-  const allClassRoom = useMemo(() => {
+  const allClassRoom = (() => {
     if (data && "success" in data && data.success && data.data) {
       const grades = data.data as {
         GradeID: string;
@@ -77,7 +77,7 @@ function SelectedClassRoom(props: Props) {
       }));
     }
     return DEFAULT_CLASS_ROOMS.map((item) => ({ ...item, rooms: [] }));
-  }, [data]);
+  })();
   return (
     <>
       <div className="flex flex-col gap-3 justify-between w-full">

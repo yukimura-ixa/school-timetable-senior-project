@@ -14,7 +14,7 @@
  * Note: Individual pages should check config status using their own data fetching
  */
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useSemesterStore } from "@/stores/semesterStore";
 
 interface SemesterSyncResult {
@@ -41,7 +41,7 @@ export function useSemesterSync(
 
   // Normalize and parse the input safely
   const { semester, academicYear, configId, semesterNum, academicYearNum } =
-    useMemo(() => {
+    (() => {
       const raw = Array.isArray(semesterAndYear)
         ? (semesterAndYear[0] ?? "")
         : (semesterAndYear ?? "");
@@ -70,7 +70,7 @@ export function useSemesterSync(
         semesterNum: valid ? semNum : 0,
         academicYearNum: valid ? yearNum : 0,
       };
-    }, [semesterAndYear]);
+    })();
 
   useEffect(() => {
     // Only sync if valid and changed (prevents unnecessary localStorage writes)

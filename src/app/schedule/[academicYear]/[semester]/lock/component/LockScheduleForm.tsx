@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useMemo } from "react";
+import React, { useEffect, useReducer } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectDayOfWeek from "./SelectDayOfWeek";
 import SelectSubject from "./SelectSubject";
@@ -8,11 +8,7 @@ import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
 import { useParams } from "next/navigation";
 import { useRoomAvailability } from "@/hooks/useRoomAvailability";
-import type {
-  room,
-  semester,
-  teacher,
-} from "@/prisma/generated/client";
+import type { room, semester, teacher } from "@/prisma/generated/client";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { useTeachers } from "@/hooks";
@@ -145,8 +141,12 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   const teacherData = useTeachers();
   const params = useParams();
   // Extract year and semester from new route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     lockScheduleData: {
@@ -159,12 +159,12 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   const { lockScheduleData, isEmptyData } = state;
 
   // Derive academic year / semester from route param for fetching locked schedules
-  const derivedTerm = useMemo(() => {
+  const derivedTerm = (() => {
     if (!academicYear || !semester) return null;
     if (semester !== 1 && semester !== 2) return null;
     const semEnum: semester = semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
     return { academicYear, semester: semEnum };
-  }, [academicYear, semester]);
+  })();
 
   // Shared availability hook (centralized logic)
   const { availabilityMap } = useRoomAvailability({
@@ -212,7 +212,9 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { validateData(); }, [
+  useEffect(() => {
+    validateData();
+  }, [
     lockScheduleData.SubjectName,
     lockScheduleData.SubjectCode,
     lockScheduleData.DayOfWeek,

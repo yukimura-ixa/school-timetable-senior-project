@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Link from "next/link";
 
@@ -92,10 +92,7 @@ type AllTimeslotClientProps = {
   breakDefs: BreakDefinition[];
 };
 
-import type {
-  TimeslotWithSubject,
-  TimetableColumn,
-} from "../shared/timeSlot";
+import type { TimeslotWithSubject, TimetableColumn } from "../shared/timeSlot";
 
 type TimeSlotData = {
   AllData: TimeslotWithSubject[];
@@ -381,13 +378,9 @@ const AllTimeslotClient = ({
 
   const exportDisabledTooltip = "การส่งออกสงวนไว้สำหรับผู้ดูแลระบบเท่านั้น";
 
-  const timeSlotData = useMemo(
-    () => buildTimeSlotData(timeslots, breakDefs),
+  const timeSlotData = buildTimeSlotData(timeslots, breakDefs);
 
-    [timeslots, breakDefs],
-  );
-
-  const classData = useMemo(() => classSchedules, [classSchedules]);
+  const classData = classSchedules;
 
   const filteredTeachers =
     selectedTeachers.length > 0

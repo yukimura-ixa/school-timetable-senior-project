@@ -196,34 +196,31 @@ export function useConfirmDialog() {
     resolve: null,
   });
 
-  const confirm = React.useCallback(
-    (
-      props: Omit<ConfirmDialogProps, "open" | "onConfirm" | "onCancel">,
-    ): Promise<boolean> => {
-      return new Promise((resolve) => {
-        setDialogState({
-          open: true,
-          props,
-          resolve,
-        });
+  const confirm = (
+    props: Omit<ConfirmDialogProps, "open" | "onConfirm" | "onCancel">,
+  ): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setDialogState({
+        open: true,
+        props,
+        resolve,
       });
-    },
-    [],
-  );
+    });
+  };
 
-  const handleConfirm = React.useCallback(() => {
+  const handleConfirm = () => {
     if (dialogState.resolve) {
       dialogState.resolve(true);
     }
     setDialogState((prev) => ({ ...prev, open: false }));
-  }, [dialogState]);
+  };
 
-  const handleCancel = React.useCallback(() => {
+  const handleCancel = () => {
     if (dialogState.resolve) {
       dialogState.resolve(false);
     }
     setDialogState((prev) => ({ ...prev, open: false }));
-  }, [dialogState]);
+  };
 
   const dialog = (
     <ConfirmDialog

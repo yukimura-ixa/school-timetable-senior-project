@@ -1,6 +1,5 @@
 import React, {
   useEffect,
-  useMemo,
   useState,
   type CSSProperties,
   type MouseEventHandler,
@@ -89,8 +88,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     }
   }, [disabled, isHover]);
 
-  const buttonRGB = useMemo(() => hexToRGB(buttonColor), [buttonColor]);
-  const titleRGB = useMemo(() => hexToRGB(titleColor), [titleColor]);
+  const buttonRGB = hexToRGB(buttonColor);
+  const titleRGB = hexToRGB(titleColor);
 
   //เก็บค่าสี RGB ของปุ่ม เพื่อนำไปใช้คำนวณ hover color
   const backgroundColor =

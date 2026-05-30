@@ -28,7 +28,7 @@
  * ```
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -95,25 +95,25 @@ export function FormDialog({
   const titleId = React.useId();
   const descriptionId = React.useId();
 
-  const handleClose = useCallback(
-    (event: object, reason?: "backdropClick" | "escapeKeyDown") => {
-      // Don't allow closing while loading
-      if (loading) return;
+  const handleClose = (
+    event: object,
+    reason?: "backdropClick" | "escapeKeyDown",
+  ) => {
+    // Don't allow closing while loading
+    if (loading) return;
 
-      // If dirty and closing via backdrop/escape, show confirmation
-      if (dirty && disableBackdropCloseWhenDirty) {
-        if (reason === "backdropClick" || reason === "escapeKeyDown") {
-          setShowDiscardConfirm(true);
-          return;
-        }
+    // If dirty and closing via backdrop/escape, show confirmation
+    if (dirty && disableBackdropCloseWhenDirty) {
+      if (reason === "backdropClick" || reason === "escapeKeyDown") {
+        setShowDiscardConfirm(true);
+        return;
       }
+    }
 
-      onClose();
-    },
-    [loading, dirty, disableBackdropCloseWhenDirty, onClose],
-  );
+    onClose();
+  };
 
-  const handleCloseButtonClick = useCallback(() => {
+  const handleCloseButtonClick = () => {
     if (loading) return;
 
     if (dirty) {
@@ -122,16 +122,16 @@ export function FormDialog({
     }
 
     onClose();
-  }, [loading, dirty, onClose]);
+  };
 
-  const handleDiscardConfirm = useCallback(() => {
+  const handleDiscardConfirm = () => {
     setShowDiscardConfirm(false);
     onClose();
-  }, [onClose]);
+  };
 
-  const handleDiscardCancel = useCallback(() => {
+  const handleDiscardCancel = () => {
     setShowDiscardConfirm(false);
-  }, []);
+  };
 
   return (
     <>

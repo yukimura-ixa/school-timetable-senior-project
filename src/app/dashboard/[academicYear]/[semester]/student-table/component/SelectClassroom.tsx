@@ -2,8 +2,11 @@ import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
 import type { gradelevel } from "@/prisma/generated/client";
-import React, { useEffect, useMemo, useState } from "react";
-import { formatGradeDisplay, formatGradeIdDisplay } from "@/utils/grade-display";
+import React, { useEffect, useState } from "react";
+import {
+  formatGradeDisplay,
+  formatGradeIdDisplay,
+} from "@/utils/grade-display";
 import { gradeMonogram, monogramGradient } from "@/lib/ui/monogram";
 
 type Props = {
@@ -51,16 +54,12 @@ function SelectClassRoom({
   isLoading,
   error,
 }: Props) {
-  const validGradeLevels = useMemo(
-    () =>
-      gradeLevels.filter(
-        (grade) =>
-          Number.isFinite(grade.Year) &&
-          grade.Year >= 1 &&
-          Number.isFinite(grade.Number) &&
-          grade.Number >= 1,
-      ),
-    [gradeLevels],
+  const validGradeLevels = gradeLevels.filter(
+    (grade) =>
+      Number.isFinite(grade.Year) &&
+      grade.Year >= 1 &&
+      Number.isFinite(grade.Number) &&
+      grade.Number >= 1,
   );
   const [classRoom, setClassRoom] = useState<string>(
     formatGradeLabel(currentGrade),

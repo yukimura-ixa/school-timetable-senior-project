@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   useParams,
   usePathname,
@@ -7,17 +7,12 @@ import {
   useSearchParams,
 } from "next/navigation";
 import { useTeachers, useSubjects, useGradeLevels } from "@/hooks";
-import type {
-  teacher,
-  subject,
-  gradelevel,
-} from "@/prisma/generated/client";
+import type { teacher, subject, gradelevel } from "@/prisma/generated/client";
 import useSWR from "swr";
 import { getAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
 import QuickAssignmentPanel from "./QuickAssignmentPanel";
 import { LockedScheduleList } from "../components/LockedScheduleList";
 import { useTeacherLockedSchedules } from "../hooks/useTeacherLockedSchedules";
-
 
 import Loading from "@/app/loading";
 import ErrorBoundary from "@/components/error/ErrorBoundary";
@@ -91,22 +86,22 @@ function ShowTeacherData({
   const grades =
     gradesData.data.length > 0 ? gradesData.data : initialGradeLevels;
 
-  const paramTeacherId = useMemo(() => {
+  const paramTeacherId = (() => {
     const tIdParam = searchParams.get("TeacherID");
     if (!tIdParam) return null;
     const tId = parseInt(tIdParam, 10);
     return Number.isNaN(tId) ? null : tId;
-  }, [searchParams]);
+  })();
 
   const effectiveTeacherId =
     manualSelection?.forParamId === paramTeacherId
       ? manualSelection.teacherId
       : paramTeacherId;
 
-  const teacher = useMemo(() => {
+  const teacher = (() => {
     if (!effectiveTeacherId) return null;
     return teachers.find((t) => t.TeacherID === effectiveTeacherId) ?? null;
-  }, [effectiveTeacherId, teachers]);
+  })();
 
   // Determine loading state - show loading only if both initial and SWR data are empty
   const isLoading =
@@ -134,15 +129,15 @@ function ShowTeacherData({
       semester?.toString(),
     );
 
-  const teachHour = useMemo(() => {
+  const teachHour = (() => {
     const result = responsibilityData.data;
     const data = result?.data;
     if (!Array.isArray(data)) return 0;
     return data.reduce((sum, item) => sum + (item.TeachHour || 0), 0);
-  }, [responsibilityData.data]);
+  })();
 
   // Calculate subject statistics
-  const subjectStats = useMemo(() => {
+  const subjectStats = (() => {
     try {
       const result = responsibilityData.data;
       const data = result?.data;
@@ -157,10 +152,10 @@ function ShowTeacherData({
     } catch {
       return { total: 0, byCategory: {} };
     }
-  }, [responsibilityData.data]);
+  })();
 
   // Calculate class statistics
-  const classStats = useMemo(() => {
+  const classStats = (() => {
     try {
       const result = responsibilityData.data;
       const data = result?.data;
@@ -171,7 +166,7 @@ function ShowTeacherData({
     } catch {
       return { total: 0, uniqueClasses: 0 };
     }
-  }, [responsibilityData.data]);
+  })();
 
   // Navigate to assign detail
   const handleViewAssignments = () => {
@@ -187,9 +182,14 @@ function ShowTeacherData({
     _event: React.SyntheticEvent,
     value: teacher | null,
   ) => {
-    setManualSelection({ teacherId: value?.TeacherID ?? null, forParamId: paramTeacherId });
+    setManualSelection({
+      teacherId: value?.TeacherID ?? null,
+      forParamId: paramTeacherId,
+    });
     if (value) {
-      router.push(`${pathName}?TeacherID=${value.TeacherID}`, { scroll: false });
+      router.push(`${pathName}?TeacherID=${value.TeacherID}`, {
+        scroll: false,
+      });
     } else {
       router.push(pathName, { scroll: false });
     }
