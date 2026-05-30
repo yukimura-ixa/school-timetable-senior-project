@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import React, { useMemo, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { authClient } from "@/lib/auth-client";
@@ -184,16 +184,18 @@ function TeacherTablePage() {
       ? ["timetable-config", String(academicYear), String(semester)]
       : null;
 
-  const {
-    data: configData,
-  } = useSWR(configKey, async (key) => {
-    if (!key) throw new Error("Missing config key");
-    const [, year, sem] = key;
-    return await getTimetableConfigAction({
-      academicYear: parseInt(year, 10),
-      semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-    });
-  }, { revalidateOnFocus: false });
+  const { data: configData } = useSWR(
+    configKey,
+    async (key) => {
+      if (!key) throw new Error("Missing config key");
+      const [, year, sem] = key;
+      return await getTimetableConfigAction({
+        academicYear: parseInt(year, 10),
+        semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
+      });
+    },
+    { revalidateOnFocus: false },
+  );
 
   const {
     data: classDataResponse,
@@ -244,7 +246,7 @@ function TeacherTablePage() {
   );
   const hasTeacherError = Boolean(teacherResponse && !teacherResponse.success);
 
-  const classData = useMemo((): ScheduleEntry[] => {
+  const classData: ScheduleEntry[] = (() => {
     if (
       !classDataResponse ||
       !classDataResponse.success ||
@@ -253,9 +255,9 @@ function TeacherTablePage() {
       return [];
     }
     return classDataResponse.data;
-  }, [classDataResponse]);
+  })();
 
-  const timeSlotData: TimeSlotTableData = useMemo(() => {
+  const timeSlotData: TimeSlotTableData = (() => {
     const response = timeslotResponse;
     const timeslots =
       response &&
@@ -267,7 +269,7 @@ function TeacherTablePage() {
         ? response.data
         : undefined;
     return createTimeSlotTableData(timeslots, classData);
-  }, [timeslotResponse, classData]);
+  })();
 
   const showLoadingOverlay =
     isSessionLoading ||
@@ -291,7 +293,7 @@ function TeacherTablePage() {
     errors.push("ไม่สามารถโหลดข้อมูลครูที่เลือกได้");
   }
 
-  const teacherName = useMemo(() => {
+  const teacherName = (() => {
     if (
       teacherResponse &&
       "success" in teacherResponse &&
@@ -301,7 +303,7 @@ function TeacherTablePage() {
       return formatTeacherName(teacherResponse.data);
     }
     return "";
-  }, [teacherResponse]);
+  })();
 
   // Ref for capturing timetable for PDF export
   const timetableRef = useRef<HTMLDivElement>(null);
@@ -814,13 +816,10 @@ function TeacherTablePage() {
                   sx={{ borderRadius: 1 }}
                 />
               ) : (
-                <Paper
-                  elevation={1}
-                  sx={{ overflow: "auto" }}
-                >
+                <Paper elevation={1} sx={{ overflow: "auto" }}>
                   <Box ref={timetableRef} sx={{ p: 2 }}>
-                    <TimeSlot 
-                      timeSlotData={timeSlotData} 
+                    <TimeSlot
+                      timeSlotData={timeSlotData}
                       breakDefinitions={configData?.data?.breakDefinitions}
                     />
                   </Box>
