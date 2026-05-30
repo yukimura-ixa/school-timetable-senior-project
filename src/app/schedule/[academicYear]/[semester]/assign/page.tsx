@@ -11,43 +11,17 @@ function AssignPageSkeleton() {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3, my: 5 }}>
       {/* Teacher Search Section Skeleton */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          borderRadius: 3,
-        }}
-      >
-        <Skeleton
-          variant="text"
-          width={200}
-          height={32}
-          sx={{ bgcolor: "rgba(255,255,255,0.2)" }}
-        />
-        <Skeleton
-          variant="rounded"
-          height={56}
-          sx={{ mt: 2, bgcolor: "rgba(255,255,255,0.2)" }}
-        />
+      <Paper elevation={0} sx={{ p: 3, borderRadius: 3, bgcolor: "grey.100" }}>
+        <Skeleton variant="text" width={200} height={32} />
+        <Skeleton variant="rounded" height={56} sx={{ mt: 2 }} />
       </Paper>
 
       {/* Content Skeleton */}
       <Paper
         elevation={0}
-        sx={{
-          p: 6,
-          borderRadius: 3,
-          textAlign: "center",
-          border: "2px dashed rgba(102,126,234,0.3)",
-        }}
+        sx={{ p: 6, borderRadius: 3, textAlign: "center", border: "2px dashed", borderColor: "divider" }}
       >
-        <Skeleton
-          variant="circular"
-          width={64}
-          height={64}
-          sx={{ mx: "auto", mb: 2 }}
-        />
+        <Skeleton variant="circular" width={64} height={64} sx={{ mx: "auto", mb: 2 }} />
         <Skeleton variant="text" width={200} height={32} sx={{ mx: "auto" }} />
         <Skeleton variant="text" width={300} height={20} sx={{ mx: "auto" }} />
       </Paper>
