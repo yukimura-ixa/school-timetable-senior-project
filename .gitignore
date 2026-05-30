@@ -118,6 +118,8 @@ tmp/
 *.png
 # But keep Playwright visual snapshot baselines
 !e2e/**/*-snapshots/*.png
+# Except platform-local (win32) snapshots — CI runs a different platform
+e2e/**/*-snapshots/*-win32.png
 .artifacts/*
 .playwright-mcp/*
 
