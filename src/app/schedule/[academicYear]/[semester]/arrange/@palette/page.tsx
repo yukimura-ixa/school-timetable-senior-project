@@ -58,6 +58,8 @@ export default async function PaletteSlot({
           // GradeName: true, // Removed
         },
       },
+      // Count placed periods for this responsibility, to hide it once full.
+      _count: { select: { class_schedule: true } },
     },
     orderBy: {
       subject: {
@@ -66,8 +68,12 @@ export default async function PaletteSlot({
     },
   });
 
-  // Transform to subject data format
-  const subjects = responsibilities.map((resp) => ({
+  // Hide subjects that are fully scheduled (placed periods >= TeachHour) so
+  // the palette only lists responsibilities that still need arranging.
+  const subjects = responsibilities.flatMap((resp) =>
+    resp._count.class_schedule >= resp.TeachHour
+      ? []
+      : [{
     RespID: resp.RespID,
     SubjectCode: resp.subject.SubjectCode,
     SubjectName: resp.subject.SubjectName,
@@ -82,7 +88,8 @@ export default async function PaletteSlot({
     GradeID: resp.gradelevel.GradeID,
     GradeName: `M.${resp.gradelevel.Year}/${resp.gradelevel.Number}`,
     Year: resp.gradelevel.Year,
-  }));
+  }],
+  );
 
   return <PaletteClient subjects={subjects} />;
 }

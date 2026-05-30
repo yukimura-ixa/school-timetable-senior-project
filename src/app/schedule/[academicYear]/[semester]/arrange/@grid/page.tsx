@@ -70,7 +70,7 @@ function DroppableCell({
         borderColor,
         borderRadius: 1,
         p: 1,
-        minHeight: 80,
+        minHeight: 110,
         position: "relative",
         bgcolor: bg,
         transition: "all 0.2s",
@@ -228,19 +228,21 @@ export default function GridSlot() {
         )}
       </div>
 
-      {/* Grid: rows = days, columns = periods */}
-      <Box sx={{ overflowX: "auto" }}>
+      {/* Grid: rows = days, columns = periods. Fixed layout so columns share
+          the available width (no horizontal scroll); rows are tall enough to
+          hold a placed entry's name + chips. */}
+      <Box sx={{ width: "100%" }}>
         <table
           data-testid="timetable-grid"
-          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 4 }}
+          style={{ width: "100%", tableLayout: "fixed", borderCollapse: "separate", borderSpacing: 4 }}
         >
           <thead>
             <tr>
-              <th style={{ minWidth: 64 }}>วัน \ คาบ</th>
+              <th style={{ width: 56 }}>วัน \ คาบ</th>
               {periods.map((p) => {
                 const anySlot = DAYS.map((d) => grid[d]?.[p]).find(Boolean);
                 return (
-                  <th key={p} style={{ minWidth: 120 }}>
+                  <th key={p}>
                     <div style={{ fontWeight: 700 }}>{p}</div>
                     <Box component="div" sx={{ fontWeight: 400, fontSize: "0.75rem", color: "text.secondary" }}>
                       {anySlot ? formatPeriodTime(anySlot.StartTime) : ""}
@@ -264,7 +266,7 @@ export default function GridSlot() {
                       {timeslot ? (
                         <DroppableCell timeslot={timeslot} entry={entry} onRemove={handleRemoveEntry} />
                       ) : (
-                        <Box sx={{ minHeight: 80 }} />
+                        <Box sx={{ minHeight: 110 }} />
                       )}
                     </td>
                   );
