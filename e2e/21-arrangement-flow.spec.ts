@@ -185,12 +185,16 @@ test.describe("Schedule Arrangement - Core Flow", () => {
       return;
     }
 
-    // Click first available room - this should create the schedule via server action
+    // Select the first available room, then commit via the confirm button.
     const firstRoom = roomOptions.first();
     const roomName = await firstRoom.getAttribute("data-room-name");
-    
-    console.log(`📍 Clicking room: ${roomName}`);
+
+    console.log(`📍 Selecting room: ${roomName}`);
     await firstRoom.click();
+
+    const confirmButton = page.locator('[data-testid="room-confirm"]');
+    await expect(confirmButton).toBeEnabled({ timeout: 5000 });
+    await confirmButton.click();
 
     // Wait for success snackbar OR navigation back to arrange page (success case)
     // The snackbar shows "✅ จัดตารางสอนสำเร็จ" and then router.back() is called
