@@ -165,6 +165,7 @@ export function YearPageHeader({ year, children }: YearPageHeaderProps) {
               <Stack direction="row" alignItems="center" spacing={1.5}>
                 <Typography
                   variant="h4"
+                  component="h1"
                   fontWeight={800}
                   sx={{
                     background: `linear-gradient(135deg, #1e293b 0%, #475569 100%)`,
