@@ -15,7 +15,9 @@ export type ScheduleEntry = {
   RoomID: number;
   subject: { SubjectName: string };
   gradelevel: { GradeName: string };
-  room: { RoomName: string };
+  room: { RoomName: string } | null;
+  /** Only present in the class (grade) view — who teaches this placement. */
+  teacherName?: string;
 };
 
 export const jsonFetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -31,4 +33,13 @@ export function teacherScheduleKey(
 ): string | null {
   if (!teacher || !/^\d+$/.test(teacher)) return null;
   return `/api/schedule/teacher/${teacher}?year=${year}&semester=${semester}`;
+}
+
+export function classScheduleKey(
+  grade: string | null,
+  year: string,
+  semester: string,
+): string | null {
+  if (!grade) return null;
+  return `/api/schedule/class/${encodeURIComponent(grade)}?year=${year}&semester=${semester}`;
 }

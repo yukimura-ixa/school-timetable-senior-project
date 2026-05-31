@@ -20,8 +20,14 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
-import { AutoFixHigh as AutoFixHighIcon } from "@mui/icons-material";
+import {
+  AutoFixHigh as AutoFixHighIcon,
+  Person as PersonIcon,
+  Groups as GroupsIcon,
+} from "@mui/icons-material";
 import { autoArrangeAction } from "@/features/arrange/application/actions/auto-arrange.action";
 import { useAutoArrangeResult } from "../../_lib/auto-arrange-result.store";
 
@@ -34,20 +40,34 @@ type Teacher = {
   Role: string;
 };
 
+type Grade = {
+  GradeID: string;
+  GradeLabel: string;
+};
+
 type Props = {
   teachers: Teacher[];
+  grades: Grade[];
   selectedTeacher?: string;
+  selectedGrade?: string;
+  /** "teacher" (default) | "class" */
+  view?: string;
   academicYear: string;
   semester: string;
 };
 
 export function HeaderClient({
   teachers,
+  grades,
   selectedTeacher,
+  selectedGrade,
+  view,
   academicYear,
   semester,
 }: Props) {
   const router = useRouter();
+  const isClassView = view === "class";
+  const arrangeBase = `/schedule/${academicYear}/${semester}/arrange`;
   const [autoArrangeLoading, setAutoArrangeLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -109,72 +129,138 @@ export function HeaderClient({
     }
   }
 
-  // Find selected teacher object
+  // Find selected teacher / grade objects
   const teacherObj = teachers.find(
     (t) => t.TeacherID === Number(selectedTeacher),
   );
+  const gradeObj = grades.find((g) => g.GradeID === selectedGrade) ?? null;
 
   const handleTeacherChange = (
     _: React.SyntheticEvent,
     value: Teacher | null,
   ) => {
-    if (value) {
+    if (value) router.push(`${arrangeBase}?teacher=${value.TeacherID}`);
+  };
+
+  const handleGradeChange = (_: React.SyntheticEvent, value: Grade | null) => {
+    if (value) router.push(`${arrangeBase}?view=class&grade=${value.GradeID}`);
+  };
+
+  const handleViewChange = (
+    _: React.MouseEvent<HTMLElement>,
+    next: string | null,
+  ) => {
+    if (!next || next === (isClassView ? "class" : "teacher")) return;
+    if (next === "class") {
       router.push(
-        `/schedule/${academicYear}/${semester}/arrange?teacher=${value.TeacherID}`,
+        `${arrangeBase}?view=class${selectedGrade ? `&grade=${selectedGrade}` : ""}`,
+      );
+    } else {
+      router.push(
+        selectedTeacher
+          ? `${arrangeBase}?teacher=${selectedTeacher}`
+          : arrangeBase,
       );
     }
   };
 
   return (
     <Stack spacing={2}>
-      {/* Teacher Selector */}
+      {/* View toggle: teacher arrangement vs read-only class view */}
+      <ToggleButtonGroup
+        exclusive
+        size="small"
+        value={isClassView ? "class" : "teacher"}
+        onChange={handleViewChange}
+        aria-label="มุมมองตาราง"
+      >
+        <ToggleButton value="teacher" data-testid="view-toggle-teacher">
+          <PersonIcon fontSize="small" sx={{ mr: 0.5 }} /> มุมมองครู
+        </ToggleButton>
+        <ToggleButton value="class" data-testid="view-toggle-class">
+          <GroupsIcon fontSize="small" sx={{ mr: 0.5 }} /> มุมมองชั้นเรียน
+        </ToggleButton>
+      </ToggleButtonGroup>
+
+      {/* Selector: teacher (arrange) or grade (read-only) by view */}
       <Box>
-        <Autocomplete
-          value={teacherObj || null}
-          onChange={handleTeacherChange}
-          options={teachers}
-          getOptionLabel={(teacher) =>
-            `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`
-          }
-          renderOption={(props, teacher) => {
-            const { key, ...optionProps } = props;
-            return (
-              <li
-                key={key}
-                {...optionProps}
-                data-testid={`teacher-option-${teacher.TeacherID}`}
-              >
-                {`${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`}
-              </li>
-            );
-          }}
-          renderInput={(params) => (
-            <TextField {...params} label="เลือกครู" placeholder="ค้นหาครู..." />
-          )}
-          sx={{ width: "100%", maxWidth: 400 }}
-        />
+        {isClassView ? (
+          <Autocomplete
+            value={gradeObj}
+            onChange={handleGradeChange}
+            options={grades}
+            getOptionLabel={(g) => g.GradeLabel}
+            renderOption={(props, g) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li
+                  key={key}
+                  {...optionProps}
+                  data-testid={`grade-option-${g.GradeID}`}
+                >
+                  {g.GradeLabel}
+                </li>
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="เลือกชั้นเรียน"
+                placeholder="ค้นหาชั้นเรียน..."
+              />
+            )}
+            sx={{ width: "100%", maxWidth: 400 }}
+          />
+        ) : (
+          <Autocomplete
+            value={teacherObj || null}
+            onChange={handleTeacherChange}
+            options={teachers}
+            getOptionLabel={(teacher) =>
+              `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`
+            }
+            renderOption={(props, teacher) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li
+                  key={key}
+                  {...optionProps}
+                  data-testid={`teacher-option-${teacher.TeacherID}`}
+                >
+                  {`${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`}
+                </li>
+              );
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label="เลือกครู" placeholder="ค้นหาครู..." />
+            )}
+            sx={{ width: "100%", maxWidth: 400 }}
+          />
+        )}
       </Box>
 
-      {/* Actions */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Stack direction="row" spacing={1}>
-          <Button
-            variant="contained"
-            color="secondary"
-            startIcon={
-              autoArrangeLoading ? (
-                <CircularProgress size={18} color="inherit" />
-              ) : (
-                <AutoFixHighIcon />
-              )
-            }
-            onClick={handleAutoArrange}
-            disabled={autoArrangeLoading || !selectedTeacher}
-          >
-            {autoArrangeLoading ? "กำลังจัด..." : "จัดอัตโนมัติ"}
-          </Button>
-        </Stack>
-      </Box>
+      {/* Actions (teacher view only — class view is read-only) */}
+      {!isClassView && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={
+                autoArrangeLoading ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : (
+                  <AutoFixHighIcon />
+                )
+              }
+              onClick={handleAutoArrange}
+              disabled={autoArrangeLoading || !selectedTeacher}
+            >
+              {autoArrangeLoading ? "กำลังจัด..." : "จัดอัตโนมัติ"}
+            </Button>
+          </Stack>
+        </Box>
+      )}
 
       {/* Auto-arrange feedback */}
       <Snackbar

@@ -24,6 +24,7 @@ import {
   jsonFetcher,
   timeslotsKey,
   teacherScheduleKey,
+  classScheduleKey,
 } from "../_lib/teacher-schedule";
 
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
@@ -32,14 +33,17 @@ function DroppableCell({
   timeslot,
   entry,
   onRemove,
+  readOnly = false,
 }: {
   timeslot: Timeslot;
   entry?: ScheduleEntry;
   onRemove?: (classId: number) => void;
+  readOnly?: boolean;
 }) {
   const { isOver, setNodeRef } = useDroppable({
     id: timeslot.TimeslotID,
     data: timeslot,
+    disabled: readOnly,
   });
 
   const state = getCellState(timeslot, entry, isOver);
@@ -85,20 +89,34 @@ function DroppableCell({
                 {entry.subject.SubjectName}
               </Typography>
             </Box>
-            <IconButton
-              data-testid="timeslot-remove"
-              aria-label="ลบรายวิชาออกจากคาบเรียน"
-              size="small"
-              onClick={() => onRemove?.(entry.ClassID)}
-              sx={{ p: 0.25, ml: 0.5, color: "error.main", "&:hover": { bgcolor: "error.lighter" } }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
+            {!readOnly && (
+              <IconButton
+                data-testid="timeslot-remove"
+                aria-label="ลบรายวิชาออกจากคาบเรียน"
+                size="small"
+                onClick={() => onRemove?.(entry.ClassID)}
+                sx={{ p: 0.25, ml: 0.5, color: "error.main", "&:hover": { bgcolor: "error.lighter" } }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
           </Box>
           <Box sx={{ display: "flex", gap: 0.5, mt: 0.5, flexWrap: "wrap" }}>
             <Chip label={entry.gradelevel.GradeName} size="small" color="primary" />
-            <Chip label={entry.room.RoomName} size="small" variant="outlined" />
+            {entry.room && (
+              <Chip label={entry.room.RoomName} size="small" variant="outlined" />
+            )}
           </Box>
+          {entry.teacherName && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              noWrap
+              sx={{ display: "block", mt: 0.5 }}
+            >
+              {entry.teacherName}
+            </Typography>
+          )}
         </Box>
       ) : (
         <Typography
@@ -121,6 +139,9 @@ export default function GridSlot() {
   const academicYear = params.academicYear as string;
   const semester = params.semester as string;
   const teacher = searchParams.get("teacher");
+  const grade = searchParams.get("grade");
+  const isClassView = searchParams.get("view") === "class";
+  const hasSelection = isClassView ? Boolean(grade) : Boolean(teacher);
 
   const {
     data: timeslotsData,
@@ -143,7 +164,9 @@ export default function GridSlot() {
     isLoading: scheduleLoading,
     mutate,
   } = useSWR(
-    teacherScheduleKey(teacher, academicYear, semester),
+    isClassView
+      ? classScheduleKey(grade, academicYear, semester)
+      : teacherScheduleKey(teacher, academicYear, semester),
     jsonFetcher,
     {
       refreshInterval: 0,
@@ -220,12 +243,14 @@ export default function GridSlot() {
       </Typography>
 
       <div aria-live="polite">
-        {!teacher && (
+        {!hasSelection && (
           <Alert severity="info" sx={{ mb: 2 }}>
-            เลือกครูเพื่อดูตารางสอน
+            {isClassView
+              ? "เลือกชั้นเรียนเพื่อดูตารางสอน"
+              : "เลือกครูเพื่อดูตารางสอน"}
           </Alert>
         )}
-        {teacher && scheduleEntries.length > 0 && (
+        {hasSelection && scheduleEntries.length > 0 && (
           <Alert severity="success" sx={{ mb: 2 }}>
             จัดแล้ว {scheduleEntries.length} คาบ
           </Alert>
@@ -268,7 +293,12 @@ export default function GridSlot() {
                   return (
                     <td key={`${day}-${period}`}>
                       {timeslot ? (
-                        <DroppableCell timeslot={timeslot} entry={entry} onRemove={handleRemoveEntry} />
+                        <DroppableCell
+                          timeslot={timeslot}
+                          entry={entry}
+                          onRemove={isClassView ? undefined : handleRemoveEntry}
+                          readOnly={isClassView}
+                        />
                       ) : (
                         <Box sx={{ minHeight: 110 }} />
                       )}

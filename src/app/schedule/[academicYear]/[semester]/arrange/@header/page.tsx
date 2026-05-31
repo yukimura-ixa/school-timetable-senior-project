@@ -14,27 +14,41 @@ export default async function HeaderSlot({
   searchParams,
 }: {
   params: Promise<{ academicYear: string; semester: string }>;
-  searchParams: Promise<{ teacher?: string }>;
+  searchParams: Promise<{ teacher?: string; grade?: string; view?: string }>;
 }) {
   const { academicYear, semester } = await params;
-  const { teacher } = await searchParams;
+  const { teacher, grade, view } = await searchParams;
 
-  const teachers = await prisma.teacher.findMany({
-    orderBy: [{ Firstname: "asc" }, { Lastname: "asc" }],
-    select: {
-      TeacherID: true,
-      Prefix: true,
-      Firstname: true,
-      Lastname: true,
-      Department: true,
-      Role: true,
-    },
-  });
+  const [teachers, gradeRows] = await Promise.all([
+    prisma.teacher.findMany({
+      orderBy: [{ Firstname: "asc" }, { Lastname: "asc" }],
+      select: {
+        TeacherID: true,
+        Prefix: true,
+        Firstname: true,
+        Lastname: true,
+        Department: true,
+        Role: true,
+      },
+    }),
+    prisma.gradelevel.findMany({
+      orderBy: [{ Year: "asc" }, { Number: "asc" }],
+      select: { GradeID: true, Year: true, Number: true },
+    }),
+  ]);
+
+  const grades = gradeRows.map((g) => ({
+    GradeID: g.GradeID,
+    GradeLabel: `ม.${g.Year}/${g.Number}`,
+  }));
 
   return (
     <HeaderClient
       teachers={teachers}
+      grades={grades}
       selectedTeacher={teacher}
+      selectedGrade={grade}
+      view={view}
       academicYear={academicYear}
       semester={semester}
     />
