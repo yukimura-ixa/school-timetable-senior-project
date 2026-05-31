@@ -1,9 +1,9 @@
 /**
- * Room Selection Content - Shared Component
+ * Room Selection Content
  *
- * Used by both the full-page route and the modal intercept. Fetches available
- * rooms for a timeslot and lets the user pick one (select), then commit
- * (confirm) to create the class schedule entry.
+ * Rendered inside the arrange room-selection modal. Fetches available rooms
+ * for a timeslot and lets the user pick one (select), then commit (confirm)
+ * to create the class schedule entry.
  */
 
 "use client";
@@ -130,9 +130,7 @@ export function RoomSelectionContent({
         // Notify GridSlot to revalidate SWR before closing modal.
         // router.refresh() only refreshes RSC; client SWR caches stay stale.
         window.dispatchEvent(new CustomEvent("schedule-updated"));
-        // Inline modal closes via onClose; the routed version goes back.
-        if (onClose) onClose();
-        else router.back();
+        onClose?.();
         router.refresh(); // Refresh grid data (server components)
       } else {
         const errorMsg =
