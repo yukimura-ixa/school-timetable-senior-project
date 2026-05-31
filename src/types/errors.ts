@@ -168,6 +168,24 @@ export function isLockedScheduleError(
   );
 }
 
+/**
+ * Prisma throws a PrismaClientKnownRequestError with code "P2002" on a unique
+ * constraint violation. Its message ("Unique constraint failed on the fields:
+ * ...") matches none of the action-wrapper's keyword checks, so it must be
+ * detected by code (not message) to be mapped to a CONFLICT rather than a
+ * generic internal error.
+ */
+export function isPrismaUniqueConstraintError(
+  error: unknown,
+): error is { code: "P2002"; meta?: { target?: string[] | string } } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "P2002"
+  );
+}
+
 export function isServerActionError(
   error: unknown,
 ): error is ServerActionError {

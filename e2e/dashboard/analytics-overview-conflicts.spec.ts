@@ -9,13 +9,12 @@ test.describe("Analytics overview — conflict stat card", () => {
   test("renders overview section with non-negative conflict count", async ({
     authenticatedAdmin,
   }) => {
-    await authenticatedAdmin.goto(ANALYTICS_URL);
-    await waitForAppReady(authenticatedAdmin);
+    const { page } = authenticatedAdmin;
+    await page.goto(ANALYTICS_URL);
+    await waitForAppReady(page);
 
     // Conflict stat card must be present
-    const conflictCard = authenticatedAdmin.locator(
-      '[data-testid="conflict-stat-card"]',
-    );
+    const conflictCard = page.locator('[data-testid="conflict-stat-card"]');
     await expect(conflictCard).toBeVisible({ timeout: 15_000 });
 
     // The card must contain a non-negative numeric value somewhere
@@ -26,17 +25,18 @@ test.describe("Analytics overview — conflict stat card", () => {
   });
 
   test("renders all 4 overview stat cards", async ({ authenticatedAdmin }) => {
-    await authenticatedAdmin.goto(ANALYTICS_URL);
-    await waitForAppReady(authenticatedAdmin);
+    const { page } = authenticatedAdmin;
+    await page.goto(ANALYTICS_URL);
+    await waitForAppReady(page);
 
     // All 4 cards should appear (indices 0-2 + conflict card)
     for (let i = 0; i < 3; i++) {
       await expect(
-        authenticatedAdmin.locator(`[data-testid="overview-stat-card-${i}"]`),
+        page.locator(`[data-testid="overview-stat-card-${i}"]`),
       ).toBeVisible({ timeout: 15_000 });
     }
     await expect(
-      authenticatedAdmin.locator('[data-testid="conflict-stat-card"]'),
+      page.locator('[data-testid="conflict-stat-card"]'),
     ).toBeVisible();
   });
 });

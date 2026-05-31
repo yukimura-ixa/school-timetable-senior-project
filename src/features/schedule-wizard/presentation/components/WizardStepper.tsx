@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Box, Step, StepButton, Stepper } from "@mui/material";
+import { Box, Button, Stack, Step, StepButton, Stepper } from "@mui/material";
+import {
+  ArrowBack as ArrowBackIcon,
+  ArrowForward as ArrowForwardIcon,
+} from "@mui/icons-material";
 
 import {
   WIZARD_STEPS,
@@ -58,6 +62,20 @@ export function WizardStepper({ state, basePath }: WizardStepperProps) {
     ? WIZARD_STEPS.findIndex((s) => s.key === currentKey)
     : -1;
 
+  // Prev is always allowed (revisiting completed steps); Next only when the
+  // following step's prerequisites are met (forward-skip stays blocked).
+  const prevStep = activeIndex > 0 ? WIZARD_STEPS[activeIndex - 1] : null;
+  const nextStep =
+    activeIndex >= 0 && activeIndex < WIZARD_STEPS.length - 1
+      ? WIZARD_STEPS[activeIndex + 1]
+      : null;
+  const nextReachable = nextStep
+    ? (access.find((a) => a.key === nextStep.key)?.reachable ?? false)
+    : false;
+
+  const goTo = (key: WizardStepKey) =>
+    router.push(`${basePath}/${segmentForKey(key)}`);
+
   const handleStep = (key: WizardStepKey, reachable: boolean) => () => {
     if (!reachable) return;
     router.push(`${basePath}/${segmentForKey(key)}`);
@@ -82,6 +100,26 @@ export function WizardStepper({ state, basePath }: WizardStepperProps) {
           );
         })}
       </Stepper>
+
+      <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
+        <Button
+          size="small"
+          startIcon={<ArrowBackIcon />}
+          disabled={!prevStep}
+          onClick={() => prevStep && goTo(prevStep.key)}
+        >
+          ย้อนกลับ
+        </Button>
+        <Button
+          size="small"
+          variant="contained"
+          endIcon={<ArrowForwardIcon />}
+          disabled={!nextStep || !nextReachable}
+          onClick={() => nextStep && goTo(nextStep.key)}
+        >
+          ถัดไป
+        </Button>
+      </Stack>
     </Box>
   );
 }

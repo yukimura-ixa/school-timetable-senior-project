@@ -28,6 +28,7 @@ import {
   isConflictError,
   isValidationError,
   isLockedScheduleError,
+  isPrismaUniqueConstraintError,
 } from "@/types";
 import { createLogger } from "@/lib/logger";
 import { sanitizeErrorMessage } from "@/shared/lib/error-sanitizer";
@@ -194,6 +195,21 @@ export function createAction<TInput, TOutput>(
           error: {
             message: error.message,
             code: ActionErrorCode.FORBIDDEN,
+          },
+        };
+      }
+
+      // Prisma unique-constraint violation (P2002). Its raw message
+      // ("Unique constraint failed on the fields: ...") matches none of the
+      // keyword checks below, so it must be detected by code and mapped to a
+      // CONFLICT — otherwise legitimate duplicates surface as a generic
+      // "internal error" to the user.
+      if (isPrismaUniqueConstraintError(error)) {
+        return {
+          success: false,
+          error: {
+            message: "ข้อมูลซ้ำกับที่มีอยู่แล้วในระบบ",
+            code: ActionErrorCode.CONFLICT,
           },
         };
       }

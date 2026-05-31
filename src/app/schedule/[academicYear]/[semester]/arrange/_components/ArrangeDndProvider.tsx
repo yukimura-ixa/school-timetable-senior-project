@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -13,8 +13,17 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { Paper, Typography } from "@mui/material";
+import {
+  Paper,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { RoomSelectionContent } from "../room-select/_components/RoomSelectionContent";
 import { useSnackbar } from "notistack";
 import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
 import ConflictDetailsModal from "@/features/schedule-arrangement/presentation/components/ConflictDetailsModal";
@@ -32,10 +41,17 @@ type SubjectDragData = {
   RespID?: number;
 };
 
+type RoomModalState = {
+  timeslot: string;
+  subject: string;
+  grade: string;
+  teacher: string;
+  resp?: string;
+};
+
 export function ArrangeDndProvider({ children }: { children: React.ReactNode }) {
   const params = useParams();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
   const academicYear = params.academicYear as string;
@@ -55,6 +71,8 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
     SubjectName?: string;
     GradeName?: string;
   } | null>(null);
+
+  const [roomModal, setRoomModal] = useState<RoomModalState | null>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveSubject(
@@ -121,17 +139,13 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
         return;
       }
 
-      const queryParams = new URLSearchParams({
+      setRoomModal({
         timeslot: timeslotId,
         subject: subjectData.SubjectCode,
         grade: subjectData.GradeID,
         teacher,
         ...(subjectData.RespID ? { resp: String(subjectData.RespID) } : {}),
       });
-
-      router.push(
-        `/schedule/${academicYear}/${semester}/arrange/room-select?${queryParams.toString()}`,
-      );
     } catch {
       enqueueSnackbar("เกิดข้อผิดพลาดในการตรวจสอบ", { variant: "error" });
     }
@@ -147,28 +161,25 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
     const { attempt, respId } = conflictModal;
 
     if (s.kind === "MOVE") {
-      const q = new URLSearchParams({
+      setRoomModal({
         timeslot: s.targetTimeslotId,
         subject: attempt.subjectCode,
         grade: attempt.gradeId,
         teacher,
         ...(respId ? { resp: String(respId) } : {}),
-      } as Record<string, string>);
-      router.push(`/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`);
+      });
       closeConflictModal();
       return;
     }
 
     if (s.kind === "RE_ROOM") {
-      const q = new URLSearchParams({
+      setRoomModal({
         timeslot: attempt.timeslotId,
         subject: attempt.subjectCode,
         grade: attempt.gradeId,
         teacher,
-        room: String(s.targetRoomId),
         ...(respId ? { resp: String(respId) } : {}),
-      } as Record<string, string>);
-      router.push(`/schedule/${academicYear}/${semester}/arrange/room-select?${q.toString()}`);
+      });
       closeConflictModal();
       return;
     }
@@ -207,6 +218,38 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
           onApply={handleApplySuggestion}
           onClose={closeConflictModal}
         />
+      )}
+      {roomModal && (
+        <Dialog
+          open
+          onClose={() => setRoomModal(null)}
+          maxWidth="md"
+          fullWidth
+          data-testid="room-selection-dialog"
+        >
+          <DialogTitle
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            เลือกห้องเรียน
+            <IconButton onClick={() => setRoomModal(null)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <RoomSelectionContent
+              timeslot={roomModal.timeslot}
+              subject={roomModal.subject}
+              grade={roomModal.grade}
+              teacher={roomModal.teacher}
+              resp={roomModal.resp ?? ""}
+              onClose={() => setRoomModal(null)}
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </DndContext>
   );
