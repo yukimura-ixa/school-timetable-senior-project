@@ -246,7 +246,7 @@ export function RoomSelectionContent({
                   </Typography>
                 </Stack>
                 <Typography variant="caption" color="text.secondary" display="block">
-                  อาคาร {room.Building} · ชั้น {room.Floor}
+                  {room.Building} · {room.Floor}
                 </Typography>
                 {room.Capacity != null && (
                   <Chip
@@ -307,7 +307,7 @@ export function RoomSelectionContent({
                     {room.RoomName}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    อาคาร {room.Building} · ชั้น {room.Floor}
+                    {room.Building} · {room.Floor}
                   </Typography>
                 </Box>
               ))}
