@@ -11,7 +11,6 @@ type LayoutProps = {
   palette: React.ReactNode;
   grid: React.ReactNode;
   inspector: React.ReactNode;
-  modal: React.ReactNode;
   params: Promise<{ academicYear: string; semester: string }>;
 };
 
@@ -21,7 +20,6 @@ export default async function ArrangeLayout({
   palette,
   grid,
   inspector,
-  modal,
   params,
 }: LayoutProps) {
   const { academicYear: yearStr, semester: semStr } = await params;
@@ -108,9 +106,6 @@ export default async function ArrangeLayout({
           </Box>
         </Box>
       </ArrangeDndProvider>
-
-      {/* Modal Slot: Intercepting routes */}
-      {modal}
 
       {/* Default children slot (rarely used) */}
       {children}

@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { RoomSelectionContent } from "../room-select/_components/RoomSelectionContent";
+import { RoomSelectionContent } from "./RoomSelectionContent";
 import { useSnackbar } from "notistack";
 import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
 import ConflictDetailsModal from "@/features/schedule-arrangement/presentation/components/ConflictDetailsModal";

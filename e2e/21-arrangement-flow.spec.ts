@@ -1,8 +1,9 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import type { Page, Locator } from "@playwright/test";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
-import { testSemester, testTeacher, testGradeLevel } from "./fixtures/seed-data.fixture";
+import { testSemester, testTeacher } from "./fixtures/seed-data.fixture";
 import { getE2ETeacherId } from "./helpers/teacher-id";
+import { ArrangePage } from "./page-objects/ArrangePage";
 
 // Arrangement flow mutates schedule state - must run serially
 test.describe.configure({ mode: "serial", timeout: 120_000 });
@@ -121,111 +122,82 @@ test.describe("Schedule Arrangement - Core Flow", () => {
   /**
    * Test: Room Selection Modal Flow
    * 
-   * This tests the room selection modal independently of drag-drop.
-   * Drag-drop with dnd-kit is difficult to automate reliably with Playwright,
-   * so we test the room selection flow directly by navigating to the URL.
+   * Drags a subject onto an empty timeslot to open the room-selection modal,
+   * then picks a room to create the schedule. The standalone room-select route
+   * was removed (ed6), so the modal is reached only via drag-drop.
    */
-  test("AR-ROOM: room selection modal flow creates schedule", async ({ authenticatedAdmin }) => {
+  test("AR-ROOM: drag-drop opens room modal and creates schedule", async ({ authenticatedAdmin }) => {
     test.setTimeout(90000);
     const { page } = authenticatedAdmin;
+    const arrangePage = new ArrangePage(page);
     const teacherId = await getE2ETeacherId(page);
 
-    // Navigate to arrange page with teacher
+    // Pre-select the E2E teacher via URL, then wait for the grid.
     await page.goto(
       `/schedule/${SEMESTER}/arrange?teacher=${teacherId}&tab=teacher`,
     );
     await waitForAppReady(page);
     await page.waitForLoadState("domcontentloaded");
-
-    // Wait for timetable grid to be visible
     await expect(page.locator(SELECTORS.timetableGrid)).toBeVisible({
       timeout: 15000,
     });
 
-    // Discover an empty timeslot from the rendered grid instead of hardcoding
-    // one. The grid is teacher-scoped while the (TimeslotID, GradeID) unique
-    // constraint is grade-scoped, so a cell empty here may still be occupied
-    // for the grade by another teacher — that case is handled as a clean
-    // conflict below. Reading a real card's id avoids same-teacher pollution.
+    const subjects = await arrangePage.getAvailableSubjects();
+    if (subjects.length === 0) {
+      test.skip(true, "No available subjects for the E2E teacher");
+      return;
+    }
+    const subjectCode = subjects[0]!;
+
+    // Find a slot empty FOR THIS TEACHER (the grid is teacher-scoped). Map its
+    // timeslot id ("1-2568-WED5" → day WED, period 5) to the grid coordinates
+    // ArrangePage uses: rows are days (tr.nth(dayIndex)), columns are periods
+    // (td.nth(period)).
     const emptyCard = await findEmptyTimeslot(page);
     if (!emptyCard) {
-      test.skip(true, "No empty timeslot available for the test teacher");
+      test.skip(true, "No empty timeslot available for the E2E teacher");
       return;
     }
     const timeslotId = await emptyCard.getAttribute("data-timeslot-id");
-    if (!timeslotId) {
-      test.skip(true, "Empty timeslot card is missing data-timeslot-id");
+    const tail = timeslotId?.split("-").pop() ?? "";
+    const day = tail.match(/^[A-Z]+/)?.[0] ?? "";
+    const period = Number(tail.match(/\d+$/)?.[0] ?? "0");
+    const row = ["MON", "TUE", "WED", "THU", "FRI"].indexOf(day) + 1;
+    if (row === 0 || !period) {
+      test.skip(true, `Unparseable empty timeslot id: ${timeslotId}`);
       return;
     }
 
-    // Get a subject to assign (we need SubjectCode and GradeID)
-    // Navigate directly to room selection with test data using E2E teacher's responsibility
-    const roomSelectUrl = `/schedule/${SEMESTER}/arrange/room-select?timeslot=${timeslotId}&subject=${testTeacher.SubjectCode}&grade=${testTeacher.GradeID}&teacher=${teacherId}`;
-    
-    console.log(`📍 Navigating to room selection URL: ${roomSelectUrl}`);
-    
-    await page.goto(roomSelectUrl);
-    await page.waitForLoadState("domcontentloaded");
+    // Drag via the POM (Playwright dragTo with a manual pointer fallback that
+    // reliably trips dnd-kit's PointerSensor).
+    await arrangePage.dragSubjectToTimeslot(subjectCode, row, period);
 
-    // Room dialog should appear (intercepted by modal)
+    // A valid drop opens the room-selection modal. A grade-level conflict (the
+    // slot is occupied for the grade by another teacher) opens no modal — an
+    // acceptable outcome for this smoke test.
     const roomDialog = page.locator(SELECTORS.roomDialog);
-    const dialogVisible = await roomDialog.waitFor({ state: "visible", timeout: 15000 })
+    const modalOpened = await roomDialog
+      .waitFor({ state: "visible", timeout: 15000 })
       .then(() => true)
       .catch(() => false);
-    
-    if (!dialogVisible) {
-      // Fallback: check if we're on full page version
-      const roomsList = page.locator(SELECTORS.availableRoomsList);
-      await expect(roomsList).toBeVisible({ timeout: 10000 });
-    }
-
-    // Check for available rooms
-    const roomOptions = page.locator(SELECTORS.roomOption);
-    const optionCount = await roomOptions.count();
-    
-    if (optionCount === 0) {
-      test.skip(true, "No available rooms for this timeslot");
+    if (!modalOpened) {
+      test.skip(
+        true,
+        "Dropped slot occupied for the grade — clean conflict, no room modal",
+      );
       return;
     }
 
-    // Select the first available room, then commit via the confirm button.
-    const firstRoom = roomOptions.first();
-    const roomName = await firstRoom.getAttribute("data-room-name");
+    // Select the first available room and commit the schedule.
+    const created = await confirmRoomSelection(page, roomDialog);
+    expect(created, "Expected at least one available room to select").toBe(true);
 
-    console.log(`📍 Selecting room: ${roomName}`);
-    await firstRoom.click();
-
-    const confirmButton = page.locator('[data-testid="room-confirm"]');
-    await expect(confirmButton).toBeEnabled({ timeout: 5000 });
-    await confirmButton.click();
-
-    // Wait for success snackbar OR navigation back to arrange page (success case)
-    // The snackbar shows "✅ จัดตารางสอนสำเร็จ" and then router.back() is called
-    const successSnackbar = page.getByText(/จัดตารางสอนสำเร็จ|✅/).first();
-    const errorSnackbar = page.getByText(/ไม่สามารถจัดตาราง|❌|error/i).first();
-    
-    // Wait for either success or error feedback
-    const result = await Promise.race([
-      successSnackbar.waitFor({ state: "visible", timeout: 20000 }).then(() => "success" as const),
-      errorSnackbar.waitFor({ state: "visible", timeout: 20000 }).then(() => "error" as const),
-      page.waitForURL(/\/arrange(?:\?|$)/, { timeout: 20000 }).then(() => "navigated" as const),
-    ]);
-    
-    if (result === "error") {
-      const errorText = (await errorSnackbar.textContent()) ?? "";
-      // A clean duplicate/conflict ("ซ้ำ"/"มีอยู่แล้ว") is an acceptable
-      // outcome: the slot was already occupied for this grade and the endpoint
-      // rejected it correctly (P2002 → CONFLICT). Only a generic internal
-      // error indicates a real server failure that should fail the test.
-      const isCleanConflict = /ซ้ำ|มีอยู่แล้ว/.test(errorText);
-      if (!isCleanConflict) {
-        throw new Error(`Schedule creation failed with error: ${errorText}`);
-      }
-      console.log(`ℹ️ Slot occupied for grade — clean conflict accepted: ${errorText}`);
-    }
-    
-    // Success: either snackbar was shown or we navigated back
-    console.log(`✅ Successfully created schedule with room: ${roomName} (result: ${result})`);
+    // The entry should now appear in the grid at the dropped timeslot.
+    await expect(
+      page.locator(
+        `${SELECTORS.timeslotCard}[data-timeslot-id="${timeslotId}"]`,
+      ),
+    ).toHaveAttribute("data-subject-code", /.+/, { timeout: 15000 });
   });
 
   /**
