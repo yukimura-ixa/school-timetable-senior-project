@@ -52,6 +52,7 @@ model room {
   Building       String           @default("-")
   Floor          String           @default("-")
   class_schedule class_schedule[]
+  default_for    teachers_responsibility[] @relation("DefaultRoom")
 }
 
 model subject {
@@ -168,9 +169,11 @@ model teachers_responsibility {
   AcademicYear   Int
   Semester       semester
   TeachHour      Int
+  DefaultRoomID  Int?
   gradelevel     gradelevel       @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade, map: "fk_teachers_responsibility_grade")
   subject        subject          @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_teachers_responsibility_subject")
   teacher        teacher          @relation(fields: [TeacherID], references: [TeacherID], onDelete: Cascade, map: "fk_teachers_responsibility_teacher")
+  defaultRoom    room?            @relation("DefaultRoom", fields: [DefaultRoomID], references: [RoomID], onDelete: SetNull)
   class_schedule class_schedule[] @relation("class_scheduleToteachers_responsibility")
 
   @@unique([TeacherID, GradeID, SubjectCode, AcademicYear, Semester], map: "teachers_responsibility_unique")

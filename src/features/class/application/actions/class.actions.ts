@@ -32,6 +32,7 @@ import {
 
 // Repository
 import * as classRepository from "../../infrastructure/repositories/class.repository";
+import { prisma } from "@/lib/prisma";
 
 // Services
 import { addTeachersToSchedules } from "../../domain/services/class-validation.service";
@@ -187,6 +188,24 @@ export const createClassScheduleAction = createAction(
     });
 
     log.info("Class schedule created", { classId: schedule.ClassID });
+
+    // Optionally remember this room as the teacher+subject default so future
+    // drops can auto-assign it without opening the room picker.
+    if (
+      input.SetAsDefaultRoom &&
+      input.RoomID &&
+      input.ResponsibilityIDs?.length
+    ) {
+      await prisma.teachers_responsibility.updateMany({
+        where: { RespID: { in: input.ResponsibilityIDs } },
+        data: { DefaultRoomID: input.RoomID },
+      });
+      log.info("Default room set", {
+        roomId: input.RoomID,
+        respIds: input.ResponsibilityIDs,
+      });
+    }
+
     await invalidatePublicCache(["classes", "stats"]);
     return schedule;
   },
