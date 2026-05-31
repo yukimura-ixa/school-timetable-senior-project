@@ -2,6 +2,7 @@ import { test, expect } from "./fixtures/admin.fixture";
 import type { Page, Locator } from "@playwright/test";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
 import { testSemester, testTeacher, testGradeLevel } from "./fixtures/seed-data.fixture";
+import { getE2ETeacherId } from "./helpers/teacher-id";
 
 // Arrangement flow mutates schedule state - must run serially
 test.describe.configure({ mode: "serial", timeout: 120_000 });
@@ -33,8 +34,9 @@ const SELECTORS = {
 const SUBJECT_ITEM_NAME = /หน่วยกิต/;
 
 async function selectTeacherWithSubjects(page: Page) {
+  const teacherId = await getE2ETeacherId(page);
   await page.goto(
-    `/schedule/${SEMESTER}/arrange?teacher=${testTeacher.TeacherID}&tab=teacher`,
+    `/schedule/${SEMESTER}/arrange?teacher=${teacherId}&tab=teacher`,
   );
   await waitForAppReady(page);
   await page.waitForLoadState("domcontentloaded");
@@ -126,10 +128,11 @@ test.describe("Schedule Arrangement - Core Flow", () => {
   test("AR-ROOM: room selection modal flow creates schedule", async ({ authenticatedAdmin }) => {
     test.setTimeout(90000);
     const { page } = authenticatedAdmin;
+    const teacherId = await getE2ETeacherId(page);
 
     // Navigate to arrange page with teacher
     await page.goto(
-      `/schedule/${SEMESTER}/arrange?teacher=${testTeacher.TeacherID}&tab=teacher`,
+      `/schedule/${SEMESTER}/arrange?teacher=${teacherId}&tab=teacher`,
     );
     await waitForAppReady(page);
     await page.waitForLoadState("domcontentloaded");
@@ -157,7 +160,7 @@ test.describe("Schedule Arrangement - Core Flow", () => {
 
     // Get a subject to assign (we need SubjectCode and GradeID)
     // Navigate directly to room selection with test data using E2E teacher's responsibility
-    const roomSelectUrl = `/schedule/${SEMESTER}/arrange/room-select?timeslot=${timeslotId}&subject=${testTeacher.SubjectCode}&grade=${testTeacher.GradeID}&teacher=${testTeacher.TeacherID}`;
+    const roomSelectUrl = `/schedule/${SEMESTER}/arrange/room-select?timeslot=${timeslotId}&subject=${testTeacher.SubjectCode}&grade=${testTeacher.GradeID}&teacher=${teacherId}`;
     
     console.log(`📍 Navigating to room selection URL: ${roomSelectUrl}`);
     
