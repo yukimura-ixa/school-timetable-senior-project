@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -26,6 +26,7 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { RoomSelectionContent } from "./RoomSelectionContent";
 import { useSnackbar } from "notistack";
 import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
+import { createClassScheduleAction } from "@/features/class/application/actions/class.actions";
 import ConflictDetailsModal from "@/features/schedule-arrangement/presentation/components/ConflictDetailsModal";
 import { useConflictResolution } from "@/features/schedule-arrangement/presentation/hooks";
 import {
@@ -39,6 +40,7 @@ type SubjectDragData = {
   SubjectCode: string;
   GradeID: string;
   RespID?: number;
+  DefaultRoomID?: number | null;
 };
 
 type RoomModalState = {
@@ -52,6 +54,7 @@ type RoomModalState = {
 export function ArrangeDndProvider({ children }: { children: React.ReactNode }) {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
   const academicYear = params.academicYear as string;
@@ -137,6 +140,40 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
         setConflictModal({ conflict, attempt, respId: subjectData.RespID });
         void fetchFor(attempt);
         return;
+      }
+
+      // Auto-assign the teacher+subject default room when it is free at this
+      // timeslot, skipping the room picker. Fall back to the modal otherwise.
+      const defaultRoomId = subjectData.DefaultRoomID;
+      if (
+        defaultRoomId &&
+        result.rooms.available.some((r) => r.RoomID === defaultRoomId)
+      ) {
+        try {
+          const created = await createClassScheduleAction({
+            TimeslotID: timeslotId,
+            SubjectCode: subjectData.SubjectCode,
+            GradeID: subjectData.GradeID,
+            RoomID: defaultRoomId,
+            IsLocked: false,
+            ResponsibilityIDs: subjectData.RespID ? [subjectData.RespID] : [],
+          });
+          if (
+            created &&
+            typeof created === "object" &&
+            "success" in created &&
+            created.success
+          ) {
+            enqueueSnackbar("จัดตารางสอนสำเร็จ (ห้องเริ่มต้น)", {
+              variant: "success",
+            });
+            window.dispatchEvent(new Event("schedule-updated"));
+            router.refresh();
+            return;
+          }
+        } catch {
+          // Fall through to manual room selection on any error.
+        }
       }
 
       setRoomModal({

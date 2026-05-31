@@ -18,6 +18,7 @@ type Resp = {
   AcademicYear: number;
   Semester: "SEMESTER_1" | "SEMESTER_2";
   TeachHour: number;
+  DefaultRoomID: number | null;
 };
 
 function makeResp(overrides: Partial<Resp> = {}): Resp {
@@ -29,6 +30,7 @@ function makeResp(overrides: Partial<Resp> = {}): Resp {
     AcademicYear: 2567,
     Semester: "SEMESTER_1",
     TeachHour: 4,
+    DefaultRoomID: null,
     ...overrides,
   };
 }
@@ -185,6 +187,7 @@ describe("expandAvailableSlots", () => {
     AcademicYear: 2567,
     Semester: "SEMESTER_1" as const,
     TeachHour: 4,
+    DefaultRoomID: null,
     subject: { SubjectName: "Mathematics", Credit: "CREDIT_20" as const, Category: "CORE" as const },
     gradelevel: { Year: 1, Number: 1 },
   };

@@ -23,6 +23,8 @@ import {
   Collapse,
   CircularProgress,
   CardActionArea,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import {
   MeetingRoom as RoomIcon,
@@ -93,6 +95,7 @@ export function RoomSelectionContent({
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
   const [isCreating, setIsCreating] = React.useState(false);
   const [showOccupied, setShowOccupied] = React.useState(false);
+  const [setAsDefault, setSetAsDefault] = React.useState(false);
 
   const { data, error, isLoading } = useSWR(
     `/api/rooms/available?timeslot=${timeslot}`,
@@ -118,6 +121,7 @@ export function RoomSelectionContent({
         RoomID: selectedRoom.RoomID,
         IsLocked: false,
         ResponsibilityIDs: resp ? [parseInt(resp, 10)] : [],
+        SetAsDefaultRoom: setAsDefault,
       });
 
       if (
@@ -317,6 +321,23 @@ export function RoomSelectionContent({
             </Box>
           </Collapse>
         </Box>
+      )}
+
+      {/* Remember this room as the teacher+subject default for future drops */}
+      {resp && selectedRoom && (
+        <FormControlLabel
+          sx={{ mt: 2, display: "block" }}
+          control={
+            <Checkbox
+              size="small"
+              checked={setAsDefault}
+              onChange={(e) => setSetAsDefault(e.target.checked)}
+              disabled={isCreating}
+              data-testid="set-default-room"
+            />
+          }
+          label={`ตั้ง "${selectedRoom.RoomName}" เป็นห้องเริ่มต้นสำหรับวิชานี้`}
+        />
       )}
 
       {/* Commit bar */}

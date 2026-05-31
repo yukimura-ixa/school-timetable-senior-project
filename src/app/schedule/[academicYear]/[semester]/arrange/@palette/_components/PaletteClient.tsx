@@ -28,6 +28,7 @@ type Subject = {
   GradeID: string;
   GradeName: string;
   Year: number;
+  DefaultRoomID: number | null;
 };
 
 type Props = {

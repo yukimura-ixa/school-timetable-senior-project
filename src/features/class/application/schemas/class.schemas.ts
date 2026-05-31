@@ -66,6 +66,9 @@ export const createClassScheduleSchema = v.object({
   ResponsibilityIDs: v.optional(
     v.array(v.pipe(v.number(), v.integer(), v.minValue(1))),
   ),
+  // When true, persist RoomID as the default room for the given
+  // ResponsibilityIDs (teacher+subject), so future drops auto-assign it.
+  SetAsDefaultRoom: v.optional(v.boolean()),
 });
 
 export type CreateClassScheduleInput = v.InferInput<

@@ -88,6 +88,7 @@ export default async function PaletteSlot({
     GradeID: resp.gradelevel.GradeID,
     GradeName: `M.${resp.gradelevel.Year}/${resp.gradelevel.Number}`,
     Year: resp.gradelevel.Year,
+    DefaultRoomID: resp.DefaultRoomID,
   }],
   );
 
