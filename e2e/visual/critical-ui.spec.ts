@@ -62,10 +62,13 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.goto("/schedule/2568/1/config");
       await page.waitForLoadState("networkidle");
 
-      // Wait for config form to load
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/").first()).toBeVisible({
-        timeout: 15000,
-      });
+      // Wait for the read-only ConfigSummaryClient to settle before snapshot
+      // (the old inline-form label "กำหนดคาบต่อวัน" no longer exists).
+      await expect(
+        page
+          .getByTestId("config-status-badge")
+          .or(page.getByText("ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้")),
+      ).toBeVisible({ timeout: 30000 });
       await waitForNavbarStable(page);
 
       // Take screenshot with tolerance for minor rendering differences
@@ -88,9 +91,13 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.goto("/schedule/2568/1/config", { timeout: 60000 });
       await page.waitForLoadState("networkidle");
 
-      // Wait for config content to be visible (the page doesn't use a <form> element)
-      // Look for the config section with "กำหนดคาบต่อวัน" text
-      await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible({ timeout: 15000 });
+      // Wait for the read-only ConfigSummaryClient to settle (no <form>; the old
+      // "กำหนดคาบต่อวัน" label is gone) before snapshotting.
+      await expect(
+        page
+          .getByTestId("config-status-badge")
+          .or(page.getByText("ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้")),
+      ).toBeVisible({ timeout: 30000 });
       await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("config-form.png", {
