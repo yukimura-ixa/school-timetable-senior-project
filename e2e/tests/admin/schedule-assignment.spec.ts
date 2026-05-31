@@ -1,5 +1,7 @@
 import { test, expect } from "../../fixtures/admin.fixture";
 import { testSemester, testTeacher } from "../../fixtures/seed-data.fixture";
+import { getE2ETeacherId } from "../../helpers/teacher-id";
+import { getGradeFreeTimeslot } from "../../helpers/grade-slot";
 
 const RUN_SCHEDULE_ASSIGNMENT_EXTENDED =
   process.env.E2E_SCHEDULE_ASSIGNMENT_EXTENDED === "true";
@@ -136,23 +138,83 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
   test("should allow removing subject from timeslot", async ({
     arrangePage,
   }) => {
-    // Arrange - First assign a subject
+    const page = arrangePage.page;
     const teacherName = `${testTeacher.Prefix}${testTeacher.Firstname} ${testTeacher.Lastname}`;
     await arrangePage.selectTeacher(teacherName);
+    await expect(page.getByTestId("timetable-grid")).toBeVisible({
+      timeout: 30_000,
+    });
 
-    const availableSubjects = await arrangePage.getAvailableSubjects();
-    expect(availableSubjects.length).toBeGreaterThan(0);
-    const subjectCode = availableSubjects[0]!;
+    const teacherId = new URL(page.url()).searchParams.get("teacher");
+    expect(teacherId).toBeTruthy();
 
-    const { row, col } = getTimeslotCoords("MON", 1);
-    await arrangePage.dragSubjectToTimeslot(subjectCode, row, col);
-    await arrangePage.selectRoom("");
+    // Place deterministically via the room-select URL (drag is flaky in CI),
+    // into a slot guaranteed empty for this grade so the create succeeds and the
+    // grid renders a removable placed cell.
+    const semester = `${testSemester.Year}/${testSemester.Semester}`;
+    const subjectCode = testTeacher.SubjectCode; // ค21201
+    const gradeId = testTeacher.GradeID; // M1-1
+    const timeslotId = await getGradeFreeTimeslot(
+      page,
+      gradeId,
+      testSemester.Year,
+      testSemester.Semester,
+    );
 
-    // Act - Remove the subject
-    await arrangePage.removeSubjectFromTimeslot(row, col);
+    const subjectItem = page.locator(
+      `[data-testid="subject-item"][data-subject-code="${subjectCode}"]`,
+    );
+    await expect(subjectItem.first()).toBeVisible({ timeout: 15_000 });
+    const respId = await subjectItem.first().getAttribute("data-resp-id");
 
-    // Assert - Timeslot should be empty
-    await arrangePage.assertTimeslotEmpty(row, col);
+    const params = new URLSearchParams({
+      timeslot: timeslotId,
+      subject: subjectCode,
+      grade: gradeId,
+      teacher: String(teacherId),
+      ...(respId ? { resp: respId } : {}),
+    });
+    await page.goto(`/schedule/${semester}/arrange/room-select?${params}`);
+    await page.waitForLoadState("domcontentloaded");
+    const roomOptions = page.locator(
+      '[data-testid^="room-option-"]:not([disabled])',
+    );
+    await expect(roomOptions.first()).toBeVisible({ timeout: 15_000 });
+    await Promise.all([
+      page
+        .waitForResponse(
+          (r) => r.request().method() === "POST" && r.status() < 400,
+          { timeout: 15_000 },
+        )
+        .catch(() => null),
+      roomOptions.first().click({ timeout: 5_000 }),
+    ]);
+    await page
+      .getByText(/จัดตารางสอนสำเร็จ/)
+      .waitFor({ state: "visible", timeout: 15_000 })
+      .catch(() => {});
+
+    // Back to the arrange grid; the placement renders with a remove button.
+    await page.goto(
+      `/schedule/${semester}/arrange?teacher=${teacherId}&tab=teacher`,
+    );
+    await expect(page.getByTestId("timetable-grid")).toBeVisible({
+      timeout: 30_000,
+    });
+    const card = page.locator(
+      `[data-testid="timeslot-card"][data-timeslot-id="${timeslotId}"]`,
+    );
+    await expect(card).toHaveAttribute("data-subject-code", /.+/, {
+      timeout: 15_000,
+    });
+
+    // Act — remove the placed subject
+    await card.getByTestId("timeslot-remove").click();
+
+    // Assert — timeslot is empty again
+    await expect(card).not.toHaveAttribute("data-subject-code", /.+/, {
+      timeout: 15_000,
+    });
   });
 
   test("should save schedule changes successfully", async ({ arrangePage }) => {
@@ -166,12 +228,17 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
 
     const page = arrangePage.page;
     const semester = `${testSemester.Year}/${testSemester.Semester}`;
-    // Use TUE period 4 — guaranteed empty (seed only fills periods 1-3,
-    // and E2E teacher is not scheduled at this timeslot)
-    const timeslotId = `${testSemester.Semester}-${testSemester.Year}-TUE4`;
     const subjectCode = testTeacher.SubjectCode; // ค21201
     const gradeId = testTeacher.GradeID; // M1-1
-    const teacherId = testTeacher.TeacherID; // 1
+    // Resolve the real teacher id (fixture pins by email only) and a slot
+    // guaranteed empty for this grade so the create actually persists.
+    const teacherId = await getE2ETeacherId(page);
+    const timeslotId = await getGradeFreeTimeslot(
+      page,
+      gradeId,
+      testSemester.Year,
+      testSemester.Semester,
+    );
 
     // Step 1: Navigate to arrange page with teacher pre-selected
     await page.goto(
@@ -228,8 +295,12 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
     await expect(page.getByTestId("timetable-grid")).toBeVisible({ timeout: 30_000 });
 
     // Step 6: Assert the schedule entry appears in the grid
-    const { row, col } = getTimeslotCoords("TUE", 4);
-    await arrangePage.assertSubjectPlaced(row, col, subjectCode);
+    const card = page.locator(
+      `[data-testid="timeslot-card"][data-timeslot-id="${timeslotId}"]`,
+    );
+    await expect(card).toHaveAttribute("data-subject-code", subjectCode, {
+      timeout: 15_000,
+    });
   });
 });
 
