@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import {
   Paper,
@@ -115,6 +115,7 @@ function DroppableCell({
 export default function GridSlot() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
   const academicYear = params.academicYear as string;
@@ -166,6 +167,9 @@ export default function GridSlot() {
         enqueueSnackbar("ลบรายวิชาออกจากคาบเรียนแล้ว", { variant: "success" });
         await mutate();
         window.dispatchEvent(new Event("schedule-updated"));
+        // Palette (รายวิชาที่สอน) is server-rendered and hides fully-placed
+        // subjects; refresh so a removed subject reappears as available.
+        router.refresh();
       } else {
         enqueueSnackbar(result.error?.message || "ไม่สามารถลบรายวิชาได้", { variant: "error" });
       }

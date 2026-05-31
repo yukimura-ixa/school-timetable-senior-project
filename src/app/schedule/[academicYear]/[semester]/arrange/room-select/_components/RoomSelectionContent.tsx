@@ -47,6 +47,8 @@ type Props = {
   grade: string;
   teacher: string;
   resp: string;
+  /** When rendered as an in-page modal, close via state instead of router.back(). */
+  onClose?: () => void;
 };
 
 const DAY_LABEL: Record<string, string> = {
@@ -84,6 +86,7 @@ export function RoomSelectionContent({
   grade,
   teacher: _teacher,
   resp,
+  onClose,
 }: Props) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
@@ -127,7 +130,9 @@ export function RoomSelectionContent({
         // Notify GridSlot to revalidate SWR before closing modal.
         // router.refresh() only refreshes RSC; client SWR caches stay stale.
         window.dispatchEvent(new CustomEvent("schedule-updated"));
-        router.back(); // Close modal
+        // Inline modal closes via onClose; the routed version goes back.
+        if (onClose) onClose();
+        else router.back();
         router.refresh(); // Refresh grid data (server components)
       } else {
         const errorMsg =
