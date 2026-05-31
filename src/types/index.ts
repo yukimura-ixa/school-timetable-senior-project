@@ -27,6 +27,7 @@ export {
   isAuthorizationError,
   isNotFoundError,
   isLockedScheduleError,
+  isPrismaUniqueConstraintError,
   isServerActionError,
   createConflictError,
   createValidationError,
