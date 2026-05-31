@@ -145,8 +145,10 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
       timeout: 30_000,
     });
 
-    const teacherId = new URL(page.url()).searchParams.get("teacher");
-    expect(teacherId).toBeTruthy();
+    // Resolve the id via the API. Reading it off the URL right after
+    // selectTeacher is timing-fragile, and a null id makes the post-place grid
+    // fetch (teacherScheduleKey) no-op, so the placed cell never renders.
+    const teacherId = await getE2ETeacherId(page);
 
     // Place deterministically via the room-select URL (drag is flaky in CI),
     // into a slot guaranteed empty for this grade so the create succeeds and the
