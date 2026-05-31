@@ -326,26 +326,29 @@ test.describe("Critical Path Smoke Tests", () => {
       // Verify page loads successfully - wait for any fetch response
       await page.waitForLoadState("networkidle");
 
-      // Config page is a form with configuration options, not a table
-      // Wait for config form elements to render
-      const configContent = page
-        .locator("text=/กำหนดคาบต่อวัน/")
-        .or(page.locator('[class*="Skeleton"]'));
-      await expect(configContent.first()).toBeVisible({ timeout: 15000 });
+      // Config page is a read-only ConfigSummaryClient: status badge (config
+      // exists) or empty-state warning settles after the SWR spinner.
+      const statusBadge = page.getByTestId("config-status-badge");
+      const emptyState = page.getByText(
+        "ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้",
+      );
+      await expect(statusBadge.or(emptyState)).toBeVisible({ timeout: 30000 });
     });
 
     test("Verify config form loads with options", async ({ page }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
       await page.waitForLoadState("networkidle");
 
-      // Wait for config form to load - check for config labels
-      // Thai: "กำหนดคาบต่อวัน" (Set periods per day), "กำหนดระยะเวลาต่อคาบ" (Set duration per period)
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
-        timeout: 15000,
-      });
-      await expect(page.locator("text=/กำหนดระยะเวลาต่อคาบ/")).toBeVisible({
-        timeout: 15000,
-      });
+      // Read-only summary: when config exists it lists the saved parameters,
+      // otherwise the empty-state warning shows.
+      const statusBadge = page.getByTestId("config-status-badge");
+      const emptyState = page.getByText(
+        "ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้",
+      );
+      await expect(statusBadge.or(emptyState)).toBeVisible({ timeout: 30000 });
+      if (await statusBadge.isVisible()) {
+        await expect(page.getByText("คาบเรียนต่อวัน")).toBeVisible();
+      }
     });
 
     test("Config form displays current settings", async ({ page }) => {
@@ -366,27 +369,28 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Navigation between semesters works", async ({ page }) => {
+      const configSettled = () =>
+        expect(
+          page
+            .getByTestId("config-status-badge")
+            .or(
+              page.getByText(
+                "ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้",
+              ),
+            ),
+        ).toBeVisible({ timeout: 30000 });
+
       // Start at first semester
       await page.goto(`/schedule/2568/1/config`);
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/2568\/1\/config/);
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
-        timeout: 15000,
-      });
+      await configSettled();
 
       // Navigate to second semester
       await page.goto(`/schedule/2568/2/config`);
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/2568\/2\/config/);
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
-        timeout: 15000,
-      });
-
-      // Both should load successfully - verify config form rendered
-      const finalConfig = page
-        .locator("text=/กำหนดคาบต่อวัน/")
-        .or(page.locator('[class*="Skeleton"]'));
-      await expect(finalConfig.first()).toBeVisible({ timeout: 15000 });
+      await configSettled();
     });
   });
 

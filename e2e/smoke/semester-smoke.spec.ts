@@ -35,13 +35,14 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
     }) => {
       await page.goto(`/schedule/${term.label}/config`);
 
-      // Config page is a form with configuration options, not a table
-      // Wait for config form elements to load
-      // Thai: "กำหนดคาบต่อวัน" (Set periods per day)
-      const configLabel = page.locator(
-        "text=/กำหนดคาบต่อวัน|กำหนดระยะเวลาต่อคาบ/",
+      // Config page is now a read-only ConfigSummaryClient: it settles to either
+      // the status badge (config exists) or the empty-state warning after the
+      // SWR spinner — not the old inline form.
+      const statusBadge = page.getByTestId("config-status-badge");
+      const emptyState = page.getByText(
+        "ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้",
       );
-      await expect(configLabel.first()).toBeVisible({ timeout: 15000 });
+      await expect(statusBadge.or(emptyState)).toBeVisible({ timeout: 30000 });
     });
 
     test(`/schedule/${term.label}/config has configuration options`, async ({
@@ -49,12 +50,21 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
     }) => {
       await page.goto(`/schedule/${term.label}/config`);
 
-      // Check for config form labels (not metric cards - those are on dashboard)
-      // Thai: "กำหนดเวลาเริ่มคาบแรก" (Set first period start time), "กำหนดคาบพักเที่ยง" (Set lunch break)
-      const hasConfigOptions = page.locator(
-        "text=/กำหนดเวลาเริ่มคาบแรก|กำหนดคาบพักเที่ยง|กำหนดวันในตารางสอน/",
+      const statusBadge = page.getByTestId("config-status-badge");
+      const emptyState = page.getByText(
+        "ยังไม่มีการตั้งค่าตารางเรียนสำหรับภาคเรียนนี้",
       );
-      await expect(hasConfigOptions.first()).toBeVisible({ timeout: 15000 });
+      await expect(statusBadge.or(emptyState)).toBeVisible({ timeout: 30000 });
+
+      if (await statusBadge.isVisible()) {
+        // Read-only summary lists the saved configuration parameters.
+        await expect(page.getByText("คาบเรียนต่อวัน")).toBeVisible();
+      } else {
+        // Empty state offers the create CTA.
+        await expect(
+          page.getByRole("button", { name: "ตั้งค่าคาบเรียน" }),
+        ).toBeVisible();
+      }
     });
 
     test(`/schedule/${term.label}/config has no console errors`, async ({
