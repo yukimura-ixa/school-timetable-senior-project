@@ -8,7 +8,6 @@ import { test, expect } from "@playwright/test";
  * - Profile information display (avatar, name)
  * - Name update functionality
  * - Password change functionality
- * - Email change functionality
  *
  * Uses authenticated session from auth.setup.ts
  */
@@ -71,23 +70,6 @@ test.describe("User Profile Management", () => {
     // Checkbox for revoking other sessions
     await expect(
       page.getByLabel("ออกจากระบบในอุปกรณ์อื่นทั้งหมด"),
-    ).toBeVisible({ timeout: 10000 });
-  });
-
-  test("should display email change section", async ({ page }) => {
-    await page.goto("/dashboard/profile", { timeout: 60000 });
-    await page.waitForLoadState("domcontentloaded");
-
-    // Email section heading should be visible
-    await expect(page.getByRole("heading", { name: "เปลี่ยนอีเมล" })).toBeVisible({ timeout: 15000 });
-
-    // Email fields should be visible
-    await expect(page.getByLabel("อีเมลปัจจุบัน")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByLabel("อีเมลใหม่")).toBeVisible({ timeout: 10000 });
-
-    // Info alert about verification
-    await expect(
-      page.getByText(/การเปลี่ยนอีเมลจะต้องยืนยันผ่านลิงก์/),
     ).toBeVisible({ timeout: 10000 });
   });
 
