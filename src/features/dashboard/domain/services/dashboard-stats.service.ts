@@ -63,35 +63,6 @@ export interface GradeCompletion {
 }
 
 /**
- * Calculate total scheduled hours from schedules
- * Each schedule entry represents one class period
- */
-export function calculateTotalScheduledHours(
-  schedules: class_schedule[],
-): number {
-  return schedules.length;
-}
-
-/**
- * Calculate completion rate based on expected vs actual schedules
- * Expected = totalClasses * totalTimeslots
- * Actual = schedules.length
- */
-export function calculateCompletionRate(
-  schedules: class_schedule[],
-  totalClasses: number,
-  totalTimeslots: number,
-): number {
-  if (totalClasses === 0 || totalTimeslots === 0) return 0;
-
-  const expectedSchedules = totalClasses * totalTimeslots;
-  const actualSchedules = schedules.length;
-  const rate = (actualSchedules / expectedSchedules) * 100;
-
-  return Math.min(Math.round(rate * 10) / 10, 100); // Round to 1 decimal, max 100%
-}
-
-/**
  * Count teachers who have at least one schedule assigned
  * Schedules relate to teachers through teachers_responsibility
  */
