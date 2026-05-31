@@ -39,10 +39,10 @@ test.describe("Public Teachers Data API", () => {
     // Verify teacher table is visible
     await expect(page.getByTestId("teacher-list")).toBeVisible();
 
-    // Verify table has content
+    // Verify the list has content (cards, not table rows)
     const rowCount = await page
       .getByTestId("teacher-list")
-      .locator("tbody tr")
+      .getByTestId("person-card")
       .count();
     expect(rowCount).toBeGreaterThan(0);
   });
@@ -77,12 +77,15 @@ test.describe("Public Teachers Data API", () => {
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
-    const firstRow = page.getByTestId("teacher-list").locator("tbody tr").first();
-    await expect(firstRow).toBeVisible({ timeout: 15000 });
+    const firstCard = page
+      .getByTestId("teacher-list")
+      .getByTestId("person-card")
+      .first();
+    await expect(firstCard).toBeVisible({ timeout: 15000 });
 
-    const cells = firstRow.locator("td");
-    await expect(cells.nth(0)).toHaveText(/\S+/); // teacher name
-    await expect(cells.nth(1)).toHaveText(/\S+|-/); // department (or placeholder)
+    // Card shows the teacher name (heading) + "department · N คาบ" secondary line
+    await expect(firstCard).toContainText(/\S+/); // teacher name
+    await expect(firstCard).toContainText(/คาบ/); // department/hours line
   });
 
   test("should support pagination for teachers", async ({
@@ -192,10 +195,10 @@ test.describe("Public Classes Data API", () => {
     // Verify classes table is visible
     await expect(page.getByTestId("class-list")).toBeVisible();
 
-    // Verify table has content
+    // Verify the list has content (cards, not table rows)
     const rowCount = await page
       .getByTestId("class-list")
-      .locator("tbody tr")
+      .getByTestId("person-card")
       .count();
     expect(rowCount).toBeGreaterThan(0);
   });
@@ -226,11 +229,14 @@ test.describe("Public Classes Data API", () => {
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("classes-tab").click();
 
-    const firstRow = page.getByTestId("class-list").locator("tbody tr").first();
-    await expect(firstRow).toBeVisible({ timeout: 15000 });
+    const firstCard = page
+      .getByTestId("class-list")
+      .getByTestId("person-card")
+      .first();
+    await expect(firstCard).toBeVisible({ timeout: 15000 });
 
-    // Grade may render as "ม.1/1", "M1-1", or a numeric display id like "101"
-    await expect(firstRow.locator("td").first()).toHaveText(
+    // Card heading is the grade label: "ม.1/1", "M1-1", or a numeric id like "101"
+    await expect(firstCard).toContainText(
       /(ม\.[1-6]\/\d+|M[1-6][-/]\d+|[1-6]\d{2})/,
     );
   });
