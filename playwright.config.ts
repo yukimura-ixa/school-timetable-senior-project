@@ -24,7 +24,10 @@ export default defineConfig({
   // Keep production (deployed) smoke suite isolated; it runs with playwright.config.prod.ts.
   // Without this, *.setup.ts files under e2e/prod can be picked up by the default 'setup' project,
   // breaking CI smoke/visual runs that don't provide E2E_* secrets.
-  testIgnore: ["**/prod/**"],
+  // 25-publish-happy runs only under playwright.config.publish-happy.ts (its
+  // own globalSetup seeds a tiny ready world); under the 18-grade demo seed it
+  // can never reach status="ready", so keep it out of the default suite.
+  testIgnore: ["**/prod/**", "**/25-publish-happy.spec.ts"],
   // CI: Sequential for stability (source of truth).
   // Local: Parallel with limited workers to avoid resource contention.
   fullyParallel: !process.env.CI,
