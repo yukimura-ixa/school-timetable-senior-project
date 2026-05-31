@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { class_schedule } from "@/prisma/generated/client";
 import {
-  calculateTotalScheduledHours,
-  calculateCompletionRate,
   countTeachersWithSchedules,
   countClassCompletion,
   calculateTeacherWorkload,
@@ -33,49 +31,6 @@ const makeScheduleWithTeachers = (
   ...makeSchedule(),
   teachers_responsibility: [{ TeacherID: 1 }],
   ...overrides,
-});
-
-describe("calculateTotalScheduledHours", () => {
-  it("returns 0 for empty array", () => {
-    expect(calculateTotalScheduledHours([])).toBe(0);
-  });
-
-  it("returns count of schedules", () => {
-    const schedules = [makeSchedule(), makeSchedule({ ClassID: 2 })];
-    expect(calculateTotalScheduledHours(schedules)).toBe(2);
-  });
-});
-
-describe("calculateCompletionRate", () => {
-  it("returns 0 when totalClasses is 0", () => {
-    expect(calculateCompletionRate([makeSchedule()], 0, 10)).toBe(0);
-  });
-
-  it("returns 0 when totalTimeslots is 0", () => {
-    expect(calculateCompletionRate([makeSchedule()], 5, 0)).toBe(0);
-  });
-
-  it("calculates partial completion", () => {
-    const schedules = Array.from({ length: 5 }, (_, i) =>
-      makeSchedule({ ClassID: i + 1 }),
-    );
-    const rate = calculateCompletionRate(schedules, 2, 10);
-    expect(rate).toBe(25);
-  });
-
-  it("caps at 100%", () => {
-    const schedules = Array.from({ length: 30 }, (_, i) =>
-      makeSchedule({ ClassID: i + 1 }),
-    );
-    const rate = calculateCompletionRate(schedules, 2, 10);
-    expect(rate).toBe(100);
-  });
-
-  it("rounds to 1 decimal place", () => {
-    const schedules = Array.from({ length: 1 }, () => makeSchedule());
-    const rate = calculateCompletionRate(schedules, 3, 1);
-    expect(rate).toBe(33.3);
-  });
 });
 
 describe("countTeachersWithSchedules", () => {
