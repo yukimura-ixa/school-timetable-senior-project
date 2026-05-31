@@ -24,8 +24,14 @@ test.describe("Conflict Detector", () => {
     // Start from dashboard (already authenticated via fixture)
     await page.goto("/dashboard/2568/1");
 
-    // ✅ Web-first assertion: Wait for dashboard to load (use specific heading)
-    await expect(page.getByRole("heading", { name: /Dashboard/i }).first()).toBeVisible({ timeout: 15000 });
+    // Anchor the load-wait on the conflict quick-action link we click. The
+    // dashboard heading text changed in the redesign, so don't assert /Dashboard/i.
+    await expect(
+      page
+        .locator("a")
+        .filter({ hasText: /ตรวจสอบ.*Conflict|ตรวจสอบความซ้ำซ้อน/ })
+        .first(),
+    ).toBeVisible({ timeout: 15000 });
 
     // Find and click the conflict detector quick action button (handles both old and new text)
     const conflictButton = page
@@ -104,12 +110,17 @@ test.describe("Conflict Detector", () => {
 
     if (tabsVisible > 0) {
       // ✅ Web-first: Click on Room Conflicts tab (actual: "ห้องซ้ำ (N)")
-      const roomTab = page.locator("button").filter({ hasText: /ห้องซ้ำ/ });
+      const roomTab = page
+        .locator("button")
+        .filter({ hasText: /ห้องซ้ำ/ })
+        .first();
       await expect(roomTab).toBeVisible({ timeout: 15000 });
       await roomTab.click();
 
       // ✅ Web-first: Should show room conflicts content
-      await expect(page.locator("text=/ห้อง|ไม่พบ.*Conflict/")).toBeVisible({ timeout: 15000 });
+      await expect(
+        page.locator("text=/ห้อง|ไม่พบ.*Conflict/").first(),
+      ).toBeVisible({ timeout: 15000 });
     } else {
       // No conflicts - verify no-conflict message
       await expect(noConflictsMessage.first()).toBeVisible({ timeout: 15000 });
@@ -236,10 +247,15 @@ test.describe("Conflict Detector", () => {
 
     if (tabsExist) {
       // Click on a non-default tab
-      const roomTab = page.locator("button").filter({ hasText: /ห้องซ้ำ/ });
+      const roomTab = page
+        .locator("button")
+        .filter({ hasText: /ห้องซ้ำ/ })
+        .first();
       await expect(roomTab).toBeVisible({ timeout: 15000 });
       await roomTab.click();
-      await expect(page.locator("text=/ห้อง|ไม่พบ/")).toBeVisible({ timeout: 15000 });
+      await expect(
+        page.locator("text=/ห้อง|ไม่พบ/").first(),
+      ).toBeVisible({ timeout: 15000 });
 
       // Reload page
       await page.reload();
