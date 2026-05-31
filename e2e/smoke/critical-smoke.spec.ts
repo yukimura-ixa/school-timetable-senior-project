@@ -459,7 +459,10 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(
         page.getByText("กรุณาเลือกครูผู้สอน"),
       ).toBeVisible({ timeout: 15000 });
-      await expect(page.getByText("ย้อนกลับ")).toBeVisible();
+      // The wizard stepper also renders a "ย้อนกลับ" (previous-step) button on
+      // schedule pages, so scope to the first match to avoid a strict-mode
+      // violation — this smoke check only needs a back affordance present.
+      await expect(page.getByText("ย้อนกลับ").first()).toBeVisible();
       await expect(page).toHaveURL(/\/assign\/teacher_responsibility/);
     });
   });
