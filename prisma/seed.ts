@@ -3296,6 +3296,18 @@ async function main() {
       const usedTeacherSlot = new Set<string>();
       const usedGradeSlot = new Set<string>();
 
+      // Keep M1-1's first non-break slots (MON1-3) OPEN so the E2E teacher's
+      // unplaced ค21201/M1-1 responsibility is reliably placeable in arrange
+      // e2e. The arrange grid is teacher-scoped (E2E teacher has no classes →
+      // every cell looks empty); the drag-target finder picks the first empty
+      // non-break cell (MON1), which must also be grade-free for M1-1. Marking
+      // them used here makes the scheduler skip them. See ttv.
+      for (const reservedPeriod of [1, 2, 3]) {
+        usedGradeSlot.add(
+          `M1-1|${generateTimeslotId(targetSemesterNumber, targetAcademicYear, "MON", reservedPeriod)}`,
+        );
+      }
+
       // Per-semester teacher_responsibility creation
       for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
         const gradeLevel = gradeLevels[gradeIndex];
@@ -3687,6 +3699,15 @@ async function main() {
     const room = rooms[i % rooms.length];
 
     for (const schedule of scheduleTemplate) {
+      // Leave M1-1's MON1-3 open for arrange e2e (ttv) — see the usedGradeSlot
+      // reservation above.
+      if (
+        gradeLevel.GradeID === "M1-1" &&
+        schedule.day === "MON" &&
+        schedule.period <= 3
+      ) {
+        continue;
+      }
       const timeslot = timeslots.find(
         (t) =>
           t.TimeslotID ===
