@@ -20,6 +20,7 @@ import {
   validateNoExistingTimeslots,
   validateTimeslotsExist,
 } from "../../domain/services/timeslot.service";
+import { toBreakGroups } from "../../domain/services/break-context";
 import { breakGroupRepository } from "../../infrastructure/repositories/break-group.repository";
 import {
   createTimeslotsSchema,
@@ -80,6 +81,22 @@ export const getBreakGroupsByTermAction = createAction(
           : "3";
     const configId = `${semesterNum}-${input.AcademicYear}`;
     return breakGroupRepository.findByConfigId(configId);
+  },
+);
+
+/**
+ * Resolve the break context for a term: the DB-authoritative break groups mapped
+ * to domain BreakGroup[]. Call sites build the grade→group index from `groups`
+ * at point of use. breakDefinitions continue to flow from config JSON separately.
+ */
+export const getBreakContextAction = createAction(
+  getTimeslotsByTermSchema,
+  async (input: GetTimeslotsByTermInput) => {
+    const semesterNum =
+      input.Semester === "SEMESTER_1" ? "1" : input.Semester === "SEMESTER_2" ? "2" : "3";
+    const configId = `${semesterNum}-${input.AcademicYear}`;
+    const rows = await breakGroupRepository.findByConfigId(configId);
+    return { groups: toBreakGroups(rows) };
   },
 );
 
