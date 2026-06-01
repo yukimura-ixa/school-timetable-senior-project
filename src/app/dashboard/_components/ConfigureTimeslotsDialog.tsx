@@ -75,7 +75,8 @@ function ConfigureTimeslotsContent({
   useEffect(() => {
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-    const semesterEnum = semester === 1 ? "SEMESTER_1" : "SEMESTER_2" as const;
+    const semesterEnum: "SEMESTER_1" | "SEMESTER_2" =
+      semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
     getBreakContextAction({ AcademicYear: academicYear, Semester: semesterEnum })
       .then((result) => {
         if (result.success && result.data?.groups && result.data.groups.length > 0) {
