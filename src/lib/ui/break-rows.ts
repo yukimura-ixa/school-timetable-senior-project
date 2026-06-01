@@ -107,6 +107,7 @@ function pickApplicable(defs: BreakDefinition[], view: ViewMode): BreakDefinitio
   if (view.mode === "teacher") {
     return defs.filter((d) => isBreakForTeacher("BREAK", d.slotNumber, [d]));
   }
+  // single-grade index: gradeId → its known group names (caller-resolved)
   const index = new Map<string, Set<string>>([[view.gradeId, new Set(view.groupNames)]]);
   return defs.filter((d) => isBreakForGrade(d.slotNumber, view.gradeId, [d], index));
 }
