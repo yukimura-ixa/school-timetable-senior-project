@@ -41,6 +41,7 @@ import {
   DEFAULT_JUNIOR_GRADES,
   DEFAULT_SENIOR_GRADES,
   type BreakDefinition,
+  type BreakGroup,
 } from "@/features/timeslot/domain/models/break.types";
 import {
   generatePreviewSlots,
@@ -59,9 +60,10 @@ const DAYS: { value: day_of_week; label: string }[] = [
 
 type Props = {
   initialConfig?: Partial<CreateTimeslotsInput>;
+  initialBreakGroups?: BreakGroup[];
 };
 
-export function TimeslotConfigurationStep({ initialConfig }: Props) {
+export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }: Props) {
   const {
     academicYear,
     semester,
@@ -81,15 +83,24 @@ export function TimeslotConfigurationStep({ initialConfig }: Props) {
     ...initialConfig,
   });
 
+  const defaultBreakGroups = DEFAULT_BREAK_GROUPS.map((g) => ({
+    Name: g.Name,
+    Label: g.Label,
+    Color: g.Color,
+    gradeIds:
+      g.Name === "junior"
+        ? [...DEFAULT_JUNIOR_GRADES]
+        : [...DEFAULT_SENIOR_GRADES],
+  }));
   const [breakGroups, setBreakGroups] = useState(
-    initialConfig?.breakGroups ??
-      DEFAULT_BREAK_GROUPS.map((g) => ({
-        ...g,
-        gradeIds:
-          g.Name === "junior"
-            ? [...DEFAULT_JUNIOR_GRADES]
-            : [...DEFAULT_SENIOR_GRADES],
-      })),
+    initialBreakGroups && initialBreakGroups.length > 0
+      ? initialBreakGroups.map((g) => ({
+          Name: g.name,
+          Label: g.label,
+          Color: g.color,
+          gradeIds: g.gradeIds,
+        }))
+      : defaultBreakGroups,
   );
 
   const [breakDefs, setBreakDefs] = useState<BreakDefinition[]>(
