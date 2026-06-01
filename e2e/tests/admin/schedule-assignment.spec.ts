@@ -206,7 +206,26 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
       .catch(() => false);
     test.skip(!roomDialogOpened, "room modal did not open (drag-drop flake)");
 
-    await arrangePage.selectRoom("");
+    // Pick the first available room and confirm. RoomSelectionContent requires
+    // an explicit confirm click (the POM selectRoom's auto-create path is stale
+    // post-ed6, so we drive the modal directly here).
+    const roomDialog = arrangePage.page.getByTestId("room-selection-dialog");
+    await roomDialog
+      .locator('[data-testid^="room-option-"]:not([aria-disabled="true"])')
+      .first()
+      .click();
+    await Promise.all([
+      arrangePage.page
+        .waitForResponse(
+          (r) => r.request().method() === "POST" && r.status() < 400,
+          { timeout: 15_000 },
+        )
+        .catch(() => null),
+      roomDialog.getByTestId("room-confirm").click(),
+    ]);
+    await roomDialog
+      .waitFor({ state: "hidden", timeout: 10_000 })
+      .catch(() => {});
 
     // The entry should now appear in the grid at that timeslot.
     await arrangePage.assertSubjectPlaced(row, period, subjectCode);
