@@ -7,8 +7,6 @@
  * @module config.constants
  */
 
-import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
-
 /**
  * Configuration constraints for timetable setup
  */
@@ -58,8 +56,11 @@ export const DEFAULT_DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
 export const DEFAULT_CONFIG = {
   Days: ["MON", "TUE", "WED", "THU", "FRI"],
   StartTime: "08:30" as string,
-  Duration: 50 as number,
-  TimeslotPerDay: 8 as number,
+  slots: [
+    { duration: 50 }, { duration: 50 }, { duration: 10, breakGroups: ["*"] },
+    { duration: 50 }, { duration: 50, breakGroups: ["junior"] },
+    { duration: 50, breakGroups: ["senior"] }, { duration: 50 }, { duration: 50 },
+  ],
 };
 
 /**
@@ -96,7 +97,5 @@ export type ConfigData = {
   AcademicYear: number;
   Semester: string;
   StartTime: string;
-  Duration: number;
-  TimeslotPerDay: number;
-  breakDefinitions?: BreakDefinition[];
+  slots: Array<{ duration: number; breakGroups?: string[] }>;
 };
