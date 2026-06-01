@@ -45,7 +45,6 @@ export const TimetableConfigSchema = v.object({
     v.maxValue(12, "Cannot exceed 12 timeslots per day"),
   ),
   breakDefinitions: v.optional(v.array(v.any())),
-  breakGroups: v.optional(v.array(v.any())),
 });
 
 // Type export

@@ -51,7 +51,6 @@ type TimeslotsConfig = {
   Duration: number;
   TimeslotPerDay: number;
   breakDefinitions?: BreakDefinition[];
-  breakGroups?: any[];
 };
 
 export function generateTimeslots(config: TimeslotsConfig): timeslot[] {

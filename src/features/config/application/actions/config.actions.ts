@@ -281,7 +281,6 @@ export const updateConfigWithTimeslotsAction = createAction(
         Duration: configData.Duration,
         TimeslotPerDay: configData.TimeslotPerDay,
         breakDefinitions: configData.breakDefinitions ?? [],
-        breakGroups: configData.breakGroups ?? [],
       });
 
       // Step 5: Create new timeslots

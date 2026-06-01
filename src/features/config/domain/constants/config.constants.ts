@@ -99,5 +99,4 @@ export type ConfigData = {
   Duration: number;
   TimeslotPerDay: number;
   breakDefinitions?: BreakDefinition[];
-  breakGroups?: any[]; // For type safety in JSON
 };
