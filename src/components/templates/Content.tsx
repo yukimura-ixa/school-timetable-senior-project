@@ -20,6 +20,10 @@ function Content(props: Props) {
   // /dashboard is the semester selection page (full width)
   const isSemesterSelectionPage = pathName === "/dashboard";
 
+  // Arrange uses the full content width so the timetable grid can be large
+  // (no max-w-7xl cap) — see amo.
+  const isArrangePage = !!pathName.match("/arrange");
+
   // Check if current path is a public route (teacher/class schedule)
   const isPublicRoute =
     pathName.startsWith("/teachers/") || pathName.startsWith("/classes/");
@@ -95,7 +99,7 @@ function Content(props: Props) {
       >
         <div
           className={`w-full flex-1 flex flex-col ${
-            isNoSidebarPage || isSemesterSelectionPage
+            isNoSidebarPage || isSemesterSelectionPage || isArrangePage
               ? "w-full"
               : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           } py-4 transition-all duration-300 ease-in-out`}

@@ -75,7 +75,7 @@ export default async function ArrangeLayout({
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, sm: 3 } }}>
       {/* Header Slot: Teacher selector + actions */}
       <Box sx={{ mb: 3 }} data-slot="header">
         {header}
