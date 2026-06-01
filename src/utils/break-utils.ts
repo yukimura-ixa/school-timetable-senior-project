@@ -1,35 +1,36 @@
-import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+import type { BreakDefinition, BreakGroup } from "@/features/timeslot/domain/models/break.types";
 
-/**
- * Utility to determine if a specific timeslot is a break for a specific grade level or grade ID.
- * Supports both legacy Breaktime enum strings ("BREAK_JUNIOR", "BREAK_SENIOR", "BREAK_BOTH")
- * and the new V2 break definitions mapping ("BREAK" + breakDefinitions).
- */
-export function isBreakForGrade(
-  breaktime: string,
-  gradeLevel: number | undefined,
-  slotNumber: number,
-  breakDefinitions?: BreakDefinition[],
-  gradeId?: string
-): boolean {
-  // V2 Logic: if the breaktime indicates a break slot and we have definitions
-  if (breaktime === "BREAK" && breakDefinitions) {
-    // Find definitions that match this slot number
-    const matchingDefs = breakDefinitions.filter((def) => def.slotNumber === slotNumber);
-    if (matchingDefs.length === 0) return false;
-
-    // For now, if groups include "*", it's for everyone.
-    if (matchingDefs.some((def) => def.groups.includes("*"))) return true;
-
-    // "junior" -> gradeLevel <= 3
-    // "senior" -> gradeLevel >= 4
-    for (const def of matchingDefs) {
-      if (def.groups.includes("junior") && gradeLevel && gradeLevel <= 3) return true;
-      if (def.groups.includes("senior") && gradeLevel && gradeLevel >= 4) return true;
+export function buildGradeGroupIndex(groups: BreakGroup[]): Map<string, Set<string>> {
+  const index = new Map<string, Set<string>>();
+  for (const g of groups) {
+    for (const gradeId of g.gradeIds) {
+      const set = index.get(gradeId) ?? new Set<string>();
+      set.add(g.name);
+      index.set(gradeId, set);
     }
   }
+  return index;
+}
 
-  return false;
+/**
+ * Whether a break definition applies to a specific grade at a slot.
+ * Membership comes from the resolved grade→group index (built from the
+ * break_group_grade DB assignments), NOT hardcoded grade-level tiers.
+ * A definition applies when its groups include "*" or intersect the grade's groups.
+ */
+export function isBreakForGrade(
+  slotNumber: number,
+  gradeId: string,
+  defs: BreakDefinition[],
+  index: Map<string, Set<string>>,
+): boolean {
+  const groups = index.get(gradeId);
+  return defs.some(
+    (d) =>
+      d.slotNumber === slotNumber &&
+      (d.groups.includes("*") ||
+        (!!groups && d.groups.some((name) => groups.has(name)))),
+  );
 }
 
 /**

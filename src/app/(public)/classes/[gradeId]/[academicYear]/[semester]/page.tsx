@@ -8,6 +8,9 @@ import { publicDataRepository } from "@/lib/infrastructure/repositories/public-d
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 import { getTimetableConfig } from "@/lib/timetable-config";
 import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
+import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
+import { buildGradeGroupIndex } from "@/utils/break-utils";
 import { TimeslotGrid, type ScheduleCell } from "@/components/schedule/TimeslotGrid";
 
 
@@ -60,6 +63,12 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   const config = await getTimetableConfig(academicYear, semesterValue);
   const breakDefs: BreakDefinition[] = config.breakDefinitions ?? [];
 
+  const semesterNum =
+    semesterValue === "SEMESTER_1" ? "1" : semesterValue === "SEMESTER_2" ? "2" : "3";
+  const configId = `${semesterNum}-${academicYear}`;
+  const breakGroups = toBreakGroups(await breakGroupRepository.findByConfigId(configId));
+  const groupNames = [...(buildGradeGroupIndex(breakGroups).get(gradeLevel.GradeID) ?? [])];
+
   const cellsByTimeslotId = new Map<string, ScheduleCell>();
   for (const s of schedules) {
     cellsByTimeslotId.set(s.timeslot.TimeslotID, {
@@ -103,7 +112,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         <TimeslotGrid
           timeslots={timeslots}
           breakDefs={breakDefs}
-          view={{ mode: "class", gradeId: gradeLevel.GradeID, gradeLevel: gradeLevel.Year }}
+          view={{ mode: "class", gradeId: gradeLevel.GradeID, groupNames }}
           cellsByTimeslotId={cellsByTimeslotId}
           show={{ teacher: true, room: true }}
         />

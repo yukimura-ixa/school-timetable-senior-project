@@ -35,7 +35,6 @@ export type DayOfWeek = v.InferOutput<typeof DayOfWeekSchema>;
  *   Duration: 50,
  *   TimeslotPerDay: 9,
  *   breakDefinitions: [...],
- *   breakGroups: [...]
  * };
  * ```
  */
@@ -54,9 +53,6 @@ export const ConfigDataSchema = v.object({
 
   /** Break definitions in new system */
   breakDefinitions: v.optional(v.array(v.any())),
-  
-  /** Break groups in new system */
-  breakGroups: v.optional(v.array(v.any())),
 });
 
 export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;

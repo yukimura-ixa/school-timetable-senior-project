@@ -8,7 +8,7 @@
  * context-based step can function outside the wizard.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -16,12 +16,14 @@ import {
   DialogActions,
   Button,
   Alert,
+  Box,
   CircularProgress,
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
-import { createTimeslotsAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import { createTimeslotsAction, getBreakContextAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { updateConfigWithTimeslotsAction } from "@/features/config/application/actions/config.actions";
 import type { ConfigData } from "@/features/config/domain/types/config-data.types";
+import type { BreakGroup } from "@/features/timeslot/domain/models/break.types";
 import { TimeslotConfigurationStep } from "./TimeslotConfigurationStep";
 import {
   CreateSemesterProvider,
@@ -59,12 +61,35 @@ function ConfigureTimeslotsContent({
     setSemester,
   } = useCreateSemester();
   const [loading, setLoading] = useState(false);
+  const [initialBreakGroups, setInitialBreakGroups] = useState<BreakGroup[]>([]);
+  const [breakGroupsLoaded, setBreakGroupsLoaded] = useState(false);
+  const fetchedRef = useRef(false);
 
   // Sync the parent-provided academicYear/semester into the context
   useEffect(() => {
     setAcademicYear(academicYear);
     setSemester(semester);
   }, [academicYear, semester, setAcademicYear, setSemester]);
+
+  // Load break groups from DB once on mount
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    const semesterEnum: "SEMESTER_1" | "SEMESTER_2" =
+      semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
+    getBreakContextAction({ AcademicYear: academicYear, Semester: semesterEnum })
+      .then((result) => {
+        if (result.success && result.data?.groups && result.data.groups.length > 0) {
+          setInitialBreakGroups(result.data.groups);
+        }
+      })
+      .catch(() => {
+        // Silently fall back to defaults in the wizard
+      })
+      .finally(() => {
+        setBreakGroupsLoaded(true);
+      });
+  }, [academicYear, semester]);
 
   const handleSubmit = async () => {
     if (!timeslotConfig) {
@@ -128,7 +153,13 @@ function ConfigureTimeslotsContent({
           </Alert>
         )}
 
-        <TimeslotConfigurationStep initialConfig={initialConfig} />
+        {breakGroupsLoaded ? (
+          <TimeslotConfigurationStep initialConfig={initialConfig} initialBreakGroups={initialBreakGroups} />
+        ) : (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>

@@ -9,7 +9,7 @@ export type RenderedRow =
 
 export type ViewMode =
   | { mode: "teacher" }
-  | { mode: "class"; gradeId: string; gradeLevel: number }
+  | { mode: "class"; gradeId: string; groupNames: string[] }
   | { mode: "all" };
 
 /**
@@ -107,7 +107,7 @@ function pickApplicable(defs: BreakDefinition[], view: ViewMode): BreakDefinitio
   if (view.mode === "teacher") {
     return defs.filter((d) => isBreakForTeacher("BREAK", d.slotNumber, [d]));
   }
-  return defs.filter((d) =>
-    isBreakForGrade("BREAK", view.gradeLevel, d.slotNumber, [d], view.gradeId),
-  );
+  // single-grade index: gradeId → its known group names (caller-resolved)
+  const index = new Map<string, Set<string>>([[view.gradeId, new Set(view.groupNames)]]);
+  return defs.filter((d) => isBreakForGrade(d.slotNumber, view.gradeId, [d], index));
 }

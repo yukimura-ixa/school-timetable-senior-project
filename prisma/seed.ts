@@ -2932,8 +2932,9 @@ async function main() {
 
   // ===== BREAK GROUPS =====
   console.log("🗂️  Creating break groups...");
-  const juniorGradeIds = gradeLevels.filter(g => g.Year >= 7 && g.Year <= 9).map(g => g.GradeID);
-  const seniorGradeIds = gradeLevels.filter(g => g.Year >= 10 && g.Year <= 12).map(g => g.GradeID);
+  // gradelevel.Year is 1..6 (M.1=1 … M.6=6); junior = M.1-3, senior = M.4-6.
+  const juniorGradeIds = gradeLevels.filter(g => g.Year >= 1 && g.Year <= 3).map(g => g.GradeID);
+  const seniorGradeIds = gradeLevels.filter(g => g.Year >= 4 && g.Year <= 6).map(g => g.GradeID);
 
   const cleanBreakGroups = [
     { configId: "1-2568", name: "junior", label: "พักกลางวัน (ม.ต้น)", color: "#fca5a5", gradeIds: juniorGradeIds },

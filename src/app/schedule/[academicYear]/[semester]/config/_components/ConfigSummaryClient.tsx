@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import useSWR from "swr";
+import { getBreakGroupsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import {
   Alert,
   Box,
@@ -87,6 +88,16 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
     `/api/schedule-config/${academicYear}/${semester}`,
     fetcher,
   );
+
+  const { data: breakGroupsData } = useSWR(
+    ["break-groups", academicYear, semester] as const,
+    ([, year, sem]) =>
+      getBreakGroupsByTermAction({
+        AcademicYear: year,
+        Semester: sem === 1 ? "SEMESTER_1" : "SEMESTER_2",
+      }),
+  );
+  const breakGroupCount = breakGroupsData?.success ? (breakGroupsData.data?.length ?? 0) : 0;
 
   if (isLoading) {
     return (
@@ -188,10 +199,10 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
                   {parsed.Days.map((d) => DAY_TH[d] ?? d).join(", ")}
                 </TableCell>
               </TableRow>
-              {parsed.breakGroups && parsed.breakGroups.length > 0 && (
+              {breakGroupCount > 0 && (
                 <TableRow>
                   <TableCell sx={{ fontWeight: 600 }}>กลุ่มพักกลางวัน</TableCell>
-                  <TableCell>{parsed.breakGroups.length} กลุ่ม</TableCell>
+                  <TableCell>{breakGroupCount} กลุ่ม</TableCell>
                 </TableRow>
               )}
             </TableBody>
