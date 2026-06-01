@@ -55,11 +55,11 @@ describe("buildGridRows", () => {
     expect(rows[breakIndices[0]! - 1]?.kind).toBe("teaching");
   });
 
-  it("class view ม.1: shows junior break, hides senior break", () => {
+  it("class view junior group: shows junior break, hides senior break", () => {
     const rows = buildGridRows(slots, [junior, senior], {
       mode: "class",
       gradeId: "M1-1",
-      gradeLevel: 1,
+      groupNames: ["junior"],
     });
     const labels = rows
       .filter((r) => r.kind === "break")
@@ -67,16 +67,31 @@ describe("buildGridRows", () => {
     expect(labels).toEqual(["lunch-junior"]);
   });
 
-  it("class view ม.5: shows senior break, hides junior break", () => {
+  it("class view senior group: shows senior break, hides junior break", () => {
     const rows = buildGridRows(slots, [junior, senior], {
       mode: "class",
       gradeId: "M5-1",
-      gradeLevel: 5,
+      groupNames: ["senior"],
     });
     const labels = rows
       .filter((r) => r.kind === "break")
       .flatMap((r) => (r as any).defs.map((d: BreakDefinition) => d.id));
     expect(labels).toEqual(["lunch-senior"]);
+  });
+
+  it("class view custom group: shows a break for an arbitrary (non-tier) group", () => {
+    const band: BreakDefinition = {
+      id: "band-break", label: "พักวง", slotNumber: 5, duration: 20, color: "#9C27B0", groups: ["band"],
+    };
+    const rows = buildGridRows(slots, [junior, band], {
+      mode: "class",
+      gradeId: "M1-1",
+      groupNames: ["junior", "band"],
+    });
+    const labels = rows
+      .filter((r) => r.kind === "break")
+      .flatMap((r) => (r as any).defs.map((d: BreakDefinition) => d.id));
+    expect(labels).toEqual(["lunch-junior", "band-break"]);
   });
 
   it("teacher view: hides grade-specific breaks, shows universal", () => {
@@ -117,7 +132,7 @@ describe("buildGridRows", () => {
       ts(3, "TUE", "BREAK_JUNIOR"),
       ts(4, "TUE"),
     ];
-    const rows = buildGridRows(slotsWithLegacy, [], { mode: "class", gradeId: "M1-1", gradeLevel: 1 });
+    const rows = buildGridRows(slotsWithLegacy, [], { mode: "class", gradeId: "M1-1", groupNames: [] });
     const breakRows = rows.filter((r) => r.kind === "break") as any[];
     expect(breakRows).toHaveLength(1);
     expect(breakRows[0]!.defs[0]!.label).toBe("พัก");
