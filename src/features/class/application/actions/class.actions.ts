@@ -33,6 +33,7 @@ import {
 // Repository
 import * as classRepository from "../../infrastructure/repositories/class.repository";
 import { prisma } from "@/lib/prisma";
+import { createConflictError } from "@/types";
 
 // Services
 import { addTeachersToSchedules } from "../../domain/services/class-validation.service";
@@ -163,7 +164,59 @@ export const createClassScheduleAction = createAction(
   createClassScheduleSchema,
   async (input: CreateClassScheduleInput) => {
     log.debug("Creating class schedule", { timeslot: input.TimeslotID, subject: input.SubjectCode, grade: input.GradeID });
-    
+
+    // Pre-check occupancy so callers get an early, specific conflict instead of
+    // relying on the DB unique constraints (TimeslotID+GradeID,
+    // TimeslotID+RoomID) surfacing a generic P2002 (g03).
+    const occupied = await prisma.class_schedule.findFirst({
+      where: {
+        TimeslotID: input.TimeslotID,
+        OR: [
+          { GradeID: input.GradeID },
+          ...(input.RoomID ? [{ RoomID: input.RoomID }] : []),
+        ],
+      },
+      select: {
+        ClassID: true,
+        GradeID: true,
+        RoomID: true,
+        SubjectCode: true,
+        subject: { select: { SubjectName: true } },
+        room: { select: { RoomName: true } },
+        teachers_responsibility: {
+          select: {
+            TeacherID: true,
+            teacher: {
+              select: { Prefix: true, Firstname: true, Lastname: true },
+            },
+          },
+        },
+      },
+    });
+    if (occupied) {
+      const isGradeClash = occupied.GradeID === input.GradeID;
+      const resp = occupied.teachers_responsibility[0];
+      throw createConflictError(
+        isGradeClash ? "CLASS_CONFLICT" : "ROOM_CONFLICT",
+        isGradeClash
+          ? "ชั้นเรียนนี้มีคาบเรียนในช่วงเวลานี้แล้ว"
+          : "ห้องนี้ถูกใช้ในช่วงเวลานี้แล้ว",
+        {
+          classId: occupied.ClassID,
+          subjectCode: occupied.SubjectCode,
+          subjectName: occupied.subject?.SubjectName ?? "",
+          gradeId: occupied.GradeID,
+          teacherId: resp?.TeacherID ?? null,
+          teacherName: resp
+            ? `${resp.teacher.Prefix}${resp.teacher.Firstname} ${resp.teacher.Lastname}`
+            : "",
+          timeslotId: input.TimeslotID,
+          roomId: occupied.RoomID,
+          roomName: occupied.room?.RoomName ?? null,
+        },
+      );
+    }
+
     const schedule = await classRepository.create({
       IsLocked: input.IsLocked ?? false,
       timeslot: {
