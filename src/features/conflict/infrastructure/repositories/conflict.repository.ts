@@ -171,16 +171,27 @@ export const conflictRepository = {
           Semester: semesterEnum,
         },
       },
-      include: {
-        gradelevel: true,
-        subject: true,
+      // Narrow select (only fields used by the conflict grouping below) — the
+      // previous `include: { rel: true }` loaded every column of 5 relations
+      // over the whole semester (~1k rows), dominating page latency (bzj).
+      select: {
+        ClassID: true,
+        GradeID: true,
+        SubjectCode: true,
+        RoomID: true,
+        TimeslotID: true,
+        gradelevel: { select: { Year: true, Number: true } },
+        subject: { select: { SubjectName: true } },
+        room: { select: { RoomName: true } },
+        timeslot: { select: { DayOfWeek: true } },
         teachers_responsibility: {
-          include: {
-            teacher: true,
+          select: {
+            TeacherID: true,
+            teacher: {
+              select: { Prefix: true, Firstname: true, Lastname: true },
+            },
           },
         },
-        room: true,
-        timeslot: true,
       },
     })) as unknown as ScheduleWithRelations[];
 

@@ -54,9 +54,16 @@ export const overviewRepository = {
 
     const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
-    // Step 2: Parallel queries for better performance
-    const [totalScheduled, totalGrades, activeTeachersResult, totalRooms] =
-      await Promise.all([
+    // Step 2: Parallel queries for better performance. Conflict detection is
+    // folded in here (it only needs academicYear/semester) so it runs
+    // alongside the counts instead of sequentially after them (bzj).
+    const [
+      totalScheduled,
+      totalGrades,
+      activeTeachersResult,
+      totalRooms,
+      conflictData,
+    ] = await Promise.all([
         // Count all scheduled classes for this semester
         prisma.class_schedule.count({
           where: {
@@ -100,6 +107,12 @@ export const overviewRepository = {
 
         // Count total rooms
         prisma.room.count(),
+
+        // Detect conflicts (needs only academicYear/semester) in parallel
+        conflictRepository.findAllConflicts(
+          config.academicYear,
+          config.semester,
+        ),
       ]);
 
     // Calculate metrics
@@ -109,10 +122,6 @@ export const overviewRepository = {
     const completionRate =
       totalRequiredSlots > 0 ? (totalScheduled / totalRequiredSlots) * 100 : 0;
 
-    const conflictData = await conflictRepository.findAllConflicts(
-      config.academicYear,
-      config.semester,
-    );
     const scheduleConflicts = conflictData.totalConflicts;
 
     return {
