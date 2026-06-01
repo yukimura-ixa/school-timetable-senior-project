@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import {
   Add as AddIcon,
+  Remove as RemoveIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
   Assignment as AssignmentIcon,
@@ -34,6 +35,7 @@ import { useConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import {
   syncAssignmentsAction,
   deleteAssignmentAction,
+  updateAssignmentTeachHourAction,
 } from "@/features/assign/application/actions/assign.actions";
 import {
   type ResponsibilityInput,
@@ -214,6 +216,41 @@ function QuickAssignmentPanel({
       );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const [updatingRespId, setUpdatingRespId] = useState<string | null>(null);
+
+  // In-place TeachHour edit: non-destructive update (no RespID churn / no
+  // class_schedule cascade). Server blocks reducing below already-placed
+  // periods (0yg).
+  const handleTeachHourChange = async (
+    assignment: (typeof currentAssignments)[0],
+    delta: number,
+  ) => {
+    const next = assignment.TeachHour + delta;
+    if (next < 1) return;
+    setUpdatingRespId(assignment.RespID);
+    try {
+      const res = await updateAssignmentTeachHourAction({
+        RespID: parseInt(assignment.RespID),
+        TeachHour: next,
+      });
+      if (!res?.success) {
+        throw new Error(res?.error?.message || "อัปเดตชั่วโมงไม่สำเร็จ");
+      }
+      enqueueSnackbar(
+        `อัปเดตชั่วโมง ${assignment.SubjectCode} เป็น ${next} ชม.`,
+        { variant: "success" },
+      );
+      onAssignmentAdded?.();
+    } catch (error) {
+      enqueueSnackbar(
+        `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : "Unknown error"}`,
+        { variant: "error" },
+      );
+    } finally {
+      setUpdatingRespId(null);
     }
   };
 
@@ -477,12 +514,43 @@ function QuickAssignmentPanel({
                         <Chip label={assignment.GradeName} size="small" />
                       </TableCell>
                       <TableCell align="center">
-                        <Chip
-                          label={`${assignment.TeachHour} ชม.`}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                        />
+                        <Box
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                          }}
+                        >
+                          <IconButton
+                            size="small"
+                            aria-label={`ลดชั่วโมง ${assignment.SubjectCode}`}
+                            disabled={
+                              updatingRespId === assignment.RespID ||
+                              assignment.TeachHour <= 1
+                            }
+                            onClick={() => {
+                              void handleTeachHourChange(assignment, -1);
+                            }}
+                          >
+                            <RemoveIcon fontSize="small" />
+                          </IconButton>
+                          <Chip
+                            label={`${assignment.TeachHour} ชม.`}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                          <IconButton
+                            size="small"
+                            aria-label={`เพิ่มชั่วโมง ${assignment.SubjectCode}`}
+                            disabled={updatingRespId === assignment.RespID}
+                            onClick={() => {
+                              void handleTeachHourChange(assignment, 1);
+                            }}
+                          >
+                            <AddIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
                       </TableCell>
                       <TableCell align="right">
                         <IconButton

@@ -93,3 +93,16 @@ export type DeleteAssignmentInput = v.InferInput<typeof deleteAssignmentSchema>;
 export type DeleteAssignmentOutput = v.InferOutput<
   typeof deleteAssignmentSchema
 >;
+
+/**
+ * Schema: Update a responsibility's TeachHour in place — no RespID churn and
+ * no class_schedule cascade. Used by the assign panel inline stepper (0yg).
+ */
+export const updateAssignmentTeachHourSchema = v.object({
+  RespID: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  TeachHour: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(40)),
+});
+
+export type UpdateAssignmentTeachHourInput = v.InferInput<
+  typeof updateAssignmentTeachHourSchema
+>;
