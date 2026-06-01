@@ -16,6 +16,7 @@ import {
   DialogActions,
   Button,
   Alert,
+  Box,
   CircularProgress,
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
@@ -61,6 +62,7 @@ function ConfigureTimeslotsContent({
   } = useCreateSemester();
   const [loading, setLoading] = useState(false);
   const [initialBreakGroups, setInitialBreakGroups] = useState<BreakGroup[]>([]);
+  const [breakGroupsLoaded, setBreakGroupsLoaded] = useState(false);
   const fetchedRef = useRef(false);
 
   // Sync the parent-provided academicYear/semester into the context
@@ -82,6 +84,9 @@ function ConfigureTimeslotsContent({
       })
       .catch(() => {
         // Silently fall back to defaults in the wizard
+      })
+      .finally(() => {
+        setBreakGroupsLoaded(true);
       });
   }, [academicYear, semester]);
 
@@ -147,7 +152,13 @@ function ConfigureTimeslotsContent({
           </Alert>
         )}
 
-        <TimeslotConfigurationStep initialConfig={initialConfig} initialBreakGroups={initialBreakGroups} />
+        {breakGroupsLoaded ? (
+          <TimeslotConfigurationStep initialConfig={initialConfig} initialBreakGroups={initialBreakGroups} />
+        ) : (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
