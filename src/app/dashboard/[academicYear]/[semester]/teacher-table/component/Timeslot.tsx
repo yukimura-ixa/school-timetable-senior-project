@@ -4,6 +4,7 @@ import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import { isBreakForTeacher } from "@/utils/break-utils";
+import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
 import { formatGradeIdDisplay } from "@/utils/grade-display";
 import {
   Box,
@@ -18,7 +19,7 @@ import { colors } from "@/shared/design-system";
 
 type Props = {
   timeSlotData: TimeSlotTableData;
-  breakDefinitions?: any[];
+  breakDefinitions?: BreakDefinition[];
 };
 
 const formatTime = formatTimeslotTimeUtc;
