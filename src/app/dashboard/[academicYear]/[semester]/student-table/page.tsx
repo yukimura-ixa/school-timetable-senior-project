@@ -44,7 +44,7 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import { useGradeLevels } from "@/hooks";
 import { useUIStore } from "@/stores/uiStore";
-import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import { getTimeslotsByTermAction, getBreakContextAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
 import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
@@ -161,6 +161,23 @@ function StudentTablePage() {
     return await getTimetableConfigAction({
       academicYear: parseInt(year, 10),
       semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
+    });
+  }, { revalidateOnFocus: false });
+
+  type BreakContextKey = readonly ["break-context", string, string];
+  const breakContextKey: BreakContextKey | null =
+    canFetch && semester && academicYear
+      ? ["break-context", String(academicYear), String(semester)]
+      : null;
+
+  const {
+    data: breakContextData,
+  } = useSWR(breakContextKey, async (key) => {
+    if (!key) throw new Error("Missing break context key");
+    const [, year, sem] = key;
+    return await getBreakContextAction({
+      AcademicYear: parseInt(year, 10),
+      Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
     });
   }, { revalidateOnFocus: false });
 
@@ -727,6 +744,7 @@ function StudentTablePage() {
                     searchGradeID={selectedGradeId}
                     timeSlotData={timeSlotData}
                     breakDefinitions={configData?.data?.breakDefinitions}
+                    breakGroups={breakContextData?.data?.groups}
                   />
                 </Paper>
               )}
@@ -745,6 +763,7 @@ function StudentTablePage() {
                   searchGradeID={selectedGradeId}
                   timeSlotData={timeSlotData}
                   breakDefinitions={configData?.data?.breakDefinitions}
+                  breakGroups={breakContextData?.data?.groups}
                 />
                 <div className="mt-8 flex gap-2">
                   <p>ลงชื่อ..............................รองผอ.วิชาการ</p>

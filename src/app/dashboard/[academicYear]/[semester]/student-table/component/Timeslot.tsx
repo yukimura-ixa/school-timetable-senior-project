@@ -3,7 +3,8 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
-import { isBreakForGrade } from "@/utils/break-utils";
+import { isBreakForGrade, buildGradeGroupIndex } from "@/utils/break-utils";
+import type { BreakDefinition, BreakGroup } from "@/features/timeslot/domain/models/break.types";
 import {
   Box,
   Typography,
@@ -18,17 +19,11 @@ import { colors } from "@/shared/design-system";
 type Props = {
   timeSlotData: TimeSlotTableData;
   searchGradeID: string | null;
-  breakDefinitions?: any[];
-  breakGroups?: any[];
+  breakDefinitions?: BreakDefinition[];
+  breakGroups?: BreakGroup[];
 };
 
 const formatTime = formatTimeslotTimeUtc;
-
-const getGradeLevel = (gradeId: string | null) => {
-  if (!gradeId) return undefined;
-  const level = Number.parseInt(gradeId[0] ?? "", 10);
-  return Number.isNaN(level) ? undefined : level;
-};
 
 const LABEL_WIDTH = 90;
 const TEACHING_MIN_WIDTH = 80;
@@ -38,10 +33,11 @@ const ROW_SPACING = 1.5;
 export default function TimeSlot({
   timeSlotData,
   searchGradeID,
-  breakDefinitions,
+  breakDefinitions = [],
+  breakGroups = [],
 }: Props) {
   const theme = useTheme();
-  const gradeLevel = getGradeLevel(searchGradeID);
+  const breakIndex = buildGradeGroupIndex(breakGroups);
 
   const columns = timeSlotData.Columns;
   const monSlots = timeSlotData.AllData.filter(
@@ -261,14 +257,8 @@ export default function TimeSlot({
                   : 0;
                 const showBreak =
                   isBreak ||
-                  (data
-                    ? isBreakForGrade(
-                        data.Breaktime,
-                        gradeLevel,
-                        slotNumber,
-                        breakDefinitions,
-                        searchGradeID || undefined,
-                      )
+                  (data && searchGradeID
+                    ? isBreakForGrade(slotNumber, searchGradeID, breakDefinitions, breakIndex)
                     : false);
                 const subject = data?.subject;
                 const subjectCode = subject?.SubjectCode ?? "";
