@@ -1,6 +1,6 @@
 "use client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import React from "react";
+import React, { useMemo } from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import { isBreakForGrade, buildGradeGroupIndex } from "@/utils/break-utils";
@@ -37,7 +37,7 @@ export default function TimeSlot({
   breakGroups = [],
 }: Props) {
   const theme = useTheme();
-  const breakIndex = buildGradeGroupIndex(breakGroups);
+  const breakIndex = useMemo(() => buildGradeGroupIndex(breakGroups), [breakGroups]);
 
   const columns = timeSlotData.Columns;
   const monSlots = timeSlotData.AllData.filter(
