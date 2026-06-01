@@ -13,7 +13,6 @@ import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
 import { solve } from "@/features/arrange/domain/auto-arrange";
-import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
 import type {
   AvailableRoom,
   AvailableTimeslot,
@@ -198,10 +197,11 @@ export async function autoArrangeAction(
             s.teachers_responsibility.some((r) => r.TeacherID === teacherId),
         ).length;
 
-        const credit = subjectCreditToNumber(
-          resp.subject?.Credit ?? "CREDIT_10",
-        );
-        const periodsPerWeek = Math.ceil(credit);
+        // Required periods = the responsibility's assigned TeachHour (credit × 2
+        // per the assign step), matching the inspector and expandAvailableSlots.
+        // The previous Math.ceil(credit) under-counted (e.g. 2.0 credit → 2
+        // instead of 4), so the solver disagreed with the rest of the system (6ri).
+        const periodsPerWeek = resp.TeachHour;
 
         return {
           respId: resp.RespID,
