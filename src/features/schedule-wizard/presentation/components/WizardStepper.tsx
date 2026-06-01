@@ -82,7 +82,7 @@ export function WizardStepper({ state, basePath }: WizardStepperProps) {
   };
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box sx={{ mb: 3, maxWidth: 1280, mx: "auto" }}>
       <Stepper nonLinear activeStep={activeIndex} alternativeLabel>
         {WIZARD_STEPS.map((step, index) => {
           const reachable =
