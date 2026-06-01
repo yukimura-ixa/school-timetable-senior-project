@@ -25,17 +25,20 @@ import {
   getLockedRespsSchema,
   syncAssignmentsSchema,
   deleteAssignmentSchema,
+  updateAssignmentTeachHourSchema,
   type GetAssignmentsInput,
   type GetAvailableRespsInput,
   type GetLockedRespsInput,
   type SyncAssignmentsInput,
   type DeleteAssignmentInput,
+  type UpdateAssignmentTeachHourInput,
 } from "../schemas/assign.schemas";
 
 // Repository
 import * as assignRepository from "../../infrastructure/repositories/assign.repository";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
+import { createValidationError } from "@/types";
 
 // Services
 import {
@@ -292,6 +295,58 @@ export const deleteAssignmentAction = createAction(
 
     await invalidatePublicCache(["teachers", "stats"]);
     return result;
+  },
+);
+
+/**
+ * Update a responsibility's TeachHour in place.
+ *
+ * Unlike syncAssignmentsAction (recreate) and deleteAssignmentAction (cascade
+ * delete), this neither churns the RespID nor touches class_schedule, so hours
+ * can be corrected after arranging without wiping placed periods. Reducing
+ * below the number of already-placed periods is rejected (0yg).
+ */
+export const updateAssignmentTeachHourAction = createAction(
+  updateAssignmentTeachHourSchema,
+  async (input: UpdateAssignmentTeachHourInput) => {
+    log.debug("Updating assignment TeachHour", {
+      respId: input.RespID,
+      teachHour: input.TeachHour,
+    });
+
+    const resp = await assignRepository.findByRespId(input.RespID);
+    if (!resp) {
+      throw new Error(`Responsibility with RespID ${input.RespID} not found`);
+    }
+
+    const semesterNum = resp.Semester === "SEMESTER_1" ? "1" : "2";
+    const configId = generateConfigID(semesterNum, resp.AcademicYear);
+    const conflictsKey = `${resp.AcademicYear}-${semesterNum}`;
+
+    const updated = await withPrismaTransaction(async (tx) => {
+      // Guard: never reduce below periods already placed in the timetable — an
+      // in-place edit must not orphan scheduled rows (non-destructive).
+      const placed = await tx.class_schedule.count({
+        where: { teachers_responsibility: { some: { RespID: input.RespID } } },
+      });
+      if (input.TeachHour < placed) {
+        throw createValidationError(
+          `ไม่สามารถลดชั่วโมงเป็น ${input.TeachHour} ได้ เนื่องจากจัดตารางไปแล้ว ${placed} คาบ`,
+          "TeachHour",
+        );
+      }
+      return tx.teachers_responsibility.update({
+        where: { RespID: input.RespID },
+        data: { TeachHour: input.TeachHour },
+      });
+    });
+
+    await Promise.all([
+      revalidateTag(`stats:${configId}`, "max"),
+      revalidateTag(`conflicts:${conflictsKey}`, "max"),
+    ]);
+    await invalidatePublicCache(["teachers", "stats"]);
+    return updated;
   },
 );
 
