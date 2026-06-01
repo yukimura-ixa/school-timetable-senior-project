@@ -1,10 +1,22 @@
-import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+import type { BreakDefinition, BreakGroup } from "@/features/timeslot/domain/models/break.types";
 
 /**
  * Utility to determine if a specific timeslot is a break for a specific grade level or grade ID.
  * Supports both legacy Breaktime enum strings ("BREAK_JUNIOR", "BREAK_SENIOR", "BREAK_BOTH")
  * and the new V2 break definitions mapping ("BREAK" + breakDefinitions).
  */
+export function buildGradeGroupIndex(groups: BreakGroup[]): Map<string, Set<string>> {
+  const index = new Map<string, Set<string>>();
+  for (const g of groups) {
+    for (const gradeId of g.gradeIds) {
+      const set = index.get(gradeId) ?? new Set<string>();
+      set.add(g.name);
+      index.set(gradeId, set);
+    }
+  }
+  return index;
+}
+
 export function isBreakForGrade(
   breaktime: string,
   gradeLevel: number | undefined,

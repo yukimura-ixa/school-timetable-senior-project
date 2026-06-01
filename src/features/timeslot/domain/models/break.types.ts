@@ -14,6 +14,13 @@ export type BreakDefinition = {
   groups: string[]; // break_group.Name refs, or ["*"] for all
 };
 
+export type BreakGroup = {
+  name: string;       // break_group.Name — referenced by BreakDefinition.groups
+  label: string;      // break_group.Label
+  color: string;      // break_group.Color
+  gradeIds: string[]; // break_group_grade.GradeID[]
+};
+
 /** Default break groups preset */
 export const DEFAULT_BREAK_GROUPS = [
   { Name: "junior", Label: "ม.ต้น (ม.1-3)", Color: "#4CAF50" },
