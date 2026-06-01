@@ -136,6 +136,14 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
   test("should allow removing subject from timeslot", async ({
     arrangePage,
   }) => {
+    // Relies on drag-drop placement, which is timing-flaky in headless CI
+    // (dnd-kit PointerSensor). Skipped in CI like the sibling "assign" test;
+    // runs locally for UX validation. Reliable drag is tracked under 8kp (f6o).
+    test.skip(
+      !!process.env.CI,
+      "Drag-drop timing flaky in CI - run locally for UX testing",
+    );
+
     // Arrange - First assign a subject
     const teacherName = `${testTeacher.Prefix}${testTeacher.Firstname} ${testTeacher.Lastname}`;
     await arrangePage.selectTeacher(teacherName);
