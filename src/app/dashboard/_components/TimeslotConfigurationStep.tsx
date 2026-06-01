@@ -83,25 +83,25 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
     ...initialConfig,
   });
 
-  const defaultBreakGroups = DEFAULT_BREAK_GROUPS.map((g) => ({
-    Name: g.Name,
-    Label: g.Label,
-    Color: g.Color,
-    gradeIds:
-      g.Name === "junior"
-        ? [...DEFAULT_JUNIOR_GRADES]
-        : [...DEFAULT_SENIOR_GRADES],
-  }));
-  const [breakGroups, setBreakGroups] = useState(
-    initialBreakGroups && initialBreakGroups.length > 0
-      ? initialBreakGroups.map((g) => ({
-          Name: g.name,
-          Label: g.label,
-          Color: g.color,
-          gradeIds: g.gradeIds,
-        }))
-      : defaultBreakGroups,
-  );
+  const [breakGroups, setBreakGroups] = useState(() => {
+    if (initialBreakGroups && initialBreakGroups.length > 0) {
+      return initialBreakGroups.map((g) => ({
+        Name: g.name,
+        Label: g.label,
+        Color: g.color,
+        gradeIds: g.gradeIds,
+      }));
+    }
+    return DEFAULT_BREAK_GROUPS.map((g) => ({
+      Name: g.Name,
+      Label: g.Label,
+      Color: g.Color,
+      gradeIds:
+        g.Name === "junior"
+          ? [...DEFAULT_JUNIOR_GRADES]
+          : [...DEFAULT_SENIOR_GRADES],
+    }));
+  });
 
   const [breakDefs, setBreakDefs] = useState<BreakDefinition[]>(
     initialConfig?.breakDefinitions ?? [...DEFAULT_BREAK_DEFINITIONS],

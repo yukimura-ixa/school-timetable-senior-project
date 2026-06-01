@@ -89,10 +89,13 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
     fetcher,
   );
 
-  const semesterEnum = semester === 1 ? "SEMESTER_1" : "SEMESTER_2" as const;
   const { data: breakGroupsData } = useSWR(
-    `break-groups/${academicYear}/${semester}`,
-    () => getBreakGroupsByTermAction({ AcademicYear: academicYear, Semester: semesterEnum }),
+    ["break-groups", academicYear, semester] as const,
+    ([, year, sem]) =>
+      getBreakGroupsByTermAction({
+        AcademicYear: year,
+        Semester: sem === 1 ? "SEMESTER_1" : "SEMESTER_2",
+      }),
   );
   const breakGroupCount = breakGroupsData?.success ? (breakGroupsData.data?.length ?? 0) : 0;
 
