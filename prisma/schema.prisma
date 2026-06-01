@@ -255,6 +255,20 @@ model Session {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// better-auth verification tokens (email verification / password reset).
+// The table already exists in the database; modelling it here keeps schema and
+// DB in sync so `prisma migrate dev` no longer tries to DROP it (a0t).
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
+}
+
 enum SemesterStatus {
   DRAFT
   PUBLISHED
