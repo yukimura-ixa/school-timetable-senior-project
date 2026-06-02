@@ -5,6 +5,8 @@
  * No Prisma or DB types — keeps the solver testable and portable.
  */
 
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
+
 // ─── Solver Input ────────────────────────────────────────────────
 
 /** A subject-grade pair that needs to be placed into a timeslot */
@@ -70,6 +72,16 @@ export interface SolverInput {
   existingSchedules: ExistingSchedule[];
   /** All rooms */
   rooms: AvailableRoom[];
+  /**
+   * Phase 2A: per-slot break config from ConfigData.slots.
+   * When present, the solver skips cells where the grade breaks at that slot.
+   */
+  slotConfigs?: SlotConfig[];
+  /**
+   * Phase 2A: grade→group membership index built by buildGradeGroupIndex().
+   * Required when slotConfigs is provided.
+   */
+  gradeBreakIndex?: Map<string, Set<string>>;
 }
 
 // ─── Solver Output ───────────────────────────────────────────────

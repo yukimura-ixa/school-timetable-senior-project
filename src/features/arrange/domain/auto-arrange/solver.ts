@@ -18,6 +18,7 @@ import {
   checkRoomConflict,
   scoreSoftConstraints,
 } from "./constraints";
+import { isBreakForGrade } from "@/utils/break-utils";
 import type {
   AvailableRoom,
   AvailableTimeslot,
@@ -60,12 +61,31 @@ export function solve(input: SolverInput): SolverResult {
   const jobs = expandToJobs(input.unplacedSubjects);
 
   // ── Step 2: Filter usable timeslots (non-break only) ──
-  const usableTimeslots = input.timeslots.filter((t) => !t.isBreak);
+  // Base filter removes universal-break slots (isBreak=true).
+  // Per-grade staggered breaks are handled per-job below.
+  const baseUsableTimeslots = input.timeslots.filter((t) => !t.isBreak);
+
+  /**
+   * Returns the candidate timeslots for a given gradeId.
+   * When slotConfigs + gradeBreakIndex are present (Phase 2A), also excludes
+   * slots where this specific grade has a staggered break (e.g. junior lunch).
+   */
+  function getUsableTimeslotsForGrade(gradeId: string): AvailableTimeslot[] {
+    if (!input.slotConfigs || !input.gradeBreakIndex) {
+      return baseUsableTimeslots;
+    }
+    const slots = input.slotConfigs;
+    const index = input.gradeBreakIndex;
+    return baseUsableTimeslots.filter(
+      (t) => !isBreakForGrade(t.period, gradeId, slots, index),
+    );
+  }
 
   // ── Step 3: Pre-compute "difficulty" for each job ──
   // Count how many valid timeslots each subject-grade combo has.
   // Most constrained (fewest options) should be placed first.
   const jobsWithDifficulty = jobs.map((job) => {
+    const usableTimeslots = getUsableTimeslotsForGrade(job.gradeId);
     const validCount = countValidTimeslots(
       job,
       input.teacherId,
@@ -95,6 +115,8 @@ export function solve(input: SolverInput): SolverResult {
       continue;
     }
 
+    const usableTimeslots = getUsableTimeslotsForGrade(job.gradeId);
+
     const bestPlacement = findBestPlacement(
       job,
       input.teacherId,
@@ -121,7 +143,7 @@ export function solve(input: SolverInput): SolverResult {
   const qualityScore = computeQualityScore(
     placements,
     input.existingSchedules,
-    usableTimeslots,
+    baseUsableTimeslots,
   );
 
   const stats: SolverStats = {
