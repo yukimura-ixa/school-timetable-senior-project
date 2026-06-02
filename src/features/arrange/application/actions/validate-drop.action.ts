@@ -19,6 +19,45 @@ import { toBreakGroups } from "@/features/timeslot/domain/services/break-context
 
 const log = createLogger("ValidateDropAction");
 
+type BreakConfig = {
+  slots: ReturnType<typeof parseConfigData>["slots"];
+  gradeBreakIndex: Map<string, Set<string>>;
+};
+
+// The term's break configuration is immutable mid-session, but validate-drop
+// runs on every drag attempt. Cache the parsed config + grade-break index per
+// configId so we don't re-query table_config + break_group on each drop. A
+// short TTL bounds staleness if an admin edits the config in another session.
+const BREAK_CONFIG_TTL_MS = 60_000;
+const breakConfigCache = new Map<
+  string,
+  { value: BreakConfig | null; expiresAt: number }
+>();
+
+async function getBreakConfig(configId: string): Promise<BreakConfig | null> {
+  const cached = breakConfigCache.get(configId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.value;
+  }
+  // A throw here (transient DB error) intentionally does NOT populate the
+  // cache, so the next drop retries the fetch.
+  const [configRow, breakGroupRows] = await Promise.all([
+    prisma.table_config.findUnique({ where: { ConfigID: configId } }),
+    breakGroupRepository.findByConfigId(configId),
+  ]);
+  const value: BreakConfig | null = configRow?.Config
+    ? {
+        slots: parseConfigData(configRow.Config).slots,
+        gradeBreakIndex: buildGradeGroupIndex(toBreakGroups(breakGroupRows)),
+      }
+    : null;
+  breakConfigCache.set(configId, {
+    value,
+    expiresAt: Date.now() + BREAK_CONFIG_TTL_MS,
+  });
+  return value;
+}
+
 export type ValidateDropInput = {
   timeslot: string;
   subject: string;
@@ -210,15 +249,17 @@ export async function validateDropAction(
       const configId = `${semesterStr}-${timeslotData.AcademicYear}`;
 
       try {
-        const [configRow, breakGroupRows] = await Promise.all([
-          prisma.table_config.findUnique({ where: { ConfigID: configId } }),
-          breakGroupRepository.findByConfigId(configId),
-        ]);
-
-        if (configRow?.Config && slotNumber > 0) {
-          const configData = parseConfigData(configRow.Config);
-          const gradeBreakIndex = buildGradeGroupIndex(toBreakGroups(breakGroupRows));
-          if (isBreakForGrade(slotNumber, grade, configData.slots, gradeBreakIndex)) {
+        if (slotNumber > 0) {
+          const breakConfig = await getBreakConfig(configId);
+          if (
+            breakConfig &&
+            isBreakForGrade(
+              slotNumber,
+              grade,
+              breakConfig.slots,
+              breakConfig.gradeBreakIndex,
+            )
+          ) {
             return {
               allowed: false,
               reason: "break_timeslot",
@@ -226,9 +267,17 @@ export async function validateDropAction(
             };
           }
         }
-      } catch {
-        // Config load failed — skip per-grade check, let other guards run
-        log.warn("Could not load config for per-grade break check", { configId, timeslot });
+      } catch (error) {
+        // Break-config load failed (transient DB error, not a missing config —
+        // a missing row resolves to null above). Fail-open here is safe because
+        // universal breaks are already caught by the Breaktime check above; only
+        // a staggered per-grade break could slip through on a DB blip. Log the
+        // error object so these are visible rather than silently swallowed.
+        log.warn("Per-grade break check skipped: break-config load failed", {
+          configId,
+          timeslot,
+          error,
+        });
       }
     }
 

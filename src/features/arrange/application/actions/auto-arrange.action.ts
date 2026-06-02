@@ -253,13 +253,14 @@ export async function autoArrangeAction(
     // ── Build per-grade break guard (Phase 2A) ──
     // Parse config slots and build grade→group index so the solver can skip
     // cells where a specific grade has a staggered break (e.g. junior lunch).
-    let slotConfigs: SolverInput["slotConfigs"];
-    let gradeBreakIndex: SolverInput["gradeBreakIndex"];
+    let breakGuard: SolverInput["breakGuard"];
     if (configRow?.Config) {
       try {
         const configData = parseConfigData(configRow.Config);
-        slotConfigs = configData.slots;
-        gradeBreakIndex = buildGradeGroupIndex(toBreakGroups(breakGroupRows));
+        breakGuard = {
+          slotConfigs: configData.slots,
+          gradeBreakIndex: buildGradeGroupIndex(toBreakGroups(breakGroupRows)),
+        };
       } catch {
         // Malformed config — fall back to isBreak-only guard (safe)
         log.warn("Could not parse term config for break-guard; falling back to isBreak-only", { configId });
@@ -275,8 +276,7 @@ export async function autoArrangeAction(
       timeslots,
       existingSchedules,
       rooms: availableRooms,
-      slotConfigs,
-      gradeBreakIndex,
+      breakGuard,
     };
 
     log.info("Running auto-arrange solver", {

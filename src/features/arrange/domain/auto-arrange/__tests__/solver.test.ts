@@ -401,8 +401,7 @@ describe("solve", () => {
       unplacedSubjects: [makeSubject({ gradeId: "M1-1", periodsPerWeek: 1 })],
       timeslots,
       rooms: makeRooms(1),
-      slotConfigs,
-      gradeBreakIndex,
+      breakGuard: { slotConfigs, gradeBreakIndex },
     });
 
     const result = solve(input);
@@ -433,8 +432,7 @@ describe("solve", () => {
       unplacedSubjects: [makeSubject({ gradeId: "M5-1", periodsPerWeek: 1 })],
       timeslots,
       rooms: makeRooms(1),
-      slotConfigs,
-      gradeBreakIndex,
+      breakGuard: { slotConfigs, gradeBreakIndex },
     });
 
     const result = solve(input);
@@ -443,14 +441,14 @@ describe("solve", () => {
     expect(result.placements[0]!.timeslotId).toBe("1-2568-MON4"); // seniors CAN use this slot
   });
 
-  it("allows placement when no slotConfigs/gradeBreakIndex provided (backward compat)", () => {
+  it("allows placement when no breakGuard provided (backward compat)", () => {
     const input = makeInput({
       unplacedSubjects: [makeSubject({ periodsPerWeek: 1 })],
       timeslots: [
         { timeslotId: "1-2568-MON4", day: "MON", period: 4, isBreak: false },
       ],
       rooms: makeRooms(1),
-      // no slotConfigs / gradeBreakIndex → old behaviour
+      // no breakGuard → old behaviour
     });
 
     const result = solve(input);

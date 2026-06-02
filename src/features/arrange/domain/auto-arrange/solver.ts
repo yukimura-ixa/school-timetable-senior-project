@@ -67,15 +67,14 @@ export function solve(input: SolverInput): SolverResult {
 
   /**
    * Returns the candidate timeslots for a given gradeId.
-   * When slotConfigs + gradeBreakIndex are present (Phase 2A), also excludes
-   * slots where this specific grade has a staggered break (e.g. junior lunch).
+   * When breakGuard is present (Phase 2A), also excludes slots where this
+   * specific grade has a staggered break (e.g. junior lunch).
    */
   function getUsableTimeslotsForGrade(gradeId: string): AvailableTimeslot[] {
-    if (!input.slotConfigs || !input.gradeBreakIndex) {
+    if (!input.breakGuard) {
       return baseUsableTimeslots;
     }
-    const slots = input.slotConfigs;
-    const index = input.gradeBreakIndex;
+    const { slotConfigs: slots, gradeBreakIndex: index } = input.breakGuard;
     return baseUsableTimeslots.filter(
       (t) => !isBreakForGrade(t.period, gradeId, slots, index),
     );
