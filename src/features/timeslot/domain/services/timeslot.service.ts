@@ -16,7 +16,7 @@ import type {
 import { breaktime as breaktimeEnum } from "@/prisma/generated/client";
 import { timeslotRepository } from "../../infrastructure/repositories/timeslot.repository";
 import type { CreateTimeslotsInput } from "../../application/schemas/timeslot.schemas";
-import type { BreakDefinition } from "../models/break.types";
+import type { SlotConfig } from "../models/break.types";
 
 // Helper: convert Prisma semester enum to number string
 const toSemesterNum = (sem: semester): string => {
@@ -48,51 +48,29 @@ type TimeslotsConfig = {
   Semester: semester;
   Days: day_of_week[];
   StartTime: string;
-  Duration: number;
-  TimeslotPerDay: number;
-  breakDefinitions?: BreakDefinition[];
+  slots: SlotConfig[];
 };
 
 export function generateTimeslots(config: TimeslotsConfig): timeslot[] {
   const timeslots: timeslot[] = [];
-  const breaksBySlot = new Map<number, BreakDefinition[]>();
-
-  for (const brk of config.breakDefinitions || []) {
-    const existing = breaksBySlot.get(brk.slotNumber) ?? [];
-    existing.push(brk);
-    breaksBySlot.set(brk.slotNumber, existing);
-  }
-
   for (const day of config.Days) {
     let slotStart = new Date(`2024-01-01T${config.StartTime}:00`);
-
-    for (let period = 1; period <= config.TimeslotPerDay; period++) {
-      // Insert break gaps before this period
-      const breaksBeforePeriod = breaksBySlot.get(period) ?? [];
-      for (const brk of breaksBeforePeriod) {
-        slotStart.setMinutes(slotStart.getMinutes() + brk.duration);
-      }
-
+    config.slots.forEach((slot, i) => {
       const endTime = new Date(slotStart);
-      endTime.setMinutes(endTime.getMinutes() + config.Duration);
-
-      // A timeslot is BREAK if any break definition targets the next slot
-      const hasBreakAfter = breaksBySlot.has(period + 1);
-
+      endTime.setMinutes(endTime.getMinutes() + slot.duration);
+      const isUniversal = slot.breakGroups?.includes("*") ?? false;
       timeslots.push({
-        TimeslotID: generateTimeslotId(config.Semester, config.AcademicYear, day, period),
+        TimeslotID: generateTimeslotId(config.Semester, config.AcademicYear, day, i + 1),
         DayOfWeek: day,
         AcademicYear: config.AcademicYear,
         Semester: config.Semester,
         StartTime: slotStart,
         EndTime: endTime,
-        Breaktime: hasBreakAfter ? ("BREAK" as breaktime) : breaktimeEnum.NOT_BREAK,
+        Breaktime: (isUniversal ? "BREAK" : breaktimeEnum.NOT_BREAK) as breaktime,
       });
-
       slotStart = new Date(endTime);
-    }
+    });
   }
-
   return timeslots;
 }
 
