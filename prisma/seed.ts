@@ -1054,7 +1054,7 @@ async function seedDemoData() {
     });
     if (!existing) {
       await prisma.teachers_responsibility.create({
-        data: { TeacherID: e2eTid, GradeID: "M1-1", SubjectCode: "ค21201", AcademicYear: 2568, Semester: "SEMESTER_1", TeachHour: 10 },
+        data: { TeacherID: e2eTid, GradeID: "M1-1", SubjectCode: "ค21201", AcademicYear: 2568, Semester: "SEMESTER_1", TeachHour: 2 },
       });
     }
     console.log(`   ➕ E2E teacher → ค21201 / M1-1 / S1-2568`);
@@ -3677,7 +3677,7 @@ async function main() {
               SubjectCode: "ค21201", // Math additional subject (คณิตศาสตร์เพิ่มเติม)
               AcademicYear: 2568,
               Semester: "SEMESTER_1",
-              TeachHour: 10, // high on purpose — see fixture upsert below (bc2)
+              TeachHour: 2,
             },
           }),
         `Assign ค21201 to E2E teacher for ${firstGrade.GradeID}`,
@@ -3844,21 +3844,14 @@ async function main() {
               Semester: "SEMESTER_1",
             },
           },
-          // High TeachHour (not the realistic ~2) on purpose: the arrange/
-          // drag E2E specs (21-arrangement-flow etc.) place this — the E2E
-          // teacher's ONLY subject — earlier in the shared sequential DB. With
-          // TeachHour=2 those placements fully consume it, so the palette
-          // (which hides fully-placed responsibilities) is empty by the time
-          // schedule-assignment.spec.ts:122 runs. A large value guarantees an
-          // unplaced remainder, so the palette always lists ≥1 subject. See bc2.
-          update: { TeachHour: 10 },
+          update: { TeachHour: 2 },
           create: {
             TeacherID: e2eFixtureTeacher.TeacherID,
             GradeID: firstGradeForFixture.GradeID,
             SubjectCode: "ค21201",
             AcademicYear: 2568,
             Semester: "SEMESTER_1",
-            TeachHour: 10,
+            TeachHour: 2,
           },
         }),
       "Upsert E2E teacher fixture (ค21201/M1-1/1-2568)",
