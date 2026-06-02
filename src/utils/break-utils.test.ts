@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isBreakSlot, buildGradeGroupIndex, isBreakForGrade } from "./break-utils";
+import { isBreakSlot, buildGradeGroupIndex, isBreakForGrade, isBreakForTeacher } from "./break-utils";
 import type { BreakGroup, SlotConfig } from "@/features/timeslot/domain/models/break.types";
 
 describe("isBreakSlot over slots", () => {
@@ -67,5 +67,32 @@ describe("isBreakForGrade over slots", () => {
   });
   it("teaching slot is never a break", () => {
     expect(isBreakForGrade(1, "M1-1", slots, index)).toBe(false);
+  });
+  it("matches when the grade belongs to multiple groups", () => {
+    const multiIndex = buildGradeGroupIndex([
+      { name: "junior", label: "ม.ต้น", color: "#4CAF50", gradeIds: ["M1-1"] },
+      { name: "band", label: "วง", color: "#9C27B0", gradeIds: ["M1-1"] },
+    ]);
+    const s: SlotConfig[] = [{ duration: 50 }, { duration: 20, breakGroups: ["band"] }];
+    expect(isBreakForGrade(2, "M1-1", s, multiIndex)).toBe(true);   // via band
+    expect(isBreakForGrade(2, "M5-1", s, multiIndex)).toBe(false);  // not in band
+  });
+});
+
+describe("isBreakForTeacher over slots", () => {
+  const slots: SlotConfig[] = [
+    { duration: 50 },                          // slot 1 teaching
+    { duration: 10, breakGroups: ["*"] },      // slot 2 universal
+    { duration: 50, breakGroups: ["junior"] }, // slot 3 group-only
+  ];
+  it("true only for universal slots", () => {
+    expect(isBreakForTeacher(2, slots)).toBe(true);
+  });
+  it("false for a group-only break slot (staggered breaks are grade-only)", () => {
+    expect(isBreakForTeacher(3, slots)).toBe(false);
+  });
+  it("false for a teaching slot and out-of-range", () => {
+    expect(isBreakForTeacher(1, slots)).toBe(false);
+    expect(isBreakForTeacher(99, slots)).toBe(false);
   });
 });

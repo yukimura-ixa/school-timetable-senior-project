@@ -31,27 +31,13 @@ export function isBreakForGrade(
   return !!groups && bg.some((name) => groups.has(name));
 }
 
-/**
- * Checks if a slot is a break for a teacher. 
- * Teachers have a break if all groups they teach or all students have a break, or typically 
- * for teachers, we check if they have a scheduled class. If not, it's their free time, but 
- * the "break slot" UI highlighting is usually shown if it's BREAK_BOTH or if they don't have a class.
- */
+/** A slot is a teacher break only when it is a universal ("*") recess — staggered group breaks are grade-only. */
 export function isBreakForTeacher(slotNumber: number, slots: SlotConfig[]): boolean {
   const bg = slots[slotNumber - 1]?.breakGroups;
   return !!bg && bg.includes("*");
 }
 
-/**
- * Whether a timeslot is a break slot of ANY kind, without grade/teacher
- * scoping. For aggregate views (e.g. the all-teacher summary matrix) that only
- * need "is this a break column?" rather than "is it a break for this grade?".
- *
- * V2-aware: a break definition at this slotNumber marks it a break. Falls back
- * to the Breaktime enum (legacy BREAK_JUNIOR/SENIOR/BOTH and v2 BREAK all count;
- * only NOT_BREAK is teaching). Returns a superset of the raw-enum check, so it
- * never drops a break that the enum already marks.
- */
+/** Aggregate: true for any slot that has a breakGroups entry (universal or group-specific). */
 export function isBreakSlot(slotNumber: number, slots: SlotConfig[]): boolean {
   const bg = slots[slotNumber - 1]?.breakGroups;
   return !!bg && bg.length > 0;
