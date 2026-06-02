@@ -454,9 +454,10 @@ test.describe("Public Class Schedule Page", () => {
       // Should have at least one teacher assigned
       expect(count).toBeGreaterThan(0);
 
-      // Teacher name format should include prefix + first name + last name
+      // Teacher name (prefix + first + last) appears within the cell, after the
+      // subject name — match anywhere, not anchored to cell start.
       await expect(teacherNames.first()).toContainText(
-        /^(นาย|นาง|นางสาว|Mr\.|Mrs\.|Ms\.)\S*\s+\S+/,
+        /(นาย|นาง|นางสาว|Mr\.|Mrs\.|Ms\.)\S*\s+\S+/,
       );
     }
   });

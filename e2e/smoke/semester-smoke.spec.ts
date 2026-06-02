@@ -111,14 +111,12 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
     }) => {
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
 
-      // Wait for table to load (allow skeleton + generous timeout for CI cold start)
-      await page.waitForSelector('table, [class*="Skeleton"]', {
-        timeout: 30000,
-      });
-
-      // Check for timetable header (Thai: "ตารางสอน")
-      const headerLabel = page.locator("text=/ตารางสอน|ตัวกรอง/");
-      await expect(headerLabel.first()).toBeVisible({ timeout: 15000 });
+      // The all-timeslot view is a div-based grid (no <table>); wait for stable
+      // rendered content: the overview-grid title or the filter controls.
+      const view = page.locator(
+        "text=/ตารางสรุป|ตัวกรอง|เลือกครู|เลือกวัน/",
+      );
+      await expect(view.first()).toBeVisible({ timeout: 30000 });
     });
 
     test(`/dashboard/${term.label}/all-timeslot has filter controls`, async ({
@@ -282,10 +280,10 @@ test.describe("Multi-Semester Scenarios", () => {
       const response = await page.goto(`/dashboard/${term.label}/all-timeslot`);
       expect(response?.status()).toBe(200);
 
-      // Verify content loads
-      await page.waitForSelector('table, [class*="Skeleton"]', {
-        timeout: 15000,
-      });
+      // Verify content loads (div-based grid: title or filter controls)
+      await expect(
+        page.locator("text=/ตารางสรุป|ตัวกรอง|เลือกครู|เลือกวัน/").first(),
+      ).toBeVisible({ timeout: 30000 });
     }
   });
 
