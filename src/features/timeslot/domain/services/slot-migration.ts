@@ -7,10 +7,10 @@ type OldConfig = {
 };
 
 /** Convert legacy { Duration, TimeslotPerDay, breakDefinitions } to slots[].
- *  breakDefinition.slotNumber is the 1-based absolute position in the merged
- *  (teaching + break) output sequence where that break slot appears. Before
- *  emitting teaching period P, all breaks whose slotNumber falls at or before
- *  the current merged-sequence position are flushed first.
+ *  breakDefinition.slotNumber = N means the break is inserted IMMEDIATELY BEFORE
+ *  old teaching period N (matching the legacy gap generation). This must stay
+ *  consistent with remapTimeslotId (period + count(breaks <= period)); the
+ *  consistency test in slot-migration.test.ts guards that invariant.
  */
 export function configToSlots(old: OldConfig): SlotConfig[] {
   const breaksBySlot = new Map<number, { duration: number; groups: string[] }[]>();
