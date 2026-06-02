@@ -13,6 +13,9 @@ import {
 } from "@/lib/timetable-config";
 import type { semester } from "@/prisma/generated/client";
 import { createAction, createPublicAction } from "@/shared/lib/action-wrapper";
+import { findByTerm as findConfigByTerm } from "@/features/config/infrastructure/repositories/config.repository";
+import { parseConfigData } from "@/features/config/domain/types/config-data.types";
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 
 /**
  * Get timetable configuration for a specific semester (Server Action)
@@ -36,11 +39,22 @@ export const getTimetableConfigAction = createAction(
   getTimetableConfigSchema,
   async (input: GetTimetableConfigInput) => {
     try {
-      return await getTimetableConfig(input.academicYear, input.semester);
+      const [config, rawRow] = await Promise.all([
+        getTimetableConfig(input.academicYear, input.semester),
+        findConfigByTerm(input.academicYear, input.semester),
+      ]);
+      let slots: SlotConfig[] = [];
+      if (rawRow?.Config) {
+        try {
+          slots = parseConfigData(rawRow.Config).slots;
+        } catch {
+          slots = [];
+        }
+      }
+      return { ...config, slots };
     } catch (error) {
       console.error("Error in getTimetableConfigAction:", error);
-      // Return default config on error
-      return getDefaultTimetableConfig();
+      return { ...getDefaultTimetableConfig(), slots: [] as SlotConfig[] };
     }
   },
 );

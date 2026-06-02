@@ -70,6 +70,8 @@ import type { teacher, timeslot } from "@/prisma/generated/client";
 import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
 
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
+import { isBreakSlot } from "@/utils/break-utils";
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 
 type AllTimeslotClientProps = {
   timeslots: timeslot[];
@@ -85,6 +87,8 @@ type AllTimeslotClientProps = {
   isAdmin: boolean;
 
   configManageHref: string;
+
+  slots: SlotConfig[];
 };
 
 import type { TimeslotWithSubject, TimetableColumn } from "../shared/timeSlot";
@@ -115,6 +119,7 @@ const getMinutes = (milliseconds: number) => {
 
 const buildTimeSlotData = (
   data: timeslot[],
+  slots: SlotConfig[],
 ): TimeSlotData => {
   if (!data.length) {
     return { AllData: [], SlotAmount: [], DayOfWeek: [], Columns: [] };
@@ -202,7 +207,8 @@ const buildTimeSlotData = (
   const columns: TimetableColumn[] = [];
   for (let i = 0; i < monSlotsForCols.length; i++) {
     const slot = monSlotsForCols[i]!;
-    if (slot.Breaktime === "BREAK") {
+    const slotNumber = extractPeriodFromTimeslotId(slot.TimeslotID);
+    if (isBreakSlot(slotNumber, slots)) {
       columns.push({
         kind: "break",
         TimeslotID: slot.TimeslotID,
@@ -267,6 +273,7 @@ const AllTimeslotClient = ({
   isAdmin,
 
   configManageHref,
+  slots,
 }: AllTimeslotClientProps) => {
   const theme = useTheme();
 
@@ -364,7 +371,7 @@ const AllTimeslotClient = ({
 
   const exportDisabledTooltip = "การส่งออกสงวนไว้สำหรับผู้ดูแลระบบเท่านั้น";
 
-  const timeSlotData = buildTimeSlotData(timeslots);
+  const timeSlotData = buildTimeSlotData(timeslots, slots);
 
   const classData = classSchedules;
 

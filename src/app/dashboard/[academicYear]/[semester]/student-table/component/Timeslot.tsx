@@ -4,7 +4,7 @@ import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import { isBreakForGrade, buildGradeGroupIndex } from "@/utils/break-utils";
-import type { BreakDefinition, BreakGroup } from "@/features/timeslot/domain/models/break.types";
+import type { SlotConfig, BreakGroup } from "@/features/timeslot/domain/models/break.types";
 import {
   Box,
   Typography,
@@ -19,7 +19,7 @@ import { colors } from "@/shared/design-system";
 type Props = {
   timeSlotData: TimeSlotTableData;
   searchGradeID: string | null;
-  breakDefinitions?: BreakDefinition[];
+  slots?: SlotConfig[];
   breakGroups?: BreakGroup[];
 };
 
@@ -33,7 +33,7 @@ const ROW_SPACING = 1.5;
 export default function TimeSlot({
   timeSlotData,
   searchGradeID,
-  breakDefinitions = [],
+  slots = [],
   breakGroups = [],
 }: Props) {
   const theme = useTheme();
@@ -259,7 +259,7 @@ export default function TimeSlot({
                 const showBreak =
                   isBreak ||
                   (data && searchGradeID
-                    ? isBreakForGrade(slotNumber, searchGradeID, breakDefinitions, breakIndex)
+                    ? isBreakForGrade(slotNumber, searchGradeID, slots, breakIndex)
                     : false);
                 const subject = data?.subject;
                 const subjectCode = subject?.SubjectCode ?? "";
