@@ -1,4 +1,3 @@
-import type { ConfigData } from "@/features/config/domain/constants/config.constants";
 import type { BreakDefinition } from "../models/break.types";
 
 export type PreviewSlotType =

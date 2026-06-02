@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useReducer } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectDayOfWeek from "./SelectDayOfWeek";
 import SelectSubject from "./SelectSubject";
@@ -195,7 +195,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     dispatch({ type: "SET_GRADE", payload: grade });
   };
 
-  const validateData = () => {
+  const validateData = useCallback(() => {
     dispatch({
       type: "SET_IS_EMPTY_DATA",
       payload: {
@@ -209,19 +209,11 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
         GradeIDs: lockScheduleData.GradeIDs.length === 0,
       },
     });
-  };
+  }, [lockScheduleData]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     validateData();
-  }, [
-    lockScheduleData.SubjectName,
-    lockScheduleData.SubjectCode,
-    lockScheduleData.DayOfWeek,
-    lockScheduleData.timeslots,
-    lockScheduleData.teachers,
-    lockScheduleData.GradeIDs,
-  ]);
+  }, [validateData]);
 
   useEffect(() => {
     dispatch({
