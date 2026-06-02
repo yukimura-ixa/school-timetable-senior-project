@@ -40,6 +40,20 @@ export default function TimeSlot({
   // React Compiler (reactCompiler: true) auto-memoizes; no manual useMemo needed.
   const breakIndex = buildGradeGroupIndex(breakGroups);
 
+  // Resolve the grade-specific break label for a slot, mirroring the public
+  // TimeslotGrid (BreakGroup.label, joined by " · "). Falls back to the generic
+  // "พักกลางวัน" for universal breaks or when no group matches the grade. See wgr.
+  const resolveGradeBreakLabel = (slotNumber: number): string => {
+    const cfg = slots[slotNumber - 1];
+    if (!cfg?.breakGroups || !searchGradeID) return "พักกลางวัน";
+    const gradeGroups = breakIndex.get(searchGradeID);
+    const labels = cfg.breakGroups
+      .filter((name) => name !== "*" && gradeGroups?.has(name))
+      .map((name) => breakGroups.find((b) => b.name === name)?.label)
+      .filter((label): label is string => !!label);
+    return labels.length > 0 ? labels.join(" · ") : "พักกลางวัน";
+  };
+
   const columns = timeSlotData.Columns;
   const monSlots = timeSlotData.AllData.filter(
     (item) => item.DayOfWeek === "MON",
@@ -321,7 +335,7 @@ export default function TimeSlot({
                             fontSize: "0.7rem",
                           }}
                         >
-                          พักกลางวัน
+                          {resolveGradeBreakLabel(slotNumber)}
                         </Typography>
                       )
                     ) : (
