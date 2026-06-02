@@ -39,9 +39,9 @@ export function generateTimeslotId(
 }
 
 /**
- * Generate all timeslots based on configuration using BreakDefinition[] for configurable N-group breaks.
- * Break gaps are inserted before the targeted slot (slotNumber),
- * and the preceding teaching slot is marked with BREAK enum.
+ * Generate one real timeslot per slot using cumulative per-slot durations.
+ * A slot with breakGroups: ["*"] gets Breaktime=BREAK; all others get NOT_BREAK
+ * (per-grade breaks are teaching-capable for non-breaking grades).
  */
 type TimeslotsConfig = {
   AcademicYear: number;
