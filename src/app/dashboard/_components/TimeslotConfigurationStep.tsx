@@ -278,7 +278,7 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
           <Slider
             value={timeslotPerDay}
             onChange={(_, value) =>
-              setTimeslotPerDay(typeof value === "number" ? value : value[0]!)
+              setTimeslotPerDay(typeof value === "number" ? value : value[0])
             }
             min={1}
             max={12}
