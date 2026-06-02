@@ -73,15 +73,18 @@ export interface SolverInput {
   /** All rooms */
   rooms: AvailableRoom[];
   /**
-   * Phase 2A: per-slot break config from ConfigData.slots.
-   * When present, the solver skips cells where the grade breaks at that slot.
+   * Phase 2A per-grade break guard. When present, the solver skips cells where
+   * the grade has a staggered break (e.g. junior lunch). Both fields are only
+   * meaningful together, so they're grouped into one object — supplying slot
+   * configs without the grade index (or vice versa) previously type-checked but
+   * silently no-op'd the guard.
    */
-  slotConfigs?: SlotConfig[];
-  /**
-   * Phase 2A: grade→group membership index built by buildGradeGroupIndex().
-   * Required when slotConfigs is provided.
-   */
-  gradeBreakIndex?: Map<string, Set<string>>;
+  breakGuard?: {
+    /** per-slot break config from ConfigData.slots */
+    slotConfigs: SlotConfig[];
+    /** grade→group membership index built by buildGradeGroupIndex() */
+    gradeBreakIndex: Map<string, Set<string>>;
+  };
 }
 
 // ─── Solver Output ───────────────────────────────────────────────
