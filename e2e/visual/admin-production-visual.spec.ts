@@ -231,14 +231,16 @@ test("06 lock overview", async ({ page }) => {
 test("07 export page", async ({ page }) => {
   await page.goto(`/dashboard/${semester}/all-program`);
   await assertNotSignin(page);
-  const exportBtn = page.getByRole("button", { name: /export|download/i }).first();
-  const hasExport = await exportBtn.isVisible({ timeout: 8000 }).catch(() => false);
-  const hasHeading = await page.getByRole("heading").first().isVisible().catch(() => false);
-  if (!hasExport && !hasHeading) {
-    trace("07", `Export page content not found (hasExport=${hasExport}, hasHeading=${hasHeading})`);
-  }
-  // Use soft assertion for visual smoke
-  expect.soft(hasExport || hasHeading, "Expected export button or page heading").toBe(true);
+  // The all-program view opens on a "select a class" prompt (heading + combobox);
+  // the export button only appears after a class is picked. Wait for whichever
+  // stable element renders — a proper wait avoids the earlier check-too-early race.
+  const content = page
+    .getByRole("heading", { name: /เลือกชั้นเรียน/ })
+    .or(page.getByRole("combobox", { name: /เลือกชั้นเรียน/ }))
+    .or(page.getByRole("button", { name: /ส่งออก|export|download|Excel/i }));
+  // expect().toBeVisible polls up to the timeout (locator.isVisible() does not),
+  // so this tolerates the streamed/hydrated render of the all-program page.
+  await expect(content.first()).toBeVisible({ timeout: 15000 });
   await snap(page, "07-export");
 });
 

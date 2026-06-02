@@ -1,5 +1,8 @@
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { test, expect } from "../../fixtures/admin.fixture";
 import { testTeacher } from "../../fixtures/seed-data.fixture";
+import { PrismaClient } from "../../../prisma/generated/client";
 
 const RUN_SCHEDULE_ASSIGNMENT_EXTENDED =
   process.env.E2E_SCHEDULE_ASSIGNMENT_EXTENDED === "true";
@@ -69,6 +72,31 @@ function getTeacherName(teacherId: number): string {
 // Re-enabled after implementing waitForResponse pattern (Context7 Playwright best practices)
 // See: ArrangePage.selectRoom() now uses page.waitForResponse() + expect.poll()
 test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
+  // The sequential E2E run shares one DB. Earlier specs (08-drag-and-drop,
+  // 21-arrangement-flow, 22-auto-arrange) place the E2E teacher's only subject
+  // (ค21201/M1-1), so by the time these tests run the palette — which hides
+  // fully-placed responsibilities — can be empty. Clear the E2E teacher's
+  // placements before each test so the palette deterministically lists its
+  // unplaced subject(s). See bc2.
+  let pool: Pool;
+  let prisma: PrismaClient;
+  let e2eTeacherId: number | null = null;
+
+  test.beforeAll(async () => {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+    const t = await prisma.teacher.findFirst({
+      where: { Email: "e2e.teacher@school.ac.th" },
+      select: { TeacherID: true },
+    });
+    e2eTeacherId = t?.TeacherID ?? null;
+  });
+
+  test.afterAll(async () => {
+    await prisma.$disconnect();
+    await pool.end();
+  });
+
   // Cleanup after each test to ensure fresh state
   test.afterEach(async ({ arrangePage }) => {
     try {
@@ -82,6 +110,21 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
   });
 
   test.beforeEach(async ({ arrangePage }) => {
+    // Clear any placements left on the E2E teacher by earlier specs so its
+    // subject is unplaced and the palette lists it (pollution-proof). See bc2.
+    if (e2eTeacherId != null) {
+      await prisma.class_schedule.deleteMany({
+        where: {
+          teachers_responsibility: {
+            some: {
+              TeacherID: e2eTeacherId,
+              AcademicYear: 2568,
+              Semester: "SEMESTER_1",
+            },
+          },
+        },
+      });
+    }
     // Navigate to arrange page for semester 1/2568
     await arrangePage.navigateTo("1", "2568");
     // Don't wait for page ready yet - tests will select teacher first

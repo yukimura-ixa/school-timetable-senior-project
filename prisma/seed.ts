@@ -3248,8 +3248,15 @@ async function main() {
       `✅ Assigned MOE program subjects for ${programs.length} programs`,
     );
 
+    // Keep the E2E teacher OUT of the MOE rotation pool. It owns only the
+    // explicit unplaced ค21201/M1-1 fixture row (created below); if the
+    // rotation assigned and placed a subject onto it, the arrange palette
+    // (which hides fully-placed responsibilities) would show 0 subjects and
+    // schedule-assignment.spec.ts would fail nondeterministically depending on
+    // teacher ordering in a fresh DB. See bc2.
     const teachersByDept = new Map<string, typeof teachers>();
     for (const teacher of teachers) {
+      if (teacher.Email === "e2e.teacher@school.ac.th") continue;
       const bucket = teachersByDept.get(teacher.Department) ?? [];
       bucket.push(teacher);
       teachersByDept.set(teacher.Department, bucket);

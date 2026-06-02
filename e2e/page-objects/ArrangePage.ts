@@ -696,6 +696,13 @@ export class ArrangePage extends BasePage {
       .or(this.subjectPalette.locator('[data-testid^="subject-card"]'))
       .or(this.subjectPalette.locator("[data-subject-code]"));
 
+    // Give the palette time to populate after teacher selection (CI cold start)
+    // before deciding it's empty and falling back to the year filter.
+    await subjectCards
+      .first()
+      .waitFor({ state: "visible", timeout: 10000 })
+      .catch(() => {});
+
     // Some builds require selecting a grade-year filter (ม.1–ม.6) before subjects are shown.
     // Try to enable any year filter if the palette is empty.
     if (
