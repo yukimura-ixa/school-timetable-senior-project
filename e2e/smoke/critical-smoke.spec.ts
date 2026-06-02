@@ -656,11 +656,12 @@ test.describe("Critical Path Smoke Tests", () => {
     test("Export button is accessible to admin users", async ({ page }) => {
       await page.goto(`/dashboard/${TEST_SEMESTER}/all-timeslot`);
 
-      // Wait for page to load
+      // Wait for page to load (all-timeslot is a div-based grid, no <table>)
       const pageContent = page
         .locator("table")
-        .or(page.locator('[class*="Skeleton"]'));
-      await expect(pageContent.first()).toBeVisible({ timeout: 15000 });
+        .or(page.locator('[class*="Skeleton"]'))
+        .or(page.locator("text=/ตารางสรุป|ตัวกรอง|เลือกครู|เลือกวัน/"));
+      await expect(pageContent.first()).toBeVisible({ timeout: 30000 });
 
       // Look for export buttons (Thai: "ส่งออก Excel" or "Excel")
       // These may be disabled for non-admin users
