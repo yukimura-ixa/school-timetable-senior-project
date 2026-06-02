@@ -63,7 +63,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Wait for config form to load
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/").first()).toBeVisible({
+      await expect(page.locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/").first()).toBeVisible({
         timeout: 15000,
       });
       await waitForNavbarStable(page);
@@ -90,7 +90,9 @@ test.describe("Critical Admin UI - Visual Tests", () => {
 
       // Wait for config content to be visible (the page doesn't use a <form> element)
       // Look for the config section with "กำหนดคาบต่อวัน" text
-      await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible({ timeout: 15000 });
+      await expect(
+        page.getByText(/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/).first(),
+      ).toBeVisible({ timeout: 15000 });
       await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("config-form.png", {
