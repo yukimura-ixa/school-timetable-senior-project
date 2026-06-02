@@ -43,10 +43,7 @@ import {
   type BreakDefinition,
   type BreakGroup,
 } from "@/features/timeslot/domain/models/break.types";
-import {
-  generatePreviewSlots,
-  calculateSchoolDayEndTime,
-} from "@/features/timeslot/domain/services/timeslot-config.service";
+import { generatePreviewSlots } from "@/features/timeslot/domain/services/timeslot-config.service";
 
 const DAYS: { value: day_of_week; label: string }[] = [
   { value: "MON", label: "จันทร์" },

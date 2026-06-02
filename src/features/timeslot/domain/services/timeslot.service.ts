@@ -15,7 +15,6 @@ import type {
 } from "@/prisma/generated/client";
 import { breaktime as breaktimeEnum } from "@/prisma/generated/client";
 import { timeslotRepository } from "../../infrastructure/repositories/timeslot.repository";
-import type { CreateTimeslotsInput } from "../../application/schemas/timeslot.schemas";
 import type { SlotConfig } from "../models/break.types";
 
 // Helper: convert Prisma semester enum to number string
