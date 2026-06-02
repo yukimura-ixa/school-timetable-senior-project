@@ -45,7 +45,7 @@ export function ReviewStep({
         {timeslotConfig && !copyFrom && (
           <Typography variant="body2" sx={{ mt: 1 }}>
             <strong>ตารางเรียน:</strong> {timeslotConfig.Days.length} วัน,{" "}
-            {timeslotConfig.TimeslotPerDay} คาบต่อวัน
+            {timeslotConfig.slots?.length ?? 0} คาบต่อวัน
           </Typography>
         )}
       </Box>

@@ -1,5 +1,5 @@
 import type { timeslot } from "@/prisma/generated/client";
-import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+import type { SlotConfig, BreakGroup } from "@/features/timeslot/domain/models/break.types";
 import { buildGridRows, type ViewMode } from "@/lib/ui/break-rows";
 import { subjectColors } from "@/lib/ui/subject-color";
 
@@ -24,7 +24,8 @@ export type ScheduleCell = {
 
 export type TimeslotGridProps = {
   timeslots: timeslot[];
-  breakDefs: BreakDefinition[];
+  slots: SlotConfig[];
+  breakGroups: BreakGroup[];
   view: ViewMode;
   /** subjectCode → cell metadata, keyed by TimeslotID */
   cellsByTimeslotId: Map<string, ScheduleCell>;
@@ -34,12 +35,13 @@ export type TimeslotGridProps = {
 
 export function TimeslotGrid({
   timeslots,
-  breakDefs,
+  slots,
+  breakGroups,
   view,
   cellsByTimeslotId,
   show = {},
 }: TimeslotGridProps) {
-  const rows = buildGridRows(timeslots, breakDefs, view);
+  const rows = buildGridRows(timeslots, slots, breakGroups, view);
 
   if (rows.length === 0) {
     return (

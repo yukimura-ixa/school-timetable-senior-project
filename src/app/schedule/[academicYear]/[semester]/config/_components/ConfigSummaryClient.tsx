@@ -183,11 +183,13 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
                 <TableCell sx={{ fontWeight: 600, width: "40%" }}>
                   คาบเรียนต่อวัน
                 </TableCell>
-                <TableCell>{parsed.TimeslotPerDay} คาบ</TableCell>
+                <TableCell>{parsed.slots?.length ?? 0} คาบ</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>ความยาวคาบ</TableCell>
-                <TableCell>{parsed.Duration} นาที/คาบ</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>ความยาวคาบ (นาที)</TableCell>
+                <TableCell>
+                  {parsed.slots?.map((s) => s.duration).join(" / ") ?? "-"}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontWeight: 600 }}>เวลาเริ่ม</TableCell>

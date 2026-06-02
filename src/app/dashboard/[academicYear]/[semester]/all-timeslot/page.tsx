@@ -6,8 +6,6 @@ import { findSummary } from "@/features/class/infrastructure/repositories/class.
 import { teacherRepository } from "@/features/teacher/infrastructure/repositories/teacher.repository";
 import type { semester } from "@/prisma/generated/client";
 import { headers } from "next/headers";
-import { getTimetableConfig } from "@/lib/timetable-config";
-import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
 import AllTimeslotClient from "./AllTimeslotClient";
 
 type PageParams = Promise<{ academicYear: string; semester: string }>;
@@ -25,7 +23,7 @@ export default async function AllTimeslotPage({
 
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
-  const [timeslots, classSchedules, teachers, session, config] =
+  const [timeslots, classSchedules, teachers, session] =
     await Promise.all([
       timeslotRepository.findByTerm(year, semesterEnum),
       findSummary(year, semesterEnum),
@@ -34,11 +32,9 @@ export default async function AllTimeslotPage({
         headers: headerList,
         asResponse: false,
       }),
-      getTimetableConfig(year, semesterEnum),
     ]);
 
   const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));
-  const breakDefs: BreakDefinition[] = config.breakDefinitions ?? [];
 
   return (
     <AllTimeslotClient
@@ -49,7 +45,6 @@ export default async function AllTimeslotPage({
       academicYear={year}
       isAdmin={isAdmin}
       configManageHref={`/dashboard`}
-      breakDefs={breakDefs}
     />
   );
 }
