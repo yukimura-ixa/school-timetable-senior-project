@@ -227,35 +227,20 @@ async function seedDemoData() {
   // ── Config ──────────────────────────────────────────────────────────────────
   const KEEP_CONFIG_IDS = ["1-2568", "2-2568"];
   const configTemplate = {
-    TimeslotPerDay: 8,
     StartTime: "08:30",
-    Duration: 50,
     Days: ["MON", "TUE", "WED", "THU", "FRI"],
-    breakDefinitions: [
-      {
-        id: "mini_break",
-        label: "พักสาย",
-        slotNumber: 2,
-        duration: 10,
-        color: "#d1d5db",
-        groups: ["*"],
-      },
-      {
-        id: "junior_break",
-        label: "พักกลางวัน (ม.ต้น)",
-        slotNumber: 4,
-        duration: 50,
-        color: "#fca5a5",
-        groups: ["junior"],
-      },
-      {
-        id: "senior_break",
-        label: "พักกลางวัน (ม.ปลาย)",
-        slotNumber: 5,
-        duration: 50,
-        color: "#fcd34d",
-        groups: ["senior"],
-      },
+    slots: [
+      { duration: 50 },                          // period 1
+      { duration: 10, breakGroups: ["*"] },       // พักสาย (before period 2)
+      { duration: 50 },                           // period 2
+      { duration: 50 },                           // period 3
+      { duration: 50, breakGroups: ["junior"] },  // พักกลางวัน ม.ต้น (before period 4)
+      { duration: 50 },                           // period 4
+      { duration: 50, breakGroups: ["senior"] },  // พักกลางวัน ม.ปลาย (before period 5)
+      { duration: 50 },                           // period 5
+      { duration: 50 },                           // period 6
+      { duration: 50 },                           // period 7
+      { duration: 50 },                           // period 8
     ],
   };
 
@@ -2845,35 +2830,20 @@ async function main() {
           AcademicYear: academicYear,
           Semester: sem,
           Config: {
-            TimeslotPerDay: 8,
             StartTime: "08:30",
-            Duration: 50,
             Days: ["MON", "TUE", "WED", "THU", "FRI"],
-            breakDefinitions: [
-              {
-                id: "mini_break",
-                label: "พักสาย",
-                slotNumber: 2,
-                duration: 10,
-                color: "#d1d5db",
-                groups: ["*"],
-              },
-              {
-                id: "junior_break",
-                label: "พักกลางวัน (ม.ต้น)",
-                slotNumber: 4,
-                duration: 50,
-                color: "#fca5a5",
-                groups: ["junior"],
-              },
-              {
-                id: "senior_break",
-                label: "พักกลางวัน (ม.ปลาย)",
-                slotNumber: 5,
-                duration: 50,
-                color: "#fcd34d",
-                groups: ["senior"],
-              },
+            slots: [
+              { duration: 50 },                          // period 1
+              { duration: 10, breakGroups: ["*"] },       // พักสาย (before period 2)
+              { duration: 50 },                           // period 2
+              { duration: 50 },                           // period 3
+              { duration: 50, breakGroups: ["junior"] },  // พักกลางวัน ม.ต้น (before period 4)
+              { duration: 50 },                           // period 4
+              { duration: 50, breakGroups: ["senior"] },  // พักกลางวัน ม.ปลาย (before period 5)
+              { duration: 50 },                           // period 5
+              { duration: 50 },                           // period 6
+              { duration: 50 },                           // period 7
+              { duration: 50 },                           // period 8
             ],
           },
         },
@@ -2892,35 +2862,20 @@ async function main() {
           AcademicYear: academicYear,
           Semester: "SEMESTER_2",
           Config: {
-            TimeslotPerDay: 8,
             StartTime: "08:30",
-            Duration: 50,
             Days: ["MON", "TUE", "WED", "THU", "FRI"],
-            breakDefinitions: [
-              {
-                id: "mini_break",
-                label: "พักสาย",
-                slotNumber: 2,
-                duration: 10,
-                color: "#d1d5db",
-                groups: ["*"],
-              },
-              {
-                id: "junior_break",
-                label: "พักกลางวัน (ม.ต้น)",
-                slotNumber: 4,
-                duration: 50,
-                color: "#fca5a5",
-                groups: ["junior"],
-              },
-              {
-                id: "senior_break",
-                label: "พักกลางวัน (ม.ปลาย)",
-                slotNumber: 5,
-                duration: 50,
-                color: "#fcd34d",
-                groups: ["senior"],
-              },
+            slots: [
+              { duration: 50 },                          // period 1
+              { duration: 10, breakGroups: ["*"] },       // พักสาย (before period 2)
+              { duration: 50 },                           // period 2
+              { duration: 50 },                           // period 3
+              { duration: 50, breakGroups: ["junior"] },  // พักกลางวัน ม.ต้น (before period 4)
+              { duration: 50 },                           // period 4
+              { duration: 50, breakGroups: ["senior"] },  // พักกลางวัน ม.ปลาย (before period 5)
+              { duration: 50 },                           // period 5
+              { duration: 50 },                           // period 6
+              { duration: 50 },                           // period 7
+              { duration: 50 },                           // period 8
             ],
           },
           status: "DRAFT",
