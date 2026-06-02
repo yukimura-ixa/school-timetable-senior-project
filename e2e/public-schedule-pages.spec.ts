@@ -113,14 +113,14 @@ const getPublicTeacherSchedulePath = async (
 };
 
 const getPublicClassSchedulePath = async (
-  page: import("@playwright/test").Page,
+  _page: import("@playwright/test").Page,
 ): Promise<string> => {
+  // Build directly from seed fixtures (M1-1, 1/2568 — published, always present)
+  // instead of scraping the homepage, which couples to default-term/published
+  // listing behaviour and made these tests flaky. Homepage→page navigation is
+  // covered separately by "should navigate between teacher and class schedules".
   if (cachedClassSchedulePath) return cachedClassSchedulePath;
-  cachedClassSchedulePath = await getFirstPublicSchedulePath(page, {
-    tabTestId: "classes-tab",
-    hrefPrefix: "/classes/",
-    placeholder: /ค้นหาชั้นเรียน/i,
-  });
+  cachedClassSchedulePath = `/classes/${testGradeLevel.GradeID}/${testSemester.Year}/${testSemester.Semester}`;
   return cachedClassSchedulePath;
 };
 
@@ -454,9 +454,10 @@ test.describe("Public Class Schedule Page", () => {
       // Should have at least one teacher assigned
       expect(count).toBeGreaterThan(0);
 
-      // Teacher name format should include prefix + first name + last name
+      // Teacher name (prefix + first + last) appears within the cell, after the
+      // subject name — match anywhere, not anchored to cell start.
       await expect(teacherNames.first()).toContainText(
-        /^(นาย|นาง|นางสาว|Mr\.|Mrs\.|Ms\.)\S*\s+\S+/,
+        /(นาย|นาง|นางสาว|Mr\.|Mrs\.|Ms\.)\S*\s+\S+/,
       );
     }
   });
@@ -753,8 +754,10 @@ test.describe("Public Schedule Pages - Error Handling", () => {
   test("should handle missing semester parameter", async ({ guestPage }) => {
     const page = guestPage;
     // /teachers/[id] is a valid public route (defaults to current schedule),
-    // so missing semester segment should still render.
-    await page.goto(`/teachers/${testTeacher.TeacherID}/`, {
+    // so missing semester segment should still render. Resolve a real teacher
+    // id from the homepage (the e2eTeacher fixture has no stable TeacherID).
+    const teacherId = (await getPublicTeacherSchedulePath(page)).split("/")[2];
+    await page.goto(`/teachers/${teacherId}/`, {
       waitUntil: "domcontentloaded",
     });
     await expect(page.getByTestId("schedule-grid")).toBeVisible({

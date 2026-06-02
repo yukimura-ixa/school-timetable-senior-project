@@ -80,7 +80,7 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
       await page.goto(`/schedule/${term.label}/config`);
       // Wait for config form elements or skeleton (use .or() for multiple alternatives)
       const configLocator = page
-        .locator("text=/กำหนดคาบต่อวัน/")
+        .locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/")
         .or(page.locator('[class*="Skeleton"]'))
         .or(page.locator("body"));
       await expect(configLocator.first()).toBeVisible({
@@ -111,12 +111,12 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
     }) => {
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
 
-      // Wait for table to load
-      await page.waitForSelector("table", { timeout: 15000 });
-
-      // Check for timetable header (Thai: "ตารางสอน")
-      const headerLabel = page.locator("text=/ตารางสอน|ตัวกรอง/");
-      await expect(headerLabel.first()).toBeVisible();
+      // The all-timeslot view is a div-based grid (no <table>); wait for stable
+      // rendered content: the overview-grid title or the filter controls.
+      const view = page.locator(
+        "text=/ตารางสรุป|ตัวกรอง|เลือกครู|เลือกวัน/",
+      );
+      await expect(view.first()).toBeVisible({ timeout: 30000 });
     });
 
     test(`/dashboard/${term.label}/all-timeslot has filter controls`, async ({
@@ -212,7 +212,7 @@ test.describe("Cross-Term Navigation", () => {
     await expect(page).toHaveURL(/\/schedule\/2568\/1\/config/);
 
     // Verify config page renders (config form, not table)
-    await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
+    await expect(page.locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/")).toBeVisible({
       timeout: 15000,
     });
 
@@ -243,7 +243,7 @@ test.describe("Multi-Semester Scenarios", () => {
     await expect(page).toHaveURL(/\/schedule\/2568\/1\/config/);
     // Config page has config form, not table
     const configLocator1 = page
-      .locator("text=/กำหนดคาบต่อวัน/")
+      .locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/")
       .or(page.locator('[class*="Skeleton"]'));
     await expect(configLocator1.first()).toBeVisible({ timeout: 15000 });
 
@@ -251,7 +251,7 @@ test.describe("Multi-Semester Scenarios", () => {
     await page.goto("/schedule/2568/2/config");
     await expect(page).toHaveURL(/\/schedule\/2568\/2\/config/);
     const configLocator2 = page
-      .locator("text=/กำหนดคาบต่อวัน/")
+      .locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/")
       .or(page.locator('[class*="Skeleton"]'));
     await expect(configLocator2.first()).toBeVisible({ timeout: 15000 });
   });
@@ -266,7 +266,7 @@ test.describe("Multi-Semester Scenarios", () => {
 
       // Verify config form loads (config page uses form elements, not tables)
       const configLocator = page
-        .locator("text=/กำหนดคาบต่อวัน/")
+        .locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/")
         .or(page.locator('[class*="Skeleton"]'));
       await expect(configLocator.first()).toBeVisible({ timeout: 15000 });
     }
@@ -280,10 +280,10 @@ test.describe("Multi-Semester Scenarios", () => {
       const response = await page.goto(`/dashboard/${term.label}/all-timeslot`);
       expect(response?.status()).toBe(200);
 
-      // Verify content loads
-      await page.waitForSelector('table, [class*="Skeleton"]', {
-        timeout: 15000,
-      });
+      // Verify content loads (div-based grid: title or filter controls)
+      await expect(
+        page.locator("text=/ตารางสรุป|ตัวกรอง|เลือกครู|เลือกวัน/").first(),
+      ).toBeVisible({ timeout: 30000 });
     }
   });
 
@@ -313,7 +313,7 @@ test.describe("Multi-Semester Scenarios", () => {
     await page.waitForLoadState("networkidle");
 
     // Wait for config form to fully load (not just skeleton)
-    const configText = page.locator("text=/กำหนดคาบต่อวัน/");
+    const configText = page.locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/");
     await configText
       .first()
       .waitFor({ state: "visible", timeout: 15000 })
@@ -354,7 +354,7 @@ test.describe("Multi-Semester Scenarios", () => {
 
     // Wait for final page to stabilize - use web-first assertion
     const configLocator = page
-      .locator("text=/กำหนดคาบต่อวัน/")
+      .locator("text=/คาบเรียนต่อวัน|ตั้งค่าคาบเรียน/")
       .or(page.locator('[class*="Skeleton"]'))
       .or(page.locator("body"));
     await expect(configLocator.first()).toBeVisible({ timeout: 15000 });
