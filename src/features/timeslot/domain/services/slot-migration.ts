@@ -13,22 +13,16 @@ type OldConfig = {
  *  the current merged-sequence position are flushed first.
  */
 export function configToSlots(old: OldConfig): SlotConfig[] {
-  // Sort breaks by slotNumber so we can consume them in order.
-  const pending = [...(old.breakDefinitions ?? [])].sort(
-    (a, b) => a.slotNumber - b.slotNumber,
-  );
+  const breaksBySlot = new Map<number, { duration: number; groups: string[] }[]>();
+  for (const b of old.breakDefinitions ?? []) {
+    const arr = breaksBySlot.get(b.slotNumber) ?? [];
+    arr.push({ duration: b.duration, groups: b.groups });
+    breaksBySlot.set(b.slotNumber, arr);
+  }
   const slots: SlotConfig[] = [];
-  let breakOffset = 0; // how many break slots have been emitted so far
-
   for (let period = 1; period <= old.TimeslotPerDay; period++) {
-    // The merged-sequence position where this teaching period will land
-    // (accounting for breaks already emitted).
-    const teachingPos = period + breakOffset;
-    // Flush every pending break whose absolute merged position <= teachingPos.
-    while (pending.length > 0 && pending[0]!.slotNumber <= teachingPos) {
-      const brk = pending.shift()!;
+    for (const brk of breaksBySlot.get(period) ?? []) {
       slots.push({ duration: brk.duration, breakGroups: brk.groups });
-      breakOffset++;
     }
     slots.push({ duration: old.Duration });
   }

@@ -17,8 +17,9 @@ describe("configToSlots", () => {
       { duration: 10, breakGroups: ["*"] },
       { duration: 50 },
       { duration: 50, breakGroups: ["junior"] },
+      { duration: 50 },
       { duration: 50, breakGroups: ["senior"] },
-      { duration: 50 }, { duration: 50 }, { duration: 50 },
+      { duration: 50 }, { duration: 50 },
     ]);
   });
   it("handles a config with no breakDefinitions", () => {
@@ -38,5 +39,30 @@ describe("remapTimeslotId", () => {
   it("works for other days and is a no-op with no breaks", () => {
     expect(remapTimeslotId("2-2567-FRI2", [])).toBe("2-2567-FRI2");
     expect(remapTimeslotId("1-2568-TUE6", [3,4,5])).toBe("1-2568-TUE9");
+  });
+});
+
+describe("configToSlots <-> remapTimeslotId consistency", () => {
+  it("each old teaching period lands at the new index remapTimeslotId predicts", () => {
+    const old = {
+      Duration: 50, TimeslotPerDay: 6,
+      breakDefinitions: [
+        { slotNumber: 3, duration: 10, groups: ["*"] },
+        { slotNumber: 4, duration: 50, groups: ["junior"] },
+        { slotNumber: 5, duration: 50, groups: ["senior"] },
+      ],
+    };
+    const slots = configToSlots(old as any);
+    const breakSlotNumbers = old.breakDefinitions.map((b) => b.slotNumber);
+    // walk slots; the k-th teaching slot (no breakGroups) is old period k -> its 1-based new index
+    let teaching = 0;
+    slots.forEach((s, i) => {
+      if (!s.breakGroups) {
+        teaching += 1;
+        const newIndex = i + 1; // 1-based
+        const predicted = Number(remapTimeslotId(`1-2568-MON${teaching}`, breakSlotNumbers).match(/MON(\d+)$/)![1]);
+        expect(predicted).toBe(newIndex);
+      }
+    });
   });
 });
