@@ -111,6 +111,26 @@ const TEACHING_SLOTS_2568: number[] = SLOTS_2568.reduce<number[]>(
 const oldPeriodToSlot = (period: number): number =>
   TEACHING_SLOTS_2568[period - 1];
 
+/** 1-based slot numbers a group can teach in: every slot except the universal
+ *  recess and the group's OWN lunch. The other group's lunch IS teaching here —
+ *  the Phase 2A staggered-teaching win. junior=[1,3,4,6,7,8,9,10,11],
+ *  senior=[1,3,4,5,6,8,9,10,11]. */
+function teachingSlotsForGroup(group: "junior" | "senior"): number[] {
+  const out: number[] = [];
+  SLOTS_2568.forEach((slot, i) => {
+    const bg = slot.breakGroups;
+    if (!bg || bg.length === 0) {
+      out.push(i + 1);
+      return;
+    }
+    if (bg.includes("*") || bg.includes(group)) return;
+    out.push(i + 1);
+  });
+  return out;
+}
+const JUNIOR_TEACHING_SLOTS = teachingSlotsForGroup("junior");
+const SENIOR_TEACHING_SLOTS = teachingSlotsForGroup("senior");
+
 const connectionString = process.env.DATABASE_URL!;
 const isAccelerate = connectionString.startsWith("prisma+");
 
@@ -480,6 +500,20 @@ async function seedDemoData() {
   // Available period indices for each school level (no lunch break for their group)
   const JUNIOR_PERIODS = [1, 2, 3, 5, 6, 7, 8]; // skip P4
   const SENIOR_PERIODS = [1, 2, 3, 4, 6, 7, 8]; // skip P5
+
+  // Map a group's legacy periods onto its real teaching slots (rank order), so
+  // juniors land in the senior-lunch slot and seniors in the junior-lunch slot
+  // — the Phase 2A staggered-teaching win, surfaced in demo data.
+  const sortUniq = (a: number[]) => [...new Set(a)].sort((x, y) => x - y);
+  const juniorSlotByPeriod = new Map(
+    sortUniq(JUNIOR_PERIODS).map((p, i) => [p, JUNIOR_TEACHING_SLOTS[i]] as const),
+  );
+  const seniorSlotByPeriod = new Map(
+    sortUniq(SENIOR_PERIODS).map((p, i) => [p, SENIOR_TEACHING_SLOTS[i]] as const),
+  );
+  const slotFor = (period: number, group: "junior" | "senior") =>
+    (group === "junior" ? juniorSlotByPeriod : seniorSlotByPeriod).get(period) ??
+    oldPeriodToSlot(period);
 
   // ── Cleanup stale semesters ─────────────────────────────────────────────────
   console.log(`🧹 Cleaning configs not in [${KEEP_CONFIG_IDS.join(", ")}]...`);
@@ -895,11 +929,15 @@ async function seedDemoData() {
       `Upsert S1 timeslot ${ts.TimeslotID}`,
     );
   }
-  // Legacy (day, period) placement coordinates map onto teaching slots only,
-  // so seeded classes never land on break slots (2 universal, 5/7 lunches).
+  // Legacy (group, day, period) coordinates map onto the group's teaching slots
+  // so juniors fill the senior-lunch slot and seniors the junior-lunch slot,
+  // and no class ever lands on a break slot for its own group.
   for (const day of DAYS) {
-    for (let period = 1; period <= TEACHING_SLOTS_2568.length; period++) {
-      s1TsMap.set(`${day}${period}`, `1-2568-${day}${oldPeriodToSlot(period)}`);
+    for (const period of JUNIOR_PERIODS) {
+      s1TsMap.set(`junior-${day}${period}`, `1-2568-${day}${slotFor(period, "junior")}`);
+    }
+    for (const period of SENIOR_PERIODS) {
+      s1TsMap.set(`senior-${day}${period}`, `1-2568-${day}${slotFor(period, "senior")}`);
     }
   }
   console.log(`✅ ${s1Timeslots.length} S1-2568 timeslots`);
@@ -971,9 +1009,10 @@ async function seedDemoData() {
     }
 
     const gradeIdx = ALL_GRADES.findIndex((g) => g.id === grade.id);
+    const group = meta.yearNum <= 3 ? "junior" : "senior";
     for (let si = 0; si < slots.length; si++) {
       const slot = slots[si];
-      const tsId = s1TsMap.get(`${slot.day}${slot.period}`);
+      const tsId = s1TsMap.get(`${group}-${slot.day}${slot.period}`);
       if (!tsId) continue;
       const respId = respIDMap.get(`${slot.teacherEmail}::${slot.subjectCode}`);
       if (!respId) continue;
@@ -1051,8 +1090,11 @@ async function seedDemoData() {
     );
   }
   for (const day of DAYS) {
-    for (let period = 1; period <= TEACHING_SLOTS_2568.length; period++) {
-      s2TsMap.set(`${day}${period}`, `2-2568-${day}${oldPeriodToSlot(period)}`);
+    for (const period of JUNIOR_PERIODS) {
+      s2TsMap.set(`junior-${day}${period}`, `2-2568-${day}${slotFor(period, "junior")}`);
+    }
+    for (const period of SENIOR_PERIODS) {
+      s2TsMap.set(`senior-${day}${period}`, `2-2568-${day}${slotFor(period, "senior")}`);
     }
   }
   console.log(`✅ ${s2Timeslots.length} S2-2568 timeslots`);
@@ -1087,7 +1129,7 @@ async function seedDemoData() {
   // Scenario A: Teacher double-booked at same timeslot
   // No DB constraint on (TimeslotID, TeacherID) — this seeds intentionally
   console.log("  Scenario A: teacher double-booking...");
-  const aTs1 = s2TsMap.get("MON1")!;
+  const aTs1 = s2TsMap.get("junior-MON1")!;
   const aResp1 = await s2Resp("teacher1@school.ac.th", "M1-1", "ท21101", 3);
   const aResp2 = await s2Resp("teacher1@school.ac.th", "M1-2", "ท21101", 3);
   for (const [gid, respId, room] of [
@@ -1102,7 +1144,7 @@ async function seedDemoData() {
       if (!err.message?.includes("Unique constraint")) console.warn(`⚠️ A: ${err.message}`);
     }
   }
-  const aTs2 = s2TsMap.get("TUE2")!;
+  const aTs2 = s2TsMap.get("junior-TUE2")!;
   const bResp1 = await s2Resp("teacher4@school.ac.th", "M2-1", "ค22101", 3);
   const bResp2 = await s2Resp("teacher4@school.ac.th", "M2-2", "ค22101", 3);
   for (const [gid, respId, room] of [
@@ -1152,7 +1194,7 @@ async function seedDemoData() {
     const gradeId = ["M4-1","M4-2","M4-3"][gi];
     for (let si = 0; si < cSubjects.length; si++) {
       const subj = cSubjects[si];
-      const tsId = s2TsMap.get(cTsKeys[si])!;
+      const tsId = s2TsMap.get(`senior-${cTsKeys[si]}`)!;
       const resp = await s2Resp(subj.email, gradeId, subj.code, 2);
       const useRoom = (gi * cSubjects.length + si) % 5 >= 2;
       try {
@@ -1182,7 +1224,7 @@ async function seedDemoData() {
   for (const item of sparseItems) {
     const resp = await s2Resp(item.email, item.gradeId, item.subCode, 2);
     for (const tsKey of item.tsKeys) {
-      const tsId = s2TsMap.get(tsKey)!;
+      const tsId = s2TsMap.get(`senior-${tsKey}`)!;
       try {
         await prisma.class_schedule.create({
           data: {
