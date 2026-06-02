@@ -34,17 +34,12 @@ export const TimetableConfigSchema = v.object({
     v.string(),
     v.regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format (HH:MM)"),
   ),
-  Duration: v.pipe(
-    v.number(),
-    v.minValue(30, "Duration must be at least 30 minutes"),
-    v.maxValue(120, "Duration cannot exceed 120 minutes"),
+  slots: v.array(
+    v.object({
+      duration: v.pipe(v.number(), v.integer(), v.minValue(1)),
+      breakGroups: v.optional(v.array(v.string())),
+    }),
   ),
-  TimeslotPerDay: v.pipe(
-    v.number(),
-    v.minValue(6, "Must have at least 6 timeslots per day"),
-    v.maxValue(12, "Cannot exceed 12 timeslots per day"),
-  ),
-  breakDefinitions: v.optional(v.array(v.any())),
 });
 
 // Type export

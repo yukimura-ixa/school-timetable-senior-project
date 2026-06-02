@@ -132,3 +132,6 @@ e2e/**/*-snapshots/*-win32.png
 # Superpowers brainstorm session files (gitignored)
 .superpowers/
 
+
+# Mermaid-rendered diagrams (regenerate from feature-map.md)
+docs/architecture/feature-map-*.png

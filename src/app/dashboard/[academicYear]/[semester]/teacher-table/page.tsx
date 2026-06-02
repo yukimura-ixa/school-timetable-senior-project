@@ -820,7 +820,7 @@ function TeacherTablePage() {
                   <Box ref={timetableRef} sx={{ p: 2 }}>
                     <TimeSlot
                       timeSlotData={timeSlotData}
-                      breakDefinitions={configData?.data?.breakDefinitions}
+                      slots={configData?.data?.slots ?? []}
                     />
                   </Box>
                 </Paper>

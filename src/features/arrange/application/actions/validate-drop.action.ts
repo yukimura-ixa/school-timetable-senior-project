@@ -12,6 +12,10 @@ import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
+import { isBreakForGrade, buildGradeGroupIndex } from "@/utils/break-utils";
+import { parseConfigData } from "@/features/config/domain/types/config-data.types";
+import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
+import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
 
 const log = createLogger("ValidateDropAction");
 
@@ -187,13 +191,45 @@ export async function validateDropAction(
       };
     }
 
-    // Check 2: Break timeslot
+    // Check 2: Break timeslot (universal — Breaktime field)
     if (timeslotData.Breaktime && timeslotData.Breaktime !== "NOT_BREAK") {
       return {
         allowed: false,
         reason: "break_timeslot",
         message: "⏸️ ไม่สามารถจัดวิชาเรียนในคาบพักได้",
       };
+    }
+
+    // Check 2b: Per-grade staggered break (Phase 2A)
+    // A slot may look like a normal teaching slot globally but be a break
+    // for a specific grade group (e.g. junior lunch at period 4).
+    {
+      const periodMatch = timeslot.match(/(\d+)$/);
+      const slotNumber = periodMatch?.[1] ? parseInt(periodMatch[1]) : 0;
+      const semesterStr = timeslotData.Semester === "SEMESTER_1" ? "1" : "2";
+      const configId = `${semesterStr}-${timeslotData.AcademicYear}`;
+
+      try {
+        const [configRow, breakGroupRows] = await Promise.all([
+          prisma.table_config.findUnique({ where: { ConfigID: configId } }),
+          breakGroupRepository.findByConfigId(configId),
+        ]);
+
+        if (configRow?.Config && slotNumber > 0) {
+          const configData = parseConfigData(configRow.Config);
+          const gradeBreakIndex = buildGradeGroupIndex(toBreakGroups(breakGroupRows));
+          if (isBreakForGrade(slotNumber, grade, configData.slots, gradeBreakIndex)) {
+            return {
+              allowed: false,
+              reason: "break_timeslot",
+              message: "⏸️ ไม่สามารถจัดวิชาเรียนในคาบพักได้",
+            };
+          }
+        }
+      } catch {
+        // Config load failed — skip per-grade check, let other guards run
+        log.warn("Could not load config for per-grade break check", { configId, timeslot });
+      }
     }
 
     // Check 4: Teacher conflict

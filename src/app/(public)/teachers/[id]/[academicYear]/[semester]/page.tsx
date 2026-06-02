@@ -4,8 +4,11 @@ import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { semester } from "@/prisma/generated/client";
-import { getTimetableConfig } from "@/lib/timetable-config";
-import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
+import { findByTerm as findConfigByTerm } from "@/features/config/infrastructure/repositories/config.repository";
+import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
+import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
+import { parseConfigData } from "@/features/config/domain/types/config-data.types";
+import type { SlotConfig, BreakGroup } from "@/features/timeslot/domain/models/break.types";
 import { TimeslotGrid, type ScheduleCell } from "@/components/schedule/TimeslotGrid";
 
 
@@ -73,9 +76,21 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
 
   // Get all timeslots + break config for this term to build the grid
   const semesterValue: semester = semesterEnum;
-  const timeslots = await publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue);
-  const config = await getTimetableConfig(academicYear, semesterValue);
-  const breakDefs: BreakDefinition[] = config.breakDefinitions ?? [];
+  const semesterNum =
+    semesterValue === "SEMESTER_1" ? "1" : semesterValue === "SEMESTER_2" ? "2" : "3";
+  const configId = `${semesterNum}-${academicYear}`;
+  const [timeslots, termConfig, breakGroupRows] = await Promise.all([
+    publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue),
+    findConfigByTerm(academicYear, semesterValue),
+    breakGroupRepository.findByConfigId(configId),
+  ]);
+  let slots: SlotConfig[] = [];
+  try {
+    slots = termConfig?.Config ? parseConfigData(termConfig.Config).slots : [];
+  } catch {
+    slots = [];
+  }
+  const breakGroups: BreakGroup[] = toBreakGroups(breakGroupRows);
 
   const cellsByTimeslotId = new Map<string, ScheduleCell>();
   for (const s of schedules) {
@@ -121,7 +136,8 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       {/* Schedule Grid */}
       <TimeslotGrid
         timeslots={timeslots}
-        breakDefs={breakDefs}
+        slots={slots}
+        breakGroups={breakGroups}
         view={{ mode: "teacher" }}
         cellsByTimeslotId={cellsByTimeslotId}
         show={{ grade: true, room: true }}

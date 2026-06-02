@@ -278,9 +278,7 @@ export const updateConfigWithTimeslotsAction = createAction(
         Semester: existingConfig.Semester,
         Days: configData.Days,
         StartTime: configData.StartTime,
-        Duration: configData.Duration,
-        TimeslotPerDay: configData.TimeslotPerDay,
-        breakDefinitions: configData.breakDefinitions ?? [],
+        slots: configData.slots,
       });
 
       // Step 5: Create new timeslots

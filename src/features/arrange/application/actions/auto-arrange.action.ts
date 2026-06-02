@@ -21,6 +21,10 @@ import type {
   UnplacedSubject,
 } from "@/features/arrange/domain/auto-arrange";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
+import { buildGradeGroupIndex } from "@/utils/break-utils";
+import { parseConfigData } from "@/features/config/domain/types/config-data.types";
+import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
+import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
 
 const log = createLogger("AutoArrangeAction");
 
@@ -96,7 +100,9 @@ export async function autoArrangeAction(
     const semesterEnum = semester === "1" ? "SEMESTER_1" : "SEMESTER_2";
 
     // ── Data Gathering (parallel) ──
-    const [timeslotsRaw, allSchedules, rooms, teacherResponsibilities] =
+    const configId = `${semester === "1" ? "1" : "2"}-${academicYear}`;
+
+    const [timeslotsRaw, allSchedules, rooms, teacherResponsibilities, configRow, breakGroupRows] =
       await Promise.all([
         // 1. All timeslots for this semester
         prisma.timeslot.findMany({
@@ -136,6 +142,12 @@ export async function autoArrangeAction(
             gradelevel: true,
           },
         }),
+
+        // 5. Term config (for SlotConfig[] — Phase 2A per-grade break guard)
+        prisma.table_config.findUnique({ where: { ConfigID: configId } }),
+
+        // 6. Break groups for this term (Phase 2A per-grade break guard)
+        breakGroupRepository.findByConfigId(configId),
       ]);
 
     // ── Transform to Solver Types ──
@@ -238,6 +250,22 @@ export async function autoArrangeAction(
       };
     }
 
+    // ── Build per-grade break guard (Phase 2A) ──
+    // Parse config slots and build grade→group index so the solver can skip
+    // cells where a specific grade has a staggered break (e.g. junior lunch).
+    let slotConfigs: SolverInput["slotConfigs"];
+    let gradeBreakIndex: SolverInput["gradeBreakIndex"];
+    if (configRow?.Config) {
+      try {
+        const configData = parseConfigData(configRow.Config);
+        slotConfigs = configData.slots;
+        gradeBreakIndex = buildGradeGroupIndex(toBreakGroups(breakGroupRows));
+      } catch {
+        // Malformed config — fall back to isBreak-only guard (safe)
+        log.warn("Could not parse term config for break-guard; falling back to isBreak-only", { configId });
+      }
+    }
+
     // ── Run Solver ──
     const solverInput: SolverInput = {
       teacherId: Number(teacherId),
@@ -247,6 +275,8 @@ export async function autoArrangeAction(
       timeslots,
       existingSchedules,
       rooms: availableRooms,
+      slotConfigs,
+      gradeBreakIndex,
     };
 
     log.info("Running auto-arrange solver", {

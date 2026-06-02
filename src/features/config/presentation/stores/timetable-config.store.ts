@@ -61,20 +61,13 @@ interface ConfigStoreState {
 function validateConfigData(config: ConfigData): ValidationErrors {
   const errors: ValidationErrors = {};
 
-  // Validate TimeslotPerDay
-  if (config.TimeslotPerDay < CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.min) {
+  // Validate slot count
+  const slotCount = config.slots?.length ?? 0;
+  if (slotCount < CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.min) {
     errors.timeslotPerDay = `จำนวนคาบต้องไม่น้อยกว่า ${CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.min} คาบ`;
   }
-  if (config.TimeslotPerDay > CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.max) {
+  if (slotCount > CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.max) {
     errors.timeslotPerDay = `จำนวนคาบต้องไม่เกิน ${CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.max} คาบ`;
-  }
-
-  // Validate Duration
-  if (config.Duration < CONFIG_CONSTRAINTS.DURATION.min) {
-    errors.duration = `ระยะเวลาคาบต้องไม่น้อยกว่า ${CONFIG_CONSTRAINTS.DURATION.min} นาที`;
-  }
-  if (config.Duration > CONFIG_CONSTRAINTS.DURATION.max) {
-    errors.duration = `ระยะเวลาคาบต้องไม่เกิน ${CONFIG_CONSTRAINTS.DURATION.max} นาที`;
   }
 
   // Validate StartTime format
@@ -82,7 +75,6 @@ function validateConfigData(config: ConfigData): ValidationErrors {
   if (!timeRegex.test(config.StartTime)) {
     errors.startTime = "รูปแบบเวลาไม่ถูกต้อง (ต้องเป็น HH:MM)";
   }
-
 
   return errors;
 }
@@ -102,7 +94,7 @@ export const useConfigStore = create<ConfigStoreState>()(
     validationErrors: {},
     isLoading: false,
     isDirty: false,
-    breakSlotOptions: generateTimeslotRange(DEFAULT_CONFIG.TimeslotPerDay),
+    breakSlotOptions: generateTimeslotRange(DEFAULT_CONFIG.slots.length),
     hasErrors: false,
 
     // Load config from server
@@ -111,10 +103,9 @@ export const useConfigStore = create<ConfigStoreState>()(
         state.config = data;
         state.mode = "view";
         state.isDirty = false;
-        // Re-validate on load so stale rows saved before the "strictly less
-        // than TimeslotPerDay" rule surface immediately instead of silently.
+        // Re-validate on load so stale rows surface immediately.
         state.validationErrors = validateConfigData(data);
-        state.breakSlotOptions = generateTimeslotRange(data.TimeslotPerDay);
+        state.breakSlotOptions = generateTimeslotRange(data.slots?.length ?? 0);
       }),
 
     // Update single field
@@ -123,9 +114,9 @@ export const useConfigStore = create<ConfigStoreState>()(
         state.config[field] = value;
         state.isDirty = true;
 
-        // Auto-adjust state options if TimeslotPerDay changes
-        if (field === "TimeslotPerDay" && typeof value === "number") {
-          state.breakSlotOptions = generateTimeslotRange(value);
+        // Auto-adjust slot options if the slots array changes
+        if (field === "slots" && Array.isArray(value)) {
+          state.breakSlotOptions = generateTimeslotRange(value.length);
         }
 
         // Re-validate
@@ -165,7 +156,7 @@ export const useConfigStore = create<ConfigStoreState>()(
         state.validationErrors = {};
         state.hasErrors = false;
         state.breakSlotOptions = generateTimeslotRange(
-          DEFAULT_CONFIG.TimeslotPerDay,
+          DEFAULT_CONFIG.slots.length,
         );
       }),
 

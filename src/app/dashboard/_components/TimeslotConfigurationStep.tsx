@@ -71,17 +71,17 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
     setIsTimeslotConfigValid,
   } = useCreateSemester();
 
-  const [config, setConfig] = useState<CreateTimeslotsInput>({
+  // Core schedule fields (Days / StartTime) held in config state
+  const [config, setConfig] = useState<Pick<CreateTimeslotsInput, "AcademicYear" | "Semester" | "Days" | "StartTime">>({
     AcademicYear: academicYear,
     Semester: semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
-    Days: ["MON", "TUE", "WED", "THU", "FRI"],
-    StartTime: "08:30",
-    Duration: 50,
-    TimeslotPerDay: 8,
-    breakDefinitions: [],
-    breakGroups: [],
-    ...initialConfig,
+    Days: initialConfig?.Days ?? ["MON", "TUE", "WED", "THU", "FRI"],
+    StartTime: initialConfig?.StartTime ?? "08:30",
   });
+
+  // Local UI state for per-slot defaults (used by preview and slot builder)
+  const [duration, setDuration] = useState(50);
+  const [timeslotPerDay, setTimeslotPerDay] = useState(8);
 
   const [breakGroups, setBreakGroups] = useState(() => {
     if (initialBreakGroups && initialBreakGroups.length > 0) {
@@ -104,7 +104,7 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
   });
 
   const [breakDefs, setBreakDefs] = useState<BreakDefinition[]>(
-    initialConfig?.breakDefinitions ?? [...DEFAULT_BREAK_DEFINITIONS],
+    [...DEFAULT_BREAK_DEFINITIONS],
   );
 
   const errors = (() => {
@@ -118,11 +118,11 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
       newErrors.startTime = "รูปแบบเวลาไม่ถูกต้อง (HH:MM)";
     }
 
-    if (config.Duration < 10 || config.Duration > 120) {
+    if (duration < 10 || duration > 120) {
       newErrors.duration = "ระยะเวลาต่อคาบต้องอยู่ระหว่าง 10-120 นาที";
     }
 
-    if (config.TimeslotPerDay < 1 || config.TimeslotPerDay > 15) {
+    if (timeslotPerDay < 1 || timeslotPerDay > 15) {
       newErrors.timeslotPerDay = "จำนวนคาบต่อวันต้องอยู่ระหว่าง 1-15";
     }
 
@@ -135,14 +135,38 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
     setIsTimeslotConfigValid(isValid);
 
     if (isValid) {
+      // Build slots[] from duration/timeslotPerDay/breakDefs
+      // breakDefs carry slotNumber (1-based) indicating "break before this period"
+      const breaksBySlot = new Map<number, BreakDefinition[]>();
+      for (const brk of breakDefs) {
+        const existing = breaksBySlot.get(brk.slotNumber) ?? [];
+        existing.push(brk);
+        breaksBySlot.set(brk.slotNumber, existing);
+      }
+
+      const slots: Array<{ duration: number; breakGroups?: string[] }> = [];
+      // Insert break slots before the teaching period they precede
+      for (let period = 1; period <= timeslotPerDay; period++) {
+        const breaksHere = breaksBySlot.get(period) ?? [];
+        for (const brk of breaksHere) {
+          slots.push({
+            duration: brk.duration,
+            breakGroups: brk.groups.length > 0 ? brk.groups : ["*"],
+          });
+        }
+        slots.push({ duration });
+      }
+
       setTimeslotConfig({
         ...config,
+        slots,
         breakGroups,
-        breakDefinitions: breakDefs,
       });
     }
   }, [
     config,
+    duration,
+    timeslotPerDay,
     breakGroups,
     breakDefs,
     isValid,
@@ -162,8 +186,8 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
   // Calculate preview schedule using V2
   const previewSchedule = generatePreviewSlots({
     StartTime: config.StartTime,
-    Duration: config.Duration,
-    TimeslotPerDay: config.TimeslotPerDay,
+    Duration: duration,
+    TimeslotPerDay: timeslotPerDay,
     breakDefinitions: breakDefs,
   });
 
@@ -234,13 +258,8 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
             fullWidth
             label="ระยะเวลาต่อคาบ (นาที)"
             type="number"
-            value={config.Duration}
-            onChange={(e) =>
-              setConfig((prev) => ({
-                ...prev,
-                Duration: Number(e.target.value),
-              }))
-            }
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value))}
             error={!!errors.duration}
             helperText={errors.duration || "ระยะเวลาการเรียนต่อคาบ"}
           />
@@ -257,12 +276,9 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
         </Stack>
         <Box sx={{ px: 2 }}>
           <Slider
-            value={config.TimeslotPerDay}
+            value={timeslotPerDay}
             onChange={(_, value) =>
-              setConfig((prev) => ({
-                ...prev,
-                TimeslotPerDay: typeof value === "number" ? value : value[0],
-              }))
+              setTimeslotPerDay(typeof value === "number" ? value : value[0])
             }
             min={1}
             max={12}
@@ -271,7 +287,7 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
           />
         </Box>
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-          {config.TimeslotPerDay} คาบต่อวัน
+          {timeslotPerDay} คาบต่อวัน
         </Typography>
       </Paper>
 

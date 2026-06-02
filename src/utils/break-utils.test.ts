@@ -1,41 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { isBreakSlot, buildGradeGroupIndex, isBreakForGrade } from "./break-utils";
-import type { BreakDefinition, BreakGroup } from "@/features/timeslot/domain/models/break.types";
+import { isBreakSlot, buildGradeGroupIndex, isBreakForGrade, isBreakForTeacher } from "./break-utils";
+import type { BreakGroup, SlotConfig } from "@/features/timeslot/domain/models/break.types";
 
-const defs: BreakDefinition[] = [
-  { id: "lunch", label: "พักเที่ยง", slotNumber: 4, duration: 50, color: "#4CAF50", groups: ["*"] },
-];
-
-describe("isBreakSlot", () => {
-  it("treats NOT_BREAK as teaching", () => {
-    expect(isBreakSlot("NOT_BREAK")).toBe(false);
-    // slot 7 has no matching def -> falls back to enum (teaching)
-    expect(isBreakSlot("NOT_BREAK", 7, defs)).toBe(false);
+describe("isBreakSlot over slots", () => {
+  const slots: SlotConfig[] = [
+    { duration: 50 }, { duration: 10, breakGroups: ["*"] }, { duration: 50, breakGroups: ["junior"] },
+  ];
+  it("true for any slot with breakGroups (universal or group)", () => {
+    expect(isBreakSlot(2, slots)).toBe(true);
+    expect(isBreakSlot(3, slots)).toBe(true);
   });
-
-  it("treats v2 BREAK and all legacy enum values as breaks (enum fallback)", () => {
-    for (const bt of ["BREAK", "BREAK_BOTH", "BREAK_JUNIOR", "BREAK_SENIOR"]) {
-      expect(isBreakSlot(bt)).toBe(true);
-    }
-  });
-
-  it("returns false for an empty breaktime", () => {
-    expect(isBreakSlot("")).toBe(false);
-  });
-
-  it("is config-aware: a break definition at the slot marks it a break even if the enum lags", () => {
-    // def exists at slot 4 -> break, regardless of the (lagging) enum value
-    expect(isBreakSlot("NOT_BREAK", 4, defs)).toBe(true);
-  });
-
-  it("with defs, a slot without a matching def falls back to the enum", () => {
-    expect(isBreakSlot("BREAK", 5, defs)).toBe(true); // enum says break
-    expect(isBreakSlot("NOT_BREAK", 5, defs)).toBe(false); // no def at 5, enum teaching
-  });
-
-  it("is a superset of the raw enum check (never drops an enum-marked break)", () => {
-    // Even with defs that don't match the slot, an enum break stays a break.
-    expect(isBreakSlot("BREAK_JUNIOR", 99, defs)).toBe(true);
+  it("false for a pure teaching slot", () => {
+    expect(isBreakSlot(1, slots)).toBe(false);
   });
 });
 
@@ -65,41 +41,58 @@ describe("buildGradeGroupIndex", () => {
   });
 });
 
-describe("isBreakForGrade", () => {
-  const defs: BreakDefinition[] = [
-    { id: "lunch-junior", label: "พักเที่ยง ม.ต้น", slotNumber: 4, duration: 50, color: "#4CAF50", groups: ["junior"] },
-    { id: "lunch-senior", label: "พักเที่ยง ม.ปลาย", slotNumber: 5, duration: 50, color: "#2196F3", groups: ["senior"] },
-    { id: "morning", label: "พักเช้า", slotNumber: 3, duration: 10, color: "#FF9800", groups: ["*"] },
-    { id: "band-break", label: "พักวง", slotNumber: 6, duration: 20, color: "#9C27B0", groups: ["band"] },
+describe("isBreakForGrade over slots", () => {
+  const slots: SlotConfig[] = [
+    { duration: 50 },                              // slot 1 teaching
+    { duration: 50 },                              // slot 2 teaching
+    { duration: 10, breakGroups: ["*"] },          // slot 3 universal recess
+    { duration: 50, breakGroups: ["junior"] },     // slot 4 junior lunch
+    { duration: 50, breakGroups: ["senior"] },     // slot 5 senior lunch
+    { duration: 50 },                              // slot 6 teaching
   ];
   const index = buildGradeGroupIndex([
     { name: "junior", label: "ม.ต้น", color: "#4CAF50", gradeIds: ["M1-1"] },
     { name: "senior", label: "ม.ปลาย", color: "#2196F3", gradeIds: ["M5-1"] },
-    { name: "band", label: "วง", color: "#9C27B0", gradeIds: ["M1-1"] }, // M1-1 is junior AND band
   ]);
 
-  it("matches a group break for a grade in that group", () => {
-    expect(isBreakForGrade(4, "M1-1", defs, index)).toBe(true);
-    expect(isBreakForGrade(5, "M5-1", defs, index)).toBe(true);
+  it("universal slot is a break for any grade", () => {
+    expect(isBreakForGrade(3, "M1-1", slots, index)).toBe(true);
+    expect(isBreakForGrade(3, "M5-1", slots, index)).toBe(true);
   });
-
-  it("does not match a group break for a grade outside the group", () => {
-    expect(isBreakForGrade(4, "M5-1", defs, index)).toBe(false);
-    expect(isBreakForGrade(5, "M1-1", defs, index)).toBe(false);
+  it("group slot only breaks for that group's grades", () => {
+    expect(isBreakForGrade(4, "M1-1", slots, index)).toBe(true);
+    expect(isBreakForGrade(4, "M5-1", slots, index)).toBe(false);
+    expect(isBreakForGrade(5, "M5-1", slots, index)).toBe(true);
+    expect(isBreakForGrade(5, "M1-1", slots, index)).toBe(false);
   });
-
-  it("matches a universal (*) break for any grade", () => {
-    expect(isBreakForGrade(3, "M1-1", defs, index)).toBe(true);
-    expect(isBreakForGrade(3, "M5-1", defs, index)).toBe(true);
+  it("teaching slot is never a break", () => {
+    expect(isBreakForGrade(1, "M1-1", slots, index)).toBe(false);
   });
-
-  it("REGRESSION: resolves arbitrary custom groups, not just junior/senior", () => {
-    expect(isBreakForGrade(6, "M1-1", defs, index)).toBe(true);
-    expect(isBreakForGrade(6, "M5-1", defs, index)).toBe(false);
+  it("matches when the grade belongs to multiple groups", () => {
+    const multiIndex = buildGradeGroupIndex([
+      { name: "junior", label: "ม.ต้น", color: "#4CAF50", gradeIds: ["M1-1"] },
+      { name: "band", label: "วง", color: "#9C27B0", gradeIds: ["M1-1"] },
+    ]);
+    const s: SlotConfig[] = [{ duration: 50 }, { duration: 20, breakGroups: ["band"] }];
+    expect(isBreakForGrade(2, "M1-1", s, multiIndex)).toBe(true);   // via band
+    expect(isBreakForGrade(2, "M5-1", s, multiIndex)).toBe(false);  // not in band
   });
+});
 
-  it("returns false for a grade in no group at a non-universal slot", () => {
-    expect(isBreakForGrade(4, "M9-9", defs, index)).toBe(false);
-    expect(isBreakForGrade(3, "M9-9", defs, index)).toBe(true);
+describe("isBreakForTeacher over slots", () => {
+  const slots: SlotConfig[] = [
+    { duration: 50 },                          // slot 1 teaching
+    { duration: 10, breakGroups: ["*"] },      // slot 2 universal
+    { duration: 50, breakGroups: ["junior"] }, // slot 3 group-only
+  ];
+  it("true only for universal slots", () => {
+    expect(isBreakForTeacher(2, slots)).toBe(true);
+  });
+  it("false for a group-only break slot (staggered breaks are grade-only)", () => {
+    expect(isBreakForTeacher(3, slots)).toBe(false);
+  });
+  it("false for a teaching slot and out-of-range", () => {
+    expect(isBreakForTeacher(1, slots)).toBe(false);
+    expect(isBreakForTeacher(99, slots)).toBe(false);
   });
 });

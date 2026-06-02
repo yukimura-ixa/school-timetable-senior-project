@@ -2,6 +2,8 @@
  * Auto-Arrange Solver Tests
  */
 import { describe, expect, it } from "vitest";
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
+import { buildGradeGroupIndex } from "@/utils/break-utils";
 
 import { solve } from "../solver";
 import type {
@@ -370,6 +372,90 @@ describe("solve", () => {
 
     // Should NOT be placed in the locked timeslot
     expect(result.placements[0]!.timeslotId).not.toBe("1-2567-MON1");
+  });
+
+  // ── Per-grade break-slot guard (Phase 2A Task 6) ──────────────────────────
+
+  it("does not place a junior class onto the junior-only lunch slot", () => {
+    // slots: [teach, teach, universal-recess, junior-lunch, senior-lunch, teach]
+    // period 4 = junior lunch → M1-1 must not land there
+    const slotConfigs: SlotConfig[] = [
+      { duration: 50 },
+      { duration: 50 },
+      { duration: 10, breakGroups: ["*"] },
+      { duration: 50, breakGroups: ["junior"] },
+      { duration: 50, breakGroups: ["senior"] },
+      { duration: 50 },
+    ];
+    const gradeBreakIndex = buildGradeGroupIndex([
+      { name: "junior", label: "ม.ต้น", color: "#4CAF50", gradeIds: ["M1-1"] },
+      { name: "senior", label: "ม.ปลาย", color: "#2196F3", gradeIds: ["M5-1"] },
+    ]);
+
+    const timeslots: AvailableTimeslot[] = [
+      { timeslotId: "1-2568-MON4", day: "MON", period: 4, isBreak: false }, // junior lunch — isBreak=false on purpose
+      { timeslotId: "1-2568-MON6", day: "MON", period: 6, isBreak: false }, // teaching slot
+    ];
+
+    const input = makeInput({
+      unplacedSubjects: [makeSubject({ gradeId: "M1-1", periodsPerWeek: 1 })],
+      timeslots,
+      rooms: makeRooms(1),
+      slotConfigs,
+      gradeBreakIndex,
+    });
+
+    const result = solve(input);
+    expect(result.success).toBe(true);
+    expect(result.placements).toHaveLength(1);
+    expect(result.placements[0]!.timeslotId).toBe("1-2568-MON6"); // must skip period 4
+  });
+
+  it("allows a senior class onto the junior-only lunch slot (staggered break)", () => {
+    const slotConfigs: SlotConfig[] = [
+      { duration: 50 },
+      { duration: 50 },
+      { duration: 10, breakGroups: ["*"] },
+      { duration: 50, breakGroups: ["junior"] }, // junior lunch only
+      { duration: 50, breakGroups: ["senior"] },
+      { duration: 50 },
+    ];
+    const gradeBreakIndex = buildGradeGroupIndex([
+      { name: "junior", label: "ม.ต้น", color: "#4CAF50", gradeIds: ["M1-1"] },
+      { name: "senior", label: "ม.ปลาย", color: "#2196F3", gradeIds: ["M5-1"] },
+    ]);
+
+    const timeslots: AvailableTimeslot[] = [
+      { timeslotId: "1-2568-MON4", day: "MON", period: 4, isBreak: false }, // junior lunch, NOT a break for seniors
+    ];
+
+    const input = makeInput({
+      unplacedSubjects: [makeSubject({ gradeId: "M5-1", periodsPerWeek: 1 })],
+      timeslots,
+      rooms: makeRooms(1),
+      slotConfigs,
+      gradeBreakIndex,
+    });
+
+    const result = solve(input);
+    expect(result.success).toBe(true);
+    expect(result.placements).toHaveLength(1);
+    expect(result.placements[0]!.timeslotId).toBe("1-2568-MON4"); // seniors CAN use this slot
+  });
+
+  it("allows placement when no slotConfigs/gradeBreakIndex provided (backward compat)", () => {
+    const input = makeInput({
+      unplacedSubjects: [makeSubject({ periodsPerWeek: 1 })],
+      timeslots: [
+        { timeslotId: "1-2568-MON4", day: "MON", period: 4, isBreak: false },
+      ],
+      rooms: makeRooms(1),
+      // no slotConfigs / gradeBreakIndex → old behaviour
+    });
+
+    const result = solve(input);
+    expect(result.success).toBe(true);
+    expect(result.placements).toHaveLength(1);
   });
 
   it("allows placement when lock is at different grade level", () => {

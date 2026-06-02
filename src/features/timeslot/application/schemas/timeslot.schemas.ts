@@ -41,10 +41,13 @@ export const createTimeslotsSchema = v.object({
     "ต้องระบุวันอย่างน้อย 1 วัน",
   ),
   StartTime: v.pipe(v.string(), v.minLength(1, "เวลาเริ่มต้นห้ามว่าง")),
-  Duration: v.number("ระยะเวลาต่อคาบต้องเป็นตัวเลข"),
-  TimeslotPerDay: v.number("จำนวนคาบต่อวันต้องเป็นตัวเลข"),
-  breakDefinitions: v.array(breakDefinitionSchema),
-  breakGroups: v.array(breakGroupSchema),
+  slots: v.array(
+    v.object({
+      duration: v.pipe(v.number(), v.integer(), v.minValue(1)),
+      breakGroups: v.optional(v.array(v.string())),
+    }),
+  ),
+  breakGroups: v.optional(v.array(breakGroupSchema)),
 });
 
 export type CreateTimeslotsInput = v.InferOutput<typeof createTimeslotsSchema>;

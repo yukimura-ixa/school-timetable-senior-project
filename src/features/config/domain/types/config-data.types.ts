@@ -32,9 +32,10 @@ export type DayOfWeek = v.InferOutput<typeof DayOfWeekSchema>;
  * const config: ConfigData = {
  *   Days: ['MON', 'TUE', 'WED', 'THU', 'FRI'],
  *   StartTime: '08:30',
- *   Duration: 50,
- *   TimeslotPerDay: 9,
- *   breakDefinitions: [...],
+ *   slots: [
+ *     { duration: 50 },
+ *     { duration: 10, breakGroups: ['*'] },
+ *   ],
  * };
  * ```
  */
@@ -45,14 +46,12 @@ export const ConfigDataSchema = v.object({
   /** Start time in HH:MM format (24-hour) */
   StartTime: v.pipe(v.string(), v.minLength(5), v.maxLength(5)),
 
-  /** Duration of each timeslot in minutes */
-  Duration: v.pipe(v.number(), v.integer(), v.minValue(1)),
-
-  /** Number of timeslots per day */
-  TimeslotPerDay: v.pipe(v.number(), v.integer(), v.minValue(1)),
-
-  /** Break definitions in new system */
-  breakDefinitions: v.optional(v.array(v.any())),
+  slots: v.array(
+    v.object({
+      duration: v.pipe(v.number(), v.integer(), v.minValue(1)),
+      breakGroups: v.optional(v.array(v.string())),
+    }),
+  ),
 });
 
 export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;

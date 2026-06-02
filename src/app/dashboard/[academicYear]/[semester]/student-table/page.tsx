@@ -743,7 +743,7 @@ function StudentTablePage() {
                   <TimeSlot
                     searchGradeID={selectedGradeId}
                     timeSlotData={timeSlotData}
-                    breakDefinitions={configData?.data?.breakDefinitions}
+                    slots={configData?.data?.slots ?? []}
                     breakGroups={breakContextData?.data?.groups}
                   />
                 </Paper>
@@ -762,7 +762,7 @@ function StudentTablePage() {
                 <TimeSlot
                   searchGradeID={selectedGradeId}
                   timeSlotData={timeSlotData}
-                  breakDefinitions={configData?.data?.breakDefinitions}
+                  slots={configData?.data?.slots ?? []}
                   breakGroups={breakContextData?.data?.groups}
                 />
                 <div className="mt-8 flex gap-2">

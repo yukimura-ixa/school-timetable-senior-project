@@ -21,6 +21,11 @@ export type BreakGroup = {
   gradeIds: string[]; // break_group_grade.GradeID[]
 };
 
+export type SlotConfig = {
+  duration: number;          // minutes (per-slot)
+  breakGroups?: string[];    // break_group.Name refs that break here; ["*"] = universal recess; absent/[] = teaching slot
+};
+
 /** Default break groups preset */
 export const DEFAULT_BREAK_GROUPS = [
   { Name: "junior", Label: "ม.ต้น (ม.1-3)", Color: "#4CAF50" },

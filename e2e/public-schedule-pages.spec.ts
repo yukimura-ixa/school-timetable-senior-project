@@ -170,7 +170,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await expect(headers).toHaveCount(6); // "คาบ/เวลา" + 5 days (MON-FRI)
 
     // First header is "period/time", remaining are day labels (language may vary)
-    await expect(headers.first()).toContainText(/คาบ\/เวลา|Period/i);
+    await expect(headers.first()).toContainText(/คาบ|Period/i);
     for (let i = 1; i < 6; i += 1) {
       await expect(headers.nth(i)).toHaveText(/.+/);
     }
@@ -273,11 +273,11 @@ test.describe("Public Teacher Schedule Page", () => {
       },
     );
 
-    // Empty cells render "-" with a dedicated style (avoid matching time-range hyphens)
+    // Empty cells render an em-dash "—" with a dedicated style
     const emptyMarkers = page
       .getByTestId("schedule-grid")
-      .locator("tbody td .text-gray-400")
-      .filter({ hasText: "-" });
+      .locator("tbody td .text-slate-300")
+      .filter({ hasText: "—" });
     const emptyCount = await emptyMarkers.count();
 
     // There should be at least some empty cells (not 100% utilization)

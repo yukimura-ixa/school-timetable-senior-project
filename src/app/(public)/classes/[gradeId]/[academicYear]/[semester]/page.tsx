@@ -6,11 +6,12 @@ import type { semester } from "@/prisma/generated/client";
 import { PrintButton } from "@/app/(public)/_components/PrintButton";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
-import { getTimetableConfig } from "@/lib/timetable-config";
-import type { BreakDefinition } from "@/features/timeslot/domain/models/break.types";
 import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
 import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
 import { buildGradeGroupIndex } from "@/utils/break-utils";
+import { findByTerm as findConfigByTerm } from "@/features/config/infrastructure/repositories/config.repository";
+import { parseConfigData } from "@/features/config/domain/types/config-data.types";
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 import { TimeslotGrid, type ScheduleCell } from "@/components/schedule/TimeslotGrid";
 
 
@@ -60,13 +61,20 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
 
   // Get all timeslots + break config for this term to build the grid
   const timeslots = await publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue);
-  const config = await getTimetableConfig(academicYear, semesterValue);
-  const breakDefs: BreakDefinition[] = config.breakDefinitions ?? [];
-
   const semesterNum =
     semesterValue === "SEMESTER_1" ? "1" : semesterValue === "SEMESTER_2" ? "2" : "3";
   const configId = `${semesterNum}-${academicYear}`;
-  const breakGroups = toBreakGroups(await breakGroupRepository.findByConfigId(configId));
+  const [termConfig, breakGroupRows] = await Promise.all([
+    findConfigByTerm(academicYear, semesterValue),
+    breakGroupRepository.findByConfigId(configId),
+  ]);
+  let slots: SlotConfig[] = [];
+  try {
+    slots = termConfig?.Config ? parseConfigData(termConfig.Config).slots : [];
+  } catch {
+    slots = [];
+  }
+  const breakGroups = toBreakGroups(breakGroupRows);
   const groupNames = [...(buildGradeGroupIndex(breakGroups).get(gradeLevel.GradeID) ?? [])];
 
   const cellsByTimeslotId = new Map<string, ScheduleCell>();
@@ -111,7 +119,8 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         {/* Schedule Grid */}
         <TimeslotGrid
           timeslots={timeslots}
-          breakDefs={breakDefs}
+          slots={slots}
+          breakGroups={breakGroups}
           view={{ mode: "class", gradeId: gradeLevel.GradeID, groupNames }}
           cellsByTimeslotId={cellsByTimeslotId}
           show={{ teacher: true, room: true }}

@@ -65,7 +65,6 @@ import {
   day_of_week,
   semester,
   subject_credit,
-  breaktime,
   ProgramTrack,
   SubjectCategory,
   LearningArea,
@@ -75,6 +74,62 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import "dotenv/config";
 import { generateTimeslotId } from "../src/utils/timeslot-id";
+import { generateTimeslots } from "../src/features/timeslot/domain/services/timeslot.service";
+import { buildGradeGroupIndex, isBreakForGrade } from "../src/utils/break-utils";
+import type { SlotConfig } from "../src/features/timeslot/domain/models/break.types";
+
+// ── Phase 2A canonical slot layout (single source of truth) ──────────────────
+// One real timeslot per slot. Breaks are real, occupying slots (universal recess
+// + staggered junior/senior lunches). Generation + placement both derive from
+// this so timeslot ROWS always match the slots[] config.
+const SLOTS_2568: SlotConfig[] = [
+  { duration: 50 },                          // slot 1  (old period 1)
+  { duration: 10, breakGroups: ["*"] },       // slot 2  พักสาย (universal)
+  { duration: 50 },                           // slot 3  (old period 2)
+  { duration: 50 },                           // slot 4  (old period 3)
+  { duration: 50, breakGroups: ["junior"] },  // slot 5  พักกลางวัน ม.ต้น
+  { duration: 50 },                           // slot 6  (old period 4)
+  { duration: 50, breakGroups: ["senior"] },  // slot 7  พักกลางวัน ม.ปลาย
+  { duration: 50 },                           // slot 8  (old period 5)
+  { duration: 50 },                           // slot 9  (old period 6)
+  { duration: 50 },                           // slot 10 (old period 7)
+  { duration: 50 },                           // slot 11 (old period 8)
+];
+
+// 1-based slot numbers that are not a break for ANY grade (teaching slots).
+// = [1, 3, 4, 6, 8, 9, 10, 11]. Legacy seed coordinates use period 1..8;
+// old period k maps to the k-th absolute teaching slot.
+const TEACHING_SLOTS_2568: number[] = SLOTS_2568.reduce<number[]>(
+  (acc, slot, i) => {
+    if (!slot.breakGroups || slot.breakGroups.length === 0) acc.push(i + 1);
+    return acc;
+  },
+  [],
+);
+
+/** Legacy seed period (1..8) → new absolute teaching slot number. */
+const oldPeriodToSlot = (period: number): number =>
+  TEACHING_SLOTS_2568[period - 1];
+
+/** 1-based slot numbers a group can teach in: every slot except the universal
+ *  recess and the group's OWN lunch. The other group's lunch IS teaching here —
+ *  the Phase 2A staggered-teaching win. junior=[1,3,4,6,7,8,9,10,11],
+ *  senior=[1,3,4,5,6,8,9,10,11]. */
+function teachingSlotsForGroup(group: "junior" | "senior"): number[] {
+  const out: number[] = [];
+  SLOTS_2568.forEach((slot, i) => {
+    const bg = slot.breakGroups;
+    if (!bg || bg.length === 0) {
+      out.push(i + 1);
+      return;
+    }
+    if (bg.includes("*") || bg.includes(group)) return;
+    out.push(i + 1);
+  });
+  return out;
+}
+const JUNIOR_TEACHING_SLOTS = teachingSlotsForGroup("junior");
+const SENIOR_TEACHING_SLOTS = teachingSlotsForGroup("senior");
 
 const connectionString = process.env.DATABASE_URL!;
 const isAccelerate = connectionString.startsWith("prisma+");
@@ -227,36 +282,9 @@ async function seedDemoData() {
   // ── Config ──────────────────────────────────────────────────────────────────
   const KEEP_CONFIG_IDS = ["1-2568", "2-2568"];
   const configTemplate = {
-    TimeslotPerDay: 8,
     StartTime: "08:30",
-    Duration: 50,
     Days: ["MON", "TUE", "WED", "THU", "FRI"],
-    breakDefinitions: [
-      {
-        id: "mini_break",
-        label: "พักสาย",
-        slotNumber: 2,
-        duration: 10,
-        color: "#d1d5db",
-        groups: ["*"],
-      },
-      {
-        id: "junior_break",
-        label: "พักกลางวัน (ม.ต้น)",
-        slotNumber: 4,
-        duration: 50,
-        color: "#fca5a5",
-        groups: ["junior"],
-      },
-      {
-        id: "senior_break",
-        label: "พักกลางวัน (ม.ปลาย)",
-        slotNumber: 5,
-        duration: 50,
-        color: "#fcd34d",
-        groups: ["senior"],
-      },
-    ],
+    slots: SLOTS_2568,
   };
 
   // ── Subjects (77 total) ─────────────────────────────────────────────────────
@@ -465,24 +493,27 @@ async function seedDemoData() {
   ];
 
   // ── Period schedule ─────────────────────────────────────────────────────────
-  // P2 BREAK: mini-break gap (10:10–10:20) follows after P2 ends at 10:10
-  // P4 BREAK: juniors at lunch; no class_schedule for junior grades at P4
-  // P5 BREAK: seniors at lunch; no class_schedule for senior grades at P5
-  const PERIODS_2568 = [
-    { num: 1, start: "08:30", end: "09:20", brk: "NOT_BREAK" as breaktime },
-    { num: 2, start: "09:20", end: "10:10", brk: "BREAK"     as breaktime },
-    { num: 3, start: "10:20", end: "11:10", brk: "NOT_BREAK" as breaktime },
-    { num: 4, start: "11:10", end: "12:00", brk: "BREAK"     as breaktime },
-    { num: 5, start: "12:00", end: "12:50", brk: "BREAK"     as breaktime },
-    { num: 6, start: "12:50", end: "13:40", brk: "NOT_BREAK" as breaktime },
-    { num: 7, start: "13:40", end: "14:30", brk: "NOT_BREAK" as breaktime },
-    { num: 8, start: "14:30", end: "15:20", brk: "NOT_BREAK" as breaktime },
-  ];
-
+  // Timeslot rows are generated from SLOTS_2568 (real break slots). Legacy
+  // (day, period) coordinates below map through oldPeriodToSlot onto teaching
+  // slots; juniors skip slot 5 (their lunch), seniors skip slot 7 (theirs).
   const DAYS: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
   // Available period indices for each school level (no lunch break for their group)
   const JUNIOR_PERIODS = [1, 2, 3, 5, 6, 7, 8]; // skip P4
   const SENIOR_PERIODS = [1, 2, 3, 4, 6, 7, 8]; // skip P5
+
+  // Map a group's legacy periods onto its real teaching slots (rank order), so
+  // juniors land in the senior-lunch slot and seniors in the junior-lunch slot
+  // — the Phase 2A staggered-teaching win, surfaced in demo data.
+  const sortUniq = (a: number[]) => [...new Set(a)].sort((x, y) => x - y);
+  const juniorSlotByPeriod = new Map(
+    sortUniq(JUNIOR_PERIODS).map((p, i) => [p, JUNIOR_TEACHING_SLOTS[i]] as const),
+  );
+  const seniorSlotByPeriod = new Map(
+    sortUniq(SENIOR_PERIODS).map((p, i) => [p, SENIOR_TEACHING_SLOTS[i]] as const),
+  );
+  const slotFor = (period: number, group: "junior" | "senior") =>
+    (group === "junior" ? juniorSlotByPeriod : seniorSlotByPeriod).get(period) ??
+    oldPeriodToSlot(period);
 
   // ── Cleanup stale semesters ─────────────────────────────────────────────────
   console.log(`🧹 Cleaning configs not in [${KEEP_CONFIG_IDS.join(", ")}]...`);
@@ -870,31 +901,46 @@ async function seedDemoData() {
 
   // ── S1 (1-2568): timeslots ──────────────────────────────────────────────────
   console.log("\n⏰ Seeding S1-2568 timeslots...");
-  const s1TsMap = new Map<string, string>(); // "MON1" → "1-2568-MON1"
+  // "MON1" (legacy period coord) → real teaching-slot TimeslotID
+  const s1TsMap = new Map<string, string>();
+  const s1Timeslots = generateTimeslots({
+    AcademicYear: 2568,
+    Semester: "SEMESTER_1",
+    Days: DAYS,
+    StartTime: configTemplate.StartTime,
+    slots: SLOTS_2568,
+  });
+  for (const ts of s1Timeslots) {
+    await withRetry(
+      () =>
+        prisma.timeslot.upsert({
+          where: { TimeslotID: ts.TimeslotID },
+          update: {},
+          create: {
+            TimeslotID: ts.TimeslotID,
+            AcademicYear: ts.AcademicYear,
+            Semester: ts.Semester,
+            StartTime: ts.StartTime,
+            EndTime: ts.EndTime,
+            Breaktime: ts.Breaktime,
+            DayOfWeek: ts.DayOfWeek,
+          },
+        }),
+      `Upsert S1 timeslot ${ts.TimeslotID}`,
+    );
+  }
+  // Legacy (group, day, period) coordinates map onto the group's teaching slots
+  // so juniors fill the senior-lunch slot and seniors the junior-lunch slot,
+  // and no class ever lands on a break slot for its own group.
   for (const day of DAYS) {
-    for (const p of PERIODS_2568) {
-      const id = `1-2568-${day}${p.num}`;
-      await withRetry(
-        () =>
-          prisma.timeslot.upsert({
-            where: { TimeslotID: id },
-            update: {},
-            create: {
-              TimeslotID: id,
-              AcademicYear: 2568,
-              Semester: "SEMESTER_1",
-              StartTime: new Date(`2024-01-01T${p.start}:00`),
-              EndTime:   new Date(`2024-01-01T${p.end}:00`),
-              Breaktime: p.brk,
-              DayOfWeek: day,
-            },
-          }),
-        `Upsert S1 timeslot ${id}`,
-      );
-      s1TsMap.set(`${day}${p.num}`, id);
+    for (const period of JUNIOR_PERIODS) {
+      s1TsMap.set(`junior-${day}${period}`, `1-2568-${day}${slotFor(period, "junior")}`);
+    }
+    for (const period of SENIOR_PERIODS) {
+      s1TsMap.set(`senior-${day}${period}`, `1-2568-${day}${slotFor(period, "senior")}`);
     }
   }
-  console.log("✅ 40 S1-2568 timeslots");
+  console.log(`✅ ${s1Timeslots.length} S1-2568 timeslots`);
 
   await withRetry(
     () =>
@@ -963,9 +1009,10 @@ async function seedDemoData() {
     }
 
     const gradeIdx = ALL_GRADES.findIndex((g) => g.id === grade.id);
+    const group = meta.yearNum <= 3 ? "junior" : "senior";
     for (let si = 0; si < slots.length; si++) {
       const slot = slots[si];
-      const tsId = s1TsMap.get(`${slot.day}${slot.period}`);
+      const tsId = s1TsMap.get(`${group}-${slot.day}${slot.period}`);
       if (!tsId) continue;
       const respId = respIDMap.get(`${slot.teacherEmail}::${slot.subjectCode}`);
       if (!respId) continue;
@@ -1016,30 +1063,41 @@ async function seedDemoData() {
   // ── S2 (2-2568): timeslots ──────────────────────────────────────────────────
   console.log("\n⏰ Seeding S2-2568 timeslots...");
   const s2TsMap = new Map<string, string>();
+  const s2Timeslots = generateTimeslots({
+    AcademicYear: 2568,
+    Semester: "SEMESTER_2",
+    Days: DAYS,
+    StartTime: configTemplate.StartTime,
+    slots: SLOTS_2568,
+  });
+  for (const ts of s2Timeslots) {
+    await withRetry(
+      () =>
+        prisma.timeslot.upsert({
+          where: { TimeslotID: ts.TimeslotID },
+          update: {},
+          create: {
+            TimeslotID: ts.TimeslotID,
+            AcademicYear: ts.AcademicYear,
+            Semester: ts.Semester,
+            StartTime: ts.StartTime,
+            EndTime: ts.EndTime,
+            Breaktime: ts.Breaktime,
+            DayOfWeek: ts.DayOfWeek,
+          },
+        }),
+      `Upsert S2 timeslot ${ts.TimeslotID}`,
+    );
+  }
   for (const day of DAYS) {
-    for (const p of PERIODS_2568) {
-      const id = `2-2568-${day}${p.num}`;
-      await withRetry(
-        () =>
-          prisma.timeslot.upsert({
-            where: { TimeslotID: id },
-            update: {},
-            create: {
-              TimeslotID: id,
-              AcademicYear: 2568,
-              Semester: "SEMESTER_2",
-              StartTime: new Date(`2024-01-01T${p.start}:00`),
-              EndTime:   new Date(`2024-01-01T${p.end}:00`),
-              Breaktime: p.brk,
-              DayOfWeek: day,
-            },
-          }),
-        `Upsert S2 timeslot ${id}`,
-      );
-      s2TsMap.set(`${day}${p.num}`, id);
+    for (const period of JUNIOR_PERIODS) {
+      s2TsMap.set(`junior-${day}${period}`, `2-2568-${day}${slotFor(period, "junior")}`);
+    }
+    for (const period of SENIOR_PERIODS) {
+      s2TsMap.set(`senior-${day}${period}`, `2-2568-${day}${slotFor(period, "senior")}`);
     }
   }
-  console.log("✅ 40 S2-2568 timeslots");
+  console.log(`✅ ${s2Timeslots.length} S2-2568 timeslots`);
 
   await withRetry(
     () =>
@@ -1071,7 +1129,7 @@ async function seedDemoData() {
   // Scenario A: Teacher double-booked at same timeslot
   // No DB constraint on (TimeslotID, TeacherID) — this seeds intentionally
   console.log("  Scenario A: teacher double-booking...");
-  const aTs1 = s2TsMap.get("MON1")!;
+  const aTs1 = s2TsMap.get("junior-MON1")!;
   const aResp1 = await s2Resp("teacher1@school.ac.th", "M1-1", "ท21101", 3);
   const aResp2 = await s2Resp("teacher1@school.ac.th", "M1-2", "ท21101", 3);
   for (const [gid, respId, room] of [
@@ -1086,7 +1144,7 @@ async function seedDemoData() {
       if (!err.message?.includes("Unique constraint")) console.warn(`⚠️ A: ${err.message}`);
     }
   }
-  const aTs2 = s2TsMap.get("TUE2")!;
+  const aTs2 = s2TsMap.get("junior-TUE2")!;
   const bResp1 = await s2Resp("teacher4@school.ac.th", "M2-1", "ค22101", 3);
   const bResp2 = await s2Resp("teacher4@school.ac.th", "M2-2", "ค22101", 3);
   for (const [gid, respId, room] of [
@@ -1136,7 +1194,7 @@ async function seedDemoData() {
     const gradeId = ["M4-1","M4-2","M4-3"][gi];
     for (let si = 0; si < cSubjects.length; si++) {
       const subj = cSubjects[si];
-      const tsId = s2TsMap.get(cTsKeys[si])!;
+      const tsId = s2TsMap.get(`senior-${cTsKeys[si]}`)!;
       const resp = await s2Resp(subj.email, gradeId, subj.code, 2);
       const useRoom = (gi * cSubjects.length + si) % 5 >= 2;
       try {
@@ -1166,7 +1224,7 @@ async function seedDemoData() {
   for (const item of sparseItems) {
     const resp = await s2Resp(item.email, item.gradeId, item.subCode, 2);
     for (const tsKey of item.tsKeys) {
-      const tsId = s2TsMap.get(tsKey)!;
+      const tsId = s2TsMap.get(`senior-${tsKey}`)!;
       try {
         await prisma.class_schedule.create({
           data: {
@@ -2764,75 +2822,67 @@ async function main() {
   const semesterNumber =
     sem === "SEMESTER_1" ? 1 : sem === "SEMESTER_2" ? 2 : 3;
   const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
-  // Template-compatible times (10:40 junior, 10:55 senior lunch)
-  const periods = [
-    { start: "08:00", end: "08:50", break: "NOT_BREAK" },
-    { start: "08:50", end: "09:40", break: "NOT_BREAK" },
-    { start: "09:50", end: "10:40", break: "NOT_BREAK" },
-    { start: "10:40", end: "10:55", break: "BREAK" },
-    { start: "10:55", end: "11:10", break: "BREAK" },
-    { start: "11:10", end: "12:00", break: "NOT_BREAK" },
-    { start: "12:00", end: "12:50", break: "NOT_BREAK" },
-    { start: "12:50", end: "13:40", break: "NOT_BREAK" },
-  ];
 
-  const timeslots: any[] = [];
-  for (const day of days) {
-    for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
-      const period = periods[periodNum - 1];
-      timeslots.push(
-        await withRetry(
-          () =>
-            prisma.timeslot.create({
-              data: {
-                TimeslotID: `${semesterNumber}-${academicYear}-${day}${periodNum}`,
-                AcademicYear: academicYear,
-                Semester: sem,
-                StartTime: new Date(`2024-01-01T${period.start}:00`),
-                EndTime: new Date(`2024-01-01T${period.end}:00`),
-                Breaktime: period.break as breaktime,
-                DayOfWeek: day,
-              },
-            }),
-          `Create timeslot ${day}${periodNum}`,
-        ),
-      );
-    }
+  // One real timeslot per slot (11/day) — breaks are occupying slots.
+  const timeslots = generateTimeslots({
+    AcademicYear: academicYear,
+    Semester: sem,
+    Days: days,
+    StartTime: "08:30",
+    slots: SLOTS_2568,
+  });
+  for (const ts of timeslots) {
+    await withRetry(
+      () =>
+        prisma.timeslot.create({
+          data: {
+            TimeslotID: ts.TimeslotID,
+            AcademicYear: ts.AcademicYear,
+            Semester: ts.Semester,
+            StartTime: ts.StartTime,
+            EndTime: ts.EndTime,
+            Breaktime: ts.Breaktime,
+            DayOfWeek: ts.DayOfWeek,
+          },
+        }),
+      `Create timeslot ${ts.TimeslotID}`,
+    );
   }
 
   console.log(
-    `✅ Created ${timeslots.length} timeslots for Semester 1 (5 days × 8 periods)`,
+    `✅ Created ${timeslots.length} timeslots for Semester 1 (5 days × ${SLOTS_2568.length} slots)`,
   );
 
   // ===== TIMESLOTS (SEMESTER 2) =====
   console.log("⏰ Creating timeslots for Semester 2...");
   const sem2: semester = "SEMESTER_2";
   const semesterNumber2 = 2;
-  const timeslotsSem2: any[] = [];
-  for (const day of days) {
-    for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
-      const period = periods[periodNum - 1];
-      timeslotsSem2.push(
-        await withRetry(
-          () =>
-            prisma.timeslot.create({
-              data: {
-                TimeslotID: `${semesterNumber2}-${academicYear}-${day}${periodNum}`,
-                AcademicYear: academicYear,
-                Semester: sem2,
-                StartTime: new Date(`2024-01-01T${period.start}:00`),
-                EndTime: new Date(`2024-01-01T${period.end}:00`),
-                Breaktime: period.break as breaktime,
-                DayOfWeek: day,
-              },
-            }),
-          `Create timeslot S2 ${day}${periodNum}`,
-        ),
-      );
-    }
+  const timeslotsSem2 = generateTimeslots({
+    AcademicYear: academicYear,
+    Semester: sem2,
+    Days: days,
+    StartTime: "08:30",
+    slots: SLOTS_2568,
+  });
+  for (const ts of timeslotsSem2) {
+    await withRetry(
+      () =>
+        prisma.timeslot.create({
+          data: {
+            TimeslotID: ts.TimeslotID,
+            AcademicYear: ts.AcademicYear,
+            Semester: ts.Semester,
+            StartTime: ts.StartTime,
+            EndTime: ts.EndTime,
+            Breaktime: ts.Breaktime,
+            DayOfWeek: ts.DayOfWeek,
+          },
+        }),
+      `Create timeslot S2 ${ts.TimeslotID}`,
+    );
   }
   console.log(
-    `✅ Created ${timeslotsSem2.length} timeslots for Semester 2 (5 days × 8 periods)`,
+    `✅ Created ${timeslotsSem2.length} timeslots for Semester 2 (5 days × ${SLOTS_2568.length} slots)`,
   );
 
   // ===== TABLE CONFIG =====
@@ -2845,36 +2895,9 @@ async function main() {
           AcademicYear: academicYear,
           Semester: sem,
           Config: {
-            TimeslotPerDay: 8,
             StartTime: "08:30",
-            Duration: 50,
             Days: ["MON", "TUE", "WED", "THU", "FRI"],
-            breakDefinitions: [
-              {
-                id: "mini_break",
-                label: "พักสาย",
-                slotNumber: 2,
-                duration: 10,
-                color: "#d1d5db",
-                groups: ["*"],
-              },
-              {
-                id: "junior_break",
-                label: "พักกลางวัน (ม.ต้น)",
-                slotNumber: 4,
-                duration: 50,
-                color: "#fca5a5",
-                groups: ["junior"],
-              },
-              {
-                id: "senior_break",
-                label: "พักกลางวัน (ม.ปลาย)",
-                slotNumber: 5,
-                duration: 50,
-                color: "#fcd34d",
-                groups: ["senior"],
-              },
-            ],
+            slots: SLOTS_2568,
           },
         },
       }),
@@ -2892,36 +2915,9 @@ async function main() {
           AcademicYear: academicYear,
           Semester: "SEMESTER_2",
           Config: {
-            TimeslotPerDay: 8,
             StartTime: "08:30",
-            Duration: 50,
             Days: ["MON", "TUE", "WED", "THU", "FRI"],
-            breakDefinitions: [
-              {
-                id: "mini_break",
-                label: "พักสาย",
-                slotNumber: 2,
-                duration: 10,
-                color: "#d1d5db",
-                groups: ["*"],
-              },
-              {
-                id: "junior_break",
-                label: "พักกลางวัน (ม.ต้น)",
-                slotNumber: 4,
-                duration: 50,
-                color: "#fca5a5",
-                groups: ["junior"],
-              },
-              {
-                id: "senior_break",
-                label: "พักกลางวัน (ม.ปลาย)",
-                slotNumber: 5,
-                duration: 50,
-                color: "#fcd34d",
-                groups: ["senior"],
-              },
-            ],
+            slots: SLOTS_2568,
           },
           status: "DRAFT",
         },
@@ -3005,8 +3001,23 @@ async function main() {
       { sem: "SEMESTER_1", num: 1 },
       { sem: "SEMESTER_2", num: 2 },
     ];
-    const periodsPerDay = 8;
     const scheduleDays: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
+    // Per-grade teaching slots: a grade teaches in other groups' lunch slots
+    // (staggered breaks free real teaching time — the Phase 2A win). Break
+    // slots for the grade (universal recess + its own lunch) are excluded.
+    const breakIndex = buildGradeGroupIndex([
+      { name: "junior", label: "", color: "", gradeIds: juniorGradeIds },
+      { name: "senior", label: "", color: "", gradeIds: seniorGradeIds },
+    ]);
+    const teachingSlotsForGrade = (gradeId: string): number[] => {
+      const out: number[] = [];
+      for (let i = 0; i < SLOTS_2568.length; i++) {
+        if (!isBreakForGrade(i + 1, gradeId, SLOTS_2568, breakIndex)) {
+          out.push(i + 1);
+        }
+      }
+      return out;
+    };
 
     const corePrefixByArea: Record<LearningArea, string> = {
       THAI: "ท",
@@ -3297,15 +3308,16 @@ async function main() {
       const usedTeacherSlot = new Set<string>();
       const usedGradeSlot = new Set<string>();
 
-      // Keep M1-1's first non-break slots (MON1-3) OPEN so the E2E teacher's
-      // unplaced ค21201/M1-1 responsibility is reliably placeable in arrange
-      // e2e. The arrange grid is teacher-scoped (E2E teacher has no classes →
-      // every cell looks empty); the drag-target finder picks the first empty
-      // non-break cell (MON1), which must also be grade-free for M1-1. Marking
-      // them used here makes the scheduler skip them. See ttv.
-      for (const reservedPeriod of [1, 2, 3]) {
+      // Keep M1-1's first 3 teaching slots (MON1/MON3/MON4 — slot 2 is the
+      // universal recess) OPEN so the E2E teacher's unplaced ค21201/M1-1
+      // responsibility is reliably placeable in arrange e2e. The arrange grid
+      // is teacher-scoped (E2E teacher has no classes → every cell looks
+      // empty); the drag-target finder picks the first empty non-break cell
+      // (MON1), which must also be grade-free for M1-1. Marking them used here
+      // makes the scheduler skip them. See ttv.
+      for (const reservedSlot of teachingSlotsForGrade("M1-1").slice(0, 3)) {
         usedGradeSlot.add(
-          `M1-1|${generateTimeslotId(targetSemesterNumber, targetAcademicYear, "MON", reservedPeriod)}`,
+          `M1-1|${generateTimeslotId(targetSemesterNumber, targetAcademicYear, "MON", reservedSlot)}`,
         );
       }
 
@@ -3369,7 +3381,11 @@ async function main() {
         if (!plan) continue;
 
         const slots = buildWeeklySlots(plan);
-        if (slots.length > scheduleDays.length * periodsPerDay) {
+        // Teaching slots are grade-specific: juniors teach in the senior lunch
+        // slot and vice-versa, so capacity differs per grade.
+        const teaching = teachingSlotsForGrade(gradeLevel.GradeID);
+        const perDay = teaching.length;
+        if (slots.length > scheduleDays.length * perDay) {
           throw new Error(
             `Weekly lessons exceed available slots for ${gradeLevel.GradeID}`,
           );
@@ -3377,7 +3393,7 @@ async function main() {
 
         const room = rooms[gradeIndex] ?? rooms[gradeIndex % rooms.length];
 
-        const totalCapacity = scheduleDays.length * periodsPerDay;
+        const totalCapacity = scheduleDays.length * perDay;
         for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
           const subjectCode = slots[slotIndex];
           const resp = responsibilityByGradeSubject.get(
@@ -3398,9 +3414,9 @@ async function main() {
           let period = 0;
           let attempts = 0;
           while (attempts < totalCapacity) {
-            day = scheduleDays[Math.floor(position / periodsPerDay) % scheduleDays.length];
+            day = scheduleDays[Math.floor(position / perDay) % scheduleDays.length];
             if (!day) break;
-            period = (position % periodsPerDay) + 1;
+            period = teaching[position % perDay];
             timeslotId = generateTimeslotId(
               targetSemesterNumber,
               targetAcademicYear,
@@ -3712,7 +3728,7 @@ async function main() {
       const timeslot = timeslots.find(
         (t) =>
           t.TimeslotID ===
-          `${semesterNumber}-${academicYear}-${schedule.day}${schedule.period}`,
+          `${semesterNumber}-${academicYear}-${schedule.day}${oldPeriodToSlot(schedule.period)}`,
       );
 
       if (timeslot) {
@@ -3759,7 +3775,9 @@ async function main() {
     for (let i = 0; i < 3; i++) {
       const gradeLevel = gradeLevels[i];
       const timeslot = timeslots.find(
-        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-MON8`,
+        (t) =>
+          t.TimeslotID ===
+          `${semesterNumber}-${academicYear}-MON${oldPeriodToSlot(8)}`,
       );
 
       if (timeslot) {
