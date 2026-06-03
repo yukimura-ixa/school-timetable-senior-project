@@ -15,6 +15,7 @@ import { useTeachers } from "@/hooks";
 
 import type { ModalCloseHandler, InputChangeHandler } from "@/types/events";
 import type { SubjectWithResponsibilities } from "@/types/lock-schedule";
+import { isValidLockTimeslotSelection } from "@/features/lock/domain/lock-timeslot-rules";
 
 type Props = {
   closeModal: ModalCloseHandler;
@@ -196,14 +197,18 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   const validateData = useCallback(() => {
+    // A lock is 1 period, or exactly 2 consecutive (adjacent, same-day)
+    // periods. Empty, >2, or a non-adjacent/cross-day pair are invalid. See jfs.
+    const timeslotsInvalid = !isValidLockTimeslotSelection(
+      lockScheduleData.timeslots,
+    );
+
     dispatch({
       type: "SET_IS_EMPTY_DATA",
       payload: {
         Subject: lockScheduleData.SubjectCode.length === 0,
         DayOfWeek: lockScheduleData.DayOfWeek.length === 0,
-        timeslots:
-          lockScheduleData.timeslots.length === 0 ||
-          lockScheduleData.timeslots.length > 2,
+        timeslots: timeslotsInvalid,
         teachers: lockScheduleData.teachers.length === 0,
         // room: lockScheduleData.room.RoomID === -1,
         GradeIDs: lockScheduleData.GradeIDs.length === 0,
