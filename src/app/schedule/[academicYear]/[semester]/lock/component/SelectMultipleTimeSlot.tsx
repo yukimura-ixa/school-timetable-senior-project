@@ -1,5 +1,4 @@
 import { useTimeslots } from "@/hooks";
-import { subjectCreditValues } from "@/models/credit-value";
 import { useParams } from "next/navigation";
 import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
@@ -35,19 +34,21 @@ function SelectMultipleTimeSlot(props: Props) {
       .map((item) => item.TimeslotID);
   })();
 
+  // A lock spans 1 period, or exactly 2 consecutive (adjacent) periods on the
+  // same day — never more, never a scatter. Credit-independent: activities
+  // (no Credit) must still be lockable. See jfs.
+  const MAX_LOCK_PERIODS = 2;
   const checkTimeslotCond = (index: number) => {
-    if (!props.subject?.Credit) return false;
-    const creditValue = subjectCreditValues[props.subject.Credit];
-    if (!creditValue) return false;
-    const timeslotCredit = creditValue * 2;
+    if (!props.subject) return false;
     const checkedIndex = props.checkedCondition.map((item) =>
       timeSlot.indexOf(item),
     );
 
-    // ถ้าไม่มีการเลือก
+    // Nothing selected yet, or this is an already-checked slot → allow toggle.
     if (checkedIndex.length === 0 || checkedIndex.includes(index)) return true;
-    // ถ้าเลือกมากกว่า 1 ตัว
-    if (checkedIndex.length >= timeslotCredit) return false;
+    // Cap at 2 periods total.
+    if (checkedIndex.length >= MAX_LOCK_PERIODS) return false;
+    // The 2nd period must be adjacent to the 1st (consecutive block).
     const min = Math.min(...checkedIndex);
     const max = Math.max(...checkedIndex);
     return index === min - 1 || index === max + 1;

@@ -22,7 +22,6 @@ import {
   ViewList as ViewListIcon,
   CalendarMonth as CalendarIcon,
   ContentPaste as TemplateIcon,
-  ContentCopy as BulkIcon,
 } from "@mui/icons-material";
 import {
   CardSkeleton,
@@ -30,7 +29,6 @@ import {
   NetworkErrorEmptyState,
 } from "@/components/feedback";
 import LockCalendarView from "./LockCalendarView";
-import BulkLockModal from "./BulkLockModal";
 import LockTemplatesModal from "./LockTemplatesModal";
 
 type ViewMode = "list" | "calendar";
@@ -44,7 +42,6 @@ type LockScheduleProps = {
 function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps) {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
     useState<boolean>(false);
-  const [bulkLockModalOpen, setBulkLockModalOpen] = useState<boolean>(false);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 
@@ -171,11 +168,11 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
           <Button
             variant="contained"
             color="primary"
-            startIcon={<BulkIcon />}
-            onClick={() => setBulkLockModalOpen(true)}
-            data-testid="bulk-lock-btn"
+            startIcon={<MdAddCircle />}
+            onClick={handleClickAddLockSchedule}
+            data-testid="add-lock-btn"
           >
-            ล็อกหลายคาบ
+            เพิ่มคาบล็อก
           </Button>
           <Button
             variant="outlined"
@@ -406,17 +403,6 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
           </div>
         </div>
       )}
-
-      {/* Bulk Lock Modal */}
-      <BulkLockModal
-        open={bulkLockModalOpen}
-        onClose={() => setBulkLockModalOpen(false)}
-        _configId={configId}
-        onSuccess={() => {
-          void lockData.mutate();
-          setBulkLockModalOpen(false);
-        }}
-      />
 
       {/* Lock Templates Modal */}
       <LockTemplatesModal
