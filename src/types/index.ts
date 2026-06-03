@@ -39,12 +39,8 @@ export {
 
 // Lock Schedule Types
 export type {
-  LockScheduleFormData,
   LockSchedule,
   LockScheduleListItem,
-  AddLockScheduleModalProps,
-  EditLockScheduleModalProps,
-  DeleteLockScheduleModalProps,
   LockScheduleFormState,
   LockScheduleFormAction,
   LockScheduleCreateResponse,

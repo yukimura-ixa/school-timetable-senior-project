@@ -61,9 +61,9 @@ Entry: `/schedule/[academicYear]/[semester]/lock`
 | Server page      | `src/app/schedule/[academicYear]/[semester]/lock/page.tsx` (≈45 lines)                                                     | Auth gate (segment layout), loads timeslot config              |
 | Client root      | `src/app/schedule/[academicYear]/[semester]/lock/component/LockSchedule.tsx`                                               | Calendar grid + modal                                         |
 | Calendar         | `src/app/schedule/[academicYear]/[semester]/lock/component/LockCalendarView.tsx`                                           | Renders the weekly grid                                       |
-| Modal            | `src/app/schedule/[academicYear]/[semester]/lock/component/AddLockScheduleModal.tsx`, `BulkLockModal.tsx`                  | Add single / bulk locks                                       |
+| Modal            | `src/app/schedule/[academicYear]/[semester]/lock/component/LockTemplatesModal.tsx`                                         | Apply lock template                                          |
 | Form             | `src/app/schedule/[academicYear]/[semester]/lock/component/LockScheduleForm.tsx`                                           | Validates inputs                                              |
-| Types            | `src/types/lock-schedule.ts`                                                                                               | `LockScheduleFormData`, `GroupedLockedSchedule`               |
+| Types            | `src/types/lock-schedule.ts`                                                                                               | `LockSchedule`, `GroupedLockedSchedule`                       |
 | Server actions   | `src/features/lock/application/actions/lock.actions.ts:145-188` (`createBulkLocksAction`, 376 lines total)                 | Mutates `class_schedule.IsLocked`                             |
 | Domain service   | `src/features/lock/domain/services/lock-validation.service.ts` (covered by 701-line test)                                  | Conflict detection rules                                      |
 | Repository       | `src/features/lock/infrastructure/repositories/lock.repository.ts`                                                         | Prisma reads/writes                                           |

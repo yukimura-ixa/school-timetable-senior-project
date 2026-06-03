@@ -17,7 +17,6 @@ import type {
   teachers_responsibility,
   teacher,
   day_of_week,
-  semester,
 } from "@/prisma/generated/client";
 
 // ============================================================================
@@ -30,31 +29,6 @@ import type {
 export type SubjectWithResponsibilities = subject & {
   teachers_responsibility: teachers_responsibility[];
 };
-
-// ============================================================================
-// Lock Schedule Form Data (User Input)
-// ============================================================================
-
-/**
- * Data structure for creating/editing a lock schedule
- * Used in LockScheduleForm, AddLockScheduleModal, EditLockScheduleModal
- *
- * Note: Uses PascalCase field names to match database schema and component usage
- */
-export interface LockScheduleFormData {
-  /** Selected subject (for lock schedules like assembly) */
-  Subject: subject;
-  /** Day of week for the lock */
-  DayOfWeek: string;
-  /** Selected timeslot IDs (array of strings like "1-2567-MON1") */
-  timeSlotID: string[];
-  /** Selected teacher list */
-  Teachers: teacher[];
-  /** Selected grade IDs */
-  Grade: string[];
-  /** Selected room name (null if no room required) */
-  RoomName: string | null;
-}
 
 // ============================================================================
 // Lock Schedule with Relations (Database Result)
@@ -113,32 +87,6 @@ export interface LockScheduleListItem {
     TeacherID: number;
     Name: string;
   }[];
-}
-
-// ============================================================================
-// Lock Schedule Modal Props
-// ============================================================================
-
-export interface AddLockScheduleModalProps {
-  isOpen: boolean;
-  closeModal: () => void;
-  confirmChange: (data: LockScheduleFormData) => Promise<void>;
-  academicYear: number;
-  semester: semester;
-}
-
-export interface EditLockScheduleModalProps {
-  isOpen: boolean;
-  lockSchedule: LockSchedule;
-  closeModal: () => void;
-  confirmChange: (data: Partial<LockScheduleFormData>) => Promise<void>;
-}
-
-export interface DeleteLockScheduleModalProps {
-  isOpen: boolean;
-  closeModal: () => void;
-  deleteData: LockSchedule;
-  onConfirm: () => Promise<void>;
 }
 
 // ============================================================================

@@ -95,9 +95,7 @@ These use `<div className="fixed left-0 top-0">` with rgba backdrop. **Missing**
 
 | File                                                                                                                                                        | Purpose             | Fields | Complexity | Issues |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------ | ---------- | ------ |
-| [AddLockScheduleModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/AddLockScheduleModal.tsx)       | Add locked slot     | 4+     | Medium     | ❌     |
-| [BulkLockModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/BulkLockModal.tsx)                     | Bulk lock slots     | 3+     | Medium     | ❌     |
-| [DeleteLockScheduleModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/DeleteLockScheduleModal.tsx) | Delete lock         | 0      | Simple     | ❌     |
+| [LockScheduleForm.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/LockScheduleForm.tsx)               | Add locked slot     | 6      | Medium     | ✅     |
 | [LockTemplatesModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/LockTemplatesModal.tsx)           | Apply lock template | 2      | Medium     | ❌     |
 
 #### Dashboard
@@ -138,7 +136,7 @@ These use `<div className="fixed left-0 top-0">` with rgba backdrop. **Missing**
 ### Priority 2: Scheduling Dialogs
 
 5. `schedule/assign/AddSubjectModal.tsx`
-6. `schedule/lock/AddLockScheduleModal.tsx`
+6. `schedule/lock/LockScheduleForm.tsx`
 7. `schedule/config/CloneTimetableDataModal.tsx`
 
 ### Priority 3: Delete Confirmations
