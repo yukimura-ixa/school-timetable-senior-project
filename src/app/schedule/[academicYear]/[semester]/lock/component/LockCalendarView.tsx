@@ -28,6 +28,7 @@ import {
 import { useTimeslots } from "@/hooks";
 import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock-validation.service";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import { formatGradeIdDisplay } from "@/utils/grade-display";
 import type { timeslot } from "@/prisma/generated/client";
 
 interface LockCalendarViewProps {
@@ -442,7 +443,7 @@ function LockCalendarView({
                       <Chip
                         key={index}
                         size="small"
-                        label={`ม.${grade.toString()[0]}/${grade.toString()[2]}`}
+                        label={formatGradeIdDisplay(grade)}
                       />
                     ))}
                   </Box>
