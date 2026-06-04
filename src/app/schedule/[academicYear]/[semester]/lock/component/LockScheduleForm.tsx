@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import { AiOutlineClose, AiOutlineLock, AiOutlineCheck } from "react-icons/ai";
 import SelectDayOfWeek from "./SelectDayOfWeek";
 import SelectSubject from "./SelectSubject";
@@ -42,6 +42,18 @@ type IsEmptyData = {
   GradeIDs: boolean;
   // room: boolean;
 };
+
+// A lock is 1 period, or exactly 2 consecutive (adjacent, same-day) periods.
+// Empty, >2, or a non-adjacent/cross-day pair are invalid. See jfs.
+function computeEmptyData(data: LockScheduleData): IsEmptyData {
+  return {
+    Subject: data.SubjectCode.length === 0,
+    DayOfWeek: data.DayOfWeek.length === 0,
+    timeslots: !isValidLockTimeslotSelection(data.timeslots),
+    teachers: data.teachers.length === 0,
+    GradeIDs: data.GradeIDs.length === 0,
+  };
+}
 
 type Action =
   | { type: "SET_SUBJECT"; payload: SubjectWithResponsibilities }
@@ -196,29 +208,12 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     dispatch({ type: "SET_GRADE", payload: grade });
   };
 
-  const validateData = useCallback(() => {
-    // A lock is 1 period, or exactly 2 consecutive (adjacent, same-day)
-    // periods. Empty, >2, or a non-adjacent/cross-day pair are invalid. See jfs.
-    const timeslotsInvalid = !isValidLockTimeslotSelection(
-      lockScheduleData.timeslots,
-    );
-
+  useEffect(() => {
     dispatch({
       type: "SET_IS_EMPTY_DATA",
-      payload: {
-        Subject: lockScheduleData.SubjectCode.length === 0,
-        DayOfWeek: lockScheduleData.DayOfWeek.length === 0,
-        timeslots: timeslotsInvalid,
-        teachers: lockScheduleData.teachers.length === 0,
-        // room: lockScheduleData.room.RoomID === -1,
-        GradeIDs: lockScheduleData.GradeIDs.length === 0,
-      },
+      payload: computeEmptyData(lockScheduleData),
     });
   }, [lockScheduleData]);
-
-  useEffect(() => {
-    validateData();
-  }, [validateData]);
 
   useEffect(() => {
     dispatch({
@@ -243,7 +238,10 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
       isEmptyData.GradeIDs;
     // isEmptyData.room;
     if (cond) {
-      validateData();
+      dispatch({
+        type: "SET_IS_EMPTY_DATA",
+        payload: computeEmptyData(lockScheduleData),
+      });
       enqueueSnackbar("กรุณากรอกข้อมูลให้ครบถ้วน", { variant: "warning" });
       return;
     }
