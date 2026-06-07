@@ -45,7 +45,13 @@ export function ReviewStep({
         {timeslotConfig && !copyFrom && (
           <Typography variant="body2" sx={{ mt: 1 }}>
             <strong>ตารางเรียน:</strong> {timeslotConfig.Days.length} วัน,{" "}
-            {timeslotConfig.slots?.length ?? 0} คาบต่อวัน
+            {/* Count teaching periods only — break slots carry a non-empty
+                breakGroups; counting all slots overstated periods (e.g. 8
+                periods + 2 lunch breaks wrongly shown as "10 คาบต่อวัน"). */}
+            {timeslotConfig.slots?.filter(
+              (s) => !s.breakGroups || s.breakGroups.length === 0,
+            ).length ?? 0}{" "}
+            คาบต่อวัน
           </Typography>
         )}
       </Box>

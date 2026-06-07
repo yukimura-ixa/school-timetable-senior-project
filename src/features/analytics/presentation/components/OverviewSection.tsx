@@ -20,7 +20,7 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
   const statCards = [
     {
       title: "ชั่วโมงทั้งหมด",
-      value: stats.totalScheduledHours.toLocaleString(),
+      value: stats.totalScheduledHours.toLocaleString("en-US"),
       icon: <ScheduleIcon sx={{ fontSize: 40 }} />,
       color: "#2196f3", // Blue
       bgColor: "#e3f2fd",
@@ -34,14 +34,14 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
     },
     {
       title: "ครูที่ใช้งาน",
-      value: stats.activeTeachers.toLocaleString(),
+      value: stats.activeTeachers.toLocaleString("en-US"),
       icon: <PersonIcon sx={{ fontSize: 40 }} />,
       color: "#9c27b0", // Purple
       bgColor: "#f3e5f5",
     },
     {
       title: "ความขัดแย้ง",
-      value: stats.scheduleConflicts.toLocaleString(),
+      value: stats.scheduleConflicts.toLocaleString("en-US"),
       icon: <WarningIcon sx={{ fontSize: 40 }} />,
       color: stats.scheduleConflicts > 0 ? "#f44336" : "#4caf50", // Red or Green
       bgColor: stats.scheduleConflicts > 0 ? "#ffebee" : "#e8f5e9",

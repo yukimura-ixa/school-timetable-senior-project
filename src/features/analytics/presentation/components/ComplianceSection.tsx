@@ -19,11 +19,39 @@ import {
 } from "@mui/material";
 import {
   CheckCircle as CheckIcon,
-  Cancel as CancelIcon,
   Assignment as AssignmentIcon,
   School as SchoolIcon,
 } from "@mui/icons-material";
 import type { ProgramCompliance } from "@/features/analytics/domain/types/analytics.types";
+
+/**
+ * Plain inline SVG status glyph (not an @mui/icons-material component).
+ *
+ * MUI icons are emotion-`styled` components. When one is passed to the MUI
+ * <Chip icon={...}> slot, Chip clones it and emotion inserts its style via an
+ * <Insertion> that emits an inline <style> node during SSR but nothing on client
+ * hydration — shifting the icon's children and producing a hydration mismatch on
+ * the analytics dashboard (server label-span vs client icon-svg). A plain <svg>
+ * has no emotion insertion, so SSR and hydration render identical markup. The
+ * Chip still applies its MuiChip-icon class to it; we size/color it directly.
+ */
+function ComplianceStatusGlyph({ compliant }: { compliant: boolean }) {
+  return (
+    <svg
+      width={18}
+      height={18}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      {compliant ? (
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+      ) : (
+        <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+      )}
+    </svg>
+  );
+}
 
 interface ComplianceSectionProps {
   programCompliance: ProgramCompliance[];
@@ -200,11 +228,9 @@ export function ComplianceSection({
                     </Box>
                     <Chip
                       icon={
-                        program.complianceStatus === "compliant" ? (
-                          <CheckIcon />
-                        ) : (
-                          <CancelIcon />
-                        )
+                        <ComplianceStatusGlyph
+                          compliant={program.complianceStatus === "compliant"}
+                        />
                       }
                       label={status.label}
                       size="small"
