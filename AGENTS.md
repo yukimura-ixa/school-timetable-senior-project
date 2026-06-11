@@ -12,6 +12,7 @@ Default instructions for all coding agents in this repository.
 
 ## Quick Commands
 - `pnpm dev`
+- `pnpm dev:e2e` (E2E server, loads .env.test — required for Playwright)
 - `pnpm build`
 - `pnpm lint`
 - `pnpm typecheck`

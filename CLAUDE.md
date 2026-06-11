@@ -15,13 +15,10 @@ See code file's structure               get_symbols_overview
 Read specific symbol's body             find_symbol (include_body=true)
 Find symbol by name across repo         find_symbol
 Find references / callers               find_referencing_symbols
-Find declarations / implementations     find_declaration / _find_implementations
 Edit symbol's body                      replace_symbol_body
 Insert near symbol                      insert_before_symbol / _insert_after_symbol
 Pattern replace inside file             replace_content
-Rename / move / delete symbol           rename / _move / _safe_delete
-Inline symbol                           inline_symbol
-Type hierarchy                          type_hierarchy
+Rename / delete symbol                  rename_symbol / safe_delete_symbol
 
 Built-in Read/Edit/Glob/Grep permitted on code files ONLY when:
 - Serena tried on target and failed, OR
@@ -74,8 +71,7 @@ User approving once ≠ approving forever. Match action scope to what was reques
 - Prefer new commits over --amend. Pre-commit hook fails = commit didn't happen — fix, re-stage, new commit (not --amend; modifies previous commit).
 - Stage files by name, not `git add -A` or `git add .` — sweeps in secrets/large binaries.
 - Don't commit secrets (.env, credentials.json, *.pem). User asks: warn first.
-- Commit messages: use HEREDOC to preserve formatting. End trailer with:
-  Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+- Commit messages: use HEREDOC to preserve formatting. End with harness-provided Co-Authored-By trailer (current model).
 - Don't push unless asked. Never force-push to main/master; warn if asked.
 - PRs: use `gh` via Bash. Full diff against base branch (not just latest commit) before drafting title/body.
 

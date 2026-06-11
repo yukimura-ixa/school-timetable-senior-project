@@ -5,7 +5,7 @@ Phrasongsa Timetable project. It expands the MCP rules defined in
 `AGENTS.md` (Core Agent Contract).
 
 - Target audience: AI agents and developers
-- Scope: Context7, Serena, Thoughtbox, GitHub MCP, dynamic MCPs (Next DevTools, Prisma, Playwright)
+- Scope: Context7, Serena, GitHub MCP, dynamic MCPs (Next DevTools, Playwright)
 
 ---
 
@@ -15,9 +15,8 @@ Global priority order (already defined in `AGENTS.md`):
 
 1. **Context7** – official library/framework docs
 2. **Serena** – codebase navigation and symbol-aware search
-3. **Thoughtbox** – design/reasoning, especially MOE & core flows
-4. **GitHub** – issues, PRs, historical context
-5. **Dynamic tools** – Next DevTools, Prisma, Playwright, etc.
+3. **GitHub** – issues, PRs, historical context
+4. **Dynamic tools** – Next DevTools, Playwright, etc.
 
 When in doubt, assume a higher-priority MCP **must** be used before a lower one.
 
@@ -67,7 +66,7 @@ Use Serena for **any change** that depends on how the repo is actually written:
 - `get_symbols_overview` to see the structure of a feature folder
 - `find_symbol` to open a specific function/component
 - `find_referencing_symbols` to discover who calls it
-- `search_for_pattern` to locate usages, routes, or env vars
+- built-in Grep for regex discovery; follow-up reads via Serena
 - `list_memories` / `read_memory` to load existing design notes
 
 Never propose multi-file refactors or “big rewrites” without first using Serena.
@@ -77,41 +76,9 @@ clearly-bounded changes and document the risk.
 
 ---
 
-## 4. Thoughtbox – Design & MOE Compliance Brain
+## 4. GitHub MCP – Issues, PRs, History
 
-### 4.1 When to use (strict)
-
-Thoughtbox is **mandatory** when:
-
-- You touch **Thai MOE–sensitive logic**:
-  - SubjectCode generation/validation
-  - curriculum structure or credit/hour rules
-  - timetable publishing checks
-- You change **core flows**:
-  - timetable conflict logic
-  - exports used for official documents
-  - role behavior (Admin/Teacher/Student)
-  - auth/permissions
-- You do non-trivial refactors or cross-module changes.
-
-### 4.2 What to record
-
-Each Thoughtbox entry should include:
-
-- Problem statement & constraints (call out MOE rules if applicable).
-- Options (≥ 2) with trade-offs (complexity, risk, performance).
-- Chosen approach and why others were rejected.
-- Implementation steps (files, functions, migrations).
-- Testing plan (unit, integration, E2E) – especially MOE & conflict tests.
-- Known risks and follow-ups.
-
-Use short, structured text so agents can quickly reload the context.
-
----
-
-## 5. GitHub MCP – Issues, PRs, History
-
-### 5.1 When to use
+### 4.1 When to use
 
 Use GitHub MCP when:
 
@@ -123,7 +90,7 @@ Use GitHub MCP when:
   - what went wrong previously
   - what product constraints exist
 
-### 5.2 Typical workflow
+### 4.2 Typical workflow
 
 - Fetch the relevant issue: description, acceptance criteria, comments.
 - Fetch the PR (if any) to see:
@@ -137,9 +104,9 @@ Use GitHub MCP when:
 
 ---
 
-## 6. Dynamic Tools – Next DevTools, Prisma, Playwright, etc.
+## 5. Dynamic Tools – Next DevTools, Playwright, etc.
 
-### 6.1 Next DevTools / nextjs_runtime
+### 5.1 Next DevTools / nextjs_runtime
 
 Use when you:
 
@@ -152,17 +119,17 @@ Example flows:
 - `call_tool('get_routes')` → understand app structure
 - `call_tool('get_errors')` → debug runtime problems
 
-### 6.2 Prisma-related tools
+### 5.2 Prisma CLI
 
 Use for:
 
-- Inspecting schema and relations
+- Inspecting schema and relations (`prisma studio`, `prisma/schema.prisma`)
 - Understanding migrations
 - Debugging query performance issues
 
 Don’t guess table shapes when Prisma can tell you.
 
-### 6.3 Playwright MCP
+### 5.3 Playwright MCP
 
 Use when:
 
@@ -174,11 +141,10 @@ Prefer **narrow** E2E specs (journey-focused) and let unit tests handle detailed
 
 ---
 
-## 7. Degraded MCP Modes (Central Rules)
+## 6. Degraded MCP Modes (Central Rules)
 
 - **Context7 down** → no new library patterns, no upgrades, only small changes.
 - **Serena down** → avoid cross-cutting refactors; stay in one file, minimal changes.
-- **Thoughtbox down** → still write detailed reasoning in the PR/response; assume decisions are **not** persisted.
 - **GitHub down** → assume there may be missing constraints; avoid radical behavior changes.
 - **Dynamic tools down** → do not assert “this passes E2E” or “runtime is clean” without caveats.
 

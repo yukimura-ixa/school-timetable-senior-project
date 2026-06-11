@@ -110,7 +110,6 @@ If the project enables Cache Components or other caching strategies:
   - which routes are static vs dynamic,
   - which ones use `cacheLife`, `cacheTag`, or similar patterns.
 - Before changing cache behavior for a route:
-  - confirm intent via Thoughtbox (design and risk).
   - ensure tests cover both cached and invalidation flows.
 
 Agents must not randomly “optimize” by forcing caching or switching runtimes

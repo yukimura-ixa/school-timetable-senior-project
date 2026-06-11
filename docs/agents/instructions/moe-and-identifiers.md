@@ -30,6 +30,7 @@ Always use utilities from `src/utils/timeslot-id.ts`:
 - `extractDayFromTimeslotId`
 - `extractYearFromTimeslotId`
 - `extractSemesterFromTimeslotId`
+- `extractConfigIdFromTimeslotId`
 
 Do not parse IDs manually with `substring` or ad hoc splitting.
 
