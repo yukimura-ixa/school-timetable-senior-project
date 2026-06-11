@@ -1,20 +1,20 @@
 # Coding Standards
 
 ## Type Safety
-- Avoid `any`, unsafe casts, and hidden side effects.
-- Prefer explicit domain types from Prisma schema and Valibot validation.
-- Choose small pure functions over clever abstractions.
+- No `any`, no unsafe casts, no hidden side effects.
+- Explicit domain types from Prisma schema + Valibot validation.
+- Small pure functions beat clever abstractions.
 
 ## Validation And Return Shapes
-- Use Valibot for input validation.
-- Prefer explicit result forms:
+- Valibot for input validation.
+- Explicit result forms:
   - `{ success: true, data }`
   - `{ success: false, error }`
 
 ## State And Data
-- Use Zustand for complex client UI state.
-- Use SWR or equivalent for remote data caching patterns.
+- Zustand for complex client UI state.
+- SWR or equivalent for remote data caching.
 
 ## Refactor Discipline
-- Keep changes minimal and behavior-preserving unless the task explicitly requires behavior change.
-- Update references when renaming or restructuring symbols.
+- Changes minimal + behavior-preserving unless task require behavior change.
+- Rename/restructure symbol → update refs.

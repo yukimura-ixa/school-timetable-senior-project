@@ -1,19 +1,19 @@
 # Testing Strategy – Phrasongsa Timetable
 
-This document defines the testing strategy for the timetable project:
+Doc defines testing strategy for timetable project:
 
 - Unit tests (Jest)
 - Integration tests (where applicable)
 - E2E tests (Playwright)
 - CI-first execution model
 
-It expands the brief testing rules from `AGENTS.md`.
+Expands brief testing rules from `AGENTS.md`.
 
 ---
 
 ## 1. Testing Philosophy
 
-We follow a **test pyramid**:
+Follow **test pyramid**:
 
 1. **Unit tests** – business logic, validation, store reducers, pure functions.
 2. **Integration tests** – repository + Prisma, selected server actions, critical APIs.
@@ -21,9 +21,9 @@ We follow a **test pyramid**:
 
 Key principles:
 
-- Use the **lowest level** that proves the behavior.
-- Keep tests **fast, deterministic, and meaningful**.
-- Avoid fragile E2E tests for behavior that can be unit-tested.
+- Use **lowest level** that proves behavior.
+- Tests **fast, deterministic, meaningful**.
+- No fragile E2E for behavior unit-testable.
 
 ---
 
@@ -35,16 +35,16 @@ Key principles:
   - unit tests
   - E2E tests
   - build
-- Local full test runs are **optional**, not mandatory.
+- Local full test runs **optional**, not mandatory.
 
 Preferred workflow:
 
-1. Implement using MCP tools (Context7 + Serena) for facts and repo context.
+1. Implement with MCP tools (Context7 + Serena) for facts + repo context.
 2. Add/update relevant tests.
-3. Commit and push.
-4. Use CI logs to debug and only run narrow local tests when needed.
+3. Commit, push.
+4. Debug via CI logs; narrow local tests only when needed.
 
-Agents should **not** suggest pre-commit / pre-push hooks or “always run all tests locally” as the default.
+Agents must **not** suggest pre-commit / pre-push hooks or "always run all tests locally" as default.
 
 ---
 
@@ -52,52 +52,52 @@ Agents should **not** suggest pre-commit / pre-push hooks or “always run all t
 
 ### 3.1 Scope
 
-Use unit tests for:
+Unit tests for:
 
 - SubjectCode validation (Thai MOE rules)
 - Curriculum credit/hour rules
 - Timetable conflict detection
-- Domain entities and mappers
+- Domain entities, mappers
 - Validation schemas (Valibot)
 - Pure utility functions
 
 ### 3.2 Patterns
 
-Use AAA (Arrange–Act–Assert) and table-driven tests.
+AAA (Arrange–Act–Assert) + table-driven tests.
 
 Example structure (pseudo-code):
 
-- Describe the function name.
-- Arrange inputs clearly.
-- Act by calling the function.
-- Assert on return values and side effects.
+- Describe function name.
+- Arrange inputs clear.
+- Act: call function.
+- Assert return values + side effects.
 
-For SubjectCode, for example:
+SubjectCode example:
 
-- Valid code for each learning area and level.
+- Valid code per learning area + level.
 - Invalid formats (wrong letters, wrong digits, wrong length).
-- Edge cases around boundaries (minimum/maximum credits, etc.).
+- Edge cases at boundaries (min/max credits, etc.).
 
-Mocking guidelines:
+Mocking:
 
-- Mock Prisma and external APIs at **module boundaries** only.
+- Mock Prisma + external APIs at **module boundaries** only.
 - Reset mocks between tests (`beforeEach`).
 
 ---
 
 ## 4. Integration Tests
 
-Use integration tests for cases where behavior depends on:
+Integration tests when behavior depends on:
 
 - Real database semantics (constraints, relations)
-- Server actions that combine validation + DB operations
+- Server actions combining validation + DB operations
 - Important API endpoints
 
 Guidelines:
 
-- Prefer Testcontainers or an equivalent approach to run Postgres in tests.
-- Use realistic seed data mirroring MOE-style subject codes and credits.
-- Keep integration test suites focused and not too broad.
+- Prefer Testcontainers or equivalent for Postgres in tests.
+- Realistic seed data mirroring MOE-style subject codes + credits.
+- Keep suites focused, not too broad.
 
 ---
 
@@ -105,7 +105,7 @@ Guidelines:
 
 ### 5.1 What E2E should cover
 
-Reserve E2E tests for **critical journeys**:
+Reserve E2E for **critical journeys**:
 
 - Login / logout / session handling
 - Admin:
@@ -121,15 +121,15 @@ Reserve E2E tests for **critical journeys**:
   - view timetable (read-only)
 - Export flows (PDF/Excel) for timetables
 - Key MOE compliance behavior:
-  - non-compliant timetable is blocked from publishing
-  - clear Thai-language error messages for the user
+  - non-compliant timetable blocked from publishing
+  - clear Thai-language error messages for user
 
 ### 5.2 Reliability rules
 
-- Avoid `waitForTimeout()` except in explicitly-marked visual/manual specs.
-- Always assert visibility/enabled before clicking.
-- Prefer `data-testid` and semantic roles (e.g. `getByRole`) over brittle CSS selectors.
-- Keep specs short and focused; tag titles with intent:
+- No `waitForTimeout()` except explicitly-marked visual/manual specs.
+- Always assert visibility/enabled before click.
+- Prefer `data-testid` + semantic roles (e.g. `getByRole`) over brittle CSS selectors.
+- Specs short, focused; tag titles with intent:
   - `[journey]`, `[smoke]`, `[a11y]`, `[visual]`, `[flaky]`.
 
 Example intent:
@@ -141,61 +141,61 @@ Example intent:
 
 ## 6. MOE-Specific Testing
 
-Because MOE compliance is critical:
+MOE compliance critical:
 
-- Unit tests must assert:
-  - correct SubjectCode patterns for each learning area and level.
-  - correct credit/hour totals per grade and learning area (min/max thresholds).
-- E2E tests must assert:
-  - non-compliant timetables **cannot** be published.
-  - user-facing reasons are visible and in Thai.
-  - admin cannot bypass these checks through the UI.
+- Unit tests assert:
+  - correct SubjectCode patterns per learning area + level.
+  - correct credit/hour totals per grade + learning area (min/max thresholds).
+- E2E tests assert:
+  - non-compliant timetables **cannot** publish.
+  - user-facing reasons visible, in Thai.
+  - admin cannot bypass checks through UI.
 
-These tests are considered **blocking**; do not disable them just to “get green”.
+Tests **blocking**; never disable just to "get green".
 
 ---
 
 ## 7. Test Data & Seeds
 
-- Keep a consistent schema for seeded data:
+- Consistent schema for seeded data:
   - semesters: e.g. `1-2567`, `2-2567`, etc.
-  - realistic teachers, rooms, subjects using MOE-style SubjectCodes.
-- E2E tests should rely on **stable seed data**, not random data.
-- When seeds change in meaning (not just content), update:
+  - realistic teachers, rooms, subjects with MOE-style SubjectCodes.
+- E2E tests rely on **stable seed data**, not random.
+- Seeds change in meaning (not just content) → update:
   - E2E tests
-  - any references in this doc if assumptions change.
+  - references in this doc if assumptions change.
 
 ---
 
 ## 8. Flakiness Management
 
-When an E2E test flakes:
+E2E test flakes:
 
-1. Re-run it with trace/video enabled.
-2. Fix root causes (locators, incorrect waits, timing) before increasing retries.
-3. If failures show a persistent loading state ("กำลังโหลด…" / "กำลังโหลดข้อมูล..."),
-   verify semester/config data is available and wait for loading indicators to disappear
+1. Re-run with trace/video enabled.
+2. Fix root causes (locators, wrong waits, timing) before increasing retries.
+3. Failures show persistent loading state ("กำลังโหลด…" / "กำลังโหลดข้อมูล...") →
+   verify semester/config data available, wait for loading indicators disappear
    before asserting tables or page structure.
-4. Use retries in CI (e.g. `retries: 1–2`) **only** as a backup, not as a band-aid.
+4. CI retries (e.g. `retries: 1–2`) **only** backup, not band-aid.
 
 Long-term flaky tests:
 
-- Isolate into their own files or tag with `[flaky]`.
-- File a GitHub issue with:
+- Isolate into own files or tag `[flaky]`.
+- File GitHub issue with:
   - stack traces
   - screenshots
   - trace links
-  - hypothesis on root cause.
+  - root-cause hypothesis.
 
 ---
 
 ## 9. Agent Checklist (per change)
 
-Before merging a change that affects logic:
+Before merging change that affects logic:
 
-1. Decide the **lowest** appropriate test level (unit / integration / E2E).
-2. Use Context7 + Serena to locate existing tests and patterns.
-3. Add/update tests to cover the new behavior and edge cases.
-4. Optionally run targeted tests locally for fast feedback.
-5. Push and let CI validate the full pipeline.
-6. If CI fails, use logs and artifacts (HTML report, traces) to debug and fix.
+1. Decide **lowest** test level (unit / integration / E2E).
+2. Context7 + Serena to locate existing tests + patterns.
+3. Add/update tests for new behavior + edge cases.
+4. Optional: run targeted tests locally for fast feedback.
+5. Push; CI validates full pipeline.
+6. CI fails → use logs + artifacts (HTML report, traces) to debug + fix.

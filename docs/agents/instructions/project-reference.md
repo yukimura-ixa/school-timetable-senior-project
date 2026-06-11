@@ -1,7 +1,7 @@
 # Project Reference
 
 ## Overview
-Phrasongsa Timetable is a Next.js 16 timetable management platform for Thai secondary schools with strict TypeScript, Prisma, and Thai MOE curriculum constraints.
+Phrasongsa Timetable = Next.js 16 timetable platform for Thai secondary schools. Strict TypeScript, Prisma, Thai MOE curriculum constraints.
 
 ## Stack
 - Next.js 16 App Router, React 19

@@ -1,7 +1,7 @@
 # Architecture And Next.js Patterns
 
 ## Feature Structure
-Use feature-first organization under `src/features/<domain>/`:
+Feature-first under `src/features/<domain>/`:
 - `application/actions`
 - `application/queries`
 - `domain/services`
@@ -11,12 +11,12 @@ Use feature-first organization under `src/features/<domain>/`:
 
 ## Next.js Defaults
 - Prefer Server Components.
-- Use `"use client"` only when interaction or browser APIs require it.
-- Keep data fetching in Server Actions and route handlers when suitable.
+- `"use client"` only when interaction or browser API need it.
+- Data fetching in Server Actions + route handlers when fit.
 
 ## Role-Critical Flows
-Protect behavior across Admin, Teacher, and Student views when changing:
+Protect Admin, Teacher, Student views when change:
 - schedule arrangement
 - teaching assignment
-- export and reporting behavior
-- permissions and auth gates
+- export + reporting behavior
+- permissions + auth gates

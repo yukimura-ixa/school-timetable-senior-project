@@ -1,17 +1,14 @@
 # Thai MOE Curriculum Rules – SubjectCode, Credits, Validation
 
-This document details how the Phrasongsa Timetable must align with
-**Thailand’s Basic Education Core Curriculum B.E. 2551 (A.D. 2008)
-and its 2560 revision**.
+Doc: how Phrasongsa Timetable align with **Thailand's Basic Education Core Curriculum B.E. 2551 (A.D. 2008) + 2560 revision**.
 
-It expands the short rules in `AGENTS.md` into more precise guidance
-for SubjectCode structure, credits/hours, and validation.
+Expands short rules in `AGENTS.md`: SubjectCode structure, credits/hours, validation.
 
 ---
 
 ## 1. Learning Areas & Subject Codes (รหัสวิชา)
 
-The MOE curriculum defines 8 main learning areas:
+MOE curriculum: 8 learning areas:
 
 1. ภาษาไทย (Thai language)
 2. คณิตศาสตร์ (Mathematics)
@@ -22,7 +19,7 @@ The MOE curriculum defines 8 main learning areas:
 7. การงานอาชีพและเทคโนโลยี (Work & technology)
 8. ภาษาต่างประเทศ (Foreign languages)
 
-Most schools implement subject codes with a pattern such as:
+Common school code pattern:
 
 - `ท21101` ภาษาไทย 1
 - `ค21101` คณิตศาสตร์พื้นฐาน 1
@@ -30,11 +27,11 @@ Most schools implement subject codes with a pattern such as:
 - `ส21101` สังคมศึกษา 1
 - `อ21101` ภาษาอังกฤษพื้นฐาน 1
 
-A common structure table for **พื้นฐาน** (core) subjects:
+Common structure for **พื้นฐาน** (core) subjects:
 
 - ป.1: `ท11101`, `ค11101`, `ว11101`, `ส11101`, `พ11101`, `ศ11101`, `ง11101`, `อ11101`
 - ม.1: `ท21101`, `ค21101`, `ว21101`, `ส21101`, `พ21101`, `ศ21101`, `ง21101`, `อ21101`  
-  (and similar patterns for ม.2–ม.3, ม.4–ม.6, with level/faculty encoded)
+  (similar for ม.2–ม.3, ม.4–ม.6, level/faculty encoded)
 
 ### 1.1 Mapping learning area → leading Thai letter
 
@@ -49,55 +46,53 @@ A common structure table for **พื้นฐาน** (core) subjects:
 
 ### 1.2 Level digit
 
-The second digit typically encodes level:
+Second digit = level:
 
 - `1` = ประถมศึกษา (primary)
 - `2` = มัธยมศึกษาตอนต้น (lower secondary)
 - `3` = มัธยมศึกษาตอนปลาย (upper secondary)
 
-The remaining digits encode year/sequence according to school/OBEC conventions.
+Remaining digits = year/sequence per school/OBEC conventions.
 
 ### 1.3 Agent rules for SubjectCode
 
-- SubjectCode type must at least enforce a **structural pattern**:
+- SubjectCode type must enforce **structural pattern**:
   - Regex example: `^[ก-ฮ][1-3]\d{4}$` (Thai letter + 5 digits for secondary).
-- When adding subjects:
+- Adding subjects:
   - Validate leading letter vs learning area.
   - Validate level digit vs grade.
-- Seed data should mirror **real MOE-style codes**, not dummy `SUB101`.
+- Seed data mirror **real MOE-style codes**, not dummy `SUB101`.
 
-Where precise OBEC rules differ by province/school, use the most common patterns
-above and leave room for local overrides via configuration.
+OBEC rules differ by province/school → use common patterns above, allow local overrides via config.
 
 ---
 
 ## 2. Credits & Hours (หน่วยกิต / ชั่วโมงเรียน)
 
-The Basic Education Core Curriculum defines:
+Core Curriculum defines:
 
-- Total **time allocation per learning area** by grade band.
-- Aggregate **annual hours** over lower and upper secondary.
+- **Time allocation per learning area** by grade band.
+- Aggregate **annual hours** for lower + upper secondary.
 
-Schools implement this as:
+Schools implement:
 
-- Each subject having:
+- Each subject:
   - hours per week (e.g. 60 hours/semester)
   - credits (e.g. 1.0 or 1.5 units)
 
 ### 2.1 System rules
 
-For each semester + grade:
+Per semester + grade:
 
-- Sum hours / credits by:
+- Sum hours/credits by:
   - learning area
   - total curriculum
-- Compare to MOE-required **ranges/minimums** for that level.
+- Compare to MOE **ranges/minimums** for level.
 - Block timetable publishing if:
-  - any learning area is under-provisioned
-  - total hours are outside MOE bounds.
+  - any learning area under-provisioned
+  - total hours outside MOE bounds.
 
-These ranges should be encoded in configuration or seed data so they
-can be updated if MOE issues revisions.
+Encode ranges in config or seed data — updatable when MOE revises.
 
 ---
 
@@ -105,10 +100,10 @@ can be updated if MOE issues revisions.
 
 ### 3.1 SubjectCode validation
 
-Recommended approach:
+Approach:
 
 - Pure function: `validateSubjectCode(code: string, learningArea: LearningArea, level: Level)`.
-- Returns rich result:
+- Rich result:
   - `{ valid: true, normalizedCode }`
   - `{ valid: false, reason, hints }`
 - Use in:
@@ -150,35 +145,35 @@ Check SubjectCode structure per subject.
 
 Aggregate credits/hours per learning area.
 
-Compare against MOE thresholds for this grade.
+Compare against MOE thresholds for grade.
 
-Return a deterministic set of errors (no randomness, no hidden assumptions).
+Return deterministic errors (no randomness, no hidden assumptions).
 
 3.3 Testing expectations
 
-Unit tests for:
+Unit tests:
 
-SubjectCode patterns for each learning area & level.
+SubjectCode patterns per learning area & level.
 
-Credit/hour aggregation and thresholds.
+Credit/hour aggregation + thresholds.
 
-E2E tests for:
+E2E tests:
 
-Attempting to publish a non-compliant timetable:
+Publish attempt with non-compliant timetable:
 
 expect blocking message in Thai
 
-expect no persisted “published” state.
+expect no persisted "published" state.
 
 4. Implementation Notes & TODOs
 
-Link this doc to actual config files where MOE thresholds are stored.
+Link doc to config files storing MOE thresholds.
 
-Add example subject seed data per grade matching real-world codes.
+Add example subject seed data per grade with real-world codes.
 
-Add a “compliance report” UI summarizing per-grade status before publish.
+Add "compliance report" UI: per-grade status before publish.
 
-Keep this doc in sync when MOE issues official updates.
+Sync doc when MOE issues updates.
 
 ---
 
@@ -186,9 +181,9 @@ Keep this doc in sync when MOE issues official updates.
 
 **Canonical entrypoint**: `prisma/seed.ts`
 
-- Use `SEED_MOE_FULL_SEMESTER=true` to seed a full MOE-compliant semester (M.1–M.6).
-- Program tracks in seed data: `SCIENCE_MATH`, `LANGUAGE_MATH`, `LANGUAGE_ARTS`, `GENERAL`.
+- `SEED_MOE_FULL_SEMESTER=true` seeds full MOE-compliant semester (M.1–M.6).
+- Program tracks: `SCIENCE_MATH`, `LANGUAGE_MATH`, `LANGUAGE_ARTS`, `GENERAL`.
 - Seed data must use **Thai MOE subject codes** (e.g., `ท21101`, `ค21101`, `ว21101`).
-- Additional foreign languages should map to `FOREIGN_LANGUAGE` and may use `จ`/`ญ` prefixes.
-- Computing in MOE seed data is modeled under **Science & Technology** (e.g., `ว30204`) and should not be placed under Career.
-- For timetable IDs, always use `generateTimeslotId()` from `src/utils/timeslot-id.ts` and the canonical `{SEM}-{YEAR}-{DAY}{PERIOD}` format.
+- Extra foreign languages map to `FOREIGN_LANGUAGE`, may use `จ`/`ญ` prefixes.
+- Computing modeled under **Science & Technology** (e.g., `ว30204`), never under Career.
+- Timetable IDs: always `generateTimeslotId()` from `src/utils/timeslot-id.ts`, canonical `{SEM}-{YEAR}-{DAY}{PERIOD}` format.
