@@ -1505,11 +1505,19 @@ async function main() {
   const teacherPassword = process.env.TEACHER_PASSWORD ?? "teacher123";
   const teacherEmail = "e2e.teacher@school.ac.th";
 
+  if (isProduction && !process.env.TEACHER_PASSWORD) {
+    throw new Error(
+      "🔒 SECURITY: TEACHER_PASSWORD must be set in production. " +
+        "Do not use the default password in production environments.",
+    );
+  }
+
   const existingTeacherUser = await withRetry(
     () => prisma.user.findUnique({ where: { email: teacherEmail } }),
     "Check existing teacher user",
   );
   if (existingTeacherUser) {
+    console.log("🗑️  Deleting existing teacher user and auth data...");
     await withRetry(
       () =>
         prisma.account.deleteMany({
@@ -1521,6 +1529,7 @@ async function main() {
       () => prisma.user.delete({ where: { id: existingTeacherUser.id } }),
       "Delete teacher user",
     );
+    console.log("✅ Existing teacher user deleted");
   }
 
   const teacherSignUp = await auth.api.signUpEmail({
