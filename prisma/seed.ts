@@ -1505,10 +1505,13 @@ async function main() {
   const teacherPassword = process.env.TEACHER_PASSWORD ?? "teacher123";
   const teacherEmail = "e2e.teacher@school.ac.th";
 
-  if (isProduction && !process.env.TEACHER_PASSWORD) {
+  if (
+    isProduction &&
+    (!process.env.TEACHER_PASSWORD || teacherPassword === "teacher123")
+  ) {
     throw new Error(
-      "🔒 SECURITY: TEACHER_PASSWORD must be set in production. " +
-        "Do not use the default password in production environments.",
+      "🔒 SECURITY: TEACHER_PASSWORD must be set to a strong, non-default " +
+        "password in production.",
     );
   }
 
