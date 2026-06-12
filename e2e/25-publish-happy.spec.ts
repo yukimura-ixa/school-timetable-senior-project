@@ -73,14 +73,14 @@ test.describe("cross-role verification after publish", () => {
         })
         .first()
         .click();
-      // Admin-only gate: must NOT land on the dashboard.
-      await page.waitForTimeout(3000); // allow the role check to resolve
-      expect(page.url()).not.toMatch(/\/dashboard/);
-      // An error/denied message is surfaced to the user.
+      // An error/denied message is surfaced to the user (deterministic wait —
+      // once it shows, the role check has resolved).
       // SignInForm sets formError: "เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าสู่ระบบได้"
       await expect(
         page.getByText(/ไม่ได้รับอนุญาต|admin|ผู้ดูแลระบบ|denied|ไม่สามารถ/i).first(),
       ).toBeVisible({ timeout: 10000 });
+      // Role check resolved: the teacher must not have been let through.
+      expect(page.url()).not.toMatch(/\/dashboard/);
     } finally {
       await context.close();
     }
