@@ -297,7 +297,7 @@ export const programRepository = {
             },
           },
         },
-      }) as Promise<ProgramWithRelations | null>;
+      });
     });
   },
 

@@ -65,7 +65,7 @@ export function generateTimeslots(config: TimeslotsConfig): timeslot[] {
         Semester: config.Semester,
         StartTime: slotStart,
         EndTime: endTime,
-        Breaktime: (isUniversal ? "BREAK" : breaktimeEnum.NOT_BREAK) as breaktime,
+        Breaktime: (isUniversal ? "BREAK" : breaktimeEnum.NOT_BREAK),
       });
       slotStart = new Date(endTime);
     });

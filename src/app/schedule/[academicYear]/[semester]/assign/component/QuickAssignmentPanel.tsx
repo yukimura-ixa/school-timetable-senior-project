@@ -85,7 +85,7 @@ function QuickAssignmentPanel({
     if (selectedSubject) {
       const rawCredit = selectedSubject.Credit;
       const creditVal =
-        subjectCreditValues[rawCredit as keyof typeof subjectCreditValues] ?? 0;
+        subjectCreditValues[rawCredit] ?? 0;
       setWeeklyHours(creditVal * 2);
     } else {
       setWeeklyHours(0);
@@ -145,7 +145,7 @@ function QuickAssignmentPanel({
       const newAssignments = selectedGrades.map((grade) => {
         const rawCredit = selectedSubject.Credit;
         const creditVal =
-          subjectCreditValues[rawCredit as keyof typeof subjectCreditValues] ??
+          subjectCreditValues[rawCredit] ??
           0;
         const formattedCredit = creditVal.toFixed(1);
 
@@ -164,7 +164,7 @@ function QuickAssignmentPanel({
         const rawCredit = subj?.Credit;
         const creditVal = rawCredit
           ? (subjectCreditValues[
-              rawCredit as keyof typeof subjectCreditValues
+              rawCredit
             ] ?? 1.0)
           : 1.0;
         const formattedCredit = creditVal.toFixed(1);
@@ -407,7 +407,7 @@ function QuickAssignmentPanel({
                   disabled={isSubmitting}
                   helperText={
                     selectedSubject
-                      ? `หน่วยกิต: ${subjectCreditValues[selectedSubject.Credit as keyof typeof subjectCreditValues] || 0}`
+                      ? `หน่วยกิต: ${subjectCreditValues[selectedSubject.Credit] || 0}`
                       : ""
                   }
                 />

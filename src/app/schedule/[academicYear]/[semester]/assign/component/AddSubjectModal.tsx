@@ -188,7 +188,7 @@ function AddSubjectModal(props: Props) {
                         Semester: `SEMESTER_${semester}`,
                         SubjectCode: "",
                         SubjectName: "",
-                        Credit: "CREDIT_10" as subject_credit,
+                        Credit: "CREDIT_10",
                         TeacherID: searchTeacherID
                           ? parseInt(searchTeacherID)
                           : undefined,

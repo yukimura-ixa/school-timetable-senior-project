@@ -102,7 +102,7 @@ export const getAvailableRespsAction = createAction(
       category: slot.subject.Category ?? "CORE",
       credit:
         subjectCreditValues[
-          slot.subject.Credit as keyof typeof subjectCreditValues
+          slot.subject.Credit
         ] ?? 0,
       teachHour: slot.TeachHour,
       gradelevel: slot.gradelevel

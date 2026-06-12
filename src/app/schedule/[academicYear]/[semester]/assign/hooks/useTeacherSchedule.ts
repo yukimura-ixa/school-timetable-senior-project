@@ -173,7 +173,7 @@ export function useTeacherSchedule({
         return [];
       }
 
-      return result.data as SubjectData[]; // Changed type here
+      return result.data; // Changed type here
     },
     { revalidateOnFocus: false },
   );

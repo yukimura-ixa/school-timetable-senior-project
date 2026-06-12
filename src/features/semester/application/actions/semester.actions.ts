@@ -120,9 +120,7 @@ export const createSemesterAction = createAction(
     if (input.copyFromConfigId && input.copyConfig) {
       const source = await semesterRepository.findById(input.copyFromConfigId);
       if (source) {
-        configData = (source.Config ?? undefined) as
-          | Prisma.InputJsonValue
-          | undefined;
+        configData = (source.Config ?? undefined);
       }
     }
 
@@ -149,7 +147,7 @@ export const createSemesterAction = createAction(
           sourceYear,
           sourceSemester,
           input.academicYear,
-          targetSemesterEnum as semester,
+          targetSemesterEnum,
           sourceSemesterNum,
           targetSemesterNum,
         );
@@ -476,7 +474,7 @@ export const copySemesterAction = createAction(
       semester: input.targetSemester,
       config: input.copyConfig
         ? (source.Config as Prisma.InputJsonValue)
-        : ({} as Prisma.InputJsonValue),
+        : ({}),
     });
 
     // Copy timeslots if requested
@@ -489,7 +487,7 @@ export const copySemesterAction = createAction(
         source.AcademicYear,
         sourceSemesterEnum,
         input.targetAcademicYear,
-        targetSemesterEnum as semester,
+        targetSemesterEnum,
         source.Semester === "SEMESTER_1" ? 1 : 2,
         input.targetSemester,
       );

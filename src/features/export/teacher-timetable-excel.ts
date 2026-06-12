@@ -61,8 +61,8 @@ export async function ExportTeacherTable(
   const dayCodes = Array.from(
     new Set(timeSlotData.AllData.map((t) => t.DayOfWeek)),
   ).sort(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- DAY_ORDER literal type narrowing
-    (a, b) => DAY_ORDER.indexOf(a as any) - DAY_ORDER.indexOf(b as any),
+     
+    (a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b),
   );
   const days = dayCodes.map((code) => dayOfWeekThai[code] ?? code);
   const slots = timeSlotData.SlotAmount;

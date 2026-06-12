@@ -52,7 +52,7 @@ describe("configToSlots <-> remapTimeslotId consistency", () => {
         { slotNumber: 5, duration: 50, groups: ["senior"] },
       ],
     };
-    const slots = configToSlots(old as any);
+    const slots = configToSlots(old);
     const breakSlotNumbers = old.breakDefinitions.map((b) => b.slotNumber);
     // walk slots; the k-th teaching slot (no breakGroups) is old period k -> its 1-based new index
     let teaching = 0;

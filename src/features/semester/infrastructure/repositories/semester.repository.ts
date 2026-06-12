@@ -133,7 +133,7 @@ export class SemesterRepository {
         ConfigID: configId,
         AcademicYear: data.academicYear,
         Semester: semesterEnum,
-        Config: (data.config || {}) as Prisma.InputJsonValue,
+        Config: (data.config || {}),
         status: "DRAFT",
         configCompleteness: 0,
         isPinned: false,

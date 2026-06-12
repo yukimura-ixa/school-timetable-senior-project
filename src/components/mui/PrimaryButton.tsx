@@ -171,7 +171,7 @@ const PrimaryButton = React.forwardRef<HTMLButtonElement, PrimaryButtonProps>(
       <Button
         ref={ref}
         onClick={handleClickEvent}
-        color={muiColor as ButtonProps["color"]}
+        color={muiColor}
         variant={variant}
         disabled={isButtonDisabled}
         startIcon={iconStart}

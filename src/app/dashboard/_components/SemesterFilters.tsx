@@ -144,7 +144,7 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
             onChange={(e) =>
               onFiltersChange({
                 ...filters,
-                sortBy: e.target.value as NonNullable<FilterState["sortBy"]>,
+                sortBy: e.target.value,
               })
             }
           >

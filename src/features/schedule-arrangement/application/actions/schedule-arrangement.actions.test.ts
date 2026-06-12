@@ -175,7 +175,7 @@ describe("Schedule Arrangement Actions", () => {
         semester: "SEMESTER_1" as const,
       };
 
-      const result = await arrangeScheduleAction(invalidInput as any);
+      const result = await arrangeScheduleAction(invalidInput);
 
       expect(result.success).toBe(false);
       expect(result.error?.code).toBe("VALIDATION_ERROR");

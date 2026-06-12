@@ -38,7 +38,7 @@ function makeProgram(overrides: Partial<ProgramArg> = {}): ProgramArg {
     MinTotalCredits: 0,
     program_subject: [],
     ...overrides,
-  } as ProgramArg;
+  };
 }
 
 afterEach(() => vi.resetAllMocks());

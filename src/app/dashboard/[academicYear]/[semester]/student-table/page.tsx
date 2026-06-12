@@ -196,7 +196,7 @@ function StudentTablePage() {
         GradeID: gradeId,
         AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-      })) as ActionResult<ScheduleEntry[]>;
+      }));
     },
     {
       revalidateOnFocus: false,

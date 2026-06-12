@@ -38,9 +38,7 @@ function CopyFromSeeder({ initialCopyFrom }: { initialCopyFrom?: string }) {
 }
 
 function StateProbe() {
-  const { copyAssignments } = useCreateSemester() as ReturnType<
-    typeof useCreateSemester
-  > & { copyAssignments: boolean };
+  const { copyAssignments } = useCreateSemester();
   return <div data-testid="probe-copy-assignments">{String(copyAssignments)}</div>;
 }
 

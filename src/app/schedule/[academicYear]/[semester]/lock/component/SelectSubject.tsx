@@ -43,9 +43,7 @@ function SelectSubject(props: Props) {
   );
   const [searchText, setSearchText] = useState("");
   const subjects = (() => {
-    const result = respData.data as
-      | ActionResult<SubjectWithResponsibilities[]>
-      | undefined;
+    const result = respData.data;
     return result?.success && result.data ? result.data : [];
   })();
   const filteredSubjects = (() => {
@@ -74,7 +72,7 @@ function SelectSubject(props: Props) {
         </div>
         {!respData.isValidating ? (
           <Dropdown
-            data={filteredSubjects as unknown[]}
+            data={filteredSubjects}
             renderItem={({ data }: { data: unknown }): JSX.Element => (
               <li className="w-full text-sm">
                 {(data as SubjectWithResponsibilities).SubjectCode}{" "}

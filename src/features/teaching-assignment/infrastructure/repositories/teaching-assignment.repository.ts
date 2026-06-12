@@ -58,7 +58,7 @@ export const findAssignmentsByContext = cache(
         },
       },
       orderBy: [{ subject: { SubjectName: "asc" } }],
-    }) as unknown as Promise<AssignmentWithRelations[]>;
+    });
   },
 );
 
@@ -75,7 +75,7 @@ export const findTeacherWorkload = cache(
     // Guard against missing/NaN ids (e.g. a malformed ?teacher= or route param);
     // passing NaN to Prisma throws "Argument `TeacherID` is missing" → 500.
     if (!Number.isFinite(teacherId) || !Number.isFinite(academicYear)) {
-      return [] as unknown as AssignmentWithRelations[];
+      return [];
     }
     return prisma.teachers_responsibility.findMany({
       where: {
@@ -113,7 +113,7 @@ export const findTeacherWorkload = cache(
         { gradelevel: { GradeID: "asc" } },
         { subject: { SubjectName: "asc" } },
       ],
-    }) as unknown as Promise<AssignmentWithRelations[]>;
+    });
   },
 );
 
@@ -147,7 +147,7 @@ export const findSubjectsByGrade = cache(
         },
       },
       orderBy: { subject: { SubjectName: "asc" } },
-    }) as unknown as Promise<ProgramSubjectWithSubject[]>;
+    });
   },
 );
 

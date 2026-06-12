@@ -392,7 +392,7 @@ export const publicDataRepository = {
       ...cacheStrategy("fresh", [`teacher_${teacherId}`]),
     });
 
-    return responsibilities as ResponsibilityWithSchedules[];
+    return responsibilities;
   },
 
   /**

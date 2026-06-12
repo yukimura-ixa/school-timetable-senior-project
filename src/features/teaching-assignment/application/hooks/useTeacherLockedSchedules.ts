@@ -44,7 +44,7 @@ export function useTeacherLockedSchedules(
             RoomName: item.room?.RoomName || "-",
             DayOfWeek: item.timeslot.DayOfWeek,
             TimePeriod: extractPeriodFromTimeslotId(item.TimeslotID),
-          } as LockedScheduleItem;
+          };
         });
     },
   );

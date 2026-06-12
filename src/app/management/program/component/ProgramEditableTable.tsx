@@ -110,7 +110,7 @@ const emptyProgram = (year: number): Partial<program> => ({
   ProgramCode: `GENERAL-M${year}-2567`,
   ProgramName: "",
   Year: year,
-  Track: "GENERAL" as $Enums.ProgramTrack,
+  Track: "GENERAL",
   MinTotalCredits: 0,
   IsActive: true,
 });

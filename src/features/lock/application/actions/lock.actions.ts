@@ -377,6 +377,6 @@ export const getRawLockedSchedulesAction = createAction(
       input.Semester,
     );
 
-    return rawSchedules as class_schedule[];
+    return rawSchedules;
   },
 );

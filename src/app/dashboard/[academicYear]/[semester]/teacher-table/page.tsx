@@ -212,7 +212,7 @@ function TeacherTablePage() {
         TeacherID: teacherId,
         AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-      })) as ActionResult<ScheduleEntry[]>;
+      }));
     },
     {
       revalidateOnFocus: false,
@@ -432,7 +432,7 @@ function TeacherTablePage() {
     // Note: This requires fetching class data for all selected teachers
     // For now, we'll use the export function from all-timeslot page
     void ExportTeacherTable(
-      timeSlotData as ExportTimeslotData,
+      timeSlotData,
       selectedTeachers,
       classData as ClassScheduleWithSummary[],
       String(semester),
@@ -769,7 +769,7 @@ function TeacherTablePage() {
                             teacherResponse.data
                           ) {
                             void ExportTeacherTable(
-                              timeSlotData as ExportTimeslotData,
+                              timeSlotData,
                               [teacherResponse.data],
                               classData as ClassScheduleWithSummary[],
                               String(semester),

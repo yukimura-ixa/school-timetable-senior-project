@@ -38,7 +38,7 @@ export const updateConfigStatusAction = createAction(
     }
 
     const isPublishing =
-      (config.status as ConfigStatus) !== "PUBLISHED" &&
+      (config.status) !== "PUBLISHED" &&
       (input.status as ConfigStatus) === "PUBLISHED";
 
     // If publishing, check for readiness unless force flag is set
@@ -56,7 +56,7 @@ export const updateConfigStatusAction = createAction(
 
     // Check if transition is allowed
     const canTransition = canTransitionStatus(
-      config.status as ConfigStatus,
+      config.status,
       input.status as ConfigStatus,
       config.configCompleteness,
     );

@@ -409,13 +409,10 @@ function ClassroomResponsibility({
       {classRoomModalActive ? (
         <SelectClassRoomModal
           confirmChange={
-            changeClassRoomList as unknown as (
-              selected: ClassRoomItem[],
-              year: number,
-            ) => void
+            changeClassRoomList
           }
           closeModal={() => setClassRoomModalActive(false)}
-          classList={classRoomList as unknown as ClassRoomItem[]}
+          classList={classRoomList}
           year={year || 0}
         />
       ) : null}
