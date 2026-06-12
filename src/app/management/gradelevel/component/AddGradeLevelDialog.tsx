@@ -179,18 +179,17 @@ export function AddGradeLevelDialog({
     }
   };
 
-  // Reset on open
-  React.useEffect(() => {
-    if (open) {
-      setGradeLevels([createEmptyGradeLevel(INITIAL_GRADELEVEL_ROW_ID)]);
-      setErrors({});
-    }
-  }, [open]);
+  // Reset after the close transition so the next open starts fresh
+  const handleExited = () => {
+    setGradeLevels([createEmptyGradeLevel(INITIAL_GRADELEVEL_ROW_ID)]);
+    setErrors({});
+  };
 
   return (
     <FormDialog
       open={open}
       onClose={onClose}
+      onExited={handleExited}
       title="เพิ่มระดับชั้น"
       description={`กำลังเพิ่ม ${gradeLevels.length} รายการ`}
       size="md"

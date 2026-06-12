@@ -1,5 +1,3 @@
-"use server";
-
 import prisma from "@/lib/prisma";
 
 // Derive the interactive transaction client type directly from prisma.$transaction

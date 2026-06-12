@@ -1,5 +1,3 @@
-"use server";
-
 import prisma from "@/lib/prisma";
 import { isAccelerateEnabled } from "@/lib/cache-config";
 import { createLogger } from "@/lib/logger";

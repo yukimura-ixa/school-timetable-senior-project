@@ -57,7 +57,7 @@ import TeacherList from "./component/TeacherList";
 import TableResult from "./component/TableResult";
 
 import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
-import { ExportTeacherTable } from "@/features/export/teacher-timetable-excel";
+import { exportTeacherTable } from "@/features/export/teacher-timetable-excel";
 
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 
@@ -398,7 +398,7 @@ const AllTimeslotClient = ({
   const handleExportExcel = () => {
     if (!isAdmin) return;
 
-    void ExportTeacherTable(
+    void exportTeacherTable(
       timeSlotData,
 
       teachers,

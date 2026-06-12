@@ -53,7 +53,7 @@ import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions
 
 import SelectTeacher from "./component/SelectTeacher";
 import {
-  ExportTeacherTable,
+  exportTeacherTable,
   type ExportTimeslotData,
 } from "@/features/export/teacher-timetable-excel";
 import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
@@ -431,7 +431,7 @@ function TeacherTablePage() {
 
     // Note: This requires fetching class data for all selected teachers
     // For now, we'll use the export function from all-timeslot page
-    void ExportTeacherTable(
+    void exportTeacherTable(
       timeSlotData,
       selectedTeachers,
       classData as ClassScheduleWithSummary[],
@@ -768,7 +768,7 @@ function TeacherTablePage() {
                             teacherResponse.success &&
                             teacherResponse.data
                           ) {
-                            void ExportTeacherTable(
+                            void exportTeacherTable(
                               timeSlotData,
                               [teacherResponse.data],
                               classData as ClassScheduleWithSummary[],

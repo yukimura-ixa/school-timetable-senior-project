@@ -68,6 +68,8 @@ export interface FormDialogProps {
   dirty?: boolean;
   /** Disable backdrop close when dirty (default: true) */
   disableBackdropCloseWhenDirty?: boolean;
+  /** Called after the dialog close transition finishes (e.g. to reset form state) */
+  onExited?: () => void;
   /** Dialog content (form fields) */
   children: React.ReactNode;
   /** Custom CSS class for the dialog paper */
@@ -84,6 +86,7 @@ export function FormDialog({
   loading = false,
   dirty = false,
   disableBackdropCloseWhenDirty = true,
+  onExited,
   children,
   className,
 }: FormDialogProps) {
@@ -148,6 +151,7 @@ export function FormDialog({
           paper: {
             className: `rounded-xl ${className || ""}`,
           },
+          transition: { onExited },
         }}
       >
         <DialogTitle

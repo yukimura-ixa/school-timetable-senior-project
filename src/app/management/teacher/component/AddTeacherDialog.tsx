@@ -108,8 +108,8 @@ export function AddTeacherDialog({
   onClose,
   onSuccess,
 }: AddTeacherDialogProps) {
-  const [teachers, setTeachers] = useState<TeacherFormEntry[]>([
-    createEmptyTeacher(INITIAL_TEACHER_ROW_ID),
+  const [teachers, setTeachers] = useState<TeacherFormEntry[]>(() => [
+    createEmptyTeacher(INITIAL_TEACHER_ROW_ID, generateTempTeacherEmail()),
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -214,20 +214,19 @@ export function AddTeacherDialog({
     }
   };
 
-  // Reset on open
-  React.useEffect(() => {
-    if (open) {
-      setTeachers([
-        createEmptyTeacher(INITIAL_TEACHER_ROW_ID, generateTempTeacherEmail()),
-      ]);
-      setErrors({});
-    }
-  }, [open]);
+  // Reset after the close transition so the next open starts fresh
+  const handleExited = () => {
+    setTeachers([
+      createEmptyTeacher(INITIAL_TEACHER_ROW_ID, generateTempTeacherEmail()),
+    ]);
+    setErrors({});
+  };
 
   return (
     <FormDialog
       open={open}
       onClose={onClose}
+      onExited={handleExited}
       title="เพิ่มรายชื่อครู"
       description={`กำลังเพิ่ม ${teachers.length} รายการ`}
       size="lg"

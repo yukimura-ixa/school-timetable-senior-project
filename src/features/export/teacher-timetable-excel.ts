@@ -49,7 +49,7 @@ const describeSchedule = (schedule: ClassScheduleWithSummary): string => {
  * Export teacher timetables to Excel (one sheet per teacher).
  * Designed for client-side use (ExcelJS).
  */
-export async function ExportTeacherTable(
+export async function exportTeacherTable(
   timeSlotData: ExportTimeslotData,
   teachers: teacher[],
   classData: ClassScheduleWithSummary[],

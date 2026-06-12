@@ -142,24 +142,23 @@ export function AddProgramDialog({
     }
   };
 
-  // Reset on open
-  React.useEffect(() => {
-    if (open) {
-      setFormData({
-        programCode: getDefaultCode("GENERAL"),
-        programName: "",
-        track: "GENERAL",
-        minTotalCredits: 0,
-        isActive: true,
-      });
-      setErrors({});
-    }
-  }, [open, getDefaultCode]);
+  // Reset after the close transition so the next open starts fresh
+  const handleExited = () => {
+    setFormData({
+      programCode: getDefaultCode("GENERAL"),
+      programName: "",
+      track: "GENERAL",
+      minTotalCredits: 0,
+      isActive: true,
+    });
+    setErrors({});
+  };
 
   return (
     <FormDialog
       open={open}
       onClose={onClose}
+      onExited={handleExited}
       title={`เพิ่มหลักสูตร ม.${year}`}
       description="กรอกข้อมูลหลักสูตรใหม่"
       size="sm"

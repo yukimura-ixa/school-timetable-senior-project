@@ -107,7 +107,7 @@ export default function ExportAllProgram(
       alt_notes: "",
     };
   };
-  const SumCredit = (title: string, credit: string | number) => {
+  const sumCreditRow = (title: string, credit: string | number) => {
     return {
       order: "",
       subjectcode: "",
@@ -175,7 +175,7 @@ export default function ExportAllProgram(
       teacher: item.teachers?.[0]?.TeacherFullName ?? "",
       alt_notes: "",
     })),
-    SumCredit(
+    sumCreditRow(
       "รวมหน่วยกิตสาระการเรียนรู้พื้นฐาน",
       getSumCreditValue("PRIMARY"),
     ),
@@ -189,7 +189,7 @@ export default function ExportAllProgram(
       teacher: item.teachers?.[0]?.TeacherFullName ?? "",
       alt_notes: "",
     })),
-    SumCredit(
+    sumCreditRow(
       "รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม",
       getSumCreditValue("EXTRA"),
     ),
@@ -204,7 +204,7 @@ export default function ExportAllProgram(
       teacher: item.teachers?.[0]?.TeacherFullName ?? "",
       alt_notes: "",
     })),
-    SumCredit("รวมหน่วยกิตทั้งหมด", getSumCreditValue("ALL")),
+    sumCreditRow("รวมหน่วยกิตทั้งหมด", getSumCreditValue("ALL")),
   ];
   sheet.addRows(jsonData, "i");
   const row1 = sheet.getRow(1);

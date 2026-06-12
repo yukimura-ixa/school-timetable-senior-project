@@ -210,18 +210,17 @@ export function AddSubjectDialog({
     }
   };
 
-  // Reset on open
-  React.useEffect(() => {
-    if (open) {
-      setSubjects([createEmptySubject(INITIAL_SUBJECT_ROW_ID)]);
-      setErrors({});
-    }
-  }, [open]);
+  // Reset after the close transition so the next open starts fresh
+  const handleExited = () => {
+    setSubjects([createEmptySubject(INITIAL_SUBJECT_ROW_ID)]);
+    setErrors({});
+  };
 
   return (
     <FormDialog
       open={open}
       onClose={onClose}
+      onExited={handleExited}
       title="เพิ่มรายวิชา"
       description={`กำลังเพิ่ม ${subjects.length} รายการ`}
       size="lg"
