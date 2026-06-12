@@ -25,7 +25,7 @@ export async function loginAs(browser: Browser, creds: RoleCredentials) {
   await page.fill('input[type="password"]', creds.password);
   await page
     .locator('button:not([data-testid="google-signin-button"])', {
-      hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
+      hasText: /เข้าสู่ระบบ|sign in|login|submit|continue/i,
     })
     .first()
     .click();
