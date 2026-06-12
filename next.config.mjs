@@ -9,6 +9,13 @@ const nextConfig = {
   // Allow custom distDir for parallel dev servers
   distDir: process.env.NEXT_DIST_DIR || ".next",
 
+  experimental: {
+    // Required for forbidden()/unauthorized() used by the admin role gates
+    // (dashboard/management layouts). Without it forbidden() throws an
+    // unhandled error instead of returning 403.
+    authInterrupts: true,
+  },
+
   images: {
     remotePatterns: [
       {
