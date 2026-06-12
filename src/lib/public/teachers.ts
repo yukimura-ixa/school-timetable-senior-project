@@ -8,6 +8,7 @@
 
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { PublicTeacher } from "@/lib/infrastructure/repositories/public-data.repository";
+import type { semester } from "@/prisma/generated/client";
 import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("PublicTeachers");
@@ -25,7 +26,7 @@ export type { PublicTeacher };
  */
 async function getCurrentTermInfo(): Promise<{
   academicYear: number;
-  semester: string;
+  semester: semester;
 } | null> {
   try {
     const config = await publicDataRepository.getQuickStats();
@@ -179,14 +180,10 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
       return null;
     }
 
-    // Convert semester string to enum
-    const semesterEnum =
-      termInfo.semester === "1" ? "SEMESTER_1" : "SEMESTER_2";
-
     const teacher = await publicDataRepository.findPublicTeacherById(
       teacherId,
       termInfo.academicYear,
-      semesterEnum,
+      termInfo.semester,
     );
 
     if (!teacher) return null;
@@ -218,16 +215,12 @@ export async function getTeacherSchedule(teacherId: number) {
       return [];
     }
 
-    // Convert semester string to enum
-    const semesterEnum =
-      termInfo.semester === "1" ? "SEMESTER_1" : "SEMESTER_2";
-
-    // Get teacher's responsibilities for this term
+    // termInfo.semester is already the enum string ("SEMESTER_1" | "SEMESTER_2")
     const responsibilities =
       await publicDataRepository.findTeacherResponsibilities(
         teacherId,
         termInfo.academicYear,
-        semesterEnum,
+        termInfo.semester,
       );
 
     type ResponsibilityWithSchedules = Awaited<
