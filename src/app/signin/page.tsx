@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import SignInPageClient from "./SignInPageClient";
 import { createMetadataWithSocial } from "@/utils/canonical-url";
+import { safeCallbackPath } from "./callback-url";
 
 export const metadata: Metadata = createMetadataWithSocial({
   title: "เข้าสู่ระบบ - ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา",
@@ -19,15 +20,20 @@ export const metadata: Metadata = createMetadataWithSocial({
  * Handles server-side session validation and redirects.
  * Renders the client component for the actual UI.
  */
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
   // Server-side session check using better-auth
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  // Redirect authenticated users to dashboard
+  // Already-authenticated users skip the form, honoring callbackUrl when safe.
   if (session) {
-    redirect("/dashboard");
+    const { callbackUrl } = await searchParams;
+    redirect(safeCallbackPath(callbackUrl));
   }
 
   // Render signin UI for unauthenticated users

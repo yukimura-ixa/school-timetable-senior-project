@@ -14,6 +14,7 @@ import React, { useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { createClientLogger } from "@/lib/client-logger";
+import { safeCallbackPath } from "./callback-url";
 import {
   Alert,
   Box,
@@ -39,6 +40,12 @@ import {
 } from "@/shared/design-system";
 
 const log = createClientLogger("SignInForm");
+
+function resolveRedirectTarget(): string {
+  if (typeof window === "undefined") return "/dashboard";
+  const params = new URLSearchParams(window.location.search);
+  return safeCallbackPath(params.get("callbackUrl"));
+}
 
 export default function SignInForm() {
   const [email, setEmail] = useState("");
@@ -77,6 +84,7 @@ export default function SignInForm() {
 
     log.debug("Submitting authentication request");
     setSubmitting(true);
+    const redirectTarget = resolveRedirectTarget();
     try {
       await authClient.signIn.email(
         {
@@ -112,8 +120,8 @@ export default function SignInForm() {
                     return;
                   }
 
-                  log.info("Admin session verified, navigating to dashboard");
-                  window.location.href = "/dashboard";
+                  log.info("Admin session verified, navigating to target");
+                  window.location.href = redirectTarget;
                   return;
                 }
               } catch {
@@ -125,7 +133,7 @@ export default function SignInForm() {
 
             // Fallback: navigate anyway after timeout
             log.warn("Session verification timed out, navigating anyway");
-            window.location.href = "/dashboard";
+            window.location.href = redirectTarget;
           },
           onError: (ctx) => {
             log.error("Authentication failed", { error: ctx.error.message });
@@ -144,7 +152,7 @@ export default function SignInForm() {
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: resolveRedirectTarget(),
     });
   };
 
