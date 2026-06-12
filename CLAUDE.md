@@ -15,6 +15,8 @@ See code file's structure               get_symbols_overview
 Read specific symbol's body             find_symbol (include_body=true)
 Find symbol by name across repo         find_symbol
 Find references / callers               find_referencing_symbols
+Find declarations / implementations     find_declaration / find_implementations
+Check file diagnostics (LSP errors)     get_diagnostics_for_file
 Edit symbol's body                      replace_symbol_body
 Insert near symbol                      insert_before_symbol / _insert_after_symbol
 Pattern replace inside file             replace_content
