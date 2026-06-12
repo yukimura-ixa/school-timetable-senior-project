@@ -45,6 +45,14 @@ File: `e2e/28-draft-role-visibility.spec.ts`, main suite, default seed. Lean: do
 - Export verification (covered by `e2e/06-export`).
 - Performance assertions.
 
+## Amendment (2026-06-12, during implementation)
+
+Verified product reality: the signin UI blocks non-admin roles (`SignInForm.tsx:103`) and `/dashboard` is admin-only (`dashboard/layout.tsx` → `forbidden()`). A teacher cannot log in at all — the "teacher logged-in dashboard" steps in both scenarios are untestable as designed. Adjusted scenarios:
+
+- Teacher logged-in steps → replaced by (a) "teacher UI login is rejected" (the real user behavior) and (b) a defense-in-depth check that an API-established teacher session still gets 403 from `/dashboard` and `/management` layouts.
+- Public teacher/class view steps unchanged.
+- Product decision filed as a bead: build a teacher login experience or formalize public-only access.
+
 ## Risks
 
 - Publish-happy mini-seed gaps → extend its globalSetup (known, planned).
