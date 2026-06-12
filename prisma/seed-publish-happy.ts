@@ -107,6 +107,30 @@ async function createAdmin() {
   console.log(`✅ Admin ready (${email})`);
 }
 
+async function createTeacherLogin() {
+  const password = process.env.TEACHER_PASSWORD ?? "teacher123";
+  const email = "teacher.happy@school.ac.th";
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    await prisma.account.deleteMany({ where: { userId: existing.id } });
+    await prisma.user.delete({ where: { id: existing.id } });
+  }
+
+  const { auth } = await import("../src/lib/auth.js");
+  const result = await auth.api.signUpEmail({
+    body: { email, password, name: "ทดสอบ เผยแพร่" },
+  });
+  if (!result?.user) {
+    throw new Error("Failed to create teacher login via better-auth API");
+  }
+  await prisma.user.update({
+    where: { id: result.user.id },
+    data: { role: "teacher", emailVerified: true },
+  });
+  console.log(`✅ Teacher login ready (${email})`);
+}
+
 async function truncateTimetable() {
   await prisma.$executeRawUnsafe(
     'TRUNCATE TABLE "class_schedule", "teachers_responsibility", "program_subject", "timeslot", "table_config", "gradelevel", "subject", "program", "teacher", "room" RESTART IDENTITY CASCADE;',
@@ -118,6 +142,7 @@ async function main() {
   console.log("\n🌱 Seeding minimal publish-happy world (1-2568)...\n");
 
   await createAdmin();
+  await createTeacherLogin();
   await truncateTimetable();
 
   const program = await prisma.program.create({

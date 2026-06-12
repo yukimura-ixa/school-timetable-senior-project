@@ -1500,6 +1500,49 @@ async function main() {
     );
   }
 
+  // ===== TEACHER AUTH USER (E2E) =====
+  // Login for the pinned E2E teacher fixture (e2e.teacher@school.ac.th).
+  const teacherPassword = process.env.TEACHER_PASSWORD ?? "teacher123";
+  const teacherEmail = "e2e.teacher@school.ac.th";
+
+  const existingTeacherUser = await withRetry(
+    () => prisma.user.findUnique({ where: { email: teacherEmail } }),
+    "Check existing teacher user",
+  );
+  if (existingTeacherUser) {
+    await withRetry(
+      () =>
+        prisma.account.deleteMany({
+          where: { userId: existingTeacherUser.id },
+        }),
+      "Delete teacher accounts",
+    );
+    await withRetry(
+      () => prisma.user.delete({ where: { id: existingTeacherUser.id } }),
+      "Delete teacher user",
+    );
+  }
+
+  const teacherSignUp = await auth.api.signUpEmail({
+    body: {
+      email: teacherEmail,
+      password: teacherPassword,
+      name: "E2E ทดสอบ",
+    },
+  });
+  if (!teacherSignUp?.user) {
+    throw new Error("Failed to create teacher user via better-auth API");
+  }
+  await withRetry(
+    () =>
+      prisma.user.update({
+        where: { id: teacherSignUp.user.id },
+        data: { role: "teacher", emailVerified: true },
+      }),
+    "Update teacher user role",
+  );
+  console.log(`✅ Teacher auth user created (${teacherEmail})`);
+
   // ===== SEEDING MODE SELECTION =====
   const isDemoMode = process.env.SEED_DEMO_DATA === "true";
   const isTestMode = process.env.SEED_FOR_TESTS === "true";
