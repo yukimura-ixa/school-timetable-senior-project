@@ -1,4 +1,9 @@
-import { expect, type Browser } from "@playwright/test";
+import {
+  expect,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "@playwright/test";
 
 export type RoleCredentials = { email: string; password: string };
 
@@ -17,10 +22,16 @@ export const TEACHER_HAPPY: RoleCredentials = {
  * Caller owns the context: `const { page, context } = await loginAs(...)`,
  * then `await context.close()` when done.
  */
-export async function loginAs(browser: Browser, creds: RoleCredentials) {
-  const context = await browser.newContext({ storageState: undefined });
+export async function loginAs(
+  browser: Browser,
+  creds: RoleCredentials,
+): Promise<{ context: BrowserContext; page: Page }> {
+  const context = await browser.newContext({
+    storageState: { cookies: [], origins: [] },
+  });
   const page = await context.newPage();
   await page.goto("/signin");
+  await page.waitForLoadState("domcontentloaded");
   await page.fill('input[type="email"]', creds.email);
   await page.fill('input[type="password"]', creds.password);
   await page
