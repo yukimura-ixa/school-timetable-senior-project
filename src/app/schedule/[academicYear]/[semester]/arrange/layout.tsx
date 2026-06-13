@@ -75,35 +75,48 @@ export default async function ArrangeLayout({
   }
 
   return (
-    <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, sm: 3 } }}>
+    <Container
+      maxWidth={false}
+      sx={{ py: 4, px: { xs: 2, sm: 3 }, pb: { xs: 12, sm: 14 } }}
+    >
       {/* Header Slot: Teacher selector + actions */}
       <Box sx={{ mb: 3 }} data-slot="header">
         {header}
       </Box>
 
-      {/* Timetable spans full width; palette + inspector sit below as
-          companion panels. DndContext wraps the whole arrangement so DnD
-          flows from palette → grid (and inspector → grid via conflicts). */}
+      {/* Timetable + inspector span the full width. The subject palette floats
+          as a card pinned to the bottom-center; it stays collapsed (header
+          strip only) and expands on hover/focus so it keeps out of the way
+          while the grid uses all available width. DndContext wraps the whole
+          arrangement so DnD flows from palette → grid. */}
       <ArrangeDndProvider>
-        <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
-          <Box
-            data-slot="palette"
-            sx={{
-              width: 320,
-              flexShrink: 0,
-              position: "sticky",
-              top: 16,
-              alignSelf: "flex-start",
-            }}
-          >
-            {palette}
-          </Box>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Box data-slot="grid">{grid}</Box>
-            <Box data-slot="inspector" sx={{ mt: 2 }}>
-              {inspector}
-            </Box>
-          </Box>
+        <Box data-slot="grid">{grid}</Box>
+        <Box data-slot="inspector" sx={{ mt: 2 }}>
+          {inspector}
+        </Box>
+
+        <Box
+          data-slot="palette"
+          sx={{
+            position: "fixed",
+            bottom: 16,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1200,
+            width: { xs: "94vw", sm: 480 },
+            maxWidth: "94vw",
+            maxHeight: 60,
+            overflow: "hidden",
+            borderRadius: 2,
+            boxShadow: 8,
+            transition: "max-height 240ms ease, box-shadow 240ms ease",
+            "&:hover, &:focus-within": {
+              maxHeight: "72vh",
+              boxShadow: 16,
+            },
+          }}
+        >
+          {palette}
         </Box>
       </ArrangeDndProvider>
 
