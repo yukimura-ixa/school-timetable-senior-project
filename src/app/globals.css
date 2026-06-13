@@ -314,6 +314,18 @@
   margin: 1cm;
 }
 
+/* Portrait page used by the bulk-print portal (two timetables per sheet). */
+@page bulk-2up {
+  size: A4 portrait;
+  margin: 1cm;
+}
+
+/* Bulk print: a body-level portal holding stacked timetables. Hidden on
+   screen; in print it becomes the only visible content, two per page. */
+.bulk-print {
+  display: none;
+}
+
 @media print {
   /* Elements explicitly marked non-printable are dropped from output. */
   .no-print {
@@ -337,6 +349,28 @@
     top: 0;
     width: 100% !important;
     margin: 0 !important;
+  }
+
+  /* Bulk print portal: when present at the body root, it is the only thing
+     printed. Normal flow (not absolute) so multi-page pagination works. */
+  body:has(> .bulk-print) > *:not(.bulk-print) {
+    display: none !important;
+  }
+  .bulk-print {
+    display: block;
+    page: bulk-2up;
+  }
+  .bulk-print-item {
+    /* zoom (not transform: scale) shrinks the layout footprint too, so the
+       wide grid fits portrait width and two items fit one page. Tune this
+       value if the fit is off. */
+    zoom: 0.72;
+    break-inside: avoid;
+    box-sizing: border-box;
+    padding-bottom: 0.5cm;
+  }
+  .bulk-print-item:nth-child(2n) {
+    break-after: page;
   }
 
   .timeslot-grid {
