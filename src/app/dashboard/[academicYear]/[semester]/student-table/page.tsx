@@ -4,7 +4,6 @@ import React, { useMemo, useRef, useState, useEffect } from "react";
 import useSWR from "swr";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
-import { useSnackbar } from "notistack";
 // Removed react-to-print - using server-side PDF generation
 import {
   Container,
@@ -47,7 +46,6 @@ import { useUIStore } from "@/stores/uiStore";
 import { getTimeslotsByTermAction, getBreakContextAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
-import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
 
 import TimeSlot from "./component/Timeslot";
 import SelectClassRoom from "./component/SelectClassroom";
@@ -103,7 +101,6 @@ function StudentTablePage() {
   // Responsive hooks
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"), { noSsr: true });
-  const { enqueueSnackbar } = useSnackbar();
 
   type TimeslotKey = readonly ["timeslots-by-term", string, string];
   type ClassScheduleKey = readonly [
@@ -254,96 +251,11 @@ function StudentTablePage() {
   const ref = useRef<HTMLDivElement>(null);
   const [isPDFExport] = useState(false);
 
-  // Server-side PDF export handler (admin only)
-  const handleExportPDF = async () => {
-    if (!selectedGradeId || !semester || !academicYear) return;
-
-    try {
-      // Get selected grade info
-      const selectedGrade = gradeLevelData.data?.find(
-        (g) => g.GradeID === selectedGradeId,
-      );
-      if (!selectedGrade) {
-        throw new Error("Selected grade not found");
-      }
-
-      // Transform timeSlotData to required format
-      const timeslots = timeSlotData.AllData.map((slot) => ({
-        timeslotId: slot.TimeslotID,
-        dayOfWeek: slot.DayOfWeek,
-        startTime: slot.StartTime,
-        endTime: slot.EndTime,
-        breaktime: slot.Breaktime,
-      }));
-
-      // Calculate totals from classData
-      const totalCredits = classData.reduce((sum, cls) => {
-        const creditRaw = cls.subject?.Credit;
-        const credits = subjectCreditToNumber(
-          creditRaw == null ? "0" : String(creditRaw),
-        );
-        return sum + credits;
-      }, 0);
-
-      const totalHours = classData.reduce((sum, cls) => {
-        const hoursRaw = cls.subject?.TotalHours;
-        const hoursParsed = hoursRaw == null ? 0 : parseFloat(String(hoursRaw));
-        const hours = Number.isFinite(hoursParsed) ? hoursParsed : 0;
-        return sum + hours;
-      }, 0);
-
-      // Build request payload
-      const payload = {
-        gradeId: selectedGradeId,
-        gradeName: selectedGrade.GradeID,
-        semester: semester.toString(),
-        academicYear: academicYear.toString(),
-        timeslots,
-        scheduleEntries: classData.map((entry) => ({
-          timeslotId: entry.TimeslotID,
-          subjectCode: entry.subject?.SubjectCode ?? "",
-          subjectName: entry.subject?.SubjectName ?? "",
-          teacherName:
-            entry.teacher?.Prefix ||
-            entry.teacher?.Firstname ||
-            entry.teacher?.Lastname
-              ? `${entry.teacher?.Prefix ?? ""} ${entry.teacher?.Firstname ?? ""} ${entry.teacher?.Lastname ?? ""}`.trim()
-              : undefined,
-          roomName: entry.room?.RoomName ?? "",
-        })),
-        totalCredits,
-        totalHours,
-      };
-
-      // Call PDF API
-      const response = await fetch("/api/export/student-timetable/pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error("ส่งออก PDF ไม่สำเร็จ");
-      }
-
-      // Download the PDF
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `student-${selectedGradeId}-${semester}-${academicYear}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("PDF export error:", error);
-      enqueueSnackbar("ส่งออก PDF ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", {
-        variant: "error",
-      });
-    }
+  // Browser print-to-PDF of the on-screen timetable (isolated via the
+  // .print-area rule in globals.css). Replaces the server-side @react-pdf
+  // route that rendered an empty schedule.
+  const handleExportPDF = () => {
+    window.print();
   };
 
   // Add print styles
@@ -739,7 +651,11 @@ function StudentTablePage() {
                   sx={{ borderRadius: 1 }}
                 />
               ) : (
-                <Paper elevation={1} sx={{ p: 2, overflow: "auto" }}>
+                <Paper
+                  elevation={1}
+                  className="print-area"
+                  sx={{ p: 2, overflow: "auto" }}
+                >
                   <TimeSlot
                     searchGradeID={selectedGradeId}
                     timeSlotData={timeSlotData}

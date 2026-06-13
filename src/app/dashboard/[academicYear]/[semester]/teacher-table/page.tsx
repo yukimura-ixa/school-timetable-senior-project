@@ -2,8 +2,6 @@
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import React, { useState, useRef } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import useSWR from "swr";
@@ -308,103 +306,11 @@ function TeacherTablePage() {
   // Ref for capturing timetable for PDF export
   const timetableRef = useRef<HTMLDivElement>(null);
 
-  // Client-side PDF export using html2canvas + jspdf
-  const handleExportPDF = async () => {
-    if (
-      !timetableRef.current ||
-      !effectiveTeacherId ||
-      !semester ||
-      !academicYear
-    )
-      return;
-
-    try {
-      // Show loading state (optional: could add state for this)
-      const element = timetableRef.current;
-
-      // Capture the timetable element as canvas
-      // Note: html2canvas doesn't support CSS lab() colors, so we use onclone to convert them
-      const canvas = await html2canvas(element, {
-        scale: 2, // Higher quality
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        // Clone callback to fix unsupported CSS colors before capture
-        onclone: (clonedDoc) => {
-          // Replace lab() colors with fallback colors in the cloned document
-          const allElements = clonedDoc.querySelectorAll("*");
-          allElements.forEach((el) => {
-            const computedStyle = window.getComputedStyle(el);
-            const bgColor = computedStyle.backgroundColor;
-            const color = computedStyle.color;
-            const borderColor = computedStyle.borderColor;
-
-            // If any color contains 'lab(' or 'oklch(', replace with fallback
-            const htmlEl = el as HTMLElement;
-            if (bgColor.includes("lab(") || bgColor.includes("oklch(")) {
-              htmlEl.style.backgroundColor = "#f5f5f5";
-            }
-            if (color.includes("lab(") || color.includes("oklch(")) {
-              htmlEl.style.color = "#000000";
-            }
-            if (
-              borderColor.includes("lab(") ||
-              borderColor.includes("oklch(")
-            ) {
-              htmlEl.style.borderColor = "#cccccc";
-            }
-          });
-        },
-      });
-
-      // Calculate PDF dimensions (A4 landscape)
-      const imgWidth = 297; // A4 landscape width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      // Create PDF in landscape orientation
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4",
-      });
-
-      // Add title header
-      pdf.setFontSize(16);
-      pdf.text(`ตารางสอน: ${teacherName}`, 15, 15);
-      pdf.setFontSize(12);
-      pdf.text(`ภาคเรียนที่ ${semester}/${academicYear}`, 15, 22);
-
-      // Add the captured image
-      const imgData = canvas.toDataURL("image/png");
-      const yOffset = 30; // Space for header
-      const maxHeight = 180; // Max height for content on A4 landscape
-      const scaledHeight = Math.min(imgHeight, maxHeight);
-      const scaledWidth = (scaledHeight * imgWidth) / imgHeight;
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        10,
-        yOffset,
-        scaledWidth > 277 ? 277 : scaledWidth,
-        scaledHeight,
-      );
-
-      // Add footer with generation date
-      pdf.setFontSize(10);
-      const now = new Date();
-      pdf.text(
-        `สร้างเมื่อ: ${now.toLocaleDateString("th-TH")} ${now.toLocaleTimeString("th-TH")}`,
-        15,
-        200,
-      );
-
-      // Download the PDF
-      pdf.save(`teacher-${effectiveTeacherId}-${semester}-${academicYear}.pdf`);
-    } catch (error) {
-      console.error("PDF export error:", error);
-      alert("เกิดข้อผิดพลาดในการส่งออก PDF กรุณาลองใหม่อีกครั้ง");
-    }
+  const handleExportPDF = () => {
+    // Browser print-to-PDF: prints the on-screen timetable, isolated via the
+    // .print-area rule in globals.css (replaces the html2canvas/jsPDF capture
+    // that produced blank schedules under Tailwind v4 / MUI oklch colors).
+    window.print();
   };
 
   // Bulk export handlers
@@ -817,7 +723,7 @@ function TeacherTablePage() {
                 />
               ) : (
                 <Paper elevation={1} sx={{ overflow: "auto" }}>
-                  <Box ref={timetableRef} sx={{ p: 2 }}>
+                  <Box ref={timetableRef} className="print-area" sx={{ p: 2 }}>
                     <TimeSlot
                       timeSlotData={timeSlotData}
                       slots={configData?.data?.slots ?? []}
