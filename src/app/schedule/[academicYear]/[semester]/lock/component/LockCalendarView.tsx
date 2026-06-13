@@ -90,7 +90,7 @@ function LockCalendarView({
   const timeslotGrid = (() => {
     if (!timeslotsData.data) return null;
 
-    const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+    const days = ["MON", "TUE", "WED", "THU", "FRI"];
     const grid: Record<string, Record<number, timeslot>> = {};
 
     days.forEach((day) => {
@@ -159,7 +159,7 @@ function LockCalendarView({
     );
   }
 
-  const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+  const days = ["MON", "TUE", "WED", "THU", "FRI"];
   const maxPeriods = Math.max(
     ...days.map((day) => Object.keys(timeslotGrid[day] || {}).length),
   );
@@ -196,7 +196,7 @@ function LockCalendarView({
           data-testid="lock-grid"
           sx={{
             display: "grid",
-            gridTemplateColumns: `80px repeat(${days.length}, 1fr)`,
+            gridTemplateColumns: `80px repeat(${periods.length}, 1fr)`,
             gap: 1,
             overflowX: "auto",
           }}
@@ -210,9 +210,9 @@ function LockCalendarView({
               zIndex: 2,
             }}
           />
-          {days.map((day) => (
+          {periods.map((period) => (
             <Paper
-              key={day}
+              key={period}
               elevation={0}
               sx={{
                 p: 1.5,
@@ -222,15 +222,15 @@ function LockCalendarView({
               }}
             >
               <Typography variant="body2" fontWeight="bold">
-                {dayOfWeekThai[day]}
+                คาบ {period}
               </Typography>
             </Paper>
           ))}
 
-          {/* Time Slots */}
-          {periods.map((period) => (
-            <React.Fragment key={period}>
-              {/* Period Label */}
+          {/* Day Rows */}
+          {days.map((day) => (
+            <React.Fragment key={day}>
+              {/* Day Label */}
               <Paper
                 elevation={0}
                 sx={{
@@ -245,12 +245,12 @@ function LockCalendarView({
                 }}
               >
                 <Typography variant="body2" fontWeight="medium">
-                  คาบ {period}
+                  {dayOfWeekThai[day]}
                 </Typography>
               </Paper>
 
-              {/* Day Cells */}
-              {days.map((day) => {
+              {/* Period Cells */}
+              {periods.map((period) => {
                 const timeslot = timeslotGrid[day]?.[period];
                 const lock = timeslot
                   ? (lockMap[timeslot.TimeslotID] ?? null)
