@@ -10,27 +10,26 @@ const TERM = "2568/1";
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe("timeslot grid period numbering", () => {
-  test("class view: period numbers skip break rows", async ({ page }) => {
+  test("class view: period numbers skip break columns", async ({ page }) => {
     await page.goto(`/classes/M6-1/${TERM}`);
     await page.waitForSelector('[data-testid="schedule-grid"]');
 
-    const periodCells = await page
-      .locator('tbody tr td:first-child')
-      .allInnerTexts();
-    const periodNumbers = periodCells
+    // Grid is transposed: periods are column headers, days are rows.
+    const headerCells = await page.locator("thead th").allInnerTexts();
+    const periodNumbers = headerCells
       .map((t) => t.match(/คาบ\s*(\d+)/)?.[1])
       .filter((x): x is string => Boolean(x))
       .map((n) => parseInt(n, 10));
 
-    // Teaching periods are present and strictly sequential across break rows.
+    // Teaching periods are present and strictly sequential across break columns.
     expect(periodNumbers.length).toBeGreaterThan(0);
     for (let i = 1; i < periodNumbers.length; i++) {
       expect(periodNumbers[i]).toBe(periodNumbers[i - 1]! + 1);
     }
 
-    // Senior class has at least one break row (lunch) inserted between periods.
+    // Senior class has at least one break column (lunch) inserted between periods.
     await expect(
-      page.locator('[data-testid="break-row"]').first(),
+      page.locator('[data-testid="break-cell"]').first(),
     ).toBeVisible();
   });
 

@@ -165,15 +165,13 @@ test.describe("Public Teacher Schedule Page", () => {
       .or(page.locator("table").first());
     await expect(table).toBeVisible({ timeout: 15000 });
 
-    // Table should have header row with days
+    // Grid is transposed: the header row holds the period (+break) columns.
     const headers = page.locator("thead th");
-    await expect(headers).toHaveCount(6); // "คาบ/เวลา" + 5 days (MON-FRI)
+    expect(await headers.count()).toBeGreaterThan(5);
 
-    // First header is "period/time", remaining are day labels (language may vary)
+    // First header is the "day \ period" corner; the rest are period labels.
     await expect(headers.first()).toContainText(/คาบ|Period/i);
-    for (let i = 1; i < 6; i += 1) {
-      await expect(headers.nth(i)).toHaveText(/.+/);
-    }
+    await expect(headers.nth(1)).toHaveText(/.+/);
   });
 
   test("should display period numbers and time ranges", async ({
@@ -188,19 +186,19 @@ test.describe("Public Teacher Schedule Page", () => {
       },
     );
 
-    // Period column is the first column and includes a time range.
-    const periodCells = page.locator("tbody tr > td:first-child");
-    const count = await periodCells.count();
+    // Transposed grid: period labels + time ranges live in the column headers.
+    const periodHeaders = page.locator("thead th");
+    expect(await periodHeaders.count()).toBeGreaterThan(1);
 
-    // Should have at least one period row (exact count depends on config)
-    expect(count).toBeGreaterThan(0);
+    // A period header shows "คาบ N" together with a time range.
+    const firstPeriodHeader = periodHeaders
+      .filter({ hasText: /คาบ\s+\d+|Period\s+\d+/i })
+      .first();
+    await expect(firstPeriodHeader).toContainText(/\d{2}:\d{2}\s*-\s*\d{2}:\d{2}/);
 
-    // Should show a period label + time range (e.g., "คาบ 1" and "08:00 - 08:50")
-    const firstPeriodCell = periodCells.first();
-    await expect(firstPeriodCell).toContainText(/คาบ\s+\d+|Period\s+\d+/i);
-    await expect(firstPeriodCell).toContainText(
-      /\d{2}:\d{2}\s*-\s*\d{2}:\d{2}/,
-    );
+    // The first body column now holds the day labels.
+    const dayCells = page.locator("tbody tr > td:first-child");
+    expect(await dayCells.count()).toBeGreaterThan(0);
   });
 
   test("should display subject details in schedule cells", async ({
@@ -424,11 +422,11 @@ test.describe("Public Class Schedule Page", () => {
       .or(page.locator("table").first());
     await expect(table).toBeVisible({ timeout: 15000 });
 
-    // Header row should have 6 columns (period + 5 days)
+    // Transposed grid: the header row holds the period (+break) columns.
     const headers = page.locator("thead th");
-    await expect(headers).toHaveCount(6);
+    expect(await headers.count()).toBeGreaterThan(5);
 
-    // First column header should be for periods
+    // First header is the "day \ period" corner.
     await expect(headers.first()).toContainText(/คาบ|Period/i);
   });
 
@@ -535,9 +533,9 @@ test.describe("Public Class Schedule Page", () => {
       },
     );
 
-    // Count total period rows (should be 8-10 typically)
-    const periodRows = page.locator("tbody tr");
-    const rowCount = await periodRows.count();
+    // Transposed grid: one body row per day (MON–FRI).
+    const dayRows = page.locator("tbody tr");
+    const rowCount = await dayRows.count();
 
     expect(rowCount).toBeGreaterThan(0);
     expect(rowCount).toBeLessThanOrEqual(12); // Sanity check

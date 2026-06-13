@@ -64,116 +64,119 @@ export function TimeslotGrid({
         <thead>
           <tr className="bg-slate-900 text-white">
             <th className="border-r border-slate-700 px-2 py-2 text-xs font-semibold w-20">
-              คาบ
+              วัน \ คาบ
             </th>
-            {dayOrder.map((day) => (
-              <th
-                key={day}
-                className="border-r border-slate-700 px-2 py-2 text-xs font-semibold"
-              >
-                {dayNames[day]}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, idx) => {
-            if (row.kind === "break") {
-              const labels = row.defs.map((d) => d.label).join(" · ");
-              const accent = row.defs[0]?.color ?? "#94a3b8";
-              return (
-                <tr
-                  key={`break-${row.slotNumber}-${idx}`}
-                  className="bg-slate-50"
-                  data-testid="break-row"
-                >
-                  <td
-                    colSpan={dayOrder.length + 1}
-                    className="border-b border-slate-200 px-3 py-1.5 text-center text-xs italic text-slate-600"
-                    style={{ borderLeft: `4px solid ${accent}` }}
+            {rows.map((row, idx) => {
+              if (row.kind === "break") {
+                const labels = row.defs.map((d) => d.label).join(" · ");
+                const accent = row.defs[0]?.color ?? "#94a3b8";
+                return (
+                  <th
+                    key={`bh-${row.slotNumber}-${idx}`}
+                    className="border-r border-slate-700 px-1 py-2 text-[10px] font-medium italic"
+                    style={{ borderTop: `4px solid ${accent}` }}
+                    title={labels}
                   >
-                    — {labels} —
-                  </td>
-                </tr>
-              );
-            }
-            // teaching row
-            const timeFromFirst = row.slots[0]
-              ? formatTimeRange(row.slots[0])
-              : null;
-            return (
-              <tr key={`p-${row.period}`} className="hover:bg-slate-50/60">
-                <td className="border-b border-slate-200 bg-slate-50 px-2 py-2 text-center align-top">
-                  <div className="text-sm font-semibold text-slate-900">
-                    คาบ {row.period}
-                  </div>
+                    พัก
+                  </th>
+                );
+              }
+              const timeFromFirst = row.slots[0]
+                ? formatTimeRange(row.slots[0])
+                : null;
+              return (
+                <th
+                  key={`ph-${row.period}`}
+                  className="border-r border-slate-700 px-2 py-2 text-xs font-semibold"
+                >
+                  <div>คาบ {row.period}</div>
                   {timeFromFirst && (
-                    <div className="text-[10px] text-slate-500">
+                    <div className="text-[9px] font-normal text-slate-300">
                       {timeFromFirst}
                     </div>
                   )}
-                </td>
-                {dayOrder.map((day) => {
-                  const ts = row.slots.find((s) => s.DayOfWeek === day);
-                  const cell = ts ? cellsByTimeslotId.get(ts.TimeslotID) : undefined;
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {dayOrder.map((day) => (
+            <tr key={day} className="hover:bg-slate-50/60">
+              <td className="border-b border-slate-200 bg-slate-50 px-2 py-2 text-center align-middle text-sm font-semibold text-slate-900">
+                {dayNames[day]}
+              </td>
+              {rows.map((row, idx) => {
+                if (row.kind === "break") {
+                  const accent = row.defs[0]?.color ?? "#94a3b8";
                   return (
                     <td
-                      key={day}
-                      className="timeslot-cell border-b border-slate-200 px-2 py-2 align-top"
-                      style={
-                        cell
-                          ? {
-                              backgroundColor: subjectColors(cell.subjectCode).bg,
-                              borderLeft: `3px solid ${subjectColors(cell.subjectCode).stripe}`,
-                            }
-                          : undefined
-                      }
-                    >
-                      {cell ? (
-                        <div className="space-y-0.5">
-                          <div
-                            className="text-xs font-semibold"
-                            style={{ color: subjectColors(cell.subjectCode).text }}
-                          >
-                            {cell.subjectName}
-                          </div>
-                          <div className="text-[10px] text-slate-600">
-                            ({cell.subjectCode})
-                          </div>
-                          {show.grade && cell.gradeLabel && (
-                            <div className="text-[10px] text-slate-700">
-                              {cell.gradeLabel}
-                            </div>
-                          )}
-                          {show.teacher && cell.teacherLabel && (
-                            <div className="text-[10px] text-slate-700">
-                              {cell.teacherLabel}
-                            </div>
-                          )}
-                          {show.room && cell.roomLabel && (
-                            <div className="text-[10px] text-slate-500">
-                              {cell.roomLabel}
-                            </div>
-                          )}
-                          {cell.isLocked && (
-                            <div
-                              className="mt-0.5 inline-block rounded-sm bg-amber-100 px-1 text-[9px] font-semibold text-amber-800"
-                              title="ล็อกแล้ว"
-                              aria-label="ล็อกแล้ว"
-                            >
-                              ล็อก
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center text-xs text-slate-300">—</div>
-                      )}
-                    </td>
+                      key={`break-${day}-${row.slotNumber}-${idx}`}
+                      data-testid="break-cell"
+                      className="border-b border-slate-200 bg-slate-50"
+                      style={{ borderLeft: `4px solid ${accent}` }}
+                    />
                   );
-                })}
-              </tr>
-            );
-          })}
+                }
+                const ts = row.slots.find((s) => s.DayOfWeek === day);
+                const cell = ts ? cellsByTimeslotId.get(ts.TimeslotID) : undefined;
+                return (
+                  <td
+                    key={`${day}-${row.period}`}
+                    className="timeslot-cell border-b border-slate-200 px-2 py-2 align-top"
+                    style={
+                      cell
+                        ? {
+                            backgroundColor: subjectColors(cell.subjectCode).bg,
+                            borderLeft: `3px solid ${subjectColors(cell.subjectCode).stripe}`,
+                          }
+                        : undefined
+                    }
+                  >
+                    {cell ? (
+                      <div className="space-y-0.5">
+                        <div
+                          className="text-xs font-semibold"
+                          style={{ color: subjectColors(cell.subjectCode).text }}
+                        >
+                          {cell.subjectName}
+                        </div>
+                        <div className="text-[10px] text-slate-600">
+                          ({cell.subjectCode})
+                        </div>
+                        {show.grade && cell.gradeLabel && (
+                          <div className="text-[10px] text-slate-700">
+                            {cell.gradeLabel}
+                          </div>
+                        )}
+                        {show.teacher && cell.teacherLabel && (
+                          <div className="text-[10px] text-slate-700">
+                            {cell.teacherLabel}
+                          </div>
+                        )}
+                        {show.room && cell.roomLabel && (
+                          <div className="text-[10px] text-slate-500">
+                            {cell.roomLabel}
+                          </div>
+                        )}
+                        {cell.isLocked && (
+                          <div
+                            className="mt-0.5 inline-block rounded-sm bg-amber-100 px-1 text-[9px] font-semibold text-amber-800"
+                            title="ล็อกแล้ว"
+                            aria-label="ล็อกแล้ว"
+                          >
+                            ล็อก
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center text-xs text-slate-300">—</div>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
