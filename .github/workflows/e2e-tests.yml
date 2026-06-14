@@ -23,7 +23,7 @@ on:
       update_snapshots:
         description: "Update Playwright visual baselines"
         required: false
-        default: "false"
+        default: false
         type: boolean
 
 concurrency:
@@ -40,6 +40,9 @@ env:
 jobs:
   test:
     name: E2E (${{ matrix.shard }})
+    # Skip the normal test matrix when a dispatch is only refreshing visual
+    # baselines (handled by the dedicated update-baselines job below).
+    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.update_snapshots) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -221,16 +224,10 @@ jobs:
       # --- Run tests ---
       - name: Run E2E tests (${{ matrix.shard }})
         run: |
-          EXTRA_ARGS=""
-          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
-            # =all so Playwright (v1.59+) doesn't parse the next spec path as the mode value
-            EXTRA_ARGS="--update-snapshots=all"
-          fi
           pnpm exec playwright test \
             --timeout=90000 \
             --workers=${{ steps.shard.outputs.workers }} \
             --retries=${{ steps.shard.outputs.retries }} \
-            $EXTRA_ARGS \
             ${{ steps.shard.outputs.files }}
         env:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
@@ -272,16 +269,110 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
-      - name: Upload updated snapshots
-        if: always() && inputs.update_snapshots == true && matrix.shard == 'parallel'
-        uses: actions/upload-artifact@v4
+  # --- Regenerate + auto-commit visual baselines (manual dispatch only) ---
+  # Run: gh workflow run e2e-tests.yml -f update_snapshots=true [--ref <branch>]
+  # CI is the source of truth for the -linux baselines; never update locally.
+  update-baselines:
+    name: Update Visual Baselines
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.update_snapshots }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_timetable
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_timetable"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
         with:
-          name: updated-snapshots
-          path: |
-            e2e/**/*-snapshots/*.png
-            e2e/visual/**/*.png
-          retention-days: 30
-          if-no-files-found: warn
+          ref: ${{ github.ref_name }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Setup env files
+        run: |
+          cat > .env.test << 'ENVEOF'
+          DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
+          BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL=http://localhost:3000
+          BASE_URL=http://localhost:3000
+          AUTH_GOOGLE_ID=dummy-client-id
+          AUTH_GOOGLE_SECRET=dummy-client-secret
+          SEED_SECRET=${{ secrets.SEED_SECRET }}
+          SEED_FOR_TESTS=true
+          SEED_CLEAN_DATA=true
+          NEXT_TELEMETRY_DISABLED=1
+          NODE_ENV=test
+          CI=true
+          ENVEOF
+          cp .env.test .env.test.local
+          cp .env.test .env.local
+          cp .env.test .env.production
+
+      - name: Install & generate
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma generate
+
+      - name: Migrate & seed
+        run: |
+          pnpm prisma migrate deploy
+          pnpm db:seed:clean
+        env:
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          SEED_FOR_TESTS: "true"
+          SEED_CLEAN_DATA: "true"
+
+      - name: Build
+        run: pnpm build
+        env:
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          AUTH_GOOGLE_ID: dummy-client-id
+          AUTH_GOOGLE_SECRET: dummy-client-secret
+          SEED_FOR_TESTS: "true"
+          NODE_ENV: production
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Regenerate visual baselines
+        run: |
+          pnpm exec playwright test e2e/visual e2e/admin-workflow.spec.ts \
+            --update-snapshots=all \
+            --workers=1 \
+            --timeout=90000
+        env:
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          AUTH_GOOGLE_ID: dummy-client-id
+          AUTH_GOOGLE_SECRET: dummy-client-secret
+          CI: "true"
+          SKIP_DB_SEED: "true"
+
+      - name: Commit & push updated baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add 'e2e/**/*-snapshots/*.png'
+          if git diff --cached --quiet; then
+            echo "No baseline changes to commit."
+          else
+            git commit -m "test(visual): update Playwright baselines via CI [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
 
   # --- Merge results from both shards ---
   merge-results:
