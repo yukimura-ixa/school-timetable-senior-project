@@ -1,4 +1,6 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import { testSemester } from "./fixtures/seed-data.fixture";
+import { getE2ETeacherId } from "./helpers/teacher-id";
 
 /**
  * E2E Tests for Public Data API Layer
@@ -23,6 +25,25 @@ import { test, expect } from "./fixtures/admin.fixture";
 // These are public pages/endpoints; they should run unauthenticated.
 // Use the `guestPage` fixture to avoid mixing unauth storageState with the
 // `authenticatedAdmin` fixture (which navigates to /dashboard).
+
+/**
+ * Clicking a tab can race React hydration in `next dev`: the click lands before
+ * the onClick handler attaches and is silently lost, leaving the default
+ * (teachers) tab active. Re-click until the tab reports aria-selected=true.
+ */
+const selectTab = async (
+  page: import("@playwright/test").Page,
+  testId: string,
+): Promise<void> => {
+  const tab = page.getByTestId(testId);
+  await expect(tab).toBeVisible({ timeout: 15000 });
+  await expect(async () => {
+    await tab.click();
+    await expect(tab).toHaveAttribute("aria-selected", "true", {
+      timeout: 2000,
+    });
+  }).toPass({ timeout: 20000 });
+};
 
 test.describe("Public Teachers Data API", () => {
   test("should load homepage with teachers data", async ({
@@ -154,30 +175,27 @@ test.describe("Public Teachers Data API", () => {
   });
 
   test("should load individual teacher detail page", async ({
-    guestPage,
+    authenticatedAdmin,
   }) => {
-    const page = guestPage;
-    // This test assumes teachers have detail pages at /teachers/{id}
-    // Navigate to homepage and switch to teachers tab
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
+    // The public teacher page is term-scoped and 404s for teachers without a
+    // schedule in the current term, so an arbitrary homepage link is unreliable.
+    // Target the E2E teacher, which is seeded with a responsibility in the
+    // published term (1-2568). Id resolution needs the authenticated
+    // /api/teachers endpoint; the detail page itself is public.
+    const { page } = authenticatedAdmin;
+    const teacherId = await getE2ETeacherId(page);
 
-    // Find a teacher link (adjust selector based on actual implementation)
-    const teacherLink = page
-      .getByTestId("teacher-list")
-      .locator('a[href*="/teachers/"]')
-      .first();
+    await page.goto(
+      `/teachers/${teacherId}/${testSemester.Year}/${testSemester.Semester}`,
+      { timeout: 60000, waitUntil: "domcontentloaded" },
+    );
 
-    if (await teacherLink.isVisible()) {
-      await teacherLink.click();
-      await expect(page).toHaveURL(/\/teachers\//, { timeout: 15000 });
+    expect(page.url()).toContain("/teachers/");
 
-      // Verify we're on a teacher detail page
-      expect(page.url()).toContain("/teachers/");
-
-      // Public teacher schedule uses a grid table
-      await expect(page.getByTestId("schedule-grid")).toBeVisible({ timeout: 15000 });
-    }
+    // Public teacher schedule uses a grid table (allow dev cold-compile).
+    await expect(page.getByTestId("schedule-grid")).toBeVisible({
+      timeout: 30000,
+    });
   });
 });
 
@@ -190,7 +208,7 @@ test.describe("Public Classes Data API", () => {
 
     // Check if classes tab exists and click it
     await expect(page.getByTestId("classes-tab")).toBeVisible();
-    await page.getByTestId("classes-tab").click();
+    await selectTab(page, "classes-tab");
 
     // Verify classes table is visible
     await expect(page.getByTestId("class-list")).toBeVisible();
@@ -208,7 +226,7 @@ test.describe("Public Classes Data API", () => {
   }) => {
     const page = guestPage;
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("classes-tab").click();
+    await selectTab(page, "classes-tab");
 
     // Get page content
     const content = await page.content();
@@ -227,7 +245,7 @@ test.describe("Public Classes Data API", () => {
   }) => {
     const page = guestPage;
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("classes-tab").click();
+    await selectTab(page, "classes-tab");
 
     const firstCard = page
       .getByTestId("class-list")
@@ -246,7 +264,7 @@ test.describe("Public Classes Data API", () => {
   }) => {
     const page = guestPage;
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("classes-tab").click();
+    await selectTab(page, "classes-tab");
 
     // Check if pagination controls exist
     const paginationExists = await page
@@ -425,7 +443,7 @@ test.describe("Security & Privacy Checks", () => {
   test("no PII (email) in classes section", async ({ guestPage }) => {
     const page = guestPage;
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("classes-tab").click();
+    await selectTab(page, "classes-tab");
 
     const content = await page.content();
 
@@ -538,7 +556,7 @@ test.describe("Data Validation & Integrity", () => {
   }) => {
     const page = guestPage;
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("classes-tab").click();
+    await selectTab(page, "classes-tab");
 
     const content = await page.textContent("body");
 
@@ -598,7 +616,7 @@ test.describe("Performance & Caching", () => {
     );
 
     // Switch to classes tab
-    await page.getByTestId("classes-tab").click();
+    await selectTab(page, "classes-tab");
 
     // Verify tab state changed (client-side, no URL change)
     await expect(page.getByTestId("classes-tab")).toHaveAttribute(

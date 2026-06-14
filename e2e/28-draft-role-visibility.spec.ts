@@ -2,12 +2,11 @@ import { test, expect } from "@playwright/test";
 import { TEACHER_E2E, loginAsViaApi } from "./helpers/login";
 
 /**
- * Role boundaries around the default (unpublished) seed world.
+ * Role boundaries around the seeded world (1-2568 PUBLISHED, 2-2568 DRAFT).
  *
- * NOTE: public draft-invisibility is deliberately NOT asserted —
- * getCurrentTerm() has no PUBLISHED filter (known product bug, bead filed
- * from the 2026-06-12 lifecycle spec). If that bug is fixed, extend this
- * spec with draft-absence assertions.
+ * NOTE: public draft-term invisibility (DRAFT terms 404 on the public
+ * class/teacher routes) is asserted in public-draft-term-404.spec.ts, not
+ * here; this spec focuses on role/auth boundaries.
  *
  * NOTE: the signin UI is admin-only (SignInForm blocks non-admin roles),
  * so the teacher persona is exercised via UI-rejection + API session.
@@ -68,8 +67,7 @@ test.describe("draft-term role visibility", () => {
     const page = await context.newPage();
     try {
       await page.goto("/classes/M1-1/2568/1");
-      // Page resolves the grade (no 404) — content-level assertion stays
-      // loose while the seeded term is a draft.
+      // 1-2568 is PUBLISHED, so the public class page renders the seeded grade.
       await expect(page.getByText(/ม\.1\/1|M1-1/).first()).toBeVisible({ timeout: 15000 });
     } finally {
       await context.close();

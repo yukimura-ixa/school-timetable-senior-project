@@ -2954,6 +2954,7 @@ async function main() {
             Days: ["MON", "TUE", "WED", "THU", "FRI"],
             slots: SLOTS_2568,
           },
+          status: "PUBLISHED",
         },
       }),
     "Create table config",

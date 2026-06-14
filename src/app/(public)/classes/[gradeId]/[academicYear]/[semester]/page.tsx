@@ -33,6 +33,15 @@ export async function generateMetadata({
   const gradeLevel = await publicDataRepository.findGradeByIdOrNumeric(gradeId);
   if (!gradeLevel) return { title: "ไม่พบข้อมูล" };
 
+  if (
+    !(await publicDataRepository.isTermPublished(
+      academicYear,
+      parsed.semesterEnum as semester,
+    ))
+  ) {
+    return { title: "ไม่พบข้อมูล" };
+  }
+
   return {
     title: `ตารางเรียน - ม.${gradeLevel.Year}/${gradeLevel.Number}`,
     description: `ดูตารางเรียนของชั้น ม.${gradeLevel.Year}/${gradeLevel.Number}`,
@@ -50,9 +59,12 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   const gradeLevel = await publicDataRepository.findGradeByIdOrNumeric(gradeId);
   if (!gradeLevel) notFound();
 
-  // Fetch class schedules for this grade and term
-  // Note: semesterEnum is already typed as "SEMESTER_1" | "SEMESTER_2" from parseConfigId
+  // Never expose unpublished (DRAFT) terms via direct URL access (issue 5ka).
   const semesterValue: semester = semesterEnum;
+  if (!(await publicDataRepository.isTermPublished(academicYear, semesterValue))) {
+    notFound();
+  }
+
   const schedules = await classRepository.findByGrade(
     gradeLevel.GradeID,
     academicYear,

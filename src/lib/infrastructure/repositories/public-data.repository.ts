@@ -199,6 +199,7 @@ function toSemesterEnum(semesterString: string): semester {
  */
 const getCurrentTerm = cache(async () => {
   return await prisma.table_config.findFirst({
+    where: { status: "PUBLISHED" },
     orderBy: { AcademicYear: "desc" },
     select: {
       AcademicYear: true,
@@ -751,5 +752,26 @@ export const publicDataRepository = {
     }
 
     return gradeLevel;
+  },
+
+  /**
+   * Whether a term is publicly visible (i.e. PUBLISHED).
+   * Public schedule pages must call this before serving term-scoped data so
+   * that DRAFT terms are never exposed via direct URL access (issue 5ka).
+   */
+  async isTermPublished(
+    academicYear: number,
+    semesterValue: semester,
+  ): Promise<boolean> {
+    const config = await prisma.table_config.findFirst({
+      where: {
+        AcademicYear: academicYear,
+        Semester: semesterValue,
+        status: "PUBLISHED",
+      },
+      select: { ConfigID: true },
+      ...cacheStrategy("fresh", ["term_published"]),
+    });
+    return config !== null;
   },
 };

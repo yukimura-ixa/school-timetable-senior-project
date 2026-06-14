@@ -26,6 +26,9 @@ export async function generateMetadata({
   const semNum = parseInt(semStr, 10);
   const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
   if (!semesterEnum || isNaN(academicYear)) return { title: "ไม่พบข้อมูล" };
+  if (!(await publicDataRepository.isTermPublished(academicYear, semesterEnum))) {
+    return { title: "ไม่พบข้อมูล" };
+  }
   const teacher = await publicDataRepository.findPublicTeacherById(
     teacherId,
     academicYear,
@@ -54,6 +57,11 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   const semNum = parseInt(semStr, 10);
   const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
   if (!semesterEnum || isNaN(academicYear)) notFound();
+
+  // Never expose unpublished (DRAFT) terms via direct URL access (issue 5ka).
+  if (!(await publicDataRepository.isTermPublished(academicYear, semesterEnum))) {
+    notFound();
+  }
 
   // Fetch teacher info and schedule data
   const teacher = await publicDataRepository.findPublicTeacherById(
