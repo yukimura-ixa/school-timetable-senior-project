@@ -29,6 +29,9 @@ const PUBLIC_PATH_PREFIXES = [
   "/classes",
   "/teachers",
 
+  // Chrome-free print/PDF routes (public; DRAFT guard lives in the loader)
+  "/print",
+
   // Better Auth API handler
   "/api/auth",
 
