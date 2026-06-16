@@ -251,9 +251,6 @@ function StudentTablePage() {
   const ref = useRef<HTMLDivElement>(null);
   const [isPDFExport] = useState(false);
 
-  // Browser print-to-PDF of the on-screen timetable (isolated via the
-  // .print-area rule in globals.css). Replaces the server-side @react-pdf
-  // route that rendered an empty schedule.
   // Opens the server-side PDF route in a new tab. Headless Chromium renders
   // the admin-guarded print route and forwards the caller's session cookies.
   const handleExportPDF = () => {
