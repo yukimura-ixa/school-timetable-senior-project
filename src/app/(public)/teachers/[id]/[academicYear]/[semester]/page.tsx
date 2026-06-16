@@ -3,14 +3,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
-import type { semester } from "@/prisma/generated/client";
-import { findByTerm as findConfigByTerm } from "@/features/config/infrastructure/repositories/config.repository";
-import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
-import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
-import { parseConfigData } from "@/features/config/domain/types/config-data.types";
-import type { SlotConfig, BreakGroup } from "@/features/timeslot/domain/models/break.types";
-import { TimeslotGrid, type ScheduleCell } from "@/components/schedule/TimeslotGrid";
-
+import { TimeslotGrid } from "@/components/schedule/TimeslotGrid";
+import { loadTeacherScheduleView } from "@/features/schedule/loaders/teacher-schedule";
+import { PrintButton } from "../../../../_components/PrintButton";
 
 type PageProps = {
   params: Promise<{ id: string; academicYear: string; semester: string }>;
@@ -41,75 +36,18 @@ export async function generateMetadata({
   };
 }
 
-type ResponsibilityWithSchedules = Awaited<
-  ReturnType<typeof publicDataRepository.findTeacherResponsibilities>
->[number];
-
-type PublicScheduleEntry = NonNullable<
-  ResponsibilityWithSchedules["class_schedule"]
->[number];
-
 export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   const { id, academicYear: yearStr, semester: semStr } = await params;
   const teacherId = parseInt(id, 10);
   if (isNaN(teacherId)) notFound();
-  const academicYear = parseInt(yearStr, 10);
-  const semNum = parseInt(semStr, 10);
-  const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
-  if (!semesterEnum || isNaN(academicYear)) notFound();
 
-  // Never expose unpublished (DRAFT) terms via direct URL access (issue 5ka).
-  if (!(await publicDataRepository.isTermPublished(academicYear, semesterEnum))) {
-    notFound();
-  }
-
-  // Fetch teacher info and schedule data
-  const teacher = await publicDataRepository.findPublicTeacherById(
+  const view = await loadTeacherScheduleView(
     teacherId,
-    academicYear,
-    semesterEnum,
-  );
-  if (!teacher) notFound();
-
-  // Get responsibilities to build schedule grid
-  const responsibilities =
-    await publicDataRepository.findTeacherResponsibilities(
-      teacherId,
-      academicYear,
-      semesterEnum,
-    );
-  const schedules: PublicScheduleEntry[] = responsibilities.flatMap(
-    (resp) => resp.class_schedule ?? [],
+    parseInt(yearStr, 10),
+    parseInt(semStr, 10),
   );
 
-  // Get all timeslots + break config for this term to build the grid
-  const semesterValue: semester = semesterEnum;
-  const semesterNum =
-    semesterValue === "SEMESTER_1" ? "1" : semesterValue === "SEMESTER_2" ? "2" : "3";
-  const configId = `${semesterNum}-${academicYear}`;
-  const [timeslots, termConfig, breakGroupRows] = await Promise.all([
-    publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue),
-    findConfigByTerm(academicYear, semesterValue),
-    breakGroupRepository.findByConfigId(configId),
-  ]);
-  let slots: SlotConfig[] = [];
-  try {
-    slots = termConfig?.Config ? parseConfigData(termConfig.Config).slots : [];
-  } catch {
-    slots = [];
-  }
-  const breakGroups: BreakGroup[] = toBreakGroups(breakGroupRows);
-
-  const cellsByTimeslotId = new Map<string, ScheduleCell>();
-  for (const s of schedules) {
-    cellsByTimeslotId.set(s.timeslot.TimeslotID, {
-      timeslotId: s.timeslot.TimeslotID,
-      subjectCode: s.subject.SubjectCode,
-      subjectName: s.subject.SubjectName,
-      gradeLabel: `ม.${s.gradelevel.Year}/${s.gradelevel.Number}`,
-      roomLabel: s.room?.RoomName ?? undefined,
-    });
-  }
+  const pdfUrl = `/print/teachers/${id}/${yearStr}/${semStr}/pdf`;
 
   return (
     <div className="container mx-auto max-w-7xl p-4 space-y-4">
@@ -129,35 +67,30 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
         <h1 className="text-2xl font-bold text-gray-900">ตารางสอน</h1>
         <div className="text-gray-700">
           <p className="font-medium" data-testid="teacher-name">
-            {teacher.name}
+            {view.teacher.name}
           </p>
           <p className="text-sm text-gray-600">
-            ภาควิชา: {teacher.department || "-"}
+            ภาควิชา: {view.teacher.department || "-"}
           </p>
           <p className="text-sm text-gray-600">
-            ภาคเรียนที่ {semesterEnum === "SEMESTER_1" ? "1" : "2"}{" "}
-            ปีการศึกษา {academicYear}
+            ภาคเรียนที่ {view.semNum} ปีการศึกษา {view.academicYear}
           </p>
         </div>
       </div>
 
       {/* Schedule Grid */}
       <TimeslotGrid
-        timeslots={timeslots}
-        slots={slots}
-        breakGroups={breakGroups}
+        timeslots={view.timeslots}
+        slots={view.slots}
+        breakGroups={view.breakGroups}
         view={{ mode: "teacher" }}
-        cellsByTimeslotId={cellsByTimeslotId}
+        cellsByTimeslotId={view.cellsByTimeslotId}
         show={{ grade: true, room: true }}
       />
 
-      {/* Print instructions */}
-      <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
-        <p className="font-medium mb-1">หมายเหตุ:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>ใช้ฟังก์ชัน Print ของเบราว์เซอร์เพื่อพิมพ์ตารางนี้</li>
-          <li>แนะนำให้ใช้แนวกระดาษแบบ Landscape (แนวนอน)</li>
-        </ul>
+      {/* Print Button */}
+      <div className="flex justify-end print:hidden">
+        <PrintButton pdfUrl={pdfUrl} />
       </div>
     </div>
   );
