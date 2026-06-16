@@ -70,14 +70,22 @@ export function TimeslotGrid({
               if (row.kind === "break") {
                 const labels = row.defs.map((d) => d.label).join(" · ");
                 const accent = row.defs[0]?.color ?? "#94a3b8";
+                const breakTime = row.slots[0]
+                  ? formatTimeRange(row.slots[0])
+                  : null;
                 return (
                   <th
                     key={`bh-${row.slotNumber}-${idx}`}
-                    className="border-r border-slate-700 px-1 py-2 text-[10px] font-medium italic"
+                    className="whitespace-nowrap border-r border-slate-700 px-2 py-2 text-[10px] font-medium italic"
                     style={{ borderTop: `4px solid ${accent}` }}
                     title={labels}
                   >
-                    พัก
+                    <div>พัก</div>
+                    {breakTime && (
+                      <div className="text-[9px] font-normal not-italic text-slate-300">
+                        {breakTime}
+                      </div>
+                    )}
                   </th>
                 );
               }
