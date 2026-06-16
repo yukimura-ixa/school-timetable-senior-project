@@ -29,7 +29,11 @@ const PUBLIC_PATH_PREFIXES = [
   "/classes",
   "/teachers",
 
-  // Chrome-free print/PDF routes (public; DRAFT guard lives in the loader)
+  // Chrome-free print/PDF routes (public; DRAFT guard lives in the loader).
+  // WARNING: This prefix bypasses middleware auth for ALL /print/** paths.
+  // Any future admin-only print route (e.g. dashboard student-table, all-timeslot
+  // dumps, teacher bulk-print) MUST self-enforce auth inside the route/page handler
+  // because middleware will NOT protect it just because it lives under /print.
   "/print",
 
   // Better Auth API handler
