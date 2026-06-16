@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import {
   getPublicTeacherById,
   getTeacherSchedule,
+  getCurrentTermInfo,
 } from "@/lib/public/teachers";
 import { PrintButton } from "../../_components/PrintButton";
 
@@ -59,9 +60,10 @@ type TeacherSchedule = Awaited<ReturnType<typeof getTeacherSchedule>>[number];
 async function TeacherScheduleContent({
   teacherId,
 }: TeacherScheduleContentProps) {
-  const [teacher, schedules] = await Promise.all([
+  const [teacher, schedules, termInfo] = await Promise.all([
     getPublicTeacherById(teacherId),
     getTeacherSchedule(teacherId),
+    getCurrentTermInfo(),
   ]);
 
   if (!teacher) {
@@ -249,8 +251,13 @@ async function TeacherScheduleContent({
 
         {/* Print Button */}
         <div className="mt-6 flex justify-center print:hidden">
-          {/* TODO(print): replace "#" with real teacher PDF URL once the teacher print slice lands */}
-          <PrintButton pdfUrl="#" />
+          <PrintButton
+            pdfUrl={
+              termInfo
+                ? `/print/teachers/${teacherId}/${termInfo.academicYear}/${termInfo.semester === "SEMESTER_1" ? "1" : "2"}/pdf`
+                : "#"
+            }
+          />
         </div>
       </div>
     </main>

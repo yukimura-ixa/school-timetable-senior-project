@@ -24,7 +24,7 @@ export type { PublicTeacher };
  * Extract academic year and semester from term string
  * Format: "ภาคเรียนที่ 1 ปีการศึกษา 2567"
  */
-async function getCurrentTermInfo(): Promise<{
+export async function getCurrentTermInfo(): Promise<{
   academicYear: number;
   semester: semester;
 } | null> {
