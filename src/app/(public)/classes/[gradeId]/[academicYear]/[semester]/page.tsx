@@ -82,7 +82,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
 
         {/* Print Button */}
         <div className="mt-4 md:mt-6 flex justify-center print:hidden">
-          <PrintButton />
+          <PrintButton pdfUrl={`/print/classes/${gradeId}/${yearStr}/${semStr}/pdf`} />
         </div>
       </div>
     </main>

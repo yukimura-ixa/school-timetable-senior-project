@@ -249,7 +249,8 @@ async function TeacherScheduleContent({
 
         {/* Print Button */}
         <div className="mt-6 flex justify-center print:hidden">
-          <PrintButton />
+          {/* TODO(print): replace "#" with real teacher PDF URL once the teacher print slice lands */}
+          <PrintButton pdfUrl="#" />
         </div>
       </div>
     </main>
