@@ -254,8 +254,15 @@ function StudentTablePage() {
   // Browser print-to-PDF of the on-screen timetable (isolated via the
   // .print-area rule in globals.css). Replaces the server-side @react-pdf
   // route that rendered an empty schedule.
+  // Opens the server-side PDF route in a new tab. Headless Chromium renders
+  // the admin-guarded print route and forwards the caller's session cookies.
   const handleExportPDF = () => {
-    window.print();
+    if (!academicYear || !semester) return;
+    window.open(
+      `/print/student-table/${academicYear}/${semester}/pdf`,
+      "_blank",
+      "noopener",
+    );
   };
 
   // Add print styles
@@ -328,7 +335,12 @@ function StudentTablePage() {
 
   const handleBulkPrint = () => {
     handleExportMenuClose();
-    window.print();
+    if (!academicYear || !semester) return;
+    window.open(
+      `/print/student-table/${academicYear}/${semester}/pdf`,
+      "_blank",
+      "noopener",
+    );
   };
 
   const handleSelectGrade = (gradeId: string | null) => {
