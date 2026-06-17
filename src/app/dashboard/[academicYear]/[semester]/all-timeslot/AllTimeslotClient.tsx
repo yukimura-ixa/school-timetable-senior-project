@@ -40,10 +40,6 @@ import SwapVertIcon from "@mui/icons-material/SwapVert";
 
 import FilterListIcon from "@mui/icons-material/FilterList";
 
-import PrintIcon from "@mui/icons-material/Print";
-
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
@@ -196,15 +192,6 @@ const AllTimeslotClient = ({
     );
 
     handleExportMenuClose();
-  };
-
-  const handlePrint = () => {
-    handleExportMenuClose();
-    window.open(
-      `/print/all-timeslot/${academicYear}/${semester}/pdf`,
-      "_blank",
-      "noopener",
-    );
   };
 
   return (
@@ -474,14 +461,6 @@ const AllTimeslotClient = ({
                   </Tooltip>
                 </>
               )}
-
-              <Button
-                variant="outlined"
-                startIcon={<PrintIcon />}
-                onClick={handlePrint}
-              >
-                พิมพ์
-              </Button>
             </Stack>
 
             <Stack direction="row" spacing={1} alignItems="center">
@@ -513,11 +492,6 @@ const AllTimeslotClient = ({
                   <MenuItem onClick={handleExportSummary}>
                     <SummarizeIcon fontSize="small" sx={{ mr: 1 }} />
                     สรุปสำหรับครู
-                  </MenuItem>
-
-                  <MenuItem onClick={handlePrint}>
-                    <PictureAsPdfIcon fontSize="small" sx={{ mr: 1 }} />
-                    พิมพ์ PDF
                   </MenuItem>
                 </Menu>
               )}

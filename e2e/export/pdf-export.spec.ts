@@ -23,7 +23,6 @@ const PUBLIC_PRINT_ROUTES = {
 
 const ADMIN_PRINT_ROUTES = {
   studentTable: `/print/student-table/M1-1/${AY}/${SEM}`,
-  allTimeslot: `/print/all-timeslot/${AY}/${SEM}`,
   teacherTable: `/print/teacher-table/${AY}/${SEM}?ids=1`,
 };
 
@@ -33,7 +32,6 @@ const PDF_ROUTES = {
   classes: `/print/classes/M1-1/${AY}/${SEM}/pdf`,
   teachers: `/print/teachers/1/${AY}/${SEM}/pdf`,
   studentTable: `/print/student-table/M1-1/${AY}/${SEM}/pdf`,
-  allTimeslot: `/print/all-timeslot/${AY}/${SEM}/pdf`,
   teacherTable: `/print/teacher-table/${AY}/${SEM}/pdf?ids=1`,
 };
 
