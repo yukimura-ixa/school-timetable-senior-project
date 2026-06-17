@@ -325,10 +325,14 @@ function TeacherTablePage() {
   }, [bulkPrint]);
 
   const handleExportPDF = () => {
-    // Browser print-to-PDF: prints the on-screen timetable, isolated via the
-    // .print-area rule in globals.css (replaces the html2canvas/jsPDF capture
-    // that produced blank schedules under Tailwind v4 / MUI oklch colors).
-    window.print();
+    // Server-rendered PDF in a new tab (admin-only button); the print route
+    // forwards the admin session and allows DRAFT terms.
+    if (!effectiveTeacherId || !semester || !academicYear) return;
+    window.open(
+      `/print/teacher-table/${academicYear}/${semester}/pdf?ids=${effectiveTeacherId}`,
+      "_blank",
+      "noopener",
+    );
   };
 
   // Bulk export handlers
@@ -365,30 +369,16 @@ function TeacherTablePage() {
     handleExportMenuClose();
   };
 
-  const handleBulkPrint = async () => {
+  const handleBulkPrint = () => {
     handleExportMenuClose();
     if (selectedTeacherIds.length === 0 || !semester || !academicYear) return;
-
-    const semesterEnum = `SEMESTER_${semester}` as
-      | "SEMESTER_1"
-      | "SEMESTER_2";
-    const results = await Promise.all(
-      selectedTeacherIds.map(async (id) => {
-        const res = await getClassSchedulesAction({
-          TeacherID: id,
-          AcademicYear: Number(academicYear),
-          Semester: semesterEnum,
-        });
-        const cls = res.success && res.data ? res.data : [];
-        const teacher = allTeachers.data?.find((t) => t.TeacherID === id);
-        return {
-          teacherId: id,
-          name: formatTeacherName(teacher),
-          data: createTimeSlotTableData(timeslots, cls),
-        };
-      }),
+    // Server-rendered PDF (2 teachers/page) opened in a new tab. The print
+    // route forwards the admin session and allows DRAFT terms.
+    window.open(
+      `/print/teacher-table/${academicYear}/${semester}/pdf?ids=${selectedTeacherIds.join(",")}`,
+      "_blank",
+      "noopener",
     );
-    setBulkPrint(results);
   };
 
   const handleSelectTeacher = (teacherId: number | null) => {

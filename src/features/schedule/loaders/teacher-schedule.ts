@@ -31,14 +31,17 @@ export async function loadTeacherScheduleView(
   teacherId: number,
   academicYear: number,
   semNum: number,
+  opts: { requirePublished?: boolean } = {},
 ): Promise<TeacherScheduleView> {
+  const { requirePublished = true } = opts;
   const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
   if (!semesterEnum || isNaN(academicYear) || isNaN(teacherId)) notFound();
 
   const semesterValue: semester = semesterEnum;
 
-  // Never expose unpublished (DRAFT) terms (issue 5ka).
-  if (!(await publicDataRepository.isTermPublished(academicYear, semesterValue))) {
+  // Public routes must never expose unpublished (DRAFT) terms (issue 5ka);
+  // admin-guarded print routes pass requirePublished:false to allow DRAFT.
+  if (requirePublished && !(await publicDataRepository.isTermPublished(academicYear, semesterValue))) {
     notFound();
   }
 
