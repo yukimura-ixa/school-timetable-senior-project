@@ -2,6 +2,7 @@ import type { gradelevel, timeslot } from "@/prisma/generated/client";
 import type { Prisma } from "@/prisma/generated/client";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import ExcelJS from "exceljs";
+import { downloadBlob } from "@/utils/download-blob";
 
 // Type matching ClassScheduleWithSummary from repository
 export type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
@@ -429,11 +430,6 @@ export const ExportStudentTable = (
     const blob = new Blob([data], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    const url = window.URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = "ตารางนักเรียน.xlsx";
-    anchor.click();
-    window.URL.revokeObjectURL(url);
+    downloadBlob(blob, "ตารางนักเรียน.xlsx");
   });
 };

@@ -2,6 +2,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { teacher } from "@/prisma/generated/client";
 import type { Prisma } from "@/prisma/generated/client";
 import ExcelJS from "exceljs";
+import { downloadBlob } from "@/utils/download-blob";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 // Type matching ClassScheduleWithSummary from repository
@@ -210,11 +211,6 @@ file. Here is a breakdown of the steps: */
     const blob = new Blob([data], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    const url = window.URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = "รวม.xlsx";
-    anchor.click();
-    window.URL.revokeObjectURL(url);
+    downloadBlob(blob, "รวม.xlsx");
   });
 };
