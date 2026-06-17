@@ -253,10 +253,11 @@ function StudentTablePage() {
 
   // Opens the server-side PDF route in a new tab. Headless Chromium renders
   // the admin-guarded print route and forwards the caller's session cookies.
+  // Requires a grade to be selected — button is disabled when none is selected.
   const handleExportPDF = () => {
-    if (!academicYear || !semester) return;
+    if (!academicYear || !semester || !selectedGradeId) return;
     window.open(
-      `/print/student-table/${academicYear}/${semester}/pdf`,
+      `/print/student-table/${selectedGradeId}/${academicYear}/${semester}/pdf`,
       "_blank",
       "noopener",
     );
@@ -332,12 +333,15 @@ function StudentTablePage() {
 
   const handleBulkPrint = () => {
     handleExportMenuClose();
-    if (!academicYear || !semester) return;
-    window.open(
-      `/print/student-table/${academicYear}/${semester}/pdf`,
-      "_blank",
-      "noopener",
-    );
+    if (!academicYear || !semester || selectedGradeIds.length === 0) return;
+    // Open one PDF tab per selected grade (per-class print, not combined).
+    for (const gid of selectedGradeIds) {
+      window.open(
+        `/print/student-table/${gid}/${academicYear}/${semester}/pdf`,
+        "_blank",
+        "noopener",
+      );
+    }
   };
 
   const handleSelectGrade = (gradeId: string | null) => {

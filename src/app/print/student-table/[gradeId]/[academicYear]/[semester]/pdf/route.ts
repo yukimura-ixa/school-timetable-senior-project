@@ -5,7 +5,7 @@ import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { parseCookieHeader } from "@/features/print/cookies";
 import { renderUrlToPdf } from "@/features/print/render-pdf";
 
-type Params = { academicYear: string; semester: string };
+type Params = { gradeId: string; academicYear: string; semester: string };
 
 export async function GET(
   req: Request,
@@ -18,7 +18,7 @@ export async function GET(
     notFound();
   }
 
-  const { academicYear, semester } = await params;
+  const { gradeId, academicYear, semester } = await params;
   const origin = new URL(req.url).origin;
 
   // Forward the caller's session cookies so headless Chromium passes the
@@ -29,14 +29,14 @@ export async function GET(
   );
 
   const pdf = await renderUrlToPdf(
-    `${origin}/print/student-table/${academicYear}/${semester}`,
+    `${origin}/print/student-table/${gradeId}/${academicYear}/${semester}`,
     { landscape: false, cookies },
   );
 
   return new Response(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="student-table-${academicYear}-${semester}.pdf"`,
+      "Content-Disposition": `inline; filename="student-table-${gradeId}-${academicYear}-${semester}.pdf"`,
     },
   });
 }

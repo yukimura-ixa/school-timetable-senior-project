@@ -26,7 +26,9 @@ export async function loadClassScheduleView(
   gradeId: string,
   academicYear: number,
   semNum: number,
+  opts: { requirePublished?: boolean } = {},
 ): Promise<ClassScheduleView> {
+  const { requirePublished = true } = opts;
   const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
   if (!semesterEnum || isNaN(academicYear)) notFound();
 
@@ -34,7 +36,7 @@ export async function loadClassScheduleView(
   if (!gradeLevel) notFound();
 
   const semesterValue: semester = semesterEnum;
-  if (!(await publicDataRepository.isTermPublished(academicYear, semesterValue))) {
+  if (requirePublished && !(await publicDataRepository.isTermPublished(academicYear, semesterValue))) {
     notFound();
   }
 
