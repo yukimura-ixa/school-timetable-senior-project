@@ -260,7 +260,7 @@ export default function ExportAllProgram(
     .writeBuffer()
     .then((data) => {
       const blob = new Blob([data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");

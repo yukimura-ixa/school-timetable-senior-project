@@ -208,7 +208,7 @@ create a Blob from that data, and then generate a download link for the user to 
 file. Here is a breakdown of the steps: */
   void workbook.xlsx.writeBuffer().then((data) => {
     const blob = new Blob([data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const url = window.URL.createObjectURL(blob);
     const anchor = document.createElement("a");
