@@ -8,6 +8,7 @@
  */
 
 import { PersonCard } from "@/components/public/PersonCard";
+import { gradeYearColor } from "@/lib/ui/monogram";
 import type { PublicClass } from "@/lib/public/classes";
 
 type Props = {
@@ -75,7 +76,7 @@ export function ClassesTableClient({
           secondary={`${cls.subjectCount} วิชา`}
           monogram={{ kind: "grade", year: cls.year }}
           accentClass="text-accent-class"
-          stripeClass="bg-accent-class"
+          accentColor={gradeYearColor(cls.year)}
           href={
             term
               ? `/classes/${toNumericGradeId(cls.gradeId)}/${term.academicYear}/${term.semester}`

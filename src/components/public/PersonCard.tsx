@@ -22,6 +22,12 @@ export type PersonCardProps = {
    * Passed as a literal so Tailwind can see it; omit to hide the stripe.
    */
   stripeClass?: string;
+  /**
+   * Solid accent hex. When set, drives the stripe, monogram, and arrow color
+   * (overrides accentClass / stripeClass / the id-hashed monogram gradient) —
+   * used to color cards by grade year.
+   */
+  accentColor?: string;
   /** Optional admin row-overlay slot (edit / lock). */
   adminOverlay?: React.ReactNode;
   /** data-testid override; defaults to "person-card". */
@@ -36,6 +42,7 @@ export function PersonCard({
   monogram,
   accentClass,
   stripeClass,
+  accentColor,
   adminOverlay,
   testId = "person-card",
 }: PersonCardProps) {
@@ -46,13 +53,17 @@ export function PersonCard({
       data-testid={testId}
       className="group relative flex items-center gap-2.5 overflow-hidden rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
-      {stripeClass && (
-        <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${stripeClass}`} />
+      {(accentColor || stripeClass) && (
+        <span
+          aria-hidden
+          className={`absolute inset-y-0 left-0 w-1 ${accentColor ? "" : stripeClass}`}
+          style={accentColor ? { backgroundColor: accentColor } : undefined}
+        />
       )}
       <div
         aria-hidden
         className="flex size-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-        style={{ background: gradient }}
+        style={{ background: accentColor ?? gradient }}
       >
         {initial}
       </div>
@@ -70,7 +81,11 @@ export function PersonCard({
         </Link>
         <div className="truncate text-xs tabular-nums text-slate-500">{secondary}</div>
       </div>
-      <span aria-hidden className={`shrink-0 text-sm font-semibold ${accentClass}`}>
+      <span
+        aria-hidden
+        className={`shrink-0 text-sm font-semibold ${accentColor ? "" : accentClass}`}
+        style={accentColor ? { color: accentColor } : undefined}
+      >
         →
       </span>
       {adminOverlay && (
