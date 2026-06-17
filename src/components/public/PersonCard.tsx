@@ -17,6 +17,11 @@ export type PersonCardProps = {
   monogram?: { kind: "grade"; year: number };
   /** Per-surface accent token — text-accent-teacher | text-accent-class. */
   accentClass: string;
+  /**
+   * Static bg-* class for the left accent stripe (e.g. "bg-accent-teacher").
+   * Passed as a literal so Tailwind can see it; omit to hide the stripe.
+   */
+  stripeClass?: string;
   /** Optional admin row-overlay slot (edit / lock). */
   adminOverlay?: React.ReactNode;
   /** data-testid override; defaults to "person-card". */
@@ -30,6 +35,7 @@ export function PersonCard({
   href,
   monogram,
   accentClass,
+  stripeClass,
   adminOverlay,
   testId = "person-card",
 }: PersonCardProps) {
@@ -38,11 +44,14 @@ export function PersonCard({
   return (
     <article
       data-testid={testId}
-      className="group relative flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
+      {stripeClass && (
+        <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${stripeClass}`} />
+      )}
       <div
         aria-hidden
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
+        className="flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
         style={{ background: gradient }}
       >
         {initial}
@@ -55,7 +64,7 @@ export function PersonCard({
         >
           {primary}
         </Link>
-        <div className="truncate text-xs text-slate-500">{secondary}</div>
+        <div className="truncate text-xs tabular-nums text-slate-500">{secondary}</div>
       </div>
       <Link
         href={href}

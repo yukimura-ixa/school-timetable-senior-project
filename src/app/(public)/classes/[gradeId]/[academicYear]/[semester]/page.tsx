@@ -57,16 +57,18 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         </Link>
 
         {/* Class Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            ตารางเรียน{" "}
-            <span data-testid="class-name">
-              ม.{view.gradeLevel.Year}/{view.gradeLevel.Number}
-            </span>
-          </h1>
-          <p className="text-xs md:text-sm text-gray-500 mt-2">
-            ภาคเรียนที่ {semStr} ปีการศึกษา{" "}
-            {yearStr}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-900 px-5 py-4 md:mb-6">
+          <div className="flex items-center gap-3">
+            <span className="h-7 w-1.5 rounded-full bg-accent-class" aria-hidden />
+            <h1 className="text-xl font-bold text-white md:text-2xl">
+              ตารางเรียน{" "}
+              <span data-testid="class-name" className="text-accent-class">
+                ม.{view.gradeLevel.Year}/{view.gradeLevel.Number}
+              </span>
+            </h1>
+          </div>
+          <p className="text-xs tabular-nums text-slate-400 md:text-sm">
+            ภาคเรียนที่ {semStr} ปีการศึกษา {yearStr}
           </p>
         </div>
 

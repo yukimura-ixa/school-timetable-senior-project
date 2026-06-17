@@ -225,9 +225,9 @@ export function DataTableSection({
   };
 
   return (
-    <div className="bg-white/40 backdrop-blur-xl rounded-2xl sm:rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.03)] border border-white/60 overflow-hidden transition-all duration-500 hover:shadow-[0_20px_80px_rgba(0,0,0,0.05)]">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       {/* Tab Navigation */}
-      <div className="border-b border-slate-200/50 bg-white/30 px-4 sm:px-6 md:px-8 pt-4 sm:pt-6">
+      <div className="bg-slate-900 px-4 sm:px-6 md:px-8 pt-3 sm:pt-4">
         <nav className="-mb-px flex space-x-6 sm:space-x-12" role="tablist">
           <button
             ref={teachersTabRef}
@@ -240,8 +240,8 @@ export function DataTableSection({
               transition-all duration-300
               ${
                 activeTab === "teachers"
-                  ? "text-blue-600"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "text-white"
+                  : "text-slate-400 hover:text-slate-200"
               }
             `}
             role="tab"
@@ -251,7 +251,7 @@ export function DataTableSection({
           >
             <span>ครู</span>
             {activeTab === "teachers" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-accent-teacher" />
             )}
           </button>
           <button
@@ -265,8 +265,8 @@ export function DataTableSection({
               transition-all duration-300
               ${
                 activeTab === "classes"
-                  ? "text-blue-600"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "text-white"
+                  : "text-slate-400 hover:text-slate-200"
               }
             `}
             role="tab"
@@ -276,14 +276,14 @@ export function DataTableSection({
           >
             <span>ชั้นเรียน</span>
             {activeTab === "classes" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-accent-class" />
             )}
           </button>
         </nav>
       </div>
 
       {/* Toolbar: search + sort + count + mobile filter trigger */}
-      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white/20">
+      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white">
         <ListToolbar
           placeholder={
             activeTab === "teachers"
@@ -301,7 +301,7 @@ export function DataTableSection({
       </div>
 
       {/* Content: faceted sidebar + card grid */}
-      <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
+      <div className="period-grid px-4 pt-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
         <div className="flex gap-4 md:gap-6">
           <FilterSidebar
             facet={activeFacet}
@@ -368,7 +368,7 @@ export function DataTableSection({
 
       {/* Pagination */}
       {actualTotalPages > 1 && (
-        <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white/30 border-t border-slate-100">
+        <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white border-t border-slate-200">
           <ClientPagination
             currentPage={currentPage}
             totalPages={actualTotalPages}

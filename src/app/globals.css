@@ -269,6 +269,48 @@
   font-display: swap;
 }
 
+/* ============================================
+ * PUBLIC SCHEDULE-BOARD SURFACES
+ * Shared by the public directory + weekly grid redesign (issue 6y6).
+ * ============================================ */
+
+/* Faint period-grid watermark behind the directory card grid — echoes the
+   timetable matrix without competing with the cards on top. */
+.period-grid {
+  background-color: #f8fafc;
+  background-image: linear-gradient(
+    to right,
+    rgba(15, 23, 42, 0.04) 1px,
+    transparent 1px
+  );
+  background-size: 56px 100%;
+}
+
+/* Break columns in the weekly grid: a diagonal hatch that reads as a clear
+   "lessons | break" seam. The 2px side rules are applied inline via Tailwind. */
+.timeslot-break-cell {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #eef2f6,
+    #eef2f6 5px,
+    #dde5ee 5px,
+    #dde5ee 10px
+  );
+}
+
+@media print {
+  /* Keep the break seam legible once color tints drop out in B&W print. */
+  .timeslot-break-cell {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #ffffff,
+      #ffffff 5px,
+      #e5e7eb 5px,
+      #e5e7eb 10px
+    );
+  }
+}
+
 /* เอาไว้เปลี่ยน fill ของ icon */
 .hoverfill:hover > .iconhover {
   fill: #0891b2;

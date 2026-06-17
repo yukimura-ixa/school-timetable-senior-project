@@ -72,9 +72,10 @@ export function ClassesTableClient({
           key={cls.gradeId}
           id={cls.gradeId}
           primary={`ม.${cls.year}/${cls.section}`}
-          secondary={`${cls.homeroomTeacher || "—"} · ${cls.weeklyHours} คาบ`}
+          secondary={`${cls.subjectCount} วิชา`}
           monogram={{ kind: "grade", year: cls.year }}
           accentClass="text-accent-class"
+          stripeClass="bg-accent-class"
           href={
             term
               ? `/classes/${toNumericGradeId(cls.gradeId)}/${term.academicYear}/${term.semester}`

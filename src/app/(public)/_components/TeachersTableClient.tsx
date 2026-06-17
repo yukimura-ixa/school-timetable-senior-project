@@ -63,6 +63,7 @@ export function TeachersTableClient({
               : `/teachers/${teacher.teacherId}`
           }
           accentClass="text-accent-teacher"
+          stripeClass="bg-accent-teacher"
         />
       ))}
     </div>

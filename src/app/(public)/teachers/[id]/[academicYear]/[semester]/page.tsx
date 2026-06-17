@@ -63,16 +63,19 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       </div>
 
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-2">
-        <h1 className="text-2xl font-bold text-gray-900">ตารางสอน</h1>
-        <div className="text-gray-700">
-          <p className="font-medium" data-testid="teacher-name">
-            {view.teacher.name}
-          </p>
-          <p className="text-sm text-gray-600">
-            ภาควิชา: {view.teacher.department || "-"}
-          </p>
-          <p className="text-sm text-gray-600">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-900 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <span className="h-7 w-1.5 rounded-full bg-accent-teacher" aria-hidden />
+          <div>
+            <h1 className="text-lg font-bold text-white">ตารางสอน</h1>
+            <p className="text-sm font-medium text-slate-200" data-testid="teacher-name">
+              {view.teacher.name}
+            </p>
+          </div>
+        </div>
+        <div className="text-left text-xs text-slate-400 sm:text-right">
+          <p>ภาควิชา: {view.teacher.department || "-"}</p>
+          <p className="tabular-nums">
             ภาคเรียนที่ {view.semNum} ปีการศึกษา {view.academicYear}
           </p>
         </div>
