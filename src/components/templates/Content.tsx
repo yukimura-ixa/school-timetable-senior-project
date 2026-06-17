@@ -82,6 +82,13 @@ function Content(props: Props) {
     <Menubar />
   );
 
+  // Print routes render bare — no app nav/sidebar, no min-h-screen, no width
+  // cap — so the /print HTML (and its headless-Chromium PDF) contains only the
+  // timetable. PrintShell supplies the page's own layout + @page sizing.
+  if (pathName === "/print" || pathName.startsWith("/print/")) {
+    return <>{props.children}</>;
+  }
+
   return (
     <div className="flex w-full h-auto min-h-screen bg-gray-50/30">
       {/* Mobile backdrop overlay */}

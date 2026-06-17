@@ -13,7 +13,7 @@ export default async function TeacherPrintPage({ params }: { params: Promise<Par
   );
   const title = `ตารางสอน ${view.teacher.name} — ภาคเรียนที่ ${view.semNum}/${view.academicYear}`;
   return (
-    <PrintShell title={title} orientation="portrait">
+    <PrintShell title={title} orientation="landscape">
       <div className="print-card print-fit">
         <TimeslotGrid
           timeslots={view.timeslots}

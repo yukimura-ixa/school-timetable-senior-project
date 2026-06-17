@@ -40,7 +40,7 @@ export default async function TeacherTablePrintPage({
 
   const title = `ตารางสอน (รวม) — ภาคเรียนที่ ${view.semNum}/${view.academicYear}`;
   return (
-    <PrintShell title={title} orientation="portrait">
+    <PrintShell title={title} orientation="landscape">
       <div className="print-bulk">
         {view.teachers.map((t) => (
           <div key={t.teacher.teacherId} className="print-card print-fit">

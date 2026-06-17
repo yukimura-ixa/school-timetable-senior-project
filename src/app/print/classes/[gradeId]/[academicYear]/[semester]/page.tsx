@@ -9,7 +9,7 @@ export default async function ClassPrintPage({ params }: { params: Promise<Param
   const view = await loadClassScheduleView(gradeId, parseInt(academicYear, 10), parseInt(semester, 10));
   const title = `ตารางเรียน ม.${view.gradeLevel.Year}/${view.gradeLevel.Number} — ภาคเรียนที่ ${view.semNum}/${view.academicYear}`;
   return (
-    <PrintShell title={title} orientation="portrait">
+    <PrintShell title={title} orientation="landscape">
       <div className="print-card print-fit">
         <TimeslotGrid
           timeslots={view.timeslots}

@@ -32,7 +32,7 @@ export default async function StudentTableClassPrintPage({
 
   const title = `ตารางเรียน ม.${view.gradeLevel.Year}/${view.gradeLevel.Number} — ภาคเรียนที่ ${view.semNum}/${view.academicYear}`;
   return (
-    <PrintShell title={title} orientation="portrait">
+    <PrintShell title={title} orientation="landscape">
       <div className="print-card print-fit">
         <TimeslotGrid
           timeslots={view.timeslots}
