@@ -11,7 +11,6 @@ import { getSessionCookie } from "better-auth/cookies";
  * - /schedule/1-2567/arrange → /schedule/2567/1/arrange
  * - /dashboard/2-2568/analytics → /dashboard/2568/2/analytics
  * - /classes/M1-1/1-2567 → /classes/M1-1/2567/1
- * - /teachers/1/1-2567 → /teachers/1/2567/1
  *
  * Uses 301 (Permanent Redirect) to signal this is the new canonical URL.
  * Preserves query parameters and hash fragments.
@@ -27,7 +26,6 @@ const PUBLIC_PATH_PREFIXES = [
 
   // Public timetable views — (public) route group maps to root
   "/classes",
-  "/teachers",
 
   // Chrome-free print/PDF routes (public; DRAFT guard lives in the loader).
   // WARNING: This prefix bypasses middleware auth for ALL /print/** paths.
@@ -79,21 +77,6 @@ export function proxy(request: NextRequest) {
   if (match) {
     const [, gradeId, semester, year] = match;
     const newPath = `/classes/${gradeId}/${year}/${semester}`;
-
-    const url = request.nextUrl.clone();
-    url.pathname = newPath;
-
-    return NextResponse.redirect(url, 301);
-  }
-
-  // Pattern 3: Public teacher routes
-  // Match: /teachers/{id}/{semester}-{year}
-  const teacherPattern = /^\/teachers\/(\d+)\/(\d)-(25\d{2})$/;
-  match = pathname.match(teacherPattern);
-
-  if (match) {
-    const [, id, semester, year] = match;
-    const newPath = `/teachers/${id}/${year}/${semester}`;
 
     const url = request.nextUrl.clone();
     url.pathname = newPath;

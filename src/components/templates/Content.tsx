@@ -24,9 +24,8 @@ function Content(props: Props) {
   // (no max-w-7xl cap) — see amo.
   const isArrangePage = !!pathName.match("/arrange");
 
-  // Check if current path is a public route (teacher/class schedule)
-  const isPublicRoute =
-    pathName.startsWith("/teachers/") || pathName.startsWith("/classes/");
+  // Check if current path is a public route (class schedule)
+  const isPublicRoute = pathName.startsWith("/classes/");
 
   // Pages that don't have a sidebar
   const isNoSidebarPage =

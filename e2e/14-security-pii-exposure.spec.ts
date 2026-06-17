@@ -157,19 +157,6 @@ test.describe("Security: PII Exposure Prevention", () => {
       timeout: 15000,
     });
 
-    // Check teachers tab if it exists
-    const teachersTab = page
-      .locator(
-        '[data-testid="teachers-tab"], button:has-text("ครู"), a:has-text("ครู")',
-      )
-      .first();
-    if ((await teachersTab.count()) > 0) {
-      await teachersTab.click();
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 15000,
-      });
-    }
-
     // Assert no sensitive data was found
     expect(sensitiveDataFound).toHaveLength(0);
 

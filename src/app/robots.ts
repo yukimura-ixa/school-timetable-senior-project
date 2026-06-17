@@ -20,7 +20,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: [
           "/",                    // Homepage
-          "/teachers/*",          // Teacher profile pages
+          "/classes/*",           // Public class timetables
           "/privacy-policy",      // Legal pages
           "/about",
           "/contact",
