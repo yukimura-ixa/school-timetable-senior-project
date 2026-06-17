@@ -1,6 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import useSWR from "swr";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
@@ -248,9 +248,6 @@ function StudentTablePage() {
     errors.push("ไม่สามารถโหลดตารางเรียนของชั้นเรียนที่เลือกได้");
   }
 
-  const ref = useRef<HTMLDivElement>(null);
-  const [isPDFExport] = useState(false);
-
   // Opens the server-side PDF route in a new tab. Headless Chromium renders
   // the admin-guarded print route and forwards the caller's session cookies.
   // Requires a grade to be selected — button is disabled when none is selected.
@@ -262,41 +259,6 @@ function StudentTablePage() {
       "noopener",
     );
   };
-
-  // Add print styles
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.textContent = `
-      @media print {
-        .no-print {
-          display: none !important;
-        }
-        .printable-table {
-          display: block !important;
-        }
-        .page-break {
-          page-break-after: always;
-        }
-        @page {
-          size: landscape;
-          margin: 1cm;
-        }
-        body {
-          print-color-adjust: exact;
-          -webkit-print-color-adjust: exact;
-        }
-      }
-      @media (max-width: 768px) {
-        .printable-table {
-          padding: 8px;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
 
   // Bulk export handlers
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -664,11 +626,7 @@ function StudentTablePage() {
                   sx={{ borderRadius: 1 }}
                 />
               ) : (
-                <Paper
-                  elevation={1}
-                  className="print-area"
-                  sx={{ p: 2, overflow: "auto" }}
-                >
+                <Paper elevation={1} sx={{ p: 2, overflow: "auto" }}>
                   <TimeSlot
                     searchGradeID={selectedGradeId}
                     timeSlotData={timeSlotData}
@@ -677,28 +635,6 @@ function StudentTablePage() {
                   />
                 </Paper>
               )}
-
-              {/* Hidden PDF Export */}
-              <div
-                ref={ref}
-                className="printFont mt-5 flex flex-col items-center justify-center p-10"
-                style={{ display: isPDFExport ? "flex" : "none" }}
-              >
-                <div className="printFont mb-8 flex gap-10">
-                  <p>ตารางเรียน {getGradeLabel(selectedGradeId)}</p>
-                  <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
-                </div>
-                <TimeSlot
-                  searchGradeID={selectedGradeId}
-                  timeSlotData={timeSlotData}
-                  slots={configData?.data?.slots ?? []}
-                  breakGroups={breakContextData?.data?.groups}
-                />
-                <div className="mt-8 flex gap-2">
-                  <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
-                  <p>ลงชื่อ..............................ผู้อำนวยการ</p>
-                </div>
-              </div>
             </Stack>
           )}
       </Stack>

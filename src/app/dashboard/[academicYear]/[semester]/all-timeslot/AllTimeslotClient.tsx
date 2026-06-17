@@ -111,63 +111,12 @@ const AllTimeslotClient = ({
     style.id = styleId;
 
     style.textContent = `
-
-      @media print {
-
-        body * {
-
-          visibility: hidden;
-
-        }
-
-        .printable-table,
-
-        .printable-table * {
-
-          visibility: visible;
-
-        }
-
-        .printable-table {
-
-          position: absolute;
-
-          left: 0;
-
-          top: 0;
-
-          width: 100%;
-
-        }
-
-        .no-print {
-
-          display: none !important;
-
-        }
-
-        @page {
-
-          size: landscape;
-
-          margin: 1cm;
-
-        }
-
-      }
-
       @media (max-width: 768px) {
-
         .MuiContainer-root {
-
           padding-left: 8px !important;
-
           padding-right: 8px !important;
-
         }
-
       }
-
     `;
 
     document.head.appendChild(style);
