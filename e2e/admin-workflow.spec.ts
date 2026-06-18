@@ -192,10 +192,17 @@ test.describe("Visual: Dashboard Views", () => {
     await nav.goToAllTimeslots(TEST_SEMESTER);
     await waitForStableState(page, 1000);
 
-    await expect(page).toHaveScreenshot(
-      "all-timeslots-view.png",
-      VISUAL_OPTIONS,
-    );
+    // The all-timeslot grid reflects all schedule placements + per-teacher
+    // totals, which concurrent/prior arrange specs mutate on the shared test DB
+    // — masking them keeps this screenshot deterministic, asserting only the
+    // stable frame (day/period headers + teacher-name column). See zo6.
+    await expect(page).toHaveScreenshot("all-timeslots-view.png", {
+      ...VISUAL_OPTIONS,
+      mask: [
+        page.getByTestId("all-timeslot-grid-cells"),
+        page.getByTestId("all-timeslot-grid-totals"),
+      ],
+    });
   });
 });
 

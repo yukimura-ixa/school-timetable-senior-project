@@ -35,7 +35,7 @@ const TableResult = (props: Props) => {
   };
 
   return (
-    <Stack sx={{ ml: 1, userSelect: "none" }}>
+    <Stack data-testid="all-timeslot-grid-totals" sx={{ ml: 1, userSelect: "none" }}>
       {/* Header — matches TableHead height */}
       <Stack direction="row" sx={{ height: 64, mb: 0.5 }}>
         <Box

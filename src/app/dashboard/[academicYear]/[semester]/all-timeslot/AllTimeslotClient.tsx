@@ -803,7 +803,10 @@ const AllTimeslotClient = ({
               {/* Body Content — TeacherList | grid | per-teacher totals */}
               <Stack direction="row">
                 <TeacherList teachers={filteredTeachers} />
-                <Box sx={{ flex: 1, overflowX: "auto", overflowY: "hidden" }}>
+                <Box
+                  data-testid="all-timeslot-grid-cells"
+                  sx={{ flex: 1, overflowX: "auto", overflowY: "hidden" }}
+                >
                   <TableBody
                     teachers={filteredTeachers}
                     columns={timeSlotData.Columns}
