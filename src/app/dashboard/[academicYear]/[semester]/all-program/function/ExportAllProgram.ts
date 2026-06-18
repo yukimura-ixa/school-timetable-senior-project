@@ -1,6 +1,7 @@
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { subjectCreditValues, subject_credit } from "@/models/credit-value";
 import ExcelJS from "exceljs";
+import { downloadBlob } from "@/utils/download-blob";
 import { createClientLogger } from "@/lib/client-logger";
 import { isUndefined } from "swr/_internal";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
@@ -260,14 +261,9 @@ export default function ExportAllProgram(
     .writeBuffer()
     .then((data) => {
       const blob = new Blob([data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = "หลักสูตร.xlsx";
-      anchor.click();
-      window.URL.revokeObjectURL(url);
+      downloadBlob(blob, "หลักสูตร.xlsx");
     })
     .catch((error) => {
       log.logError(error, { action: "export" });

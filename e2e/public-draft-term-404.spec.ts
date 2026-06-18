@@ -1,9 +1,9 @@
 /**
  * E2E Tests: DRAFT terms are hidden from public routes (issue 5ka)
  *
- * The public class and teacher schedule pages must never expose an unpublished
- * (DRAFT) term via direct URL access. Both pages gate on
- * `publicDataRepository.isTermPublished()` and call `notFound()` when the term's
+ * The public class schedule page must never expose an unpublished (DRAFT) term
+ * via direct URL access. The page gates on
+ * `publicDataRepository.isTermPublished()` and calls `notFound()` when the term's
  * `table_config.status` is not "PUBLISHED".
  *
  * Test seed (pnpm test:db:seed): 2-2568 is explicitly DRAFT, so semester 2 /
@@ -16,13 +16,11 @@
  *
  * Related Files:
  * - src/app/(public)/classes/[gradeId]/[academicYear]/[semester]/page.tsx
- * - src/app/(public)/teachers/[id]/[academicYear]/[semester]/page.tsx
  * - src/lib/infrastructure/repositories/public-data.repository.ts (isTermPublished)
  */
 
 import { test, expect } from "./fixtures/admin.fixture";
 import { testGradeLevel, testSemesters } from "./fixtures/seed-data.fixture";
-import { getE2ETeacherId } from "./helpers/teacher-id";
 
 test.describe.configure({ mode: "parallel" });
 
@@ -46,23 +44,6 @@ test.describe("Public routes — DRAFT term is not exposed (issue 5ka)", () => {
     // M1-1 is term-independent seed data, so the only reason this is hidden is
     // the DRAFT gate — removing the gate would render the grid and fail this.
     await page.goto(`/classes/${testGradeLevel.GradeID}/${draftTermPath}`, {
-      timeout: 60000,
-      waitUntil: "domcontentloaded",
-    });
-
-    await expectNotFound(page);
-  });
-
-  test("teacher schedule for a DRAFT term is not found", async ({
-    authenticatedAdmin,
-  }) => {
-    // The public homepage only lists published terms, so a real teacher id is
-    // resolved via the canonical /api/teachers helper (needs an authenticated
-    // page); the public schedule page itself requires no auth.
-    const { page } = authenticatedAdmin;
-    const teacherId = await getE2ETeacherId(page);
-
-    await page.goto(`/teachers/${teacherId}/${draftTermPath}`, {
       timeout: 60000,
       waitUntil: "domcontentloaded",
     });

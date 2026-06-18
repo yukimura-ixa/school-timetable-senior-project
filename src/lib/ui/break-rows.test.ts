@@ -147,6 +147,21 @@ describe("buildGridRows", () => {
     expect(breakRows[2]!.defs[0].color).toBe("#2196F3");
   });
 
+  it("break rows carry the slot's timeslots so the header can show its time", () => {
+    const rows = buildGridRows(timeslots, slots, breakGroups, {
+      mode: "class",
+      gradeId: "M1-1",
+      groupNames: ["junior"],
+    });
+    const universalBreak = rows.find(
+      (r) => r.kind === "break" && (r as any).slotNumber === 3,
+    ) as any;
+    expect(universalBreak.slots).toHaveLength(2); // MON + TUE
+    expect(
+      universalBreak.slots.every((t: any) => t.TimeslotID.endsWith("-3")),
+    ).toBe(true);
+  });
+
   it("teaching period count excludes break slots", () => {
     // slots 1,2 teaching | slot 3 break | slots 4,5 break | slot 6 teaching
     // class view junior: breaks at 3,4 → teaching slots 1,2,5,6 → periods 1,2,3,4

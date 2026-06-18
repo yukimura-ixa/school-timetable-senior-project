@@ -1,313 +1,105 @@
-import { test, expect } from "@playwright/test";
-import path from "path";
+import { test, expect } from "../fixtures/admin.fixture";
 
-const RUN_PDF_EXPORT_E2E = process.env.E2E_PDF_EXPORT === "true";
+/**
+ * Coverage for the unified server-rendered print routes.
+ *
+ * Architecture: each timetable surface has a chrome-free `/print/*` HTML route
+ * (rendered via PrintShell + TimeslotGrid, no app nav) and a sibling `/pdf`
+ * route handler that headless Chromium renders to a real PDF.
+ *
+ * The grid-render + access-control tests run by default (SSR only). The PDF
+ * handler tests launch headless Chromium (CHROME_PATH in dev / @sparticuz in
+ * prod), so they are gated behind E2E_PDF_EXPORT to keep CI green where no
+ * Chrome binary is configured.
+ */
 
-test.describe("PDF Export - Admin Only", () => {
-  test.skip(
-    !RUN_PDF_EXPORT_E2E,
-    "Set E2E_PDF_EXPORT=true to run PDF export E2E tests",
-  );
-  test.beforeEach(async ({ page }) => {
-    // Navigate to sign in page
-    await page.goto("/signin");
+const AY = "2568";
+const SEM = "1";
 
-    // Sign in as admin
-    await page.fill('input[name="username"]', process.env.ADMIN_USERNAME || "admin");
-    await page.fill('input[name="password"]', process.env.ADMIN_PASSWORD || "admin123");
-    await page.click('button[type="submit"]');
+const PUBLIC_PRINT_ROUTES = {
+  classes: `/print/classes/M1-1/${AY}/${SEM}`,
+};
 
-    // Wait for redirect to dashboard
-    await page.waitForURL("/dashboard/**", { timeout: 10000 });
-  });
+const ADMIN_PRINT_ROUTES = {
+  studentTable: `/print/student-table/M1-1/${AY}/${SEM}`,
+  teacherTable: `/print/teacher-table/${AY}/${SEM}?ids=1`,
+};
 
-  test("should allow admin to export PDF", async ({ page, context }) => {
-    // Grant download permissions
-    await context.grantPermissions(["downloads"]);
+const ALL_PRINT_ROUTES = { ...PUBLIC_PRINT_ROUTES, ...ADMIN_PRINT_ROUTES };
 
-    // Navigate to teacher table
-    await page.goto("/dashboard/2568/1/teacher-table");
-    await page.waitForLoadState("networkidle");
+const PDF_ROUTES = {
+  classes: `/print/classes/M1-1/${AY}/${SEM}/pdf`,
+  studentTable: `/print/student-table/M1-1/${AY}/${SEM}/pdf`,
+  teacherTable: `/print/teacher-table/${AY}/${SEM}/pdf?ids=1`,
+};
 
-    // Select a teacher
-    const teacherSelect = page.locator('[data-testid="teacher-select"]').first();
-    await teacherSelect.click();
-    await page.locator('li[role="option"]').first().click();
-
-    // Wait for PDF button to be enabled (indicates teacher data loaded)
-    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
-    await expect(pdfButton).toBeVisible({ timeout: 10000 });
-    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
-
-    // Set up download listener
-    const downloadPromise = page.waitForEvent("download");
-    await pdfButton.click();
-
-    // Wait for download
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toMatch(/^teacher-\d+-1-2568\.pdf$/);
-
-    // Verify file was downloaded
-    const downloadPath = await download.path();
-    expect(downloadPath).toBeTruthy();
-
-    // Optional: Verify file size (PDF should not be empty)
-    const fs = await import("fs");
-    const stats = fs.statSync(downloadPath!);
-    expect(stats.size).toBeGreaterThan(1000); // At least 1KB
-  });
-
-  test("should show error for invalid data", async ({ page }) => {
-    // Navigate to teacher table without selecting teacher
-    await page.goto("/dashboard/2568/1/teacher-table");
-    await page.waitForLoadState("networkidle");
-
-    // PDF button should be disabled when no teacher is selected
-    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
-    await expect(pdfButton).toBeVisible();
-    await expect(pdfButton).toBeDisabled();
-  });
-
-  test("should handle network errors gracefully", async ({ page, context }) => {
-    // Navigate to teacher table
-    await page.goto("/dashboard/2568/1/teacher-table");
-    await page.waitForLoadState("networkidle");
-
-    // Select a teacher
-    const teacherSelect = page.locator('[data-testid="teacher-select"]').first();
-    await teacherSelect.click();
-    await page.locator('li[role="option"]').first().click();
-    // Wait for teacher data to load (PDF button becomes enabled)
-    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
-    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
-
-    // Intercept API call and make it fail
-    await page.route("/api/export/teacher-timetable/pdf", (route) => {
-      route.fulfill({
-        status: 500,
-        body: JSON.stringify({ error: "Internal Server Error" }),
-      });
+test.describe("Print routes render chrome-free grids", () => {
+  for (const [name, url] of Object.entries(ALL_PRINT_ROUTES)) {
+    test(`${name}: renders schedule grid without app nav`, async ({
+      authenticatedAdmin,
+    }) => {
+      const { page } = authenticatedAdmin;
+      await page.goto(url, { timeout: 90000 });
+      // The shared print grid marker the PDF renderer also waits for.
+      await expect(
+        page.locator('[data-testid="schedule-grid"]').first(),
+      ).toBeVisible({ timeout: 30000 });
+      // Dedicated print segment: no application navigation chrome.
+      await expect(page.locator("nav[data-app-nav]")).toHaveCount(0);
     });
+  }
+});
 
-    // Set up dialog handler for alert
-    page.on("dialog", async (dialog) => {
-      expect(dialog.message()).toContain("เกิดข้อผิดพลาดในการส่งออก PDF");
-      await dialog.accept();
+test.describe("Admin print routes are not exposed to guests", () => {
+  for (const [name, url] of Object.entries(ADMIN_PRINT_ROUTES)) {
+    test(`${name}: guest sees no grid (admin-guarded)`, async ({
+      guestPage,
+    }) => {
+      await guestPage.goto(url, { timeout: 90000 });
+      // notFound() renders the not-found page — the grid must never appear.
+      await expect(
+        guestPage.locator('[data-testid="schedule-grid"]'),
+      ).toHaveCount(0);
     });
+  }
 
-    // Click PDF export button - dialog handler already set up
-    await pdfButton.click();
-  });
-
-  test("should render Thai fonts correctly in PDF", async ({ page, context }) => {
-    await context.grantPermissions(["downloads"]);
-
-    // Navigate to teacher table
-    await page.goto("/dashboard/2568/1/teacher-table");
-    await page.waitForLoadState("networkidle");
-
-    // Select a teacher
-    const teacherSelect = page.locator('[data-testid="teacher-select"]').first();
-    await teacherSelect.click();
-    await page.locator('li[role="option"]').first().click();
-
-    // Wait for PDF button to be enabled (teacher data loaded)
-    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
-    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
-
-    // Export PDF
-    const downloadPromise = page.waitForEvent("download");
-    await pdfButton.click();
-
-    const download = await downloadPromise;
-    const downloadPath = await download.path();
-
-    // Verify PDF contains Thai text metadata
-    // Note: Full PDF text extraction would require pdf-parse library
-    const fs = await import("fs");
-    const buffer = fs.readFileSync(downloadPath!);
-    const content = buffer.toString("utf-8", 0, Math.min(buffer.length, 10000));
-
-    // PDF should contain Thai unicode characters or font references
-    // This is a basic check - proper validation requires PDF parsing
-    expect(content.length).toBeGreaterThan(1000);
+  test("public class print route still renders for guests", async ({
+    guestPage,
+  }) => {
+    await guestPage.goto(PUBLIC_PRINT_ROUTES.classes, { timeout: 90000 });
+    await expect(
+      guestPage.locator('[data-testid="schedule-grid"]').first(),
+    ).toBeVisible({ timeout: 30000 });
   });
 });
 
-test.describe("Student PDF Export - Admin Only", () => {
+test.describe("PDF handlers return application/pdf", () => {
   test.skip(
-    !RUN_PDF_EXPORT_E2E,
-    "Set E2E_PDF_EXPORT=true to run PDF export E2E tests",
+    process.env.E2E_PDF_EXPORT !== "true",
+    "Set E2E_PDF_EXPORT=true (requires a Chrome binary) to run headless PDF render tests",
   );
-  test.beforeEach(async ({ page }) => {
-    // Navigate to sign in page
-    await page.goto("/signin");
 
-    // Sign in as admin
-    await page.fill('input[name="username"]', process.env.ADMIN_USERNAME || "admin");
-    await page.fill('input[name="password"]', process.env.ADMIN_PASSWORD || "admin123");
-    await page.click('button[type="submit"]');
-
-    // Wait for redirect to dashboard
-    await page.waitForURL("/dashboard/**", { timeout: 10000 });
-  });
-
-  test("should allow admin to export student PDF", async ({ page, context }) => {
-    // Grant download permissions
-    await context.grantPermissions(["downloads"]);
-
-    // Navigate to student table
-    await page.goto("/dashboard/2568/1/student-table");
-    await page.waitForLoadState("networkidle");
-
-    // Select a grade
-    const gradeSelect = page.locator('[data-testid="grade-select"]').first();
-    await gradeSelect.click();
-    await page.locator('li[role="option"]').first().click();
-
-    // Wait for PDF button to be enabled (grade data loaded)
-    const pdfButton = page.locator('[data-testid="student-export-pdf-button"]');
-    await expect(pdfButton).toBeVisible({ timeout: 10000 });
-    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
-
-    // Set up download listener
-    const downloadPromise = page.waitForEvent("download");
-    await pdfButton.click();
-
-    // Wait for download
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toMatch(/^student-.+-1-2568\.pdf$/);
-
-    // Verify file was downloaded
-    const downloadPath = await download.path();
-    expect(downloadPath).toBeTruthy();
-
-    // Verify file size (PDF should not be empty)
-    const fs = await import("fs");
-    const stats = fs.statSync(downloadPath!);
-    expect(stats.size).toBeGreaterThan(1000); // At least 1KB
-  });
-
-  test("should show error for invalid student data", async ({ page }) => {
-    // Navigate to student table without selecting grade
-    await page.goto("/dashboard/2568/1/student-table");
-    await page.waitForLoadState("networkidle");
-
-    // PDF button should be disabled when no grade is selected
-    const pdfButton = page.locator('[data-testid="student-export-pdf-button"]');
-    await expect(pdfButton).toBeVisible();
-    await expect(pdfButton).toBeDisabled();
-  });
-
-  test("should handle student PDF network errors gracefully", async ({ page }) => {
-    // Navigate to student table
-    await page.goto("/dashboard/2568/1/student-table");
-    await page.waitForLoadState("networkidle");
-
-    // Select a grade
-    const gradeSelect = page.locator('[data-testid="grade-select"]').first();
-    await gradeSelect.click();
-    await page.locator('li[role="option"]').first().click();
-    
-    // Wait for PDF button to be enabled
-    const pdfButton = page.locator('[data-testid="student-export-pdf-button"]');
-    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
-
-    // Intercept API call and make it fail
-    await page.route("/api/export/student-timetable/pdf", (route) => {
-      route.fulfill({
-        status: 500,
-        body: JSON.stringify({ error: "Internal Server Error" }),
+  for (const [name, url] of Object.entries(PDF_ROUTES)) {
+    test(`${name}: returns a non-empty PDF`, async ({ authenticatedAdmin }) => {
+      const res = await authenticatedAdmin.page.request.get(url, {
+        timeout: 180000,
       });
+      expect(res.status()).toBe(200);
+      expect(res.headers()["content-type"]).toContain("application/pdf");
+      const body = await res.body();
+      expect(body.length).toBeGreaterThan(1000);
+      // PDF magic bytes.
+      expect(body.subarray(0, 5).toString("latin1")).toBe("%PDF-");
     });
+  }
 
-    // Set up dialog handler for alert
-    page.on("dialog", async (dialog) => {
-      expect(dialog.message()).toContain("เกิดข้อผิดพลาดในการส่งออก PDF");
-      await dialog.accept();
+  test("admin PDF handler 404s for guests", async ({ guestPage }) => {
+    const res = await guestPage.request.get(PDF_ROUTES.studentTable, {
+      timeout: 180000,
     });
-
-    // Click PDF export button - dialog handler already set up
-    await pdfButton.click();
-  });
-});
-
-test.describe("PDF Export - Non-Admin Access Control", () => {
-  test.skip(
-    !RUN_PDF_EXPORT_E2E,
-    "Set E2E_PDF_EXPORT=true to run PDF export E2E tests",
-  );
-  test("should return 403 for non-admin API access", async ({ page, request }) => {
-    // Navigate to sign in page
-    await page.goto("/signin");
-
-    // Sign in as teacher (if teacher account exists)
-    await page.fill('input[name="username"]', process.env.TEACHER_USERNAME || "teacher");
-    await page.fill('input[name="password"]', process.env.TEACHER_PASSWORD || "teacher123");
-    await page.click('button[type="submit"]');
-
-    // Wait for redirect after login
-    await page.waitForURL("/dashboard/**", { timeout: 15000 }).catch(() => {});
-
-    // Try to call teacher PDF API directly
-    const teacherResponse = await page.request.post("/api/export/teacher-timetable/pdf", {
-      data: {
-        teacherId: 1,
-        teacherName: "Test Teacher",
-        semester: "1",
-        academicYear: "2568",
-        timeslots: [],
-        scheduleEntries: [],
-        totalCredits: 0,
-        totalHours: 0,
-      },
-    });
-
-    // Should return 403 Forbidden
-    expect(teacherResponse.status()).toBe(403);
-    const teacherBody = await teacherResponse.json();
-    expect(teacherBody.error).toContain("Admin access required");
-
-    // Try to call student PDF API directly
-    const studentResponse = await page.request.post("/api/export/student-timetable/pdf", {
-      data: {
-        gradeId: "ม.1",
-        gradeName: "ม.1",
-        semester: "1",
-        academicYear: "2568",
-        timeslots: [],
-        scheduleEntries: [],
-        totalCredits: 0,
-        totalHours: 0,
-      },
-    });
-
-    // Should return 403 Forbidden
-    expect(studentResponse.status()).toBe(403);
-    const studentBody = await studentResponse.json();
-    expect(studentBody.error).toContain("Admin access required");
-  });
-
-  test("should not show PDF button for non-admin users", async ({ page }) => {
-    // Sign in as teacher
-    await page.goto("/signin");
-    await page.fill('input[name="username"]', process.env.TEACHER_USERNAME || "teacher");
-    await page.fill('input[name="password"]', process.env.TEACHER_PASSWORD || "teacher123");
-    await page.click('button[type="submit"]');
-    
-    // Wait for redirect after login
-    await page.waitForURL("/dashboard/**", { timeout: 15000 }).catch(() => {});
-
-    // Check teacher table - PDF button should not be visible
-    await page.goto("/dashboard/2568/1/teacher-table");
-    await page.waitForLoadState("networkidle");
-    const teacherPdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
-    await expect(teacherPdfButton).not.toBeVisible();
-
-    // Check student table - PDF button should not be visible
-    await page.goto("/dashboard/2568/1/student-table");
-    await page.waitForLoadState("networkidle");
-    const studentPdfButton = page.locator('[data-testid="student-export-pdf-button"]');
-    await expect(studentPdfButton).not.toBeVisible();
+    expect(res.status()).toBe(404);
+    expect(res.headers()["content-type"] ?? "").not.toContain(
+      "application/pdf",
+    );
   });
 });

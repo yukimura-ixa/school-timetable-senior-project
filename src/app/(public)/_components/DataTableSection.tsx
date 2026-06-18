@@ -3,30 +3,19 @@
 /**
  * DataTableSection - Client Component
  *
- * Handles tab navigation, search, pagination, and table rendering
- * entirely on the client side without page refreshes or URL changes.
+ * Renders the public class directory: search, faceted filter, sort, and
+ * pagination, entirely client-side without page refreshes or URL changes.
+ * (The public teacher directory was removed — classes only.)
  */
 
-import { useState, useRef } from "react";
-import { TeachersTableClient } from "./TeachersTableClient";
+import { useState } from "react";
 import { ClassesTableClient } from "./ClassesTableClient";
 import {
   FilterSidebar,
   type FilterFacet,
 } from "@/components/public/FilterSidebar";
 import { ListToolbar } from "@/components/public/ListToolbar";
-import type { PublicTeacher } from "@/lib/public/teachers";
 import type { PublicClass } from "@/lib/public/classes";
-
-type TabValue = "teachers" | "classes";
-
-type TeachersResult = {
-  data: PublicTeacher[];
-  total: number;
-  page: number;
-  perPage: number;
-  totalPages: number;
-};
 
 type ClassesResult = {
   data: PublicClass[];
@@ -37,57 +26,28 @@ type ClassesResult = {
 };
 
 type Props = {
-  initialTab?: TabValue;
-  totalTeachers: number;
-  totalClasses: number;
-  teachersData: TeachersResult;
+  totalClasses?: number;
   classesData: ClassesResult;
   currentConfigId?: string; // e.g. "1-2567" for building public schedule links
 };
 
 export function DataTableSection({
-  initialTab = "teachers",
-  // totalTeachers & totalClasses retained for future stats expansions (unused currently)
-  totalTeachers: _totalTeachers,
+  // totalClasses retained for future stats expansions (unused currently)
   totalClasses: _totalClasses,
-  teachersData,
   classesData,
   currentConfigId,
 }: Props) {
-  const TEACHER_DEFAULT_SORT = "name";
-  const CLASS_DEFAULT_SORT = "grade";
-
-  // All state is local - no URL manipulation (deliberate: the landing keeps
+  // All state is local — no URL manipulation (deliberate: the landing keeps
   // browser history clean and shares no filter state via the address bar).
-  const [activeTab, setActiveTab] = useState<TabValue>(initialTab);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [facetValue, setFacetValue] = useState("");
-  const [sortValue, setSortValue] = useState(
-    initialTab === "teachers" ? TEACHER_DEFAULT_SORT : CLASS_DEFAULT_SORT,
-  );
+  const [sortValue, setSortValue] = useState("grade");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Store fetched data
-  const [teachersState] = useState(teachersData);
   const [classesState] = useState(classesData);
 
-  // Facets are computed from the full (unfiltered) dataset so counts are stable.
-  const teacherFacet: FilterFacet = (() => {
-    const counts = new Map<string, number>();
-    for (const t of teachersState.data) {
-      const k = t.department || "ไม่ระบุ";
-      counts.set(k, (counts.get(k) ?? 0) + 1);
-    }
-    return {
-      key: "dept",
-      label: "ภาควิชา",
-      options: [...counts.entries()]
-        .sort((a, b) => a[0].localeCompare(b[0], "th"))
-        .map(([value, count]) => ({ value, label: value, count })),
-    };
-  })();
-
+  // Facet computed from the full (unfiltered) dataset so counts are stable.
   const classFacet: FilterFacet = (() => {
     const counts = new Map<number, number>();
     for (const c of classesState.data)
@@ -106,25 +66,6 @@ export function DataTableSection({
   })();
 
   // Filter + facet + sort
-  const filteredTeachers = (() => {
-    const query = searchQuery.toLowerCase();
-    let xs = teachersState.data;
-    if (query) {
-      xs = xs.filter(
-        (t) =>
-          t.name.toLowerCase().includes(query) ||
-          (t.department && t.department.toLowerCase().includes(query)),
-      );
-    }
-    if (facetValue)
-      xs = xs.filter((t) => (t.department || "ไม่ระบุ") === facetValue);
-    return [...xs].sort((a, b) => {
-      if (sortValue === "hours") return b.weeklyHours - a.weeklyHours;
-      if (sortValue === "subjects") return b.subjectCount - a.subjectCount;
-      return a.name.localeCompare(b.name, "th");
-    });
-  })();
-
   const filteredClasses = (() => {
     const query = searchQuery.toLowerCase();
     let xs = classesState.data;
@@ -137,17 +78,10 @@ export function DataTableSection({
     }
     if (facetValue) xs = xs.filter((cls) => String(cls.year) === facetValue);
     return [...xs].sort((a, b) => {
-      if (sortValue === "hours") return b.weeklyHours - a.weeklyHours;
       if (sortValue === "subjects") return b.subjectCount - a.subjectCount;
       if (a.year !== b.year) return a.year - b.year;
       return a.section - b.section;
     });
-  })();
-
-  // Get current page data
-  const currentTeachers = (() => {
-    const start = (currentPage - 1) * 25;
-    return filteredTeachers.slice(start, start + 25);
   })();
 
   const currentClasses = (() => {
@@ -155,52 +89,13 @@ export function DataTableSection({
     return filteredClasses.slice(start, start + 25);
   })();
 
-  // Recalculate total pages based on filtered data
-  const actualTotalItems =
-    activeTab === "teachers" ? filteredTeachers.length : filteredClasses.length;
+  const actualTotalItems = filteredClasses.length;
   const actualTotalPages = Math.ceil(actualTotalItems / 25);
 
-  const activeFacet = activeTab === "teachers" ? teacherFacet : classFacet;
-  const sortOptions =
-    activeTab === "teachers"
-      ? [
-          { value: "name", label: "ชื่อ ก-ฮ" },
-          { value: "hours", label: "คาบมากสุด" },
-          { value: "subjects", label: "วิชามากสุด" },
-        ]
-      : [
-          { value: "grade", label: "ตามชั้น" },
-          { value: "hours", label: "คาบมากสุด" },
-          { value: "subjects", label: "วิชามากสุด" },
-        ];
-
-  // Refs for keyboard navigation between tabs (WAI-ARIA tabs pattern)
-  const teachersTabRef = useRef<HTMLButtonElement>(null);
-  const classesTabRef = useRef<HTMLButtonElement>(null);
-
-  // Tab change handler - instant, no URL changes
-  const handleTabChange = (tab: TabValue) => {
-    if (tab === activeTab) return;
-    setActiveTab(tab);
-    setCurrentPage(1);
-    setSearchQuery("");
-    setFacetValue("");
-    setSortValue(
-      tab === "teachers" ? TEACHER_DEFAULT_SORT : CLASS_DEFAULT_SORT,
-    );
-    setDrawerOpen(false);
-  };
-
-  // Left/Right arrow keys move focus between tabs and activate the focused tab
-  // (ARIA "automatic activation" pattern).
-  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    e.preventDefault();
-    const nextTab: TabValue = activeTab === "teachers" ? "classes" : "teachers";
-    handleTabChange(nextTab);
-    const nextRef = nextTab === "teachers" ? teachersTabRef : classesTabRef;
-    nextRef.current?.focus();
-  };
+  const sortOptions = [
+    { value: "grade", label: "ตามชั้น" },
+    { value: "subjects", label: "วิชามากสุด" },
+  ];
 
   // Page change handler - no URL changes
   const handlePageChange = (page: number) => {
@@ -225,71 +120,29 @@ export function DataTableSection({
   };
 
   return (
-    <div className="bg-white/40 backdrop-blur-xl rounded-2xl sm:rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.03)] border border-white/60 overflow-hidden transition-all duration-500 hover:shadow-[0_20px_80px_rgba(0,0,0,0.05)]">
-      {/* Tab Navigation */}
-      <div className="border-b border-slate-200/50 bg-white/30 px-4 sm:px-6 md:px-8 pt-4 sm:pt-6">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      {/* Chalkboard header band */}
+      <div className="bg-slate-900 px-4 sm:px-6 md:px-8 pt-3 sm:pt-4">
         <nav className="-mb-px flex space-x-6 sm:space-x-12" role="tablist">
           <button
-            ref={teachersTabRef}
-            onClick={() => handleTabChange("teachers")}
-            onKeyDown={handleTabKeyDown}
-            id="teachers-tab"
-            data-testid="teachers-tab"
-            className={`
-              relative whitespace-nowrap pb-6 px-1 font-bold text-base
-              transition-all duration-300
-              ${
-                activeTab === "teachers"
-                  ? "text-blue-600"
-                  : "text-slate-400 hover:text-slate-600"
-              }
-            `}
-            role="tab"
-            aria-selected={activeTab === "teachers"}
-            aria-controls="teachers-panel"
-            tabIndex={activeTab === "teachers" ? 0 : -1}
-          >
-            <span>ครู</span>
-            {activeTab === "teachers" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
-            )}
-          </button>
-          <button
-            ref={classesTabRef}
-            onClick={() => handleTabChange("classes")}
-            onKeyDown={handleTabKeyDown}
             id="classes-tab"
             data-testid="classes-tab"
-            className={`
-              relative whitespace-nowrap pb-6 px-1 font-bold text-base
-              transition-all duration-300
-              ${
-                activeTab === "classes"
-                  ? "text-blue-600"
-                  : "text-slate-400 hover:text-slate-600"
-              }
-            `}
+            className="relative whitespace-nowrap pb-6 px-1 font-bold text-base text-white"
             role="tab"
-            aria-selected={activeTab === "classes"}
+            aria-selected={true}
             aria-controls="classes-panel"
-            tabIndex={activeTab === "classes" ? 0 : -1}
+            tabIndex={0}
           >
             <span>ชั้นเรียน</span>
-            {activeTab === "classes" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
-            )}
+            <div className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-accent-class" />
           </button>
         </nav>
       </div>
 
       {/* Toolbar: search + sort + count + mobile filter trigger */}
-      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white/20">
+      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white">
         <ListToolbar
-          placeholder={
-            activeTab === "teachers"
-              ? "ค้นหาครูที่ต้องการ เช่น ชื่อจริง, ภาควิชา..."
-              : "ค้นหาชั้นเรียนที่ต้องการ เช่น M.1/2..."
-          }
+          placeholder="ค้นหาชั้นเรียนที่ต้องการ เช่น M.1/2..."
           sortOptions={sortOptions}
           searchValue={searchQuery}
           onSearchChange={handleSearch}
@@ -301,10 +154,10 @@ export function DataTableSection({
       </div>
 
       {/* Content: faceted sidebar + card grid */}
-      <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
+      <div className="period-grid px-4 pt-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
         <div className="flex gap-4 md:gap-6">
           <FilterSidebar
-            facet={activeFacet}
+            facet={classFacet}
             value={facetValue}
             onChange={handleFacet}
           />
@@ -320,7 +173,7 @@ export function DataTableSection({
                 onClick={(e) => e.stopPropagation()}
               >
                 <FilterSidebar
-                  facet={activeFacet}
+                  facet={classFacet}
                   value={facetValue}
                   onChange={handleFacet}
                   drawer
@@ -331,36 +184,17 @@ export function DataTableSection({
 
           <div className="min-w-0 flex-1">
             <div
-              id="teachers-panel"
-              role="tabpanel"
-              aria-labelledby="teachers-tab"
-              tabIndex={0}
-              hidden={activeTab !== "teachers"}
-            >
-              {activeTab === "teachers" && (
-                <TeachersTableClient
-                  data={currentTeachers}
-                  search={searchQuery}
-                  data-testid="teacher-list"
-                  configId={currentConfigId}
-                />
-              )}
-            </div>
-            <div
               id="classes-panel"
               role="tabpanel"
               aria-labelledby="classes-tab"
               tabIndex={0}
-              hidden={activeTab !== "classes"}
             >
-              {activeTab === "classes" && (
-                <ClassesTableClient
-                  data={currentClasses}
-                  search={searchQuery}
-                  data-testid="class-list"
-                  configId={currentConfigId}
-                />
-              )}
+              <ClassesTableClient
+                data={currentClasses}
+                search={searchQuery}
+                data-testid="class-list"
+                configId={currentConfigId}
+              />
             </div>
           </div>
         </div>
@@ -368,7 +202,7 @@ export function DataTableSection({
 
       {/* Pagination */}
       {actualTotalPages > 1 && (
-        <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white/30 border-t border-slate-100">
+        <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white border-t border-slate-200">
           <ClientPagination
             currentPage={currentPage}
             totalPages={actualTotalPages}

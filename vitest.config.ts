@@ -17,6 +17,8 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   // "__test__/features/lock/**" - RE-ENABLED: Lock template tests working (2026-01-04)
   "**/__test__/features/lock/lock.repository.test.ts", // Integration test requiring DB
   "**/__test__/features/lock/bulk-lock.test.ts", // Integration test requiring DB
+  "**/__test__/features/print/render-pdf.int.test.ts", // Integration test: needs CHROME_PATH + running server (e2e job only); top-level import of server-only is unresolvable under vitest
+
   "**/__test__/lib/feature-flags.test.ts",
   "**/__test__/seed-validation.test.ts",
   "**/__test__/management-server-actions.test.ts",

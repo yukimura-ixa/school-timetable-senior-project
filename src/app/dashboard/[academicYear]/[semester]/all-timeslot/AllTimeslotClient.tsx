@@ -40,30 +40,10 @@ import SwapVertIcon from "@mui/icons-material/SwapVert";
 
 import FilterListIcon from "@mui/icons-material/FilterList";
 
-import PrintIcon from "@mui/icons-material/Print";
-
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-
-import GridOnIcon from "@mui/icons-material/GridOn";
-
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-
-import TableHead from "./component/TableHead";
-
-import TableBody from "./component/TableBody";
-
-import TeacherList from "./component/TeacherList";
-
-import TableResult from "./component/TableResult";
 
 import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
 import { exportTeacherTable } from "@/features/export/teacher-timetable-excel";
-
-import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
-
-import { dayOfWeekColor } from "@/models/dayofweek-color";
-
-import { dayOfWeekThai } from "@/models/dayofweek-thai";
 
 import type { teacher, timeslot } from "@/prisma/generated/client";
 
@@ -91,174 +71,8 @@ type AllTimeslotClientProps = {
   slots: SlotConfig[];
 };
 
-import type { TimeslotWithSubject, TimetableColumn } from "../shared/timeSlot";
-
-type TimeSlotData = {
-  AllData: TimeslotWithSubject[];
-
-  SlotAmount: number[];
-
-  DayOfWeek: { Day: string; TextColor: string; BgColor: string }[];
-
-  StartTime?: { Hours: number; Minutes: number };
-
-  Duration?: number;
-
-  BreakSlot?: { TimeslotID: string; Breaktime: string; SlotNumber: number }[];
-
-  Columns: TimetableColumn[];
-};
-
-const getMinutes = (milliseconds: number) => {
-  const seconds = Math.floor(milliseconds / 1000);
-
-  const minutes = Math.floor(seconds / 60);
-
-  return minutes;
-};
-
-const buildTimeSlotData = (
-  data: timeslot[],
-  slots: SlotConfig[],
-): TimeSlotData => {
-  if (!data.length) {
-    return { AllData: [], SlotAmount: [], DayOfWeek: [], Columns: [] };
-  }
-
-  const dayofweek = data
-
-    .map((day) => day.DayOfWeek)
-
-    .filter(
-      (item, index) => data.map((day) => day.DayOfWeek).indexOf(item) === index,
-    )
-
-    .map((item) => ({
-      Day: dayOfWeekThai[item],
-
-      TextColor: dayOfWeekTextColor[item],
-
-      BgColor: dayOfWeekColor[item],
-    }))
-
-    .filter(
-      (item): item is { Day: string; TextColor: string; BgColor: string } =>
-        item.Day !== undefined &&
-        item.TextColor !== undefined &&
-        item.BgColor !== undefined,
-    );
-
-  const slotAmount = data
-
-    .filter((item) => item.DayOfWeek === "MON")
-
-    .map((_, index) => index + 1);
-
-  const breakTime = data
-
-    .filter(
-      (item) =>
-        (item.Breaktime === "BREAK_BOTH" ||
-          item.Breaktime === "BREAK_JUNIOR" ||
-          item.Breaktime === "BREAK_SENIOR") &&
-        item.DayOfWeek === "MON",
-    )
-
-    .map((item) => ({
-      TimeslotID: item.TimeslotID,
-
-      Breaktime: item.Breaktime,
-
-      SlotNumber: extractPeriodFromTimeslotId(item.TimeslotID),
-    }));
-
-  const firstSlot = data[0];
-  const firstSlotDate = firstSlot ? new Date(firstSlot.StartTime) : null;
-
-  const startTime =
-    firstSlotDate && !Number.isNaN(firstSlotDate.getTime())
-      ? {
-          Hours: firstSlotDate.getUTCHours(),
-          Minutes: firstSlotDate.getUTCMinutes(),
-        }
-      : { Hours: 8, Minutes: 0 };
-
-  const duration = firstSlot
-    ? getMinutes(
-        new Date(firstSlot.EndTime).getTime() -
-          new Date(firstSlot.StartTime).getTime(),
-      )
-    : 50;
-
-  // Period numbers attach to teaching slots only; breaks render as narrow
-  // unnumbered columns. Synthetic break columns are inserted wherever
-  // consecutive Monday timeslots have a wall-clock gap (e.g. 09:40-09:50)
-  // so the visual cadence matches reality even when the seed didn't store
-  // the gap as its own slot.
-  const monSlotsForCols = data
-    .filter((item) => item.DayOfWeek === "MON")
-    .slice()
-    .sort(
-      (a, b) =>
-        extractPeriodFromTimeslotId(a.TimeslotID) -
-        extractPeriodFromTimeslotId(b.TimeslotID),
-    );
-  let teachingCount = 0;
-  const columns: TimetableColumn[] = [];
-  for (let i = 0; i < monSlotsForCols.length; i++) {
-    const slot = monSlotsForCols[i]!;
-    const slotNumber = extractPeriodFromTimeslotId(slot.TimeslotID);
-    if (isBreakSlot(slotNumber, slots)) {
-      columns.push({
-        kind: "break",
-        TimeslotID: slot.TimeslotID,
-        Breaktime: slot.Breaktime,
-        slotIndex: i,
-      });
-    } else {
-      teachingCount += 1;
-      columns.push({
-        kind: "teaching",
-        TimeslotID: slot.TimeslotID,
-        Breaktime: slot.Breaktime,
-        slotIndex: i,
-        periodNumber: teachingCount,
-      });
-    }
-
-    const next = monSlotsForCols[i + 1];
-    if (next) {
-      const gapMs =
-        new Date(next.StartTime).getTime() - new Date(slot.EndTime).getTime();
-      if (gapMs > 0) {
-        columns.push({
-          kind: "break",
-          TimeslotID: "",
-          Breaktime: "GAP",
-          slotIndex: -1,
-          synthetic: true,
-        });
-      }
-    }
-  }
-
-  return {
-    AllData: data.map((item) => ({ ...item, subject: null })),
-
-    SlotAmount: slotAmount,
-
-    DayOfWeek: dayofweek,
-
-    StartTime: startTime,
-
-    Duration: duration,
-
-    BreakSlot: breakTime,
-
-    Columns: columns,
-  };
-};
-
+import { buildTimeSlotData } from "@/features/schedule/all-timeslot-data";
+import { AllTimeslotGrid } from "./component/AllTimeslotGrid";
 const AllTimeslotClient = ({
   timeslots,
 
@@ -293,63 +107,12 @@ const AllTimeslotClient = ({
     style.id = styleId;
 
     style.textContent = `
-
-      @media print {
-
-        body * {
-
-          visibility: hidden;
-
-        }
-
-        .printable-table,
-
-        .printable-table * {
-
-          visibility: visible;
-
-        }
-
-        .printable-table {
-
-          position: absolute;
-
-          left: 0;
-
-          top: 0;
-
-          width: 100%;
-
-        }
-
-        .no-print {
-
-          display: none !important;
-
-        }
-
-        @page {
-
-          size: landscape;
-
-          margin: 1cm;
-
-        }
-
-      }
-
       @media (max-width: 768px) {
-
         .MuiContainer-root {
-
           padding-left: 8px !important;
-
           padding-right: 8px !important;
-
         }
-
       }
-
     `;
 
     document.head.appendChild(style);
@@ -427,12 +190,6 @@ const AllTimeslotClient = ({
 
       academicYear.toString(),
     );
-
-    handleExportMenuClose();
-  };
-
-  const handlePrint = () => {
-    window.print();
 
     handleExportMenuClose();
   };
@@ -704,14 +461,6 @@ const AllTimeslotClient = ({
                   </Tooltip>
                 </>
               )}
-
-              <Button
-                variant="outlined"
-                startIcon={<PrintIcon />}
-                onClick={handlePrint}
-              >
-                พิมพ์
-              </Button>
             </Stack>
 
             <Stack direction="row" spacing={1} alignItems="center">
@@ -744,80 +493,17 @@ const AllTimeslotClient = ({
                     <SummarizeIcon fontSize="small" sx={{ mr: 1 }} />
                     สรุปสำหรับครู
                   </MenuItem>
-
-                  <MenuItem onClick={handlePrint}>
-                    <PictureAsPdfIcon fontSize="small" sx={{ mr: 1 }} />
-                    พิมพ์ PDF
-                  </MenuItem>
                 </Menu>
               )}
             </Stack>
           </Stack>
 
-          <Box
-            mt={3}
-            sx={{
-              overflowX: "auto",
-              overflowY: "hidden",
-              border: "1px solid",
-              borderColor: alpha(theme.palette.divider, 0.1),
-              borderRadius: 3,
-              bgcolor: alpha(theme.palette.background.paper, 0.4),
-              backdropFilter: "blur(12px)",
-              p: 2,
-              boxShadow: theme.shadows[1],
-            }}
-            className="printable-table"
-          >
-            <Stack>
-              {/* Header Row */}
-              <Stack direction="row" sx={{ mb: 1.5 }}>
-                <Box
-                  sx={{
-                    width: 260,
-                    mr: 1,
-                    height: 64,
-                    display: "flex",
-                    alignItems: "center",
-                    px: 2,
-                    borderRadius: 1,
-                    bgcolor: alpha(theme.palette.action.selected, 0.5),
-                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  }}
-                >
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <GridOnIcon fontSize="small" color="primary" />
-                    <Typography variant="subtitle2" fontWeight="bold">
-                      ตารางสรุปภาครวม
-                    </Typography>
-                  </Stack>
-                </Box>
-                <Box sx={{ flex: 1, overflowX: "hidden" }}>
-                  <TableHead
-                    days={filteredDays}
-                    columns={timeSlotData.Columns}
-                  />
-                </Box>
-              </Stack>
-
-              {/* Body Content — TeacherList | grid | per-teacher totals */}
-              <Stack direction="row">
-                <TeacherList teachers={filteredTeachers} />
-                <Box sx={{ flex: 1, overflowX: "auto", overflowY: "hidden" }}>
-                  <TableBody
-                    teachers={filteredTeachers}
-                    columns={timeSlotData.Columns}
-                    classData={classData}
-                    days={filteredDays}
-                  />
-                </Box>
-                <TableResult
-                  teachers={filteredTeachers}
-                  classData={classData}
-                />
-              </Stack>
-            </Stack>
-          </Box>
+          <AllTimeslotGrid
+            days={filteredDays}
+            columns={timeSlotData.Columns}
+            teachers={filteredTeachers}
+            classData={classData}
+          />
         </Paper>
       </Stack>
     </Container>

@@ -1,0 +1,19 @@
+/* Shared print stylesheet for /print/* routes (PrintShell imports this). */
+.print-shell { margin: 0; padding: 0; background: #fff; color: #111; }
+.print-title { font-size: 16px; font-weight: 700; margin: 0 0 8px; }
+.print-card { break-inside: avoid; page-break-inside: avoid; margin-bottom: 8mm; }
+
+/* Fit a wide grid onto a single landscape page (width + height). */
+.print-fit table { width: 100%; table-layout: fixed; font-size: 9px; }
+.print-fit th, .print-fit td {
+  word-break: break-word;
+  padding: 1px 3px !important;
+  line-height: 1.2 !important;
+}
+
+/* Bulk: one timetable per page — each card fills its own page. */
+.print-bulk .print-card { break-after: page; page-break-after: always; }
+.print-bulk .print-card:last-child { break-after: auto; page-break-after: auto; }
+
+/* Belt-and-suspenders: never show app chrome if a route ever inherits it. */
+nav[data-app-nav], aside[data-app-sidebar] { display: none !important; }

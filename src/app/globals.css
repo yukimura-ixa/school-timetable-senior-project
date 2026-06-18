@@ -269,6 +269,48 @@
   font-display: swap;
 }
 
+/* ============================================
+ * PUBLIC SCHEDULE-BOARD SURFACES
+ * Shared by the public directory + weekly grid redesign (issue 6y6).
+ * ============================================ */
+
+/* Faint period-grid watermark behind the directory card grid — echoes the
+   timetable matrix without competing with the cards on top. */
+.period-grid {
+  background-color: #f8fafc;
+  background-image: linear-gradient(
+    to right,
+    rgba(15, 23, 42, 0.04) 1px,
+    transparent 1px
+  );
+  background-size: 56px 100%;
+}
+
+/* Break columns in the weekly grid: a diagonal hatch that reads as a clear
+   "lessons | break" seam. The 2px side rules are applied inline via Tailwind. */
+.timeslot-break-cell {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #eef2f6,
+    #eef2f6 5px,
+    #dde5ee 5px,
+    #dde5ee 10px
+  );
+}
+
+@media print {
+  /* Keep the break seam legible once color tints drop out in B&W print. */
+  .timeslot-break-cell {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #ffffff,
+      #ffffff 5px,
+      #e5e7eb 5px,
+      #e5e7eb 10px
+    );
+  }
+}
+
 /* เอาไว้เปลี่ยน fill ของ icon */
 .hoverfill:hover > .iconhover {
   fill: #0891b2;
@@ -314,63 +356,10 @@
   margin: 1cm;
 }
 
-/* Portrait page used by the bulk-print portal (two timetables per sheet). */
-@page bulk-2up {
-  size: A4 portrait;
-  margin: 1cm;
-}
-
-/* Bulk print: a body-level portal holding stacked timetables. Hidden on
-   screen; in print it becomes the only visible content, two per page. */
-.bulk-print {
-  display: none;
-}
-
 @media print {
   /* Elements explicitly marked non-printable are dropped from output. */
   .no-print {
     display: none !important;
-  }
-
-  /* Print isolation: on any page that marks its printable region with
-     .print-area, hide everything else so only that region (e.g. a timetable)
-     prints. Scoped with :has() so pages WITHOUT a .print-area — the minimal
-     public timetable views and all-timeslot — keep their existing behavior. */
-  body:has(.print-area) * {
-    visibility: hidden !important;
-  }
-  body:has(.print-area) .print-area,
-  body:has(.print-area) .print-area * {
-    visibility: visible !important;
-  }
-  body:has(.print-area) .print-area {
-    position: absolute !important;
-    left: 0;
-    top: 0;
-    width: 100% !important;
-    margin: 0 !important;
-  }
-
-  /* Bulk print portal: when present at the body root, it is the only thing
-     printed. Normal flow (not absolute) so multi-page pagination works. */
-  body:has(> .bulk-print) > *:not(.bulk-print) {
-    display: none !important;
-  }
-  .bulk-print {
-    display: block;
-    page: bulk-2up;
-  }
-  .bulk-print-item {
-    /* zoom (not transform: scale) shrinks the layout footprint too, so the
-       wide grid fits portrait width and two items fit one page. Tune this
-       value if the fit is off. */
-    zoom: 0.72;
-    break-inside: avoid;
-    box-sizing: border-box;
-    padding-bottom: 0.5cm;
-  }
-  .bulk-print-item:nth-child(2n) {
-    break-after: page;
   }
 
   .timeslot-grid {

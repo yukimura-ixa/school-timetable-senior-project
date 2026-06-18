@@ -49,6 +49,21 @@ export function gradeMonogram(year: number): string {
   return `ม.${year}`;
 }
 
+// Distinct accent color per grade year (ม.1–ม.6) so the public directory groups
+// visually by year. Falls back to slate for out-of-range years.
+const GRADE_YEAR_COLOR: Record<number, string> = {
+  1: "#2563eb", // blue
+  2: "#0891b2", // cyan
+  3: "#059669", // emerald
+  4: "#d97706", // amber
+  5: "#db2777", // pink
+  6: "#7c3aed", // violet
+};
+
+export function gradeYearColor(year: number): string {
+  return GRADE_YEAR_COLOR[year] ?? "#475569";
+}
+
 function hashString(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
