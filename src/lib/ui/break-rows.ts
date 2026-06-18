@@ -5,7 +5,12 @@ import { isBreakForGrade, isBreakForTeacher, isBreakSlot } from "@/utils/break-u
 
 export type RenderedRow =
   | { kind: "teaching"; period: number; slotNumber: number; slots: timeslot[] }
-  | { kind: "break"; slotNumber: number; defs: { label: string; color: string }[] };
+  | {
+      kind: "break";
+      slotNumber: number;
+      defs: { label: string; color: string }[];
+      slots: timeslot[];
+    };
 
 export type ViewMode =
   | { mode: "teacher" }
@@ -43,6 +48,16 @@ export function buildGridRows(
       ? new Map<string, Set<string>>([[view.gradeId, new Set(view.groupNames)]])
       : new Map<string, Set<string>>();
 
+  // All DB timeslots grouped by slot number — drives teaching cells AND the
+  // clock time shown on break headers.
+  const timeslotsBySlot = new Map<number, timeslot[]>();
+  for (const t of timeslots) {
+    const slotNum = extractPeriodFromTimeslotId(t.TimeslotID);
+    const arr = timeslotsBySlot.get(slotNum) ?? [];
+    arr.push(t);
+    timeslotsBySlot.set(slotNum, arr);
+  }
+
   // Determine which slot numbers are break rows for this view, and resolve label/color.
   // Only slots visible as breaks for this view are excluded from teaching rows.
   const breaksBySlot = new Map<number, { label: string; color: string }[]>();
@@ -77,16 +92,12 @@ export function buildGridRows(
     breaksBySlot.set(slotNum, defs);
   }
 
-  // Group teaching slots by slotNumber — a slot is a teaching row if it has
-  // timeslots from DB and is NOT a break row for this view.
+  // Teaching rows: a slot with DB timeslots that is NOT a break row for this view.
   const teachingBySlot = new Map<number, timeslot[]>();
-  for (const t of timeslots) {
-    const slotNum = extractPeriodFromTimeslotId(t.TimeslotID);
-    if (t.Breaktime === "NOT_BREAK" && !breaksBySlot.has(slotNum)) {
-      const arr = teachingBySlot.get(slotNum) ?? [];
-      arr.push(t);
-      teachingBySlot.set(slotNum, arr);
-    }
+  for (const [slotNum, arr] of timeslotsBySlot) {
+    if (breaksBySlot.has(slotNum)) continue;
+    const teaching = arr.filter((t) => t.Breaktime === "NOT_BREAK");
+    if (teaching.length > 0) teachingBySlot.set(slotNum, teaching);
   }
 
   // Build a sorted union of all slot numbers and walk them in order
@@ -100,7 +111,12 @@ export function buildGridRows(
   for (const slotNum of sorted) {
     const brks = breaksBySlot.get(slotNum);
     if (brks && brks.length > 0) {
-      rows.push({ kind: "break", slotNumber: slotNum, defs: brks });
+      rows.push({
+        kind: "break",
+        slotNumber: slotNum,
+        defs: brks,
+        slots: timeslotsBySlot.get(slotNum) ?? [],
+      });
     }
     const teaching = teachingBySlot.get(slotNum);
     if (teaching && teaching.length > 0) {

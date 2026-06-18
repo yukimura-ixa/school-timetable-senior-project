@@ -37,8 +37,8 @@ export function FilterSidebar({ facet, value, onChange, drawer = false }: Filter
         onClick={() => onChange("")}
         className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors ${
           value === ""
-            ? "bg-blue-50 font-semibold text-blue-700"
-            : "text-slate-700 hover:bg-slate-50"
+            ? "border-l-2 border-slate-900 bg-white font-semibold text-slate-900"
+            : "border-l-2 border-transparent text-slate-600 hover:bg-slate-100"
         }`}
       >
         <span>ทั้งหมด</span>

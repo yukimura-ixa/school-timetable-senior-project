@@ -26,41 +26,32 @@ export const metadata: Metadata = createMetadataWithSocial({
 export default async function HomePage() {
   await connection();
   // Import data fetching functions
-  const { getTeacherCount, getPaginatedTeachers } =
-    await import("@/lib/public/teachers");
   const { getClassCount, getPaginatedClasses } =
     await import("@/lib/public/classes");
 
   // Fetch independent homepage data in parallel to avoid server waterfalls
-  const [totalTeachers, totalClasses, stats] = await Promise.all([
-    getTeacherCount(),
+  const [totalClasses, stats] = await Promise.all([
     getClassCount(),
     getQuickStats(),
   ]);
 
-  // Fetch ALL data for client-side filtering and pagination
-  const [teachersData, classesData] = await Promise.all([
-    getPaginatedTeachers({
-      page: 1,
-      search: "",
-      sortBy: "name",
-      sortOrder: "asc",
-      perPage: totalTeachers, // Fetch all teachers
-    }),
-    getPaginatedClasses({
-      page: 1,
-      search: "",
-      sortBy: "grade",
-      sortOrder: "asc",
-      perPage: totalClasses, // Fetch all classes
-    }),
-  ]);
+  // Fetch ALL classes for client-side filtering and pagination
+  const classesData = await getPaginatedClasses({
+    page: 1,
+    search: "",
+    sortBy: "grade",
+    sortOrder: "asc",
+    perPage: totalClasses, // Fetch all classes
+  });
 
   // Derive current configId (semester-year) for public navigation
   let currentConfigId: string | null = null;
   let currentTerm: { academicYear: string; semester: string } | null = null;
-  // Get first teacher ID for sample timetable link (with defensive null check)
-  const firstTeacherId = teachersData?.data?.[0]?.teacherId ?? 1;
+  // First class for the hero "sample timetable" link (defensive null check).
+  const firstClass = classesData?.data?.[0];
+  const firstClassId = firstClass
+    ? `${firstClass.year}${String(firstClass.section).padStart(2, "0")}`
+    : null;
   if (stats.currentTerm && stats.currentTerm !== "N/A") {
     const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
     const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
@@ -124,17 +115,17 @@ export default async function HomePage() {
                   เข้าสู่ระบบ Admin
                 </span>
               </Link>
-              {currentTerm && (
+              {currentTerm && firstClassId && (
                 <Link
-                  href={`/teachers/${firstTeacherId}/${currentTerm.academicYear}/${currentTerm.semester}`}
+                  href={`/classes/${firstClassId}/${currentTerm.academicYear}/${currentTerm.semester}`}
                   prefetch={false}
                   className="group relative inline-flex items-center justify-center rounded-2xl border-2 border-white/20 backdrop-blur-md px-4 py-4 sm:px-6 md:px-10 md:py-5 text-base md:text-lg font-bold text-white transition-all duration-500 hover:bg-white/10 hover:border-white/40 hover:scale-105 hover:-translate-y-1 active:scale-95 overflow-hidden w-full sm:w-auto"
                 >
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   <span className="relative flex items-center">
                     <span className="mr-2 md:mr-3 text-xl md:text-2xl">📋</span>
-                    <span className="hidden sm:inline">ดูตารางสอนตัวอย่าง</span>
-                    <span className="sm:hidden">ตารางสอน</span>
+                    <span className="hidden sm:inline">ดูตารางเรียนตัวอย่าง</span>
+                    <span className="sm:hidden">ตารางเรียน</span>
                   </span>
                 </Link>
               )}
@@ -153,9 +144,7 @@ export default async function HomePage() {
 
       <section className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl mb-8 md:mb-12">
         <DataTableSection
-          totalTeachers={totalTeachers}
           totalClasses={totalClasses}
-          teachersData={teachersData}
           classesData={classesData}
           currentConfigId={currentConfigId || undefined}
         />

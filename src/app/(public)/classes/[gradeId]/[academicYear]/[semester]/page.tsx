@@ -1,18 +1,11 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import type { semester } from "@/prisma/generated/client";
 import { PrintButton } from "@/app/(public)/_components/PrintButton";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
-import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
-import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
-import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
-import { buildGradeGroupIndex } from "@/utils/break-utils";
-import { findByTerm as findConfigByTerm } from "@/features/config/infrastructure/repositories/config.repository";
-import { parseConfigData } from "@/features/config/domain/types/config-data.types";
-import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
-import { TimeslotGrid, type ScheduleCell } from "@/components/schedule/TimeslotGrid";
+import { TimeslotGrid } from "@/components/schedule/TimeslotGrid";
+import { loadClassScheduleView } from "@/features/schedule/loaders/class-schedule";
 
 
 type PageProps = {
@@ -50,58 +43,7 @@ export async function generateMetadata({
 
 export default async function ClassScheduleByTermPage({ params }: PageProps) {
   const { gradeId, academicYear: yearStr, semester: semStr } = await params;
-  const academicYear = parseInt(yearStr, 10);
-  const semNum = parseInt(semStr, 10);
-  const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
-  if (!semesterEnum || isNaN(academicYear)) notFound();
-
-  // Fetch grade level info - support both GradeID (M1-1) and numeric (101) formats
-  const gradeLevel = await publicDataRepository.findGradeByIdOrNumeric(gradeId);
-  if (!gradeLevel) notFound();
-
-  // Never expose unpublished (DRAFT) terms via direct URL access (issue 5ka).
-  const semesterValue: semester = semesterEnum;
-  if (!(await publicDataRepository.isTermPublished(academicYear, semesterValue))) {
-    notFound();
-  }
-
-  const schedules = await classRepository.findByGrade(
-    gradeLevel.GradeID,
-    academicYear,
-    semesterValue,
-  );
-
-  // Get all timeslots + break config for this term to build the grid
-  const timeslots = await publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue);
-  const semesterNum =
-    semesterValue === "SEMESTER_1" ? "1" : semesterValue === "SEMESTER_2" ? "2" : "3";
-  const configId = `${semesterNum}-${academicYear}`;
-  const [termConfig, breakGroupRows] = await Promise.all([
-    findConfigByTerm(academicYear, semesterValue),
-    breakGroupRepository.findByConfigId(configId),
-  ]);
-  let slots: SlotConfig[] = [];
-  try {
-    slots = termConfig?.Config ? parseConfigData(termConfig.Config).slots : [];
-  } catch {
-    slots = [];
-  }
-  const breakGroups = toBreakGroups(breakGroupRows);
-  const groupNames = [...(buildGradeGroupIndex(breakGroups).get(gradeLevel.GradeID) ?? [])];
-
-  const cellsByTimeslotId = new Map<string, ScheduleCell>();
-  for (const s of schedules) {
-    cellsByTimeslotId.set(s.timeslot.TimeslotID, {
-      timeslotId: s.timeslot.TimeslotID,
-      subjectCode: s.subject.SubjectCode,
-      subjectName: s.subject.SubjectName,
-      teacherLabel:
-        s.teachers_responsibility
-          .map((tr) => `${tr.teacher.Prefix}${tr.teacher.Firstname} ${tr.teacher.Lastname}`)
-          .join(", ") || undefined,
-      roomLabel: s.room?.RoomName ?? undefined,
-    });
-  }
+  const view = await loadClassScheduleView(gradeId, parseInt(yearStr, 10), parseInt(semStr, 10));
 
   return (
     <main className="min-h-screen bg-gray-50 py-4 md:py-8 print:p-0 print:bg-white">
@@ -115,32 +57,34 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         </Link>
 
         {/* Class Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            ตารางเรียน{" "}
-            <span data-testid="class-name">
-              ม.{gradeLevel.Year}/{gradeLevel.Number}
-            </span>
-          </h1>
-          <p className="text-xs md:text-sm text-gray-500 mt-2">
-            ภาคเรียนที่ {semStr} ปีการศึกษา{" "}
-            {yearStr}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-900 px-5 py-4 md:mb-6">
+          <div className="flex items-center gap-3">
+            <span className="h-7 w-1.5 rounded-full bg-accent-class" aria-hidden />
+            <h1 className="text-xl font-bold text-white md:text-2xl">
+              ตารางเรียน{" "}
+              <span data-testid="class-name" className="text-accent-class">
+                ม.{view.gradeLevel.Year}/{view.gradeLevel.Number}
+              </span>
+            </h1>
+          </div>
+          <p className="text-xs tabular-nums text-slate-400 md:text-sm">
+            ภาคเรียนที่ {semStr} ปีการศึกษา {yearStr}
           </p>
         </div>
 
         {/* Schedule Grid */}
         <TimeslotGrid
-          timeslots={timeslots}
-          slots={slots}
-          breakGroups={breakGroups}
-          view={{ mode: "class", gradeId: gradeLevel.GradeID, groupNames }}
-          cellsByTimeslotId={cellsByTimeslotId}
+          timeslots={view.timeslots}
+          slots={view.slots}
+          breakGroups={view.breakGroups}
+          view={{ mode: "class", gradeId: view.gradeLevel.GradeID, groupNames: view.groupNames }}
+          cellsByTimeslotId={view.cellsByTimeslotId}
           show={{ teacher: true, room: true }}
         />
 
         {/* Print Button */}
         <div className="mt-4 md:mt-6 flex justify-center print:hidden">
-          <PrintButton />
+          <PrintButton pdfUrl={`/print/classes/${gradeId}/${yearStr}/${semStr}/pdf`} />
         </div>
       </div>
     </main>

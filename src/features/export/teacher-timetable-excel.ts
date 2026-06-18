@@ -1,6 +1,7 @@
 "use client";
 
 import ExcelJS from "exceljs";
+import { downloadBlob } from "@/utils/download-blob";
 import type { teacher } from "@/prisma/generated/client";
 import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
 import type { TimeSlotTableData } from "@/app/dashboard/[academicYear]/[semester]/shared/timeSlot";
@@ -140,12 +141,5 @@ export async function exportTeacherTable(
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `ตารางสอน-${semester}-${academicYear}.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `ตารางสอน-${semester}-${academicYear}.xlsx`);
 }

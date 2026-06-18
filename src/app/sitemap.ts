@@ -5,12 +5,9 @@ import { getBaseUrl } from "@/utils/canonical-url";
 /**
  * Dynamic Sitemap Generator
  *
- * Generates sitemap.xml with:
- * 1. Static pages (homepage, legal pages, etc.)
- * 2. Dynamic teacher profile pages from database
+ * Generates sitemap.xml with the public static pages.
  *
- * Uses Next.js 16 sitemap.ts convention
- * Updates automatically when teachers are added/removed
+ * Uses Next.js 16 sitemap.ts convention.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connection();
@@ -52,36 +49,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Dynamic teacher pages - fetch from database
-  let teacherPages: MetadataRoute.Sitemap = [];
-  
-  try {
-    // Import Prisma client
-    const { prisma } = await import("@/lib/prisma");
-    
-    // Fetch all teachers
-    const teachers = await prisma.teacher.findMany({
-      select: {
-        TeacherID: true,
-      },
-      orderBy: {
-        TeacherID: "asc",
-      },
-    });
-
-    // Generate URLs for teacher profile pages
-    teacherPages = teachers.map((teacher) => ({
-      url: `${baseUrl}/teachers/${teacher.TeacherID}`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }));
-  } catch (error) {
-    console.error("Error fetching teachers for sitemap:", error);
-    // Fail gracefully - return empty array if DB query fails
-    teacherPages = [];
-  }
-
-  // Combine static and dynamic pages
-  return [...staticPages, ...teacherPages];
+  return staticPages;
 }

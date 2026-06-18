@@ -17,6 +17,17 @@ export type PersonCardProps = {
   monogram?: { kind: "grade"; year: number };
   /** Per-surface accent token — text-accent-teacher | text-accent-class. */
   accentClass: string;
+  /**
+   * Static bg-* class for the left accent stripe (e.g. "bg-accent-teacher").
+   * Passed as a literal so Tailwind can see it; omit to hide the stripe.
+   */
+  stripeClass?: string;
+  /**
+   * Solid accent hex. When set, drives the stripe, monogram, and arrow color
+   * (overrides accentClass / stripeClass / the id-hashed monogram gradient) —
+   * used to color cards by grade year.
+   */
+  accentColor?: string;
   /** Optional admin row-overlay slot (edit / lock). */
   adminOverlay?: React.ReactNode;
   /** data-testid override; defaults to "person-card". */
@@ -30,6 +41,8 @@ export function PersonCard({
   href,
   monogram,
   accentClass,
+  stripeClass,
+  accentColor,
   adminOverlay,
   testId = "person-card",
 }: PersonCardProps) {
@@ -38,33 +51,43 @@ export function PersonCard({
   return (
     <article
       data-testid={testId}
-      className="group relative flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      className="group relative flex items-center gap-2.5 overflow-hidden rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
+      {(accentColor || stripeClass) && (
+        <span
+          aria-hidden
+          className={`absolute inset-y-0 left-0 w-1 ${accentColor ? "" : stripeClass}`}
+          style={accentColor ? { backgroundColor: accentColor } : undefined}
+        />
+      )}
       <div
         aria-hidden
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
-        style={{ background: gradient }}
+        className="flex size-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
+        style={{ background: accentColor ?? gradient }}
       >
         {initial}
       </div>
       <div className="min-w-0 flex-1">
+        {/* Stretched link: the whole card is the click target, so the name and
+            metric keep the full remaining width instead of competing with a
+            separate action label. */}
         <Link
           href={href}
           prefetch={false}
-          className={`block truncate text-sm font-semibold text-slate-900 hover:${accentClass}`}
+          aria-label={`เปิดตารางของ ${primary}`}
+          className="block truncate text-sm font-semibold text-slate-900 before:absolute before:inset-0"
         >
           {primary}
         </Link>
-        <div className="truncate text-xs text-slate-500">{secondary}</div>
+        <div className="truncate text-xs tabular-nums text-slate-500">{secondary}</div>
       </div>
-      <Link
-        href={href}
-        prefetch={false}
-        aria-label={`เปิดตารางของ ${primary}`}
-        className={`shrink-0 text-xs font-medium ${accentClass}`}
+      <span
+        aria-hidden
+        className={`shrink-0 text-sm font-semibold ${accentColor ? "" : accentClass}`}
+        style={accentColor ? { color: accentColor } : undefined}
       >
-        ตาราง →
-      </Link>
+        →
+      </span>
       {adminOverlay && (
         <div className="pointer-events-none absolute right-2 top-2 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
           {adminOverlay}

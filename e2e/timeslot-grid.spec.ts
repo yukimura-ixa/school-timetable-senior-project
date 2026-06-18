@@ -32,17 +32,4 @@ test.describe("timeslot grid period numbering", () => {
       page.locator('[data-testid="break-cell"]').first(),
     ).toBeVisible();
   });
-
-  test("teacher view: renders the shared grid", async ({ page }) => {
-    // Pick a real teacher link off the landing page rather than hard-coding an id.
-    await page.goto("/");
-    const href = await page
-      .locator('a[href^="/teachers/"]')
-      .first()
-      .getAttribute("href");
-    expect(href).toBeTruthy();
-
-    await page.goto(href!);
-    await expect(page.locator('[data-testid="schedule-grid"]')).toBeVisible();
-  });
 });

@@ -8,7 +8,6 @@ import { expect, test, type Page } from "@playwright/test";
  *
  * Public Routes:
  * - / (home page)
- * - /teachers/[id]/[academicYear]/[semester] (teacher schedule)
  * - /classes/[gradeId]/[academicYear]/[semester] (class schedule)
  *
  * How to run:
@@ -139,85 +138,6 @@ test.describe("Home Page (/)", () => {
 });
 
 // ===========================================
-// Teacher Schedule (Public View)
-// ===========================================
-
-test.describe("Teacher Schedule (/teachers/[id]/[semester])", () => {
-  // Use teacher ID 1 (should exist in seeded data)
-  const teacherId = 1;
-
-  test("03 teacher schedule page loads", async ({ page }) => {
-    await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
-
-    // Page should load without redirecting to signin
-    expect(page.url()).not.toContain("signin");
-
-    // Should show schedule content or teacher info
-    await page.waitForLoadState("domcontentloaded");
-
-    // Check for table or schedule grid
-    const hasScheduleContent =
-      (await page.locator("table, [data-testid*='schedule'], .timetable").count()) > 0;
-
-    // Page should have loaded with content
-    await expect(page.locator("body")).toBeVisible();
-
-    await snap(page, "03-teacher-schedule");
-  });
-
-  test("04 teacher schedule shows timetable grid", async ({ page }) => {
-    await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
-
-    // Look for schedule table or grid (support legacy and new layouts)
-    const table = page.locator("table[data-testid='schedule-grid'], table").first();
-    const scheduleGrid = page.locator(
-      '[data-testid*=\"schedule\"], [class*=\"grid\"], [class*=\"schedule\"]',
-    ).first();
-    const emptyState = page.locator(
-      "[data-testid=\"schedule-empty\"], text=/ไม่มีตารางสอน/i, text=/ไม่พบตาราง/i",
-    );
-
-    // Allow a short grace period for SSR+hydration before asserting
-    const hasTable = await table.isVisible({ timeout: 3000 }).catch(() => false);
-    const hasGrid = await scheduleGrid.isVisible({ timeout: 3000 }).catch(() => false);
-    const hasEmpty = await emptyState.isVisible({ timeout: 3000 }).catch(() => false);
-    const hasHeader = await page
-      .getByText(/ตารางสอน|schedule/i)
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    expect(hasTable || hasGrid || hasEmpty || hasHeader).toBe(true);
-
-    await snap(page, "04-teacher-schedule-grid");
-  });
-
-  test("05 teacher schedule is horizontally scrollable on mobile", async ({
-    page,
-  }) => {
-    const viewport = page.viewportSize();
-
-    // Only relevant for mobile/tablet viewports
-    if (viewport && viewport.width < 1024) {
-      await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("networkidle");
-
-      // Check for horizontal scroll container
-      const scrollContainer = page.locator(
-        ".overflow-x-auto, .overflow-auto, [style*='overflow']"
-      );
-
-      if ((await scrollContainer.count()) > 0) {
-        await expect(scrollContainer.first()).toBeVisible();
-      }
-    }
-
-    await snap(page, "05-teacher-schedule-mobile-scroll");
-  });
-});
-
-// ===========================================
 // Class Schedule (Public View)
 // ===========================================
 
@@ -322,9 +242,6 @@ test.describe("Public Navigation", () => {
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
-    await page.goto(`/teachers/1/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
-
     await page.goto(`/classes/101/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
@@ -351,7 +268,7 @@ test.describe("Public Navigation", () => {
 
 test.describe("Visual Consistency", () => {
   test("11 consistent header across public pages", async ({ page }) => {
-    const pages = ["/", `/teachers/1/${semester}`, `/classes/101/${semester}`];
+    const pages = ["/", `/classes/101/${semester}`];
 
     for (const url of pages) {
       await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });

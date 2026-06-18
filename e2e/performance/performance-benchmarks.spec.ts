@@ -164,37 +164,37 @@ test.describe("Concurrent User Simulation", () => {
 });
 
 test.describe("Large Dataset Performance", () => {
-  test("teacher list renders with all teachers", async ({ guestPage }) => {
+  test("class list renders with all classes", async ({ guestPage }) => {
     const startTime = Date.now();
 
     await guestPage.goto("/");
-    await guestPage.getByTestId("teachers-tab").click();
+    await guestPage.getByTestId("classes-tab").click();
 
     // Wait for table to render
-    await expect(guestPage.getByTestId("teacher-list")).toBeVisible({
+    await expect(guestPage.getByTestId("class-list")).toBeVisible({
       timeout: 10000,
     });
 
     const renderTime = Date.now() - startTime;
 
-    // Count rows rendered
+    // Count cards rendered
     const rowCount = await guestPage
-      .getByTestId("teacher-list")
-      .locator("tbody tr")
+      .getByTestId("class-list")
+      .getByTestId("person-card")
       .count();
 
-    console.log(`Teacher list render time: ${renderTime}ms`);
-    console.log(`Teachers displayed: ${rowCount}`);
+    console.log(`Class list render time: ${renderTime}ms`);
+    console.log(`Classes displayed: ${rowCount}`);
 
-    // Should render reasonably fast even with many teachers
+    // Should render reasonably fast even with many classes
     expect(renderTime).toBeLessThan(5000);
   });
 
   test("pagination is fast (< 1 second)", async ({ guestPage }) => {
     await guestPage.goto("/");
-    await guestPage.getByTestId("teachers-tab").click();
+    await guestPage.getByTestId("classes-tab").click();
 
-    await expect(guestPage.getByTestId("teacher-list")).toBeVisible({
+    await expect(guestPage.getByTestId("class-list")).toBeVisible({
       timeout: 10000,
     });
 
@@ -212,7 +212,7 @@ test.describe("Large Dataset Performance", () => {
 
       // Wait for pagination data to refresh - network settles or list is visible
       await guestPage.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-      await expect(guestPage.getByTestId("teacher-list")).toBeVisible();
+      await expect(guestPage.getByTestId("class-list")).toBeVisible();
 
       const paginationTime = Date.now() - startTime;
 
