@@ -33,9 +33,12 @@ export async function loginAsViaApi(
   // Sign in via the auth API; Playwright's request context records the
   // session cookies better-auth sets, so no manual cookie parsing.
   const apiContext = await request.newContext({ baseURL });
+  // Send a trusted Origin: Playwright's request context omits Origin, and
+  // better-auth rejects Origin-less state-changing requests with 403 in
+  // production (CSRF/trustedOrigins gate) — harmless in dev, required in CI.
   const resp = await apiContext.post("/api/auth/sign-in/email", {
     data: { email: creds.email, password: creds.password },
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Origin: baseURL },
   });
   if (!resp.ok()) {
     await apiContext.dispose();

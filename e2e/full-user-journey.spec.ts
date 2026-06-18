@@ -24,6 +24,7 @@ import { test, expect } from "./fixtures/admin.fixture";
 import { testAdmin, testTeacher } from "./fixtures/seed-data.fixture";
 import { getE2ETeacherId } from "./helpers/teacher-id";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
+import { dragAndDrop } from "./helpers/drag-drop.helper";
 
 const SEMESTER = "2568/1";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
@@ -138,6 +139,29 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       return Number(txt?.match(/of (\d+)/)?.[1] ?? "0");
     };
 
+    // Re-fetch on each poll iteration: the create's server commit + Next
+    // revalidation can lag behind the submit's success signal, so a single
+    // post-reload read may still observe the pre-create total. Reload until the
+    // new row lands. No other spec in the parallel shard mutates these tables
+    // (role-access-control is read-only), so before+1 is exact, not racy.
+    const expectTotalAfterCreate = async (
+      page: import("@playwright/test").Page,
+      url: string,
+      gridSelector: string,
+      before: number,
+    ) => {
+      await expect
+        .poll(
+          async () => {
+            await page.goto(url);
+            await page.waitForSelector(gridSelector, { timeout: 15000 });
+            return paginationTotal(page);
+          },
+          { timeout: 30000, intervals: [500, 1000, 2000, 3000, 5000] },
+        )
+        .toBe(before + 1);
+    };
+
     test("teacher create persists (count increments)", async ({
       authenticatedAdmin,
     }) => {
@@ -157,11 +181,12 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
         page.locator("text=/เพิ่มครู|สำเร็จ|Success/i").first(),
       ).toBeVisible({ timeout: 20000 });
 
-      await page.goto("/management/teacher");
-      await page.waitForSelector('[role="grid"], .MuiDataGrid-root', {
-        timeout: 15000,
-      });
-      expect(await paginationTotal(page)).toBe(before + 1);
+      await expectTotalAfterCreate(
+        page,
+        "/management/teacher",
+        '[role="grid"], .MuiDataGrid-root',
+        before,
+      );
     });
 
     test("subject create persists (count increments)", async ({
@@ -184,11 +209,12 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
         .getByRole("button", { name: /เพิ่มวิชา \(1 รายการ\)/ })
         .click();
 
-      await page.goto("/management/subject");
-      await page.waitForSelector('[role="grid"], .MuiDataGrid-root', {
-        timeout: 15000,
-      });
-      expect(await paginationTotal(page)).toBe(before + 1);
+      await expectTotalAfterCreate(
+        page,
+        "/management/subject",
+        '[role="grid"], .MuiDataGrid-root',
+        before,
+      );
     });
 
     test("room inline-create persists (count increments)", async ({
@@ -205,11 +231,7 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
         .fill(`ห้อง WALK-${uniq()}`);
       await page.getByRole("button", { name: "บันทึก" }).click();
 
-      await page.goto("/management/rooms");
-      await page.waitForSelector("table", { timeout: 15000 });
-      await expect
-        .poll(() => paginationTotal(page), { timeout: 10000 })
-        .toBe(before + 1);
+      await expectTotalAfterCreate(page, "/management/rooms", "table", before);
     });
   });
 
@@ -272,10 +294,14 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
         card?.setAttribute("data-journey-target", "1");
       });
 
-      await page
-        .getByTestId("subject-item")
-        .first()
-        .dragTo(page.locator('[data-journey-target="1"]'));
+      // dnd-kit's PointerSensor needs intermediate mouse moves to trip its
+      // activation constraint; Playwright's dragTo (single down→up) doesn't,
+      // so the drop never fires. Use the manual-pointer helper instead.
+      await dragAndDrop(
+        page,
+        page.getByTestId("subject-item").first(),
+        page.locator('[data-journey-target="1"]'),
+      );
 
       // Room dialog opens; pick the first enabled room and confirm.
       const roomDialog = page.getByTestId("room-selection-dialog");
@@ -291,6 +317,14 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       // Placed: one fewer empty slot.
       await expect.poll(emptyCount, { timeout: 10000 }).toBe(baseline - 1);
 
+      // Capture the exact slot we placed into (stable across reload) so the
+      // delete below targets THIS class — not another of the teacher's
+      // same-subject placements (the seed gives ค21201 multiple cells, which
+      // made the old global remove-button locator a strict-mode violation).
+      const placedTimeslotId = await page
+        .locator('[data-journey-target="1"]')
+        .getAttribute("data-timeslot-id");
+
       // Persistence across reload.
       await page.goto(
         `/schedule/${SEMESTER}/arrange?teacher=${teacherId}&tab=teacher`,
@@ -302,15 +336,9 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       await expect.poll(emptyCount, { timeout: 15000 }).toBe(baseline - 1);
 
       // Delete the placed class -> back to baseline (restores seed state).
-      await page.evaluate(() => {
-        const card = [
-          ...document.querySelectorAll('[data-testid="timeslot-card"]'),
-        ].find((c) => /ค21201|WALK-TEST|คณิตศาสตร์เพิ่มเติม/.test(c.textContent ?? ""));
-        card?.setAttribute("data-journey-placed", "1");
-      });
-      await page.locator('[data-journey-placed="1"]').click();
       await page
-        .locator('button[aria-label="ลบรายวิชาออกจากคาบเรียน"]')
+        .locator(`[data-timeslot-id="${placedTimeslotId}"]`)
+        .getByTestId("timeslot-remove")
         .click();
       await expect.poll(emptyCount, { timeout: 10000 }).toBe(baseline);
     });
