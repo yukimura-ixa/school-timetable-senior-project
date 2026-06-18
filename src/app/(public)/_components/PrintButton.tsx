@@ -5,13 +5,14 @@
  *
  * Needed because onClick handlers cannot be used in Server Components.
  */
-export function PrintButton() {
+export function PrintButton({ pdfUrl }: { pdfUrl: string }) {
   return (
     <button
-      onClick={() => window.print()}
+      type="button"
+      onClick={() => window.open(pdfUrl, "_blank", "noopener")}
       className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
     >
-      พิมพ์ตารางสอน
+      บันทึก/พิมพ์ PDF
     </button>
   );
 }

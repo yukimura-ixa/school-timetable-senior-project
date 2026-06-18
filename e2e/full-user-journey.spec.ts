@@ -426,29 +426,22 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
   });
 
   test.describe("7. Public pages", () => {
-    test("homepage search filters teachers", async ({ guestPage }) => {
+    test("homepage search filters classes", async ({ guestPage }) => {
       await guestPage.goto("/");
       await waitForAppReady(guestPage);
       const linkCount = () =>
-        guestPage.locator('a[href*="/teachers/"]').count();
+        guestPage.locator('a[href*="/classes/"]').count();
       const before = await linkCount();
       expect(before).toBeGreaterThan(1);
 
       await guestPage
-        .locator('input[placeholder*="ค้นหาครู"]')
-        .fill("สมชาย");
+        .locator('input[placeholder*="ค้นหาชั้นเรียน"]')
+        .fill("1/1");
       await expect.poll(linkCount, { timeout: 10000 }).toBeLessThan(before);
     });
 
-    test("public teacher and class schedules render", async ({ guestPage }) => {
-      // teacher 1 not guaranteed to be the E2E teacher; use the looked-up id is
-      // admin-only, so target a class page (stable GradeID) + a teacher page.
-      await guestPage.goto(`/teachers/1/${SEMESTER}`);
-      await waitForAppReady(guestPage);
-      await expect(guestPage.getByText(/จันทร์|คาบ/).first()).toBeVisible({
-        timeout: 15000,
-      });
-
+    test("public class schedule renders", async ({ guestPage }) => {
+      // Target a class page (stable GradeID); public teacher pages were removed.
       await guestPage.goto(`/classes/${testTeacher.GradeID}/${SEMESTER}`);
       await waitForAppReady(guestPage);
       await expect(

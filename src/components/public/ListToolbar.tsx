@@ -46,7 +46,7 @@ export function ListToolbar({
         value={searchValue}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 rounded-md bg-slate-100 px-3 py-2 text-sm placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="flex-1 rounded-md bg-slate-100 px-3 py-2 text-sm placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
       />
       <select
         value={sort}
@@ -60,7 +60,7 @@ export function ListToolbar({
           </option>
         ))}
       </select>
-      <span className="ml-auto text-xs text-slate-500">{matchCount} รายการ</span>
+      <span className="ml-auto text-xs tabular-nums text-slate-500">{matchCount} รายการ</span>
     </div>
   );
 }

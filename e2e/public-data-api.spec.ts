@@ -1,22 +1,19 @@
 import { test, expect } from "./fixtures/admin.fixture";
-import { testSemester } from "./fixtures/seed-data.fixture";
-import { getE2ETeacherId } from "./helpers/teacher-id";
 
 /**
- * E2E Tests for Public Data API Layer
+ * E2E Tests for Public Data Layer
  *
- * These tests verify the public-facing data endpoints that are used by:
- * - Homepage (teachers/classes listings, quick stats)
- * - Public teacher/class detail pages
+ * These tests verify the public-facing data shown on:
+ * - Homepage (classes listing, quick stats)
+ * - Public class detail pages
  * - Analytics dashboards
  *
- * Converted from: __test__/public-data-layer.test.ts (database-dependent integration tests)
+ * (The public teachers listing was removed; teacher coverage deleted.)
  *
  * Key verifications:
  * - PII protection (no email addresses exposed)
  * - Correct data structure and types
  * - Pagination functionality
- * - Sorting behavior
  * - Search/filter functionality
  * - Statistics accuracy
  * - Security (no sensitive data leakage)
@@ -28,8 +25,8 @@ import { getE2ETeacherId } from "./helpers/teacher-id";
 
 /**
  * Clicking a tab can race React hydration in `next dev`: the click lands before
- * the onClick handler attaches and is silently lost, leaving the default
- * (teachers) tab active. Re-click until the tab reports aria-selected=true.
+ * the onClick handler attaches and is silently lost. Re-click until the tab
+ * reports aria-selected=true.
  */
 const selectTab = async (
   page: import("@playwright/test").Page,
@@ -44,160 +41,6 @@ const selectTab = async (
     });
   }).toPass({ timeout: 20000 });
 };
-
-test.describe("Public Teachers Data API", () => {
-  test("should load homepage with teachers data", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    // Navigate to homepage
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-
-    // Check if teachers tab exists and click it
-    await expect(page.getByTestId("teachers-tab")).toBeVisible();
-    await page.getByTestId("teachers-tab").click();
-
-    // Verify teacher table is visible
-    await expect(page.getByTestId("teacher-list")).toBeVisible();
-
-    // Verify the list has content (cards, not table rows)
-    const rowCount = await page
-      .getByTestId("teacher-list")
-      .getByTestId("person-card")
-      .count();
-    expect(rowCount).toBeGreaterThan(0);
-  });
-
-  test("should not expose email addresses (PII protection)", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    // Navigate to homepage and switch to teachers tab
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
-
-    // Get page content
-    const content = await page.content();
-
-    // Check for email patterns in page content
-    const emailPattern = /@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-    const hasEmail = emailPattern.test(content);
-
-    // Should NOT contain email addresses
-    expect(hasEmail).toBe(false);
-
-    // Also check if the word "email" appears in visible content (it shouldn't)
-    const emailTextVisible = await page.locator("text=/email/i").count();
-    expect(emailTextVisible).toBe(0);
-  });
-
-  test("should display teacher name and department", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
-
-    const firstCard = page
-      .getByTestId("teacher-list")
-      .getByTestId("person-card")
-      .first();
-    await expect(firstCard).toBeVisible({ timeout: 15000 });
-
-    // Card shows the teacher name (heading) + "department · N คาบ" secondary line
-    await expect(firstCard).toContainText(/\S+/); // teacher name
-    await expect(firstCard).toContainText(/คาบ/); // department/hours line
-  });
-
-  test("should support pagination for teachers", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
-
-    // Check if pagination controls exist
-    const paginationExists = await page
-      .locator(
-        '[role="navigation"], .pagination, button:has-text("Next"), button:has-text("ถัดไป")',
-      )
-      .count();
-
-    if (paginationExists > 0) {
-      // Get first page data
-      const firstPageData = await page
-        .getByTestId("teacher-list")
-        .textContent();
-
-      // Try clicking next page button if available
-      const nextButton = page
-        .locator(
-          'button:has-text("Next"), button:has-text("ถัดไป"), [aria-label*="next"]',
-        )
-        .first();
-
-      if (await nextButton.isVisible()) {
-        await nextButton.click();
-
-        // Verify data changed (client-side pagination, no URL change)
-        const secondPageData = await page
-          .getByTestId("teacher-list")
-          .textContent();
-        expect(secondPageData).not.toBe(firstPageData);
-      }
-    }
-  });
-
-  test("should support search functionality for teachers", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
-
-    // Look for search input
-    const searchInput = page
-      .locator(
-        'input[type="search"], input[type="text"][placeholder*="Search"], input[placeholder*="ค้นหา"]',
-      )
-      .first();
-
-    if (await searchInput.isVisible()) {
-      // Type a search term (Thai UI/seed uses Thai department names like "คณิตศาสตร์")
-      await searchInput.fill("คณิต");
-
-      // Wait for debounced search results to update
-      await expect(async () => {
-        const content = await page.getByTestId("teacher-list").textContent();
-        expect(content || "").toContain("คณิต");
-      }).toPass({ timeout: 3000 });
-    }
-  });
-
-  test("should load individual teacher detail page", async ({
-    authenticatedAdmin,
-  }) => {
-    // The public teacher page is term-scoped and 404s for teachers without a
-    // schedule in the current term, so an arbitrary homepage link is unreliable.
-    // Target the E2E teacher, which is seeded with a responsibility in the
-    // published term (1-2568). Id resolution needs the authenticated
-    // /api/teachers endpoint; the detail page itself is public.
-    const { page } = authenticatedAdmin;
-    const teacherId = await getE2ETeacherId(page);
-
-    await page.goto(
-      `/teachers/${teacherId}/${testSemester.Year}/${testSemester.Semester}`,
-      { timeout: 60000, waitUntil: "domcontentloaded" },
-    );
-
-    expect(page.url()).toContain("/teachers/");
-
-    // Public teacher schedule uses a grid table (allow dev cold-compile).
-    await expect(page.getByTestId("schedule-grid")).toBeVisible({
-      timeout: 30000,
-    });
-  });
-});
 
 test.describe("Public Classes Data API", () => {
   test("should load homepage with classes data", async ({
@@ -416,30 +259,6 @@ test.describe("Public Statistics API", () => {
 });
 
 test.describe("Security & Privacy Checks", () => {
-  test("no PII (email) in homepage teachers section", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
-
-    const content = await page.content();
-
-    // Comprehensive email pattern check
-    const emailPatterns = [
-      /@gmail\.com/i,
-      /@yahoo\.com/i,
-      /@hotmail\.com/i,
-      /@outlook\.com/i,
-      /@[a-zA-Z0-9.-]+\.(com|net|org|edu|th)/i,
-    ];
-
-    for (const pattern of emailPatterns) {
-      const hasEmail = pattern.test(content);
-      expect(hasEmail).toBe(false);
-    }
-  });
-
   test("no PII (email) in classes section", async ({ guestPage }) => {
     const page = guestPage;
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
@@ -530,27 +349,6 @@ test.describe("Security & Privacy Checks", () => {
 });
 
 test.describe("Data Validation & Integrity", () => {
-  test("teacher utilization should be between 0-150%", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
-
-    const content = await page.textContent("body");
-
-    // Find percentage values in content
-    const percentMatches = content?.match(/(\d+)%/g) || [];
-
-    for (const match of percentMatches) {
-      const value = parseInt(match.replace("%", ""));
-
-      // Utilization should be reasonable (0-150%, allowing for overtime)
-      expect(value).toBeGreaterThanOrEqual(0);
-      expect(value).toBeLessThanOrEqual(150);
-    }
-  });
-
   test("grade levels should follow Thai education system (M.1-M.6)", async ({
     guestPage,
   }) => {
@@ -602,42 +400,12 @@ test.describe("Performance & Caching", () => {
     expect(loadTime).toBeLessThan(5000);
   });
 
-  test("switching tabs should not require full page reload", async ({
-    guestPage,
-  }) => {
-    const page = guestPage;
-    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
-
-    // Verify teachers tab is active
-    await expect(page.getByTestId("teachers-tab")).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-
-    // Switch to classes tab
-    await selectTab(page, "classes-tab");
-
-    // Verify tab state changed (client-side, no URL change)
-    await expect(page.getByTestId("classes-tab")).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-    await expect(page.getByTestId("teachers-tab")).toHaveAttribute(
-      "aria-selected",
-      "false",
-    );
-
-    // Verify URL did NOT change (client-side state only)
-    expect(page.url()).toBe(new URL("/", page.url()).href);
-  });
-
   test("pagination should be fast (client-side)", async ({
     guestPage,
   }) => {
     const page = guestPage;
     await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
-    await page.getByTestId("teachers-tab").click();
+    await selectTab(page, "classes-tab");
 
     const nextButton = page
       .locator(

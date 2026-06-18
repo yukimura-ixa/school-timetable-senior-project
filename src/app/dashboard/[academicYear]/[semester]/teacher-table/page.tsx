@@ -1,8 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import React, { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
+import React, { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import useSWR from "swr";
@@ -307,28 +306,15 @@ function TeacherTablePage() {
     return "";
   })();
 
-  // Ref for capturing timetable for PDF export
-  const timetableRef = useRef<HTMLDivElement>(null);
-
-  // Bulk print: timetables for the selected teachers, rendered into a
-  // body-level portal and printed 2 per page (see .bulk-print in globals.css).
-  const [bulkPrint, setBulkPrint] = useState<
-    { teacherId: number; name: string; data: TimeSlotTableData }[]
-  >([]);
-
-  useEffect(() => {
-    if (bulkPrint.length === 0) return;
-    const clear = () => setBulkPrint([]);
-    window.addEventListener("afterprint", clear, { once: true });
-    window.print();
-    return () => window.removeEventListener("afterprint", clear);
-  }, [bulkPrint]);
-
   const handleExportPDF = () => {
-    // Browser print-to-PDF: prints the on-screen timetable, isolated via the
-    // .print-area rule in globals.css (replaces the html2canvas/jsPDF capture
-    // that produced blank schedules under Tailwind v4 / MUI oklch colors).
-    window.print();
+    // Server-rendered PDF in a new tab (admin-only button); the print route
+    // forwards the admin session and allows DRAFT terms.
+    if (!effectiveTeacherId || !semester || !academicYear) return;
+    window.open(
+      `/print/teacher-table/${academicYear}/${semester}/pdf?ids=${effectiveTeacherId}`,
+      "_blank",
+      "noopener",
+    );
   };
 
   // Bulk export handlers
@@ -365,30 +351,16 @@ function TeacherTablePage() {
     handleExportMenuClose();
   };
 
-  const handleBulkPrint = async () => {
+  const handleBulkPrint = () => {
     handleExportMenuClose();
     if (selectedTeacherIds.length === 0 || !semester || !academicYear) return;
-
-    const semesterEnum = `SEMESTER_${semester}` as
-      | "SEMESTER_1"
-      | "SEMESTER_2";
-    const results = await Promise.all(
-      selectedTeacherIds.map(async (id) => {
-        const res = await getClassSchedulesAction({
-          TeacherID: id,
-          AcademicYear: Number(academicYear),
-          Semester: semesterEnum,
-        });
-        const cls = res.success && res.data ? res.data : [];
-        const teacher = allTeachers.data?.find((t) => t.TeacherID === id);
-        return {
-          teacherId: id,
-          name: formatTeacherName(teacher),
-          data: createTimeSlotTableData(timeslots, cls),
-        };
-      }),
+    // Server-rendered PDF (2 teachers/page) opened in a new tab. The print
+    // route forwards the admin session and allows DRAFT terms.
+    window.open(
+      `/print/teacher-table/${academicYear}/${semester}/pdf?ids=${selectedTeacherIds.join(",")}`,
+      "_blank",
+      "noopener",
     );
-    setBulkPrint(results);
   };
 
   const handleSelectTeacher = (teacherId: number | null) => {
@@ -762,11 +734,7 @@ function TeacherTablePage() {
                 />
               ) : (
                 <Paper elevation={1} sx={{ overflow: "auto" }}>
-                  <Box
-                    ref={timetableRef}
-                    className={bulkPrint.length > 0 ? undefined : "print-area"}
-                    sx={{ p: 2 }}
-                  >
+                  <Box sx={{ p: 2 }}>
                     <TimeSlot
                       timeSlotData={timeSlotData}
                       slots={configData?.data?.slots ?? []}
@@ -777,28 +745,6 @@ function TeacherTablePage() {
             </Stack>
           )}
       </Stack>
-      {bulkPrint.length > 0 &&
-        createPortal(
-          <div className="bulk-print">
-            {bulkPrint.map((tp) => (
-              <div key={tp.teacherId} className="bulk-print-item">
-                <div style={{ marginBottom: 8 }}>
-                  <div style={{ fontWeight: "bold", fontSize: "1rem" }}>
-                    ตารางสอน: {tp.name}
-                  </div>
-                  <div style={{ fontSize: "0.85rem", color: "#555" }}>
-                    ภาคเรียนที่ {semester}/{academicYear}
-                  </div>
-                </div>
-                <TimeSlot
-                  timeSlotData={tp.data}
-                  slots={configData?.data?.slots ?? []}
-                />
-              </div>
-            ))}
-          </div>,
-          document.body,
-        )}
     </Container>
   );
 }

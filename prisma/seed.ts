@@ -83,13 +83,13 @@ import type { SlotConfig } from "../src/features/timeslot/domain/models/break.ty
 // + staggered junior/senior lunches). Generation + placement both derive from
 // this so timeslot ROWS always match the slots[] config.
 const SLOTS_2568: SlotConfig[] = [
-  { duration: 50 },                          // slot 1  (old period 1)
-  { duration: 10, breakGroups: ["*"] },       // slot 2  พักสาย (universal)
-  { duration: 50 },                           // slot 3  (old period 2)
-  { duration: 50 },                           // slot 4  (old period 3)
-  { duration: 50, breakGroups: ["junior"] },  // slot 5  พักกลางวัน ม.ต้น
-  { duration: 50 },                           // slot 6  (old period 4)
-  { duration: 50, breakGroups: ["senior"] },  // slot 7  พักกลางวัน ม.ปลาย
+  { duration: 50 },                          // slot 1  คาบ1
+  { duration: 50 },                           // slot 2  คาบ2
+  { duration: 10, breakGroups: ["*"] },       // slot 3  พักสาย (universal, after คาบ2)
+  { duration: 50 },                           // slot 4  คาบ3
+  { duration: 50, breakGroups: ["junior"] },  // slot 5  พักกลางวัน ม.ต้น (junior lunch, after คาบ3)
+  { duration: 50, breakGroups: ["senior"] },  // slot 6  พักกลางวัน ม.ปลาย (senior lunch, after คาบ4)
+  { duration: 50 },                           // slot 7  (teaching for both)
   { duration: 50 },                           // slot 8  (old period 5)
   { duration: 50 },                           // slot 9  (old period 6)
   { duration: 50 },                           // slot 10 (old period 7)
@@ -97,7 +97,7 @@ const SLOTS_2568: SlotConfig[] = [
 ];
 
 // 1-based slot numbers that are not a break for ANY grade (teaching slots).
-// = [1, 3, 4, 6, 8, 9, 10, 11]. Legacy seed coordinates use period 1..8;
+// = [1, 2, 4, 7, 8, 9, 10, 11]. Legacy seed coordinates use period 1..8;
 // old period k maps to the k-th absolute teaching slot.
 const TEACHING_SLOTS_2568: number[] = SLOTS_2568.reduce<number[]>(
   (acc, slot, i) => {
@@ -113,8 +113,9 @@ const oldPeriodToSlot = (period: number): number =>
 
 /** 1-based slot numbers a group can teach in: every slot except the universal
  *  recess and the group's OWN lunch. The other group's lunch IS teaching here —
- *  the Phase 2A staggered-teaching win. junior=[1,3,4,6,7,8,9,10,11],
- *  senior=[1,3,4,5,6,8,9,10,11]. */
+ *  the Phase 2A staggered-teaching win. junior=[1,2,4,6,7,8,9,10,11]
+ *  (lunch slot 5, after คาบ3), senior=[1,2,4,5,7,8,9,10,11] (lunch slot 6,
+ *  after คาบ4). */
 function teachingSlotsForGroup(group: "junior" | "senior"): number[] {
   const out: number[] = [];
   SLOTS_2568.forEach((slot, i) => {
@@ -3371,7 +3372,7 @@ async function main() {
       const usedTeacherSlot = new Set<string>();
       const usedGradeSlot = new Set<string>();
 
-      // Keep M1-1's first 3 teaching slots (MON1/MON3/MON4 — slot 2 is the
+      // Keep M1-1's first 3 teaching slots (MON1/MON2/MON4 — slot 3 is the
       // universal recess) OPEN so the E2E teacher's unplaced ค21201/M1-1
       // responsibility is reliably placeable in arrange e2e. The arrange grid
       // is teacher-scoped (E2E teacher has no classes → every cell looks
@@ -3477,9 +3478,13 @@ async function main() {
           let period = 0;
           let attempts = 0;
           while (attempts < totalCapacity) {
-            day = scheduleDays[Math.floor(position / perDay) % scheduleDays.length];
+            // Round-robin BY DAY (day-minor), not day-major: lesson N goes to
+            // day N%5 then period floor(N/5). Day-major packing filled MON→THU
+            // first and left FRI empty whenever weekly lessons < 4×perDay
+            // (every grade's load), so Friday never showed any classes.
+            day = scheduleDays[position % scheduleDays.length];
             if (!day) break;
-            period = teaching[position % perDay];
+            period = teaching[Math.floor(position / scheduleDays.length) % perDay];
             timeslotId = generateTimeslotId(
               targetSemesterNumber,
               targetAcademicYear,

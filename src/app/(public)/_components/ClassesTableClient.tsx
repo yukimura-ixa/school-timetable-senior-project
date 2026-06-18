@@ -8,6 +8,7 @@
  */
 
 import { PersonCard } from "@/components/public/PersonCard";
+import { gradeYearColor } from "@/lib/ui/monogram";
 import type { PublicClass } from "@/lib/public/classes";
 
 type Props = {
@@ -65,16 +66,17 @@ export function ClassesTableClient({
   return (
     <div
       data-testid={testId}
-      className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+      className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
       {data.map((cls) => (
         <PersonCard
           key={cls.gradeId}
           id={cls.gradeId}
           primary={`ม.${cls.year}/${cls.section}`}
-          secondary={`${cls.homeroomTeacher || "—"} · ${cls.weeklyHours} คาบ`}
+          secondary={`${cls.subjectCount} วิชา`}
           monogram={{ kind: "grade", year: cls.year }}
           accentClass="text-accent-class"
+          accentColor={gradeYearColor(cls.year)}
           href={
             term
               ? `/classes/${toNumericGradeId(cls.gradeId)}/${term.academicYear}/${term.semester}`

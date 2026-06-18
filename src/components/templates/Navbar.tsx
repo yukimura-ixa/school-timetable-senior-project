@@ -41,7 +41,7 @@ function Navbar() {
   const showLoading = !isHydrated || (!cachedSession && isPending);
   return (
     <>
-      {pathName === "/signin" || pathName === "/" ? null : (
+      {pathName === "/signin" || pathName === "/" || pathName === "/print" || pathName.startsWith("/print/") ? null : (
         <nav className="sticky top-0 z-50 flex w-full justify-center border-b border-white/20 bg-white/70 backdrop-blur-md shadow-sm transition-all duration-300">
           <div className="flex w-full xl:w-[1440px] h-full justify-between items-center px-6 py-2.5">
             {/* Leftside */}
