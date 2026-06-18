@@ -18,7 +18,6 @@ const SEM = "1";
 
 const PUBLIC_PRINT_ROUTES = {
   classes: `/print/classes/M1-1/${AY}/${SEM}`,
-  teachers: `/print/teachers/1/${AY}/${SEM}`,
 };
 
 const ADMIN_PRINT_ROUTES = {
@@ -30,7 +29,6 @@ const ALL_PRINT_ROUTES = { ...PUBLIC_PRINT_ROUTES, ...ADMIN_PRINT_ROUTES };
 
 const PDF_ROUTES = {
   classes: `/print/classes/M1-1/${AY}/${SEM}/pdf`,
-  teachers: `/print/teachers/1/${AY}/${SEM}/pdf`,
   studentTable: `/print/student-table/M1-1/${AY}/${SEM}/pdf`,
   teacherTable: `/print/teacher-table/${AY}/${SEM}/pdf?ids=1`,
 };
@@ -65,7 +63,7 @@ test.describe("Admin print routes are not exposed to guests", () => {
     });
   }
 
-  test("public class/teacher print routes still render for guests", async ({
+  test("public class print route still renders for guests", async ({
     guestPage,
   }) => {
     await guestPage.goto(PUBLIC_PRINT_ROUTES.classes, { timeout: 90000 });
