@@ -10,7 +10,6 @@ describe.skipIf(!process.env.CHROME_PATH)("renderUrlToPdf", () => {
     async () => {
       const pdf = await renderUrlToPdf(
         "http://localhost:3000/print/classes/M1-1/2568/1",
-        { landscape: false },
       );
       expect(pdf.length).toBeGreaterThan(1000);
       expect(pdf.subarray(0, 5).toString("latin1")).toBe("%PDF-");

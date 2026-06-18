@@ -47,7 +47,7 @@ export async function GET(
     `/print/student-table/${gradeId}/${academicYear}/${semester}`,
     base,
   ).toString();
-  const pdf = await renderUrlToPdf(printUrl, { landscape: false, cookies });
+  const pdf = await renderUrlToPdf(printUrl, { cookies });
 
   return new Response(new Uint8Array(pdf), {
     headers: {

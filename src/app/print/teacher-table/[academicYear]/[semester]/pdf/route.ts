@@ -43,7 +43,7 @@ export async function GET(
     `/print/teacher-table/${academicYear}/${semester}?ids=${encodeURIComponent(ids)}`,
     base,
   ).toString();
-  const pdf = await renderUrlToPdf(printUrl, { landscape: false, cookies });
+  const pdf = await renderUrlToPdf(printUrl, { cookies });
 
   return new Response(new Uint8Array(pdf), {
     headers: {

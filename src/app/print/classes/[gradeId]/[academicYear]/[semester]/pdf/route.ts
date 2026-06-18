@@ -24,7 +24,7 @@ export async function GET(req: Request, { params }: { params: Promise<Params> })
     `/print/classes/${gradeId}/${academicYear}/${semester}`,
     base,
   ).toString();
-  const pdf = await renderUrlToPdf(printUrl, { landscape: false }); // public: no cookies
+  const pdf = await renderUrlToPdf(printUrl); // public: no cookies
   return new Response(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
