@@ -317,6 +317,14 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       // Placed: one fewer empty slot.
       await expect.poll(emptyCount, { timeout: 10000 }).toBe(baseline - 1);
 
+      // Capture the exact slot we placed into (stable across reload) so the
+      // delete below targets THIS class — not another of the teacher's
+      // same-subject placements (the seed gives ค21201 multiple cells, which
+      // made the old global remove-button locator a strict-mode violation).
+      const placedTimeslotId = await page
+        .locator('[data-journey-target="1"]')
+        .getAttribute("data-timeslot-id");
+
       // Persistence across reload.
       await page.goto(
         `/schedule/${SEMESTER}/arrange?teacher=${teacherId}&tab=teacher`,
@@ -328,15 +336,9 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       await expect.poll(emptyCount, { timeout: 15000 }).toBe(baseline - 1);
 
       // Delete the placed class -> back to baseline (restores seed state).
-      await page.evaluate(() => {
-        const card = [
-          ...document.querySelectorAll('[data-testid="timeslot-card"]'),
-        ].find((c) => /ค21201|WALK-TEST|คณิตศาสตร์เพิ่มเติม/.test(c.textContent ?? ""));
-        card?.setAttribute("data-journey-placed", "1");
-      });
-      await page.locator('[data-journey-placed="1"]').click();
       await page
-        .locator('button[aria-label="ลบรายวิชาออกจากคาบเรียน"]')
+        .locator(`[data-timeslot-id="${placedTimeslotId}"]`)
+        .getByTestId("timeslot-remove")
         .click();
       await expect.poll(emptyCount, { timeout: 10000 }).toBe(baseline);
     });
