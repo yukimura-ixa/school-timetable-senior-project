@@ -2,6 +2,10 @@
 # All other test files run in the parallel shard (3 workers).
 # When adding a new E2E test, classify it here if it creates/updates/deletes data.
 
+# Visual specs: must run sequentially so concurrent shards can't mutate the DB
+# mid-screenshot. MUST stay listed BEFORE the mutators below — its all-timeslot
+# baseline (VIS-052) reflects a fresh seed, so any mutator running first drifts it.
+admin-workflow.spec.ts
 02-data-management.spec.ts
 03-schedule-config.spec.ts
 08-drag-and-drop.spec.ts

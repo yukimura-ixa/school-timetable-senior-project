@@ -85,7 +85,10 @@ const snap = async (
   name: string,
   opts: { mask?: ReturnType<typeof page.locator>[] } = {},
 ) => {
-  await page.waitForLoadState("networkidle");
+  // networkidle hangs under Next dev/HMR (long-lived sockets) and intermittently
+  // flakes the teacher-management page; domcontentloaded plus the settle waits
+  // below is sufficient for these smoke screenshots.
+  await page.waitForLoadState("domcontentloaded");
   await page.waitForTimeout(800);
   const headerMask = page.locator("header, nav");
   const header = headerMask.first();
