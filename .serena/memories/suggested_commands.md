@@ -77,11 +77,8 @@ pnpm seed:setup
 ### Admin Management
 
 ```powershell
-# Create admin user
-pnpm admin:create
-
-# Verify admin exists
-pnpm admin:verify
+# Create the admin user (prod). Local dev admin is created by db:seed.
+pnpm admin:seed:prod
 ```
 
 ## Code Quality
