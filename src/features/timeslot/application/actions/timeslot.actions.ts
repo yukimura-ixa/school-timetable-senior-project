@@ -187,11 +187,11 @@ export const createTimeslotsAction = createAction(
           AcademicYear: input.AcademicYear,
           Semester: input.Semester,
           Config: input,
-          configCompleteness: 25, // 25% complete after timeslots configured
+          configCompleteness: 30, // has timeslots -> meets the >=30 publish gate (c6r/7dc)
         },
         update: {
           Config: input,
-          configCompleteness: 25, // Update to 25% when reconfiguring timeslots
+          configCompleteness: 30, // reconfigured timeslots still meet the >=30 gate (c6r/7dc)
         },
       });
 

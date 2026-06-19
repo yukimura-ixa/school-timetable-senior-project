@@ -262,12 +262,13 @@ export const updateConfigWithTimeslotsAction = createAction(
         },
       });
 
-      // Step 3: Update config; reset completeness — teachers + schedule were wiped
+      // Step 3: Update config. Teachers + schedule were wiped, but timeslots
+      // remain configured -> completeness meets the >=30 publish gate (c6r/7dc).
       const updatedConfig: table_config = await tx.table_config.update({
         where: { ConfigID: input.ConfigID },
         data: {
           Config: input.Config as ConfigData,
-          configCompleteness: 25,
+          configCompleteness: 30,
         },
       });
 

@@ -17,6 +17,7 @@ import type {
   ExistingSchedule,
   Placement,
   PlacementFailure,
+  SolverInput,
   SolverStats,
   UnplacedSubject,
 } from "./types";
@@ -38,6 +39,8 @@ export interface WholeSchoolSolverInput {
   existingSchedules: ExistingSchedule[];
   /** All rooms */
   rooms: AvailableRoom[];
+  /** Per-grade staggered-break guard, forwarded to each per-teacher solve. */
+  breakGuard?: SolverInput["breakGuard"];
 }
 
 /** Per-teacher summary of how the run went. */
@@ -114,6 +117,7 @@ export function solveWholeSchool(
       timeslots: input.timeslots,
       existingSchedules: accumulatedExisting,
       rooms: input.rooms,
+      breakGuard: input.breakGuard,
     });
 
     placements.push(...result.placements);

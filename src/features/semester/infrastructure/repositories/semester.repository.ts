@@ -358,10 +358,10 @@ export class SemesterRepository {
           data: data.timeslots,
         });
 
-        // Update completeness
+        // Timeslots configured -> meets the >=30 publish gate (c6r/7dc).
         await tx.table_config.update({
           where: { ConfigID: newSemester.ConfigID },
-          data: { configCompleteness: 25 },
+          data: { configCompleteness: 30 },
         });
       }
 

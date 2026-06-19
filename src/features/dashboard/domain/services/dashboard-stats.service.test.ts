@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { class_schedule } from "@/prisma/generated/client";
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 import {
   countTeachersWithSchedules,
   countClassCompletion,
@@ -222,22 +223,28 @@ describe("findIncompletGrades", () => {
     ProgramID: null,
   });
 
+  // N teaching timeslots for one day (no breaks); TimeslotID period suffix MON1..MONn
+  const timeslots = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({ TimeslotID: `1-2567-MON${i + 1}` }));
+  const noSlots: SlotConfig[] = [];
+  const noIndex = new Map<string, Set<string>>();
+
   it("returns empty when all grades are complete", () => {
     const schedules = Array.from({ length: 10 }, (_, i) =>
-      makeSchedule({ ClassID: i + 1, GradeID: "M1-1" }),
+      makeSchedule({ ClassID: i + 1, GradeID: "M1-1", TimeslotID: `1-2567-MON${i + 1}` }),
     );
     const grades = [makeGrade("M1-1", 1, 1)];
-    const result = findIncompletGrades(schedules, grades, 10, new Map());
+    const result = findIncompletGrades(schedules, grades, timeslots(10), noSlots, noIndex, new Map());
     expect(result).toHaveLength(0);
   });
 
   it("returns incomplete grades with missing subjects", () => {
     const schedules = [
-      makeSchedule({ ClassID: 1, GradeID: "M1-1", SubjectCode: "MATH101" }),
+      makeSchedule({ ClassID: 1, GradeID: "M1-1", SubjectCode: "MATH101", TimeslotID: "1-2567-MON1" }),
     ];
     const grades = [makeGrade("M1-1", 1, 1)];
     const required = new Map([["M1-1", ["MATH101", "SCI201", "ENG301"]]]);
-    const result = findIncompletGrades(schedules, grades, 10, required);
+    const result = findIncompletGrades(schedules, grades, timeslots(10), noSlots, noIndex, required);
     expect(result).toHaveLength(1);
     expect(result[0]!.missingSubjects).toEqual(["SCI201", "ENG301"]);
     expect(result[0]!.scheduledHours).toBe(1);
@@ -245,9 +252,55 @@ describe("findIncompletGrades", () => {
 
   it("includes grades with zero schedules", () => {
     const grades = [makeGrade("M1-1", 1, 1)];
-    const result = findIncompletGrades([], grades, 10, new Map());
+    const result = findIncompletGrades([], grades, timeslots(10), noSlots, noIndex, new Map());
     expect(result).toHaveLength(1);
     expect(result[0]!.completionRate).toBe(0);
+  });
+
+  // 7dc: staggered per-grade breaks (junior lunch at p2, senior lunch at p4)
+  describe("staggered per-grade breaks", () => {
+    const slots: SlotConfig[] = [
+      { duration: 50 },
+      { duration: 50, breakGroups: ["junior"] },
+      { duration: 50 },
+      { duration: 50, breakGroups: ["senior"] },
+      { duration: 50 },
+    ];
+    const index = new Map<string, Set<string>>([
+      ["M1-1", new Set(["junior"])],
+      ["M4-1", new Set(["senior"])],
+    ]);
+    const ts = timeslots(5); // MON1..MON5
+
+    it("excludes only the grade's own break from requiredHours", () => {
+      const jr = findIncompletGrades([], [makeGrade("M1-1", 1, 1)], ts, slots, index, new Map())[0]!;
+      const sr = findIncompletGrades([], [makeGrade("M4-1", 4, 1)], ts, slots, index, new Map())[0]!;
+      // junior teaches p1,p3,p4,p5 (not its p2); senior teaches p1,p2,p3,p5 (not its p4)
+      expect(jr.requiredHours).toBe(4);
+      expect(sr.requiredHours).toBe(4);
+    });
+
+    it("does not let a class in a break slot inflate completion (symmetry)", () => {
+      // senior fills teaching p1,p3,p5 + a locked activity in its break p4; p2 left empty
+      const schedules = [
+        makeSchedule({ ClassID: 1, GradeID: "M4-1", TimeslotID: "1-2567-MON1" }),
+        makeSchedule({ ClassID: 2, GradeID: "M4-1", TimeslotID: "1-2567-MON3" }),
+        makeSchedule({ ClassID: 3, GradeID: "M4-1", TimeslotID: "1-2567-MON5" }),
+        makeSchedule({ ClassID: 4, GradeID: "M4-1", TimeslotID: "1-2567-MON4", IsLocked: true }),
+      ];
+      const result = findIncompletGrades(schedules, [makeGrade("M4-1", 4, 1)], ts, slots, index, new Map())[0]!;
+      expect(result.scheduledHours).toBe(3); // break-slot activity (p4) not counted
+      expect(result.requiredHours).toBe(4);
+      expect(result.completionRate).toBeLessThan(100); // not inflated to complete
+    });
+
+    it("is complete when all teaching slots are filled", () => {
+      const schedules = [1, 2, 3, 5].map((p, i) =>
+        makeSchedule({ ClassID: i + 1, GradeID: "M4-1", TimeslotID: `1-2567-MON${p}` }),
+      );
+      const result = findIncompletGrades(schedules, [makeGrade("M4-1", 4, 1)], ts, slots, index, new Map());
+      expect(result).toHaveLength(0);
+    });
   });
 });
 

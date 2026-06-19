@@ -33,6 +33,7 @@ import {
 } from "../schemas/semester.schemas";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
+import { buildTimetableConfigData } from "@/features/config/domain/types/config-data.types";
 import { mapAssignmentsForTarget } from "@/features/teaching-assignment/domain/utils/copy-assignments";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
@@ -242,6 +243,13 @@ export async function createSemesterWithTimeslotsAction(input: {
         if (source) {
           configData = source.Config ?? undefined;
         }
+      } else if (input.timeslotConfig) {
+        // Persist the canonical slots-shaped Config so the config page and the
+        // per-grade break guard can read it (c6r: previously stored as {}).
+        const built = buildTimetableConfigData(input.timeslotConfig);
+        if (built) {
+          configData = built as unknown as Prisma.InputJsonValue;
+        }
       }
 
       const normalizedConfig: Prisma.InputJsonValue = configData ?? {};
@@ -284,10 +292,13 @@ export async function createSemesterWithTimeslotsAction(input: {
           data: timeslots,
         });
 
-        // Update config completeness (timeslots configured)
+        // Configuring timeslots meets the publish gate's "has timeslots" bar:
+        // calculateCompleteness weights timeslots at 30 and canTransitionStatus
+        // requires >=30 for DRAFT->PUBLISHED. The previous 25 sat just below the
+        // gate, so a fully-ready term could never be published (c6r).
         await tx.table_config.update({
           where: { ConfigID: semester.ConfigID },
-          data: { configCompleteness: 25 }, // 25% complete after timeslots
+          data: { configCompleteness: 30 },
         });
       }
 
@@ -328,10 +339,11 @@ export async function createSemesterWithTimeslotsAction(input: {
               skipDuplicates: true,
             });
 
-            // Update config completeness
+            // Copied timeslots also meet the publish gate's "has timeslots"
+            // bar (>=30); see the new-timeslots branch above (c6r).
             await tx.table_config.update({
               where: { ConfigID: semester.ConfigID },
-              data: { configCompleteness: 25 },
+              data: { configCompleteness: 30 },
             });
           }
         }

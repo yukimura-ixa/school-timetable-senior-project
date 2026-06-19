@@ -34,7 +34,9 @@ export function checkPublishReadiness(
   const incompleteGrades = findIncompletGrades(
     configData.schedules,
     configData.grades,
-    configData.totalTimeslots,
+    configData.timeslots,
+    configData.slots,
+    configData.gradeBreakIndex,
     configData.requiredSubjects,
   );
 

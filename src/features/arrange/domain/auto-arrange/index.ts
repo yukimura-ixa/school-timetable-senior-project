@@ -6,6 +6,8 @@
 
 export { solve } from "./solver";
 export { solveWholeSchool } from "./whole-school-solver";
+export { toUnplacedSubject } from "./responsibility-mapping";
+export type { ResponsibilityForPlacement } from "./responsibility-mapping";
 export type {
   TeacherSolveTask,
   TeacherSolveOutcome,

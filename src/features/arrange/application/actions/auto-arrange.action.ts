@@ -12,7 +12,7 @@ import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
-import { solve } from "@/features/arrange/domain/auto-arrange";
+import { solve, toUnplacedSubject } from "@/features/arrange/domain/auto-arrange";
 import type {
   AvailableRoom,
   AvailableTimeslot,
@@ -209,23 +209,9 @@ export async function autoArrangeAction(
             s.teachers_responsibility.some((r) => r.TeacherID === teacherId),
         ).length;
 
-        // Required periods = the responsibility's assigned TeachHour (credit × 2
-        // per the assign step), matching the inspector and expandAvailableSlots.
-        // The previous Math.ceil(credit) under-counted (e.g. 2.0 credit → 2
-        // instead of 4), so the solver disagreed with the rest of the system (6ri).
-        const periodsPerWeek = resp.TeachHour;
-
-        return {
-          respId: resp.RespID,
-          subjectCode: resp.SubjectCode,
-          subjectName: resp.subject?.SubjectName ?? "ไม่ระบุ",
-          gradeId: resp.GradeID,
-          gradeName: resp.gradelevel
-            ? `${resp.gradelevel.Year}/${resp.gradelevel.Number}`
-            : resp.GradeID,
-          periodsPerWeek,
-          periodsAlreadyPlaced: alreadyPlaced,
-        };
+        // Required periods = TeachHour (credit × 2 per the assign step), shared
+        // with the whole-school route so the two paths can't diverge (6ri/c6r).
+        return toUnplacedSubject(resp, alreadyPlaced);
       },
     );
 
