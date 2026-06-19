@@ -292,10 +292,13 @@ export async function createSemesterWithTimeslotsAction(input: {
           data: timeslots,
         });
 
-        // Update config completeness (timeslots configured)
+        // Configuring timeslots meets the publish gate's "has timeslots" bar:
+        // calculateCompleteness weights timeslots at 30 and canTransitionStatus
+        // requires >=30 for DRAFT->PUBLISHED. The previous 25 sat just below the
+        // gate, so a fully-ready term could never be published (c6r).
         await tx.table_config.update({
           where: { ConfigID: semester.ConfigID },
-          data: { configCompleteness: 25 }, // 25% complete after timeslots
+          data: { configCompleteness: 30 },
         });
       }
 
@@ -336,10 +339,11 @@ export async function createSemesterWithTimeslotsAction(input: {
               skipDuplicates: true,
             });
 
-            // Update config completeness
+            // Copied timeslots also meet the publish gate's "has timeslots"
+            // bar (>=30); see the new-timeslots branch above (c6r).
             await tx.table_config.update({
               where: { ConfigID: semester.ConfigID },
-              data: { configCompleteness: 25 },
+              data: { configCompleteness: 30 },
             });
           }
         }
