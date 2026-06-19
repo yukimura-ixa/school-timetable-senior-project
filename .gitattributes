@@ -1,0 +1,43 @@
+# Normalize all text files to LF in the repository.
+# Git stores LF; working-tree CRLF is normalized on commit so it stops
+# showing the whole tree as "modified" on Windows checkouts.
+* text=auto eol=lf
+
+# Windows-only scripts must stay CRLF in the working tree.
+*.ps1   text eol=crlf
+*.psm1  text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# Explicit text types (kept LF)
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.js    text eol=lf
+*.jsx   text eol=lf
+*.mjs   text eol=lf
+*.cjs   text eol=lf
+*.json  text eol=lf
+*.css   text eol=lf
+*.scss  text eol=lf
+*.html  text eol=lf
+*.md    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.prisma text eol=lf
+*.sql   text eol=lf
+*.sh    text eol=lf
+*.svg   text eol=lf
+
+# Binary assets — never normalize or diff as text.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.zip   binary
