@@ -33,6 +33,7 @@ import {
 } from "../schemas/semester.schemas";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
+import { buildTimetableConfigData } from "@/features/config/domain/types/config-data.types";
 import { mapAssignmentsForTarget } from "@/features/teaching-assignment/domain/utils/copy-assignments";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
@@ -241,6 +242,13 @@ export async function createSemesterWithTimeslotsAction(input: {
         });
         if (source) {
           configData = source.Config ?? undefined;
+        }
+      } else if (input.timeslotConfig) {
+        // Persist the canonical slots-shaped Config so the config page and the
+        // per-grade break guard can read it (c6r: previously stored as {}).
+        const built = buildTimetableConfigData(input.timeslotConfig);
+        if (built) {
+          configData = built as unknown as Prisma.InputJsonValue;
         }
       }
 

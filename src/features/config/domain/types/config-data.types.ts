@@ -80,3 +80,27 @@ export function isConfigData(value: unknown): value is ConfigData {
 export function parseConfigData(value: unknown): ConfigData {
   return v.parse(ConfigDataSchema, value);
 }
+
+
+
+/**
+ * Build a canonical ConfigData from raw timetable-wizard input
+ * (Days / StartTime / slots), returning null when the result isn't valid.
+ *
+ * The create-semester flow previously stored Config as `{}` (it only fed the
+ * wizard shape to generateTimeslots), so the config page reported "unrecognized
+ * format" and the per-grade break guard had nothing to parse. Reshaping +
+ * validating here guarantees a parseable Config is persisted.
+ */
+export function buildTimetableConfigData(input: {
+  Days?: unknown;
+  StartTime?: unknown;
+  slots?: unknown;
+}): ConfigData | null {
+  const result = v.safeParse(ConfigDataSchema, {
+    Days: input.Days,
+    StartTime: input.StartTime,
+    slots: input.slots,
+  });
+  return result.success ? result.output : null;
+}
