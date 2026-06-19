@@ -4,8 +4,10 @@ import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
 import { sanitizeErrorMessage } from "@/shared/lib/error-sanitizer";
-import { solveWholeSchool } from "@/features/arrange/domain/auto-arrange";
-import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
+import {
+  solveWholeSchool,
+  toUnplacedSubject,
+} from "@/features/arrange/domain/auto-arrange";
 import type {
   AvailableRoom,
   AvailableTimeslot,
@@ -165,20 +167,9 @@ export async function POST(request: NextRequest) {
           ),
       ).length;
 
-      const credit = subjectCreditToNumber(resp.subject?.Credit ?? "CREDIT_10");
-      const periodsPerWeek = Math.ceil(credit);
-
-      const subject: UnplacedSubject = {
-        respId: resp.RespID,
-        subjectCode: resp.SubjectCode,
-        subjectName: resp.subject?.SubjectName ?? "ไม่ระบุ",
-        gradeId: resp.GradeID,
-        gradeName: resp.gradelevel
-          ? `${resp.gradelevel.Year}/${resp.gradelevel.Number}`
-          : resp.GradeID,
-        periodsPerWeek,
-        periodsAlreadyPlaced: alreadyPlaced,
-      };
+      // Required periods come from TeachHour, not Math.ceil(credit) — shared
+      // with the per-teacher path so the two cannot diverge again (c6r / 6ri).
+      const subject = toUnplacedSubject(resp, alreadyPlaced);
 
       const existing = tasksByTeacher.get(resp.TeacherID);
       if (existing) {
