@@ -294,8 +294,7 @@ pnpm db:seed:clean          # Clean seed
 pnpm db:studio              # เปิด Prisma Studio
 
 # เครื่องมือ Admin
-pnpm admin:create           # สร้าง admin user
-pnpm admin:verify           # ตรวจสอบสิทธิ์ admin
+pnpm admin:seed:prod        # สร้าง admin user (prod; admin สำหรับ dev มาจาก db:seed)
 ```
 
 ---

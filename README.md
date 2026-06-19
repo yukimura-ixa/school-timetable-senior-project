@@ -414,8 +414,7 @@ pnpm db:studio # Open Prisma Studio
 
 # Admin tools
 
-pnpm admin:create # Create admin user
-pnpm admin:verify # Verify admin access
+pnpm admin:seed:prod # Create the admin user (prod; local dev admin is created by db:seed)
 
 ````
 
