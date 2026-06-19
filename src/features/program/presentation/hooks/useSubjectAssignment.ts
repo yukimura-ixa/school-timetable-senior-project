@@ -8,7 +8,7 @@
  * - Memoized calculations (selectedCount, totalCredits)
  */
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { SubjectCategory } from "@/models/subject-category";
 import { assignSubjectsToProgramAction } from "../../application/actions/program.actions";
@@ -67,6 +67,11 @@ export function useSubjectAssignment(
 
   const [subjectConfigs, setSubjectConfigs] =
     useState<Record<string, SubjectConfig>>(initialConfigs);
+  // Subjects/program load async via SWR; on a cold cache the initial state is
+  // built from an empty list, so resync when the computed configs change.
+  useEffect(() => {
+    setSubjectConfigs(initialConfigs);
+  }, [initialConfigs]);
   const [assigning, setAssigning] = useState(false);
   const [validation, setValidation] = useState<MoeValidation | null>(null);
 

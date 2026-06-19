@@ -21,6 +21,7 @@ type TeacherManageClientProps = {
 export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
   const [teachers, setTeachers] = useState<teacher[]>(initialData ?? []);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showTable, setShowTable] = useState(false);
   const router = useRouter();
 
   // Mutation callback - refetch data after mutations
@@ -35,9 +36,9 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
   };
 
   // Empty state
-  if (!teachers || teachers.length === 0) {
+  if ((!teachers || teachers.length === 0) && !showTable) {
     return (
-      <NoTeachersEmptyState onAdd={() => router.push("/management/teacher")} />
+      <NoTeachersEmptyState onAdd={() => setShowTable(true)} />
     );
   }
 

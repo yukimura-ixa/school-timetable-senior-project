@@ -21,6 +21,7 @@ type SubjectManageClientProps = {
 export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
   const [subjects, setSubjects] = useState<subject[]>(initialData ?? []);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showTable, setShowTable] = useState(false);
   const router = useRouter();
 
   // Mutation callback - refetch data after mutations
@@ -35,10 +36,8 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
   };
 
   // Empty state
-  if (!subjects || subjects.length === 0) {
-    return (
-      <NoSubjectsEmptyState onAdd={() => router.push("/management/subject")} />
-    );
+  if ((!subjects || subjects.length === 0) && !showTable) {
+    return <NoSubjectsEmptyState onAdd={() => setShowTable(true)} />;
   }
 
   // Success state - now using DataGrid
