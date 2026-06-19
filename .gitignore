@@ -135,3 +135,4 @@ e2e/**/*-snapshots/*-win32.png
 
 # Mermaid-rendered diagrams (regenerate from feature-map.md)
 docs/architecture/feature-map-*.png
+CLAUDE.original.md
