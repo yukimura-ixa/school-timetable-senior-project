@@ -16,6 +16,10 @@ import type {
   UnplacedSubject,
   WholeSchoolSolverInput,
 } from "@/features/arrange/domain/auto-arrange";
+import { parseConfigData } from "@/features/config/domain/types/config-data.types";
+import { buildGradeGroupIndex } from "@/utils/break-utils";
+import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
+import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
 
 const log = createLogger("API:AutoArrangeAll");
 
@@ -75,10 +79,17 @@ export async function POST(request: NextRequest) {
 
     const semesterEnum = semester === "1" ? "SEMESTER_1" : "SEMESTER_2";
     const year = Number(academicYear);
+    const configId = `${semester === "1" ? "1" : "2"}-${year}`;
 
     // ── Data Gathering (parallel) ──
-    const [timeslotsRaw, allSchedules, rooms, allResponsibilities] =
-      await Promise.all([
+    const [
+      timeslotsRaw,
+      allSchedules,
+      rooms,
+      allResponsibilities,
+      configRow,
+      breakGroupRows,
+    ] = await Promise.all([
         prisma.timeslot.findMany({
           where: { AcademicYear: year, Semester: semesterEnum },
           orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
@@ -106,7 +117,29 @@ export async function POST(request: NextRequest) {
           where: { AcademicYear: year, Semester: semesterEnum },
           include: { subject: true, gradelevel: true },
         }),
+
+        // Term config (Config.slots) + break groups, for the per-grade break
+        // guard so the solver skips each grade's staggered breaks (7dc).
+        prisma.table_config.findUnique({ where: { ConfigID: configId } }),
+        breakGroupRepository.findByConfigId(configId),
       ]);
+
+    // Build the per-grade break guard (mirrors the per-teacher autoArrangeAction).
+    let breakGuard: WholeSchoolSolverInput["breakGuard"];
+    if (configRow?.Config) {
+      try {
+        const configData = parseConfigData(configRow.Config);
+        breakGuard = {
+          slotConfigs: configData.slots,
+          gradeBreakIndex: buildGradeGroupIndex(toBreakGroups(breakGroupRows)),
+        };
+      } catch {
+        log.warn(
+          "Could not parse term config for break-guard; whole-school solve runs without per-grade break exclusion",
+          { configId },
+        );
+      }
+    }
 
     // ── Transform to Solver Types ──
 
@@ -208,6 +241,7 @@ export async function POST(request: NextRequest) {
       timeslots,
       existingSchedules,
       rooms: availableRooms,
+      breakGuard,
     };
 
     log.info("Running whole-school auto-arrange", {

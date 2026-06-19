@@ -10,6 +10,8 @@ import type {
   teacher,
   gradelevel,
 } from "@/prisma/generated/client";
+import { isBreakForGrade } from "@/utils/break-utils";
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 
 /**
  * Dashboard statistics data structure
@@ -245,10 +247,20 @@ export function calculateSubjectDistribution(
 /**
  * Identify grades with incomplete schedules
  */
+/**
+ * Parse the trailing period number from a TimeslotID (e.g. "1-2568-MON3" -> 3).
+ */
+function periodFromTimeslotId(timeslotId: string): number {
+  const match = timeslotId.match(/(\d+)$/);
+  return match?.[1] ? parseInt(match[1], 10) : 0;
+}
+
 export function findIncompletGrades(
   schedules: class_schedule[],
   grades: gradelevel[],
-  totalTimeslots: number,
+  timeslots: Pick<class_schedule, "TimeslotID">[],
+  slots: SlotConfig[],
+  gradeBreakIndex: Map<string, Set<string>>,
   requiredSubjects: Map<string, string[]>, // gradeId -> subjectCodes
 ): GradeCompletion[] {
   const gradeSchedules = new Map<string, class_schedule[]>();
@@ -264,8 +276,26 @@ export function findIncompletGrades(
   return grades
     .map((grade) => {
       const gradeScheds = gradeSchedules.get(grade.GradeID) || [];
-      const scheduledHours = gradeScheds.length;
-      const requiredHours = totalTimeslots;
+
+      // A grade is only required to fill slots that are TEACHING slots for ITS
+      // break group; staggered breaks (e.g. junior lunch) stay teaching for
+      // other grades. Count required and scheduled over the SAME filter so a
+      // class parked in a break slot (e.g. a locked activity) can't inflate
+      // completion past 100% while teaching periods sit empty (7dc).
+      const isTeaching = (timeslotId: string) =>
+        !isBreakForGrade(
+          periodFromTimeslotId(timeslotId),
+          grade.GradeID,
+          slots,
+          gradeBreakIndex,
+        );
+
+      const requiredHours = timeslots.filter((t) =>
+        isTeaching(t.TimeslotID),
+      ).length;
+      const scheduledHours = gradeScheds.filter((s) =>
+        isTeaching(s.TimeslotID),
+      ).length;
       const completionRate =
         requiredHours > 0
           ? Math.round((scheduledHours / requiredHours) * 1000) / 10

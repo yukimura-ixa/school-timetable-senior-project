@@ -13,6 +13,11 @@ import {
 import { semester, Prisma } from "@/prisma/generated/client";
 import type { SemesterStatus } from "@/prisma/generated/client";
 import type { FullConfigData } from "../../types/config-types";
+import { isConfigData } from "@/features/config/domain/types/config-data.types";
+import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
+import { buildGradeGroupIndex } from "@/utils/break-utils";
+import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
+import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
 
 /**
  * Type for config data
@@ -278,30 +283,41 @@ export async function findFullConfigData(
   }
 
   const { AcademicYear, Semester } = config;
-  const [totalTimeslots, schedules, grades, programs] = await Promise.all([
-    countTimeslotsForTerm(AcademicYear, Semester),
-    prisma.class_schedule.findMany({
-      where: {
-        timeslot: {
-          AcademicYear,
-          Semester,
-        },
-      },
-    }),
-    prisma.gradelevel.findMany(),
-    prisma.program.findMany({
-      where: {
-        IsActive: true,
-      },
-      include: {
-        program_subject: {
-          include: {
-            subject: true,
+  const [timeslots, schedules, grades, programs, breakGroupRows] =
+    await Promise.all([
+      prisma.timeslot.findMany({
+        where: { AcademicYear, Semester },
+      }),
+      prisma.class_schedule.findMany({
+        where: {
+          timeslot: {
+            AcademicYear,
+            Semester,
           },
         },
-      },
-    }),
-  ]);
+      }),
+      prisma.gradelevel.findMany(),
+      prisma.program.findMany({
+        where: {
+          IsActive: true,
+        },
+        include: {
+          program_subject: {
+            include: {
+              subject: true,
+            },
+          },
+        },
+      }),
+      breakGroupRepository.findByConfigId(configId),
+    ]);
+
+  // Per-period break config + grade→group index, so completeness can exclude
+  // each grade's OWN staggered break (consistent with the solver's break guard).
+  // Unparseable/empty Config degrades to "no breaks" (every slot is teaching).
+  const cfg = config.Config;
+  const slots: SlotConfig[] = isConfigData(cfg) ? cfg.slots : [];
+  const gradeBreakIndex = buildGradeGroupIndex(toBreakGroups(breakGroupRows));
 
   const requiredSubjects = new Map<string, string[]>();
   grades.forEach((grade) => {
@@ -329,7 +345,10 @@ export async function findFullConfigData(
     schedules,
     grades,
     programs,
-    totalTimeslots,
+    timeslots,
+    slots,
+    gradeBreakIndex,
+    totalTimeslots: timeslots.length,
     requiredSubjects,
   };
 }

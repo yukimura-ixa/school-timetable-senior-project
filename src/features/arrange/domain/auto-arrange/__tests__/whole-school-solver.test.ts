@@ -225,6 +225,44 @@ describe("solveWholeSchool", () => {
     expect(result.placements[0]?.respId).toBe(2); // heavier teacher won
   });
 
+  it("honors the per-grade break guard (skips a grade's staggered break slot)", () => {
+    // 3 periods, period 2 = junior lunch. M1-1 is in the junior group, so its
+    // subject must never be placed at period 2 (7dc).
+    const result = solveWholeSchool(
+      makeInput(
+        [
+          {
+            teacherId: 100,
+            unplacedSubjects: [
+              makeSubject({ respId: 1, gradeId: "M1-1", periodsPerWeek: 3 }),
+            ],
+          },
+        ],
+        {
+          timeslots: [
+            { timeslotId: "1-2567-MON1", day: "MON", period: 1, isBreak: false },
+            { timeslotId: "1-2567-MON2", day: "MON", period: 2, isBreak: false },
+            { timeslotId: "1-2567-MON3", day: "MON", period: 3, isBreak: false },
+          ],
+          rooms: makeRooms(1),
+          breakGuard: {
+            slotConfigs: [
+              { duration: 50 },
+              { duration: 50, breakGroups: ["junior"] },
+              { duration: 50 },
+            ],
+            gradeBreakIndex: new Map([["M1-1", new Set(["junior"])]]),
+          },
+        },
+      ),
+    );
+
+    expect(
+      result.placements.some((p) => p.timeslotId === "1-2567-MON2"),
+    ).toBe(false);
+    expect(result.placements).toHaveLength(2); // only periods 1 and 3
+  });
+
   it("reports per-teacher outcomes", () => {
     const result = solveWholeSchool(
       makeInput([
