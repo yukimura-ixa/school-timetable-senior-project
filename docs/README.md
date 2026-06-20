@@ -12,7 +12,7 @@
 
 - **Project Overview** - `../README.md` (root)
 - **AI Agent Instructions** - `../AGENTS.md` (root)
-- **Pre-Launch Checklist** - `PRE_LAUNCH_CHECKLIST.md` ⭐ **Ready to deploy?**
+- **Pre-Launch Checklist** - `PRODUCTION_LAUNCH_GUIDE.md` ⭐ **Ready to deploy?**
 - **Launch Documentation Index** - `LAUNCH_DOCUMENTATION_INDEX.md` ⭐ **Deployment hub**
 
 ### 🧪 Testing & E2E
@@ -80,7 +80,7 @@
 
 ### For Deployment
 
-1. `PRE_LAUNCH_CHECKLIST.md` - 4-phase launch verification (30 min)
+1. `PRODUCTION_LAUNCH_GUIDE.md` - 4-phase launch verification (30 min)
 2. `LAUNCH_DOCUMENTATION_INDEX.md` - Deployment hub and navigation
 3. `SECURITY_REVIEW_SUMMARY.md` - Security gates and A- rating
 

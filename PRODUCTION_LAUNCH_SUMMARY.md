@@ -126,7 +126,7 @@ Password: admin123 (must be changed after first login)
 ### Documentation
 - `docs/PRODUCTION_LAUNCH_GUIDE.md` - Complete operations guide
 - `docs/PRODUCTION_READINESS_REPORT.md` - Status verification
-- `docs/PRE_LAUNCH_CHECKLIST.md` - Emergency procedures
+- `docs/PRODUCTION_LAUNCH_GUIDE.md` - Emergency rollback runbook
 
 ### Scripts
 - `scripts/db-backup.ts` - Create database backups
@@ -151,8 +151,8 @@ Password: admin123 (must be changed after first login)
 - [ ] **Test admin login:**
   ```
   URL: https://phrasongsa-timetable.vercel.app/signin
-  Email: admin@school.local
-  Password: admin123
+  Email: admin@school.local (or ADMIN_EMAIL if set)
+  Password: value of SEED_ADMIN_PASSWORD (falls back to "admin123" only if unset)
   ```
 
 - [ ] **Change admin password immediately** via forgot-password or admin dashboard
@@ -163,7 +163,7 @@ Password: admin123 (must be changed after first login)
   ```
 
 ### First 24 Hours
-- [ ] Monitor error logs (Sentry)
+- [ ] Monitor error logs (Vercel runtime logs)
 - [ ] Check Vercel deployment metrics
 - [ ] Verify database backups completing
 - [ ] Test core workflows manually
@@ -219,7 +219,7 @@ git status
 
 # Test against production (after admin created)
 export E2E_ADMIN_EMAIL="admin@school.local"
-export E2E_ADMIN_PASSWORD="admin123"
+export E2E_ADMIN_PASSWORD="$SEED_ADMIN_PASSWORD"  # match the seeded admin password
 pnpm test:prod:visual
 ```
 
@@ -228,9 +228,9 @@ pnpm test:prod:visual
 ## Support Resources
 
 - **Full launch procedures:** `docs/PRODUCTION_LAUNCH_GUIDE.md`
-- **Emergency procedures:** `docs/PRE_LAUNCH_CHECKLIST.md`
+- **Emergency procedures:** `docs/PRODUCTION_LAUNCH_GUIDE.md` (Emergency rollback runbook)
 - **Status verification:** `docs/PRODUCTION_READINESS_REPORT.md`
-- **GitHub repo:** https://github.com/oberghub/school-timetable-senior-project
+- **GitHub repo:** https://github.com/yukimura-ixa/school-timetable-senior-project
 - **Vercel dashboard:** https://vercel.com
 
 ---

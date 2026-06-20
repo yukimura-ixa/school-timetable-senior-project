@@ -10,7 +10,7 @@
 
 ### 🚀 **Ready to Launch?** Start Here
 
-**→ [`PRE_LAUNCH_CHECKLIST.md`](./PRE_LAUNCH_CHECKLIST.md)**
+**→ [`PRODUCTION_LAUNCH_GUIDE.md`](./PRODUCTION_LAUNCH_GUIDE.md)**
 - 4 phases: Pre-flight → Go/No-Go → Execute → Validate
 - 30 minutes to launch (10 min pre-flight + 5 min deploy + 10 min validation)
 - All verification gates documented
@@ -74,7 +74,7 @@
 ## 📊 Pre-Launch Validation
 
 ### Verification Checklist
-**→ [`PRE_LAUNCH_CHECKLIST.md`](./PRE_LAUNCH_CHECKLIST.md#-phase-1-pre-flight-10-minutes)** (Phase 1 & 2)
+**→ [`PRODUCTION_LAUNCH_GUIDE.md`](./PRODUCTION_LAUNCH_GUIDE.md#-phase-1-pre-flight-10-minutes)** (Phase 1 & 2)
 
 **7 Gates to Verify** (all must pass):
 1. ✅ Git status clean
@@ -90,7 +90,7 @@
 ---
 
 ### Launch Execution
-**→ [`PRE_LAUNCH_CHECKLIST.md`](./PRE_LAUNCH_CHECKLIST.md#-phase-3-launch-execution-5-minutes)** (Phase 3)
+**→ [`PRODUCTION_LAUNCH_GUIDE.md`](./PRODUCTION_LAUNCH_GUIDE.md#-phase-3-launch-execution-5-minutes)** (Phase 3)
 
 **Deployment Options**:
 - **Option A** (Recommended): `git push origin main` (automatic Vercel deployment)
@@ -102,7 +102,7 @@
 ---
 
 ### Post-Launch Validation
-**→ [`PRE_LAUNCH_CHECKLIST.md`](./PRE_LAUNCH_CHECKLIST.md#-phase-4-post-launch-validation-10-minutes)** (Phase 4)
+**→ [`PRODUCTION_LAUNCH_GUIDE.md`](./PRODUCTION_LAUNCH_GUIDE.md#-phase-4-post-launch-validation-10-minutes)** (Phase 4)
 
 **7 Health Checks** (all must pass):
 1. ✅ Deployment status: READY
@@ -204,7 +204,7 @@ vercel rollback
 **Before deployment, verify**:
 
 - [ ] All security review documents created
-- [ ] PRE_LAUNCH_CHECKLIST.md reviewed by team
+- [ ] PRODUCTION_LAUNCH_GUIDE.md reviewed by team
 - [ ] Environment variables set in Vercel dashboard
 - [ ] Database backups enabled
 - [ ] Rollback procedure documented
@@ -224,9 +224,9 @@ vercel rollback
 ## 📞 Support Resources
 
 ### Getting Help
-- **Pre-flight issues**: Check Phase 1 gates in PRE_LAUNCH_CHECKLIST.md
+- **Pre-flight issues**: Check Phase 1 gates in PRODUCTION_LAUNCH_GUIDE.md
 - **Security questions**: See SECURITY_CODE_REVIEW_2025-12-07.md
-- **Deployment issues**: See Troubleshooting section in PRE_LAUNCH_CHECKLIST.md
+- **Deployment issues**: See Troubleshooting section in PRODUCTION_LAUNCH_GUIDE.md
 - **Code questions**: See DEVELOPMENT_GUIDE.md
 - **Test failures**: See TEST_PLAN.md or E2E_TEST_EXECUTION_GUIDE.md
 
@@ -267,7 +267,7 @@ vercel rollback
 ## 🔗 Document Links
 
 **Complete Documentation Set**:
-1. [`PRE_LAUNCH_CHECKLIST.md`](./PRE_LAUNCH_CHECKLIST.md) ← **Start here**
+1. [`PRODUCTION_LAUNCH_GUIDE.md`](./PRODUCTION_LAUNCH_GUIDE.md) ← **Start here**
 2. [`SECURITY_REVIEW_SUMMARY.md`](./SECURITY_REVIEW_SUMMARY.md)
 3. [`SECURITY_CODE_REVIEW_2025-12-07.md`](./SECURITY_CODE_REVIEW_2025-12-07.md)
 4. [`SECURITY_IMPROVEMENTS_IMPLEMENTATION.md`](./SECURITY_IMPROVEMENTS_IMPLEMENTATION.md)

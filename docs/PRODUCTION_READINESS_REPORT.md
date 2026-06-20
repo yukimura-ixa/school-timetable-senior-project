@@ -91,7 +91,6 @@ Direct Access: DATABASE_URL available
 - ✅ POSTGRES_PRISMA_URL
 - ✅ PRISMA_DATABASE_URL
 - ✅ AUTH_SECRET
-- ✅ SENTRY_AUTH_TOKEN (error tracking)
 
 ---
 
@@ -128,7 +127,7 @@ Direct Access: DATABASE_URL available
    ```
 
 ### First 24 Hours
-- [ ] Monitor error logs (Sentry)
+- [ ] Monitor error logs (Vercel runtime logs)
 - [ ] Check performance metrics (Vercel Analytics)
 - [ ] Verify database backup completes
 - [ ] Test core workflows manually:
@@ -149,7 +148,7 @@ Direct Access: DATABASE_URL available
 
 ### Daily Operations
 - **Backup:** Run `pnpm exec tsx scripts/db-backup.ts` (recommended daily)
-- **Monitoring:** Check Sentry for errors, Vercel for performance
+- **Monitoring:** Check Vercel runtime logs for errors, Vercel Analytics for performance
 - **Health:** Curl https://phrasongsa-timetable.vercel.app for 200 OK response
 
 ### Incident Response
@@ -159,7 +158,7 @@ Direct Access: DATABASE_URL available
 
 ### Documentation
 - Full launch procedures: `docs/PRODUCTION_LAUNCH_GUIDE.md`
-- Emergency procedures: `docs/PRE_LAUNCH_CHECKLIST.md`
+- Emergency procedures: `docs/PRODUCTION_LAUNCH_GUIDE.md` (Emergency rollback runbook)
 - Technical architecture: `conductor/tech-stack.md`
 
 ---
