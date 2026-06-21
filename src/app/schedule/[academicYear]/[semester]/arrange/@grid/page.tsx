@@ -14,7 +14,11 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { getCellState, formatPeriodTime, DAY_FULL_LABEL } from "../_lib/grid-format";
+import {
+  getCellState,
+  formatPeriodTime,
+  DAY_FULL_LABEL,
+} from "../_lib/grid-format";
 import { useDroppable } from "@dnd-kit/core";
 import { useSnackbar } from "notistack";
 import { deleteScheduleAction } from "@/features/schedule-arrangement/application/actions/schedule-arrangement.actions";
@@ -82,10 +86,32 @@ function DroppableCell({
     >
       {state.kind === "placed" && entry ? (
         <Box>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flex: 1, minWidth: 0 }}>
-              <CheckCircleIcon sx={{ fontSize: 16, color: "success.main", flexShrink: 0 }} />
-              <Typography variant="body2" fontWeight="bold" noWrap>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                flex: 1,
+                minWidth: 0,
+              }}
+            >
+              <CheckCircleIcon
+                sx={{ fontSize: 16, color: "success.main", flexShrink: 0 }}
+              />
+              <Typography
+                variant="body2"
+                noWrap
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 {entry.subject.SubjectName}
               </Typography>
             </Box>
@@ -95,24 +121,40 @@ function DroppableCell({
                 aria-label="ลบรายวิชาออกจากคาบเรียน"
                 size="small"
                 onClick={() => onRemove?.(entry.ClassID)}
-                sx={{ p: 0.25, ml: 0.5, color: "error.main", "&:hover": { bgcolor: "error.lighter" } }}
+                sx={{
+                  p: 0.25,
+                  ml: 0.5,
+                  color: "error.main",
+                  "&:hover": { bgcolor: "error.lighter" },
+                }}
               >
                 <CloseIcon fontSize="small" />
               </IconButton>
             )}
           </Box>
           <Box sx={{ display: "flex", gap: 0.5, mt: 0.5, flexWrap: "wrap" }}>
-            <Chip label={entry.gradelevel.GradeName} size="small" color="primary" />
+            <Chip
+              label={entry.gradelevel.GradeName}
+              size="small"
+              color="primary"
+            />
             {entry.room && (
-              <Chip label={entry.room.RoomName} size="small" variant="outlined" />
+              <Chip
+                label={entry.room.RoomName}
+                size="small"
+                variant="outlined"
+              />
             )}
           </Box>
           {entry.teacherName && (
             <Typography
               variant="caption"
-              color="text.secondary"
               noWrap
-              sx={{ display: "block", mt: 0.5 }}
+              sx={{
+                color: "text.secondary",
+                display: "block",
+                mt: 0.5,
+              }}
             >
               {entry.teacherName}
             </Typography>
@@ -121,7 +163,9 @@ function DroppableCell({
       ) : (
         <Typography
           variant="caption"
-          color={state.kind === "drop-target" ? "primary.main" : "text.secondary"}
+          color={
+            state.kind === "drop-target" ? "primary.main" : "text.secondary"
+          }
         >
           {state.kind === "drop-target" ? `⤓ ${state.label}` : state.label}
         </Typography>
@@ -147,16 +191,12 @@ export default function GridSlot() {
     data: timeslotsData,
     error: timeslotsError,
     isLoading: timeslotsLoading,
-  } = useSWR(
-    timeslotsKey(academicYear, semester),
-    jsonFetcher,
-    {
-      onError: () =>
-        enqueueSnackbar("ไม่สามารถโหลดข้อมูลช่วงเวลาได้ กรุณาลองใหม่อีกครั้ง", {
-          variant: "error",
-        }),
-    },
-  );
+  } = useSWR(timeslotsKey(academicYear, semester), jsonFetcher, {
+    onError: () =>
+      enqueueSnackbar("ไม่สามารถโหลดข้อมูลช่วงเวลาได้ กรุณาลองใหม่อีกครั้ง", {
+        variant: "error",
+      }),
+  });
 
   const {
     data: scheduleData,
@@ -178,7 +218,9 @@ export default function GridSlot() {
   );
 
   useEffect(() => {
-    const handler = () => { void mutate(); };
+    const handler = () => {
+      void mutate();
+    };
     window.addEventListener("schedule-updated", handler);
     return () => window.removeEventListener("schedule-updated", handler);
   }, [mutate]);
@@ -194,7 +236,9 @@ export default function GridSlot() {
         // subjects; refresh so a removed subject reappears as available.
         router.refresh();
       } else {
-        enqueueSnackbar(result.error?.message || "ไม่สามารถลบรายวิชาได้", { variant: "error" });
+        enqueueSnackbar(result.error?.message || "ไม่สามารถลบรายวิชาได้", {
+          variant: "error",
+        });
       }
     } catch (error) {
       enqueueSnackbar(
@@ -263,7 +307,12 @@ export default function GridSlot() {
       <Box sx={{ width: "100%" }}>
         <table
           data-testid="timetable-grid"
-          style={{ width: "100%", tableLayout: "fixed", borderCollapse: "separate", borderSpacing: 4 }}
+          style={{
+            width: "100%",
+            tableLayout: "fixed",
+            borderCollapse: "separate",
+            borderSpacing: 4,
+          }}
         >
           <thead>
             <tr>
@@ -273,7 +322,14 @@ export default function GridSlot() {
                 return (
                   <th key={p}>
                     <div style={{ fontWeight: 700 }}>{p}</div>
-                    <Box component="div" sx={{ fontWeight: 400, fontSize: "0.75rem", color: "text.secondary" }}>
+                    <Box
+                      component="div"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: "0.75rem",
+                        color: "text.secondary",
+                      }}
+                    >
                       {anySlot ? formatPeriodTime(anySlot.StartTime) : ""}
                     </Box>
                   </th>
@@ -284,12 +340,20 @@ export default function GridSlot() {
           <tbody>
             {DAYS.map((day) => (
               <tr key={day}>
-                <td style={{ textAlign: "center", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                <td
+                  style={{
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {DAY_FULL_LABEL[day] ?? day}
                 </td>
                 {periods.map((period) => {
                   const timeslot = grid[day]?.[period];
-                  const entry = timeslot ? scheduleByTimeslot[timeslot.TimeslotID] : undefined;
+                  const entry = timeslot
+                    ? scheduleByTimeslot[timeslot.TimeslotID]
+                    : undefined;
                   return (
                     <td key={`${day}-${period}`}>
                       {timeslot ? (

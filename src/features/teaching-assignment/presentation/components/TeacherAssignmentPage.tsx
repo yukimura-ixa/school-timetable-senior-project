@@ -74,7 +74,7 @@ export function TeacherAssignmentPage() {
   const selectedTeacher = useMemo(
     () =>
       selectedTeacherId
-        ? teacherOptions.find((t) => t.id === selectedTeacherId) ?? null
+        ? (teacherOptions.find((t) => t.id === selectedTeacherId) ?? null)
         : null,
     [selectedTeacherId, teacherOptions],
   );
@@ -109,7 +109,10 @@ export function TeacherAssignmentPage() {
     },
   );
   const teacherStats = useMemo(
-    () => computeTeacherStats((teacherAssignmentsSWR.data ?? []) as TeacherStatsRow[]),
+    () =>
+      computeTeacherStats(
+        (teacherAssignmentsSWR.data ?? []) as TeacherStatsRow[],
+      ),
     [teacherAssignmentsSWR.data],
   );
 
@@ -211,11 +214,15 @@ export function TeacherAssignmentPage() {
         <Typography variant="h4" component="h1" gutterBottom>
           จัดการมอบหมายครูผู้สอน
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           เลือกระดับชั้น ภาคเรียน และปีการศึกษา เพื่อมอบหมายครูสอนแต่ละรายวิชา
         </Typography>
       </Box>
-
       {/* Filters */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <AssignmentFilters
@@ -228,7 +235,6 @@ export function TeacherAssignmentPage() {
           hideGradeSelector={mode === "by-teacher"}
         />
       </Paper>
-
       {/* Success/Error Messages */}
       {error && (
         <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>
@@ -244,7 +250,6 @@ export function TeacherAssignmentPage() {
           {success}
         </Alert>
       )}
-
       {mode === "by-teacher" && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Paper sx={{ p: 3 }}>
@@ -278,14 +283,18 @@ export function TeacherAssignmentPage() {
             </>
           ) : (
             <Paper sx={{ p: 4, textAlign: "center" }}>
-              <Typography variant="body1" color="text.secondary">
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 กรุณาเลือกครูผู้สอนเพื่อดูข้อมูล
               </Typography>
             </Paper>
           )}
         </Box>
       )}
-
       {/* Actions */}
       {mode === "by-grade" && gradeId && (
         <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
@@ -312,7 +321,6 @@ export function TeacherAssignmentPage() {
           </Button>
         </Box>
       )}
-
       {/* Assignment Table */}
       {mode === "by-grade" &&
         (gradeId ? (
@@ -323,7 +331,12 @@ export function TeacherAssignmentPage() {
           />
         ) : (
           <Paper sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="body1" color="text.secondary">
+            <Typography
+              variant="body1"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               กรุณาเลือกระดับชั้น ภาคเรียน และปีการศึกษา
             </Typography>
           </Paper>

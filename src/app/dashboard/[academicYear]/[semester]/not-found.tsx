@@ -27,13 +27,32 @@ export default function NotFound() {
             mb: 2,
           }}
         />
-        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           ไม่พบภาคเรียน
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+            mb: 3,
+          }}
+        >
           ไม่พบข้อมูลภาคเรียนที่ต้องการ กรุณาเลือกภาคเรียนจากหน้าหลัก
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mb: 4,
+          }}
+        >
           The semester you&apos;re looking for doesn&apos;t exist or hasn&apos;t
           been created yet.
         </Typography>

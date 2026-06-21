@@ -83,7 +83,12 @@ export default function ProgramSubjectAssignmentPage({
           จัดการรายวิชาในหลักสูตร
         </Typography>
         <Paper sx={{ p: 4, textAlign: "center" }}>
-          <Typography variant="body1" color="text.secondary">
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             ไม่พบรายวิชาในระบบ กรุณาเพิ่มรายวิชาก่อนจัดการหลักสูตร
           </Typography>
         </Paper>
@@ -97,10 +102,8 @@ export default function ProgramSubjectAssignmentPage({
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
         จัดการรายวิชาในหลักสูตร: {program?.ProgramName ?? "กำลังโหลด..."}
       </Typography>
-
       {/* Summary Statistics */}
       <AssignmentSummary subjectConfigs={subjectConfigs} subjects={subjects} />
-
       {/* Subject Selection Table */}
       <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table size="small">
@@ -163,15 +166,17 @@ export default function ProgramSubjectAssignmentPage({
                         )
                       }
                       disabled={!config.selected}
-                      inputProps={{
-                        min: 0,
-                        max: 10,
-                        step: 0.5,
-                        style: { width: 60, textAlign: "center" },
-                      }}
                       sx={{
                         "& .MuiInputBase-input.Mui-disabled": {
                           WebkitTextFillColor: "rgba(0, 0, 0, 0.38)",
+                        },
+                      }}
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                          max: 10,
+                          step: 0.5,
+                          style: { width: 60, textAlign: "center" },
                         },
                       }}
                     />
@@ -189,15 +194,17 @@ export default function ProgramSubjectAssignmentPage({
                         )
                       }
                       disabled={!config.selected}
-                      inputProps={{
-                        min: 0,
-                        max: 10,
-                        step: 0.5,
-                        style: { width: 60, textAlign: "center" },
-                      }}
                       sx={{
                         "& .MuiInputBase-input.Mui-disabled": {
                           WebkitTextFillColor: "rgba(0, 0, 0, 0.38)",
+                        },
+                      }}
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                          max: 10,
+                          step: 0.5,
+                          style: { width: 60, textAlign: "center" },
                         },
                       }}
                     />
@@ -223,7 +230,6 @@ export default function ProgramSubjectAssignmentPage({
           </TableBody>
         </Table>
       </TableContainer>
-
       {/* Action Button */}
       <Box sx={{ mt: 3, display: "flex", gap: 2, alignItems: "center" }}>
         <Button
@@ -238,12 +244,16 @@ export default function ProgramSubjectAssignmentPage({
         </Button>
 
         {selectedCount === 0 && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             กรุณาเลือกรายวิชาอย่างน้อย 1 รายวิชา
           </Typography>
         )}
       </Box>
-
       {/* MOE Validation Results */}
       <MOEValidationAlert
         validation={validation}

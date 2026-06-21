@@ -67,16 +67,17 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
         onChange={(e) =>
           onFiltersChange({ ...filters, search: e.target.value })
         }
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
         sx={{ mb: 2 }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
-
       {/* Status Chips */}
       <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
         <Chip
@@ -103,7 +104,6 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
           />
         ))}
       </Box>
-
       {/* Filters Row */}
       <Box
         sx={{

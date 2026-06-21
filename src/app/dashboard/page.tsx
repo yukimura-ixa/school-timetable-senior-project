@@ -54,18 +54,16 @@ const SemesterAnalyticsDashboard = dynamic(
   },
 );
 
-const CreateSemesterWizard = dynamic(
-  () =>
-    import("./_components/CreateSemesterWizard").then(
-      (mod) => mod.CreateSemesterWizard,
-    ),
+const CreateSemesterWizard = dynamic(() =>
+  import("./_components/CreateSemesterWizard").then(
+    (mod) => mod.CreateSemesterWizard,
+  ),
 );
 
-const CopySemesterModal = dynamic(
-  () =>
-    import("./_components/CopySemesterModal").then(
-      (mod) => mod.CopySemesterModal,
-    ),
+const CopySemesterModal = dynamic(() =>
+  import("./_components/CopySemesterModal").then(
+    (mod) => mod.CopySemesterModal,
+  ),
 );
 
 export default function SelectSemesterPage() {
@@ -153,7 +151,13 @@ export default function SelectSemesterPage() {
           mb: 4,
         }}
       >
-        <Typography variant="h4" component="h1" fontWeight="bold">
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           เลือกปีการศึกษาและภาคเรียน
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
@@ -169,14 +173,12 @@ export default function SelectSemesterPage() {
           )}
         </Box>
       </Box>
-
       {/* Error Alert */}
       {error && (
         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
-
       {/* Analytics Dashboard */}
       {allSemesters.length > 0 && (
         <Box sx={{ mb: 4 }} data-testid="analytics-dashboard">
@@ -188,7 +190,12 @@ export default function SelectSemesterPage() {
               mb: 2,
             }}
           >
-            <Typography variant="h6" fontWeight="bold">
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
               📊 แดชบอร์ดวิเคราะห์
             </Typography>
             <IconButton
@@ -213,7 +220,6 @@ export default function SelectSemesterPage() {
           </Collapse>
         </Box>
       )}
-
       {/* Recent Semesters Section */}
       {loading ? (
         <SemesterSectionSkeleton title="ล่าสุด" count={3} />
@@ -245,7 +251,6 @@ export default function SelectSemesterPage() {
           </Box>
         )
       )}
-
       {/* Pinned Semesters Section */}
       {loading ? (
         <SemesterSectionSkeleton title="ปักหมุด" count={2} />
@@ -277,7 +282,6 @@ export default function SelectSemesterPage() {
           </Box>
         )
       )}
-
       {/* Filters */}
       <Box sx={{ mb: 3 }}>
         {loading ? (
@@ -286,13 +290,17 @@ export default function SelectSemesterPage() {
           <SemesterFilters filters={filters} onFiltersChange={setFilters} />
         )}
       </Box>
-
       {/* All Semesters Grid */}
       {loading ? (
         <SemesterSectionSkeleton showTitle={false} count={6} />
       ) : allSemesters.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: "center" }}>
-          <Typography variant="body1" color="text.secondary">
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             ไม่พบภาคเรียน
           </Typography>
           <Button
@@ -325,7 +333,6 @@ export default function SelectSemesterPage() {
           ))}
         </Box>
       )}
-
       {/* Modals */}
       <CreateSemesterWizard
         open={createModalOpen}
@@ -336,7 +343,6 @@ export default function SelectSemesterPage() {
           void handleSelectSemester(newSemester);
         }}
       />
-
       <CopySemesterModal
         open={copyModalOpen}
         onClose={() => {

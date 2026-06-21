@@ -337,7 +337,13 @@ export function ProgramDataGrid({
   return (
     <Box sx={{ width: "100%", height: 600 }}>
       {/* Toolbar */}
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
         <Box>
           {selectedCount > 0 && (
             <Button
@@ -359,7 +365,6 @@ export function ProgramDataGrid({
           เพิ่มหลักสูตร
         </Button>
       </Stack>
-
       {/* DataGrid */}
       <DataGrid<program>
         rows={rows}
@@ -389,7 +394,6 @@ export function ProgramDataGrid({
           footerRowSelected: (count) => `เลือก ${count} รายการ`,
         }}
       />
-
       {/* Add Dialog */}
       <AddProgramDialog
         open={showAddDialog}
@@ -397,7 +401,6 @@ export function ProgramDataGrid({
         onSuccess={onMutate}
         year={year}
       />
-
       {/* Confirm Dialog */}
       {dialog}
     </Box>

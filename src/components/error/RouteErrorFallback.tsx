@@ -75,18 +75,25 @@ export default function RouteErrorFallback({
   return (
     <Stack
       spacing={3}
-      alignItems="center"
-      justifyContent="center"
-      sx={{ p: 4, minHeight: "50vh" }}
+      sx={{
+        alignItems: "center",
+        justifyContent: "center",
+        p: 4,
+        minHeight: "50vh",
+      }}
     >
       <Typography variant="h5" color="error">
         ⚠️ เกิดข้อผิดพลาด
       </Typography>
-
-      <Typography variant="body1" color="text.secondary" textAlign="center">
+      <Typography
+        variant="body1"
+        sx={{
+          color: "text.secondary",
+          textAlign: "center",
+        }}
+      >
         {context ? `ไม่สามารถโหลดข้อมูล${context}ได้` : thaiMessage}
       </Typography>
-
       <Stack direction="row" spacing={2}>
         {isRetryable && (
           <Button variant="contained" onClick={reset}>
@@ -100,7 +107,6 @@ export default function RouteErrorFallback({
           กลับหน้าหลัก
         </Button>
       </Stack>
-
       <Button
         size="small"
         onClick={() => setShowDetail(!showDetail)}

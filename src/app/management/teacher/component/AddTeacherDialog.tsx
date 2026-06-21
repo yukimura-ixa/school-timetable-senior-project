@@ -21,7 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import { enqueueSnackbar } from "notistack";
 import { FormDialog, FormDialogActions } from "@/components/dialogs/FormDialog";
 import { SubmitButton } from "@/components/buttons/SubmitButton";
@@ -235,7 +235,13 @@ export function AddTeacherDialog({
     >
       <form onSubmit={handleSubmit}>
         {/* Add Row Button */}
-        <Stack direction="row" justifyContent="flex-end" mb={2}>
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: "flex-end",
+            mb: 2,
+          }}
+        >
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
@@ -262,11 +268,18 @@ export function AddTeacherDialog({
               {/* Row Header */}
               <Stack
                 direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={2}
+                sx={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                }}
               >
-                <Typography variant="subtitle2" color="text.secondary">
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   รายการที่ {index + 1}
                 </Typography>
                 {teachers.length > 1 && (
@@ -299,11 +312,13 @@ export function AddTeacherDialog({
                   }
                   size="small"
                   required
-                  SelectProps={{
-                    SelectDisplayProps: {
-                      "data-testid": `prefix-${index}`,
-                    } as React.HTMLAttributes<HTMLDivElement> &
-                      Record<`data-${string}`, string>,
+                  slotProps={{
+                    select: {
+                      SelectDisplayProps: {
+                        "data-testid": `prefix-${index}`,
+                      } as React.HTMLAttributes<HTMLDivElement> &
+                        Record<`data-${string}`, string>,
+                    },
                   }}
                 >
                   {PREFIX_OPTIONS.map((opt) => (
@@ -322,11 +337,13 @@ export function AddTeacherDialog({
                     handleFieldChange(teacher.id, "department", e.target.value)
                   }
                   size="small"
-                  SelectProps={{
-                    SelectDisplayProps: {
-                      "data-testid": `department-${index}`,
-                    } as React.HTMLAttributes<HTMLDivElement> &
-                      Record<`data-${string}`, string>,
+                  slotProps={{
+                    select: {
+                      SelectDisplayProps: {
+                        "data-testid": `department-${index}`,
+                      } as React.HTMLAttributes<HTMLDivElement> &
+                        Record<`data-${string}`, string>,
+                    },
                   }}
                 >
                   {DEPARTMENT_OPTIONS.map((dept) => (
@@ -347,7 +364,9 @@ export function AddTeacherDialog({
                   required
                   error={!!errors[`${teacher.id}-firstname`]}
                   helperText={errors[`${teacher.id}-firstname`]}
-                  inputProps={{ "data-testid": `firstname-${index}` }}
+                  slotProps={{
+                    htmlInput: { "data-testid": `firstname-${index}` },
+                  }}
                 />
 
                 {/* Lastname */}
@@ -361,7 +380,9 @@ export function AddTeacherDialog({
                   required
                   error={!!errors[`${teacher.id}-lastname`]}
                   helperText={errors[`${teacher.id}-lastname`]}
-                  inputProps={{ "data-testid": `lastname-${index}` }}
+                  slotProps={{
+                    htmlInput: { "data-testid": `lastname-${index}` },
+                  }}
                 />
 
                 {/* Email - Full Width */}
@@ -377,7 +398,9 @@ export function AddTeacherDialog({
                   error={!!errors[`${teacher.id}-email`]}
                   helperText={errors[`${teacher.id}-email`]}
                   sx={{ gridColumn: { sm: "span 2" } }}
-                  inputProps={{ "data-testid": `email-${index}` }}
+                  slotProps={{
+                    htmlInput: { "data-testid": `email-${index}` },
+                  }}
                 />
 
                 {/* Role */}

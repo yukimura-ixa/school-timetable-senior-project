@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -67,10 +61,23 @@ function ActionRow({ item }: { item: ActionItem }) {
         <Icon aria-hidden fontSize="small" />
       </Box>
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="body2" fontWeight={700} noWrap>
+        <Typography
+          variant="body2"
+          noWrap
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           {item.title}
         </Typography>
-        <Typography variant="caption" color="text.secondary" noWrap component="p">
+        <Typography
+          variant="caption"
+          noWrap
+          component="p"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {item.detail}
         </Typography>
       </Box>
@@ -104,8 +111,15 @@ export async function ActionCenter({
     getPublishReadiness(semesterAndyear),
   ]);
 
-  const teachers = countTeachersWithSchedules(schedules, quickStats.teacherCount);
-  const completion = countClassCompletion(schedules, grades, quickStats.timeslotCount);
+  const teachers = countTeachersWithSchedules(
+    schedules,
+    quickStats.teacherCount,
+  );
+  const completion = countClassCompletion(
+    schedules,
+    grades,
+    quickStats.timeslotCount,
+  );
   const conflicts = detectConflicts(schedules);
 
   const items = buildActionItems({
@@ -121,12 +135,16 @@ export async function ActionCenter({
     <Paper sx={{ p: 2.75 }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
         <WarningAmberIcon aria-hidden sx={{ color: "warning.main" }} />
-        <Typography variant="h6" fontWeight={700}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           ต้องแก้ก่อน
           {items.length > 0 ? ` · ${items.length} รายการ` : ""}
         </Typography>
       </Box>
-
       {items.length === 0 ? (
         <Box
           sx={{
@@ -140,7 +158,12 @@ export async function ActionCenter({
           }}
         >
           <CheckCircleIcon aria-hidden />
-          <Typography variant="body2" fontWeight={700}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             ทุกอย่างเรียบร้อย
           </Typography>
         </Box>

@@ -55,12 +55,14 @@ export default async function CurriculumStepPage({
 
   return (
     <Box sx={{ py: 2 }}>
-      <Alert severity={overview.allValid ? "success" : "warning"} sx={{ mb: 3 }}>
+      <Alert
+        severity={overview.allValid ? "success" : "warning"}
+        sx={{ mb: 3 }}
+      >
         {overview.allValid
           ? "ทุกหลักสูตรผ่านเกณฑ์หน่วยกิตขั้นต่ำของกระทรวงศึกษาธิการ"
           : "มีหลักสูตรที่ยังไม่ผ่านเกณฑ์ ศธ. — แก้ไขก่อนเผยแพร่ตาราง"}
       </Alert>
-
       <Stack spacing={3}>
         {overview.programs.map((program) => (
           <Paper key={program.programId} variant="outlined" sx={{ p: 2.5 }}>
@@ -76,7 +78,12 @@ export default async function CurriculumStepPage({
                 <Typography variant="h6">
                   ม.{program.year} · {program.programName}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   {program.trackLabel} · {program.totalCredits}/
                   {program.requiredCredits} หน่วยกิต
                 </Typography>
@@ -142,7 +149,6 @@ export default async function CurriculumStepPage({
           </Paper>
         ))}
       </Stack>
-
       <Button
         href="/management/program"
         endIcon={<OpenInNewIcon />}

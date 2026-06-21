@@ -37,9 +37,7 @@ import {
   deleteAssignmentAction,
   updateAssignmentTeachHourAction,
 } from "@/features/assign/application/actions/assign.actions";
-import {
-  type ResponsibilityInput,
-} from "@/features/assign/application/schemas/assign.schemas";
+import { type ResponsibilityInput } from "@/features/assign/application/schemas/assign.schemas";
 import { subjectCreditValues } from "@/models/credit-value";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
@@ -84,8 +82,7 @@ function QuickAssignmentPanel({
   useEffect(() => {
     if (selectedSubject) {
       const rawCredit = selectedSubject.Credit;
-      const creditVal =
-        subjectCreditValues[rawCredit] ?? 0;
+      const creditVal = subjectCreditValues[rawCredit] ?? 0;
       setWeeklyHours(creditVal * 2);
     } else {
       setWeeklyHours(0);
@@ -144,9 +141,7 @@ function QuickAssignmentPanel({
       // Build new assignments to add
       const newAssignments = selectedGrades.map((grade) => {
         const rawCredit = selectedSubject.Credit;
-        const creditVal =
-          subjectCreditValues[rawCredit] ??
-          0;
+        const creditVal = subjectCreditValues[rawCredit] ?? 0;
         const formattedCredit = creditVal.toFixed(1);
 
         return {
@@ -163,9 +158,7 @@ function QuickAssignmentPanel({
         );
         const rawCredit = subj?.Credit;
         const creditVal = rawCredit
-          ? (subjectCreditValues[
-              rawCredit
-            ] ?? 1.0)
+          ? (subjectCreditValues[rawCredit] ?? 1.0)
           : 1.0;
         const formattedCredit = creditVal.toFixed(1);
 
@@ -314,7 +307,6 @@ function QuickAssignmentPanel({
           {isExpanded ? <CloseIcon /> : <AddIcon />}
         </IconButton>
       </Box>
-
       <Collapse in={isExpanded}>
         <Box sx={{ p: 3 }}>
           {/* Quick Add Form */}
@@ -346,9 +338,13 @@ function QuickAssignmentPanel({
                       label="วิชา"
                       placeholder="ค้นหาวิชา..."
                       size="small"
-                      inputProps={{
-                        ...params.inputProps,
-                        "aria-label": "ค้นหาวิชา",
+                      slotProps={{
+                        ...params.slotProps,
+
+                        htmlInput: {
+                          ...params.slotProps.htmlInput,
+                          "aria-label": "ค้นหาวิชา",
+                        },
                       }}
                     />
                   )}
@@ -378,9 +374,9 @@ function QuickAssignmentPanel({
                       size="small"
                     />
                   )}
-                  renderTags={(value, getTagProps) =>
+                  renderValue={(value, getItemProps) =>
                     value.map((option, index) => {
-                      const { key, ...otherProps } = getTagProps({ index });
+                      const { key, ...otherProps } = getItemProps({ index });
                       return (
                         <Chip
                           key={key}
@@ -403,13 +399,15 @@ function QuickAssignmentPanel({
                     setWeeklyHours(parseInt(e.target.value) || 0)
                   }
                   size="small"
-                  inputProps={{ min: 0, max: 20 }}
                   disabled={isSubmitting}
                   helperText={
                     selectedSubject
                       ? `หน่วยกิต: ${subjectCreditValues[selectedSubject.Credit] || 0}`
                       : ""
                   }
+                  slotProps={{
+                    htmlInput: { min: 0, max: 20 },
+                  }}
                 />
 
                 {/* Add Button */}
@@ -505,7 +503,12 @@ function QuickAssignmentPanel({
                       }}
                     >
                       <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: "medium",
+                          }}
+                        >
                           {assignment.SubjectCode}
                         </Typography>
                       </TableCell>

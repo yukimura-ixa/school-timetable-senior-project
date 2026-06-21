@@ -38,9 +38,13 @@ export function TeacherPicker({
         <TextField
           {...params}
           placeholder="ค้นหาครูผู้สอน"
-          inputProps={{
-            ...params.inputProps,
-            "aria-label": "ค้นหาครูผู้สอน",
+          slotProps={{
+            ...params.slotProps,
+
+            htmlInput: {
+              ...params.slotProps.htmlInput,
+              "aria-label": "ค้นหาครูผู้สอน",
+            },
           }}
         />
       )}

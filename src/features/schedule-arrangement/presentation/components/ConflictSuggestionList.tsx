@@ -23,7 +23,13 @@ export default function ConflictSuggestionList({
 }: ConflictSuggestionListProps) {
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" py={2}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          py: 2,
+        }}
+      >
         <CircularProgress size={24} role="progressbar" />
       </Box>
     );
@@ -31,7 +37,13 @@ export default function ConflictSuggestionList({
 
   if (suggestions.length === 0) {
     return (
-      <Typography color="text.secondary" variant="body2" sx={{ py: 2 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          py: 2,
+        }}
+      >
         ไม่พบข้อเสนอแนะ
       </Typography>
     );

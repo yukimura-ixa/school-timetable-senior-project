@@ -113,9 +113,12 @@ export function SubjectAssignmentTable({
           // Refresh data
           router.refresh();
         } else {
-          enqueueSnackbar(result.error?.message || "เกิดข้อผิดพลาดในการมอบหมาย", {
-            variant: "error",
-          });
+          enqueueSnackbar(
+            result.error?.message || "เกิดข้อผิดพลาดในการมอบหมาย",
+            {
+              variant: "error",
+            },
+          );
         }
       } catch (err) {
         enqueueSnackbar(err instanceof Error ? err.message : "เกิดข้อผิดพลาด", {
@@ -171,7 +174,11 @@ export function SubjectAssignmentTable({
   if (subjects.length === 0) {
     return (
       <Paper sx={{ p: 4, textAlign: "center" }}>
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           ไม่พบรายวิชาสำหรับระดับชั้นนี้
         </Typography>
       </Paper>

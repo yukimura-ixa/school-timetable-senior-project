@@ -15,9 +15,7 @@ const TeacherList = (props: Props) => {
   const theme = useTheme();
 
   return (
-    <Stack
-      sx={{ userSelect: "none", mr: 1, minWidth: 260 }}
-    >
+    <Stack sx={{ userSelect: "none", mr: 1, minWidth: 260 }}>
       {/* Header — matches TableHead height (64px) */}
       <Stack direction="row" spacing={0.5} sx={{ height: 64, mb: 0.5 }}>
         <Box
@@ -33,8 +31,10 @@ const TeacherList = (props: Props) => {
         >
           <Typography
             variant="caption"
-            fontWeight="bold"
-            color="text.secondary"
+            sx={{
+              fontWeight: "bold",
+              color: "text.secondary",
+            }}
           >
             ลำดับ
           </Typography>
@@ -52,14 +52,15 @@ const TeacherList = (props: Props) => {
         >
           <Typography
             variant="caption"
-            fontWeight="bold"
-            color="text.secondary"
+            sx={{
+              fontWeight: "bold",
+              color: "text.secondary",
+            }}
           >
             ชื่อครูผู้สอน
           </Typography>
         </Box>
       </Stack>
-
       {/* Body — same row metrics as TableBody (cell 60 + py 0.5 + gap 0.25 = 70px pitch) */}
       <Stack spacing={ROW_GAP}>
         {props.teachers.map((item, index) => (
@@ -89,8 +90,10 @@ const TeacherList = (props: Props) => {
             >
               <Typography
                 variant="caption"
-                fontWeight="medium"
-                color="text.secondary"
+                sx={{
+                  fontWeight: "medium",
+                  color: "text.secondary",
+                }}
               >
                 {index + 1}
               </Typography>
@@ -109,8 +112,8 @@ const TeacherList = (props: Props) => {
             >
               <Typography
                 variant="body2"
-                fontWeight="medium"
                 sx={{
+                  fontWeight: "medium",
                   color: "text.primary",
                   whiteSpace: "nowrap",
                   overflow: "hidden",

@@ -29,7 +29,7 @@ const TableResult = (props: Props) => {
     const filter2 = filter1.filter(
       (cid, index) =>
         filter1.findIndex((item) => item.TimeslotID === cid.TimeslotID) ===
-          index,
+        index,
     );
     return filter2.length;
   };
@@ -51,14 +51,15 @@ const TableResult = (props: Props) => {
         >
           <Typography
             variant="caption"
-            fontWeight="bold"
-            color="text.secondary"
+            sx={{
+              fontWeight: "bold",
+              color: "text.secondary",
+            }}
           >
             ผลรวม
           </Typography>
         </Box>
       </Stack>
-
       {/* Body — same per-row pitch as TableBody (cell 60 + py 0.5 + gap 0.25) */}
       <Stack spacing={ROW_GAP}>
         {props.teachers.map((tch) => (
@@ -83,7 +84,12 @@ const TableResult = (props: Props) => {
                 border: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
               }}
             >
-              <Typography variant="body2" fontWeight="bold">
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 {findResult(tch.TeacherID)}
               </Typography>
             </Box>

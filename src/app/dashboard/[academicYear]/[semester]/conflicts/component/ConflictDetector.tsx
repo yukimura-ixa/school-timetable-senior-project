@@ -110,10 +110,12 @@ export default function ConflictDetector() {
   if (isLoading) {
     return (
       <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="400px"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "400px",
+        }}
       >
         <CircularProgress />
       </Box>
@@ -151,22 +153,28 @@ export default function ConflictDetector() {
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={3}
-            alignItems={{ xs: "flex-start", sm: "center" }}
-            justifyContent="space-between"
+            sx={{
+              alignItems: { xs: "flex-start", sm: "center" },
+              justifyContent: "space-between",
+            }}
           >
             <Box>
               <Typography
                 variant="h5"
-                fontWeight="bold"
                 gutterBottom
-                color="text.primary"
+                sx={{
+                  fontWeight: "bold",
+                  color: "text.primary",
+                }}
               >
                 ตรวจสอบ Conflict ตารางสอน
               </Typography>
               <Typography
                 variant="body2"
-                color="text.secondary"
-                sx={{ opacity: 0.8 }}
+                sx={{
+                  color: "text.secondary",
+                  opacity: 0.8,
+                }}
               >
                 ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}
               </Typography>
@@ -251,7 +259,6 @@ export default function ConflictDetector() {
           </Stack>
         </CardContent>
       </Card>
-
       {/* No Conflicts Success State */}
       {!hasConflicts && (
         <Alert
@@ -273,7 +280,6 @@ export default function ConflictDetector() {
           </Typography>
         </Alert>
       )}
-
       {/* Conflict Details UI */}
       {hasConflicts && (
         <Card
@@ -372,7 +378,12 @@ export default function ConflictDetector() {
                           />
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2" fontWeight="bold">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                          >
                             คาบที่ {conflict.periodStart}
                           </Typography>
                         </TableCell>
@@ -393,15 +404,19 @@ export default function ConflictDetector() {
                               >
                                 <Typography
                                   variant="body2"
-                                  fontWeight="bold"
-                                  color="error.dark"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    color: "error.dark",
+                                  }}
                                 >
                                   {c.gradeName} - {c.subjectName} (
                                   {c.subjectCode})
                                 </Typography>
                                 <Typography
                                   variant="caption"
-                                  color="text.secondary"
+                                  sx={{
+                                    color: "text.secondary",
+                                  }}
                                 >
                                   ห้องสอน: {c.roomName}
                                 </Typography>
@@ -483,7 +498,12 @@ export default function ConflictDetector() {
                           />
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2" fontWeight="bold">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                          >
                             คาบที่ {conflict.periodStart}
                           </Typography>
                         </TableCell>
@@ -504,15 +524,19 @@ export default function ConflictDetector() {
                               >
                                 <Typography
                                   variant="body2"
-                                  fontWeight="bold"
-                                  color="error.dark"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    color: "error.dark",
+                                  }}
                                 >
                                   {c.gradeName} - {c.subjectName} (
                                   {c.subjectCode})
                                 </Typography>
                                 <Typography
                                   variant="caption"
-                                  color="text.secondary"
+                                  sx={{
+                                    color: "text.secondary",
+                                  }}
                                 >
                                   ครูผู้สอน: {c.teacherName}
                                 </Typography>
@@ -594,7 +618,12 @@ export default function ConflictDetector() {
                           />
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2" fontWeight="bold">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                          >
                             คาบที่ {conflict.periodStart}
                           </Typography>
                         </TableCell>
@@ -615,14 +644,18 @@ export default function ConflictDetector() {
                               >
                                 <Typography
                                   variant="body2"
-                                  fontWeight="bold"
-                                  color="error.dark"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    color: "error.dark",
+                                  }}
                                 >
                                   {c.subjectName} ({c.subjectCode})
                                 </Typography>
                                 <Typography
                                   variant="caption"
-                                  color="text.secondary"
+                                  sx={{
+                                    color: "text.secondary",
+                                  }}
                                 >
                                   ครู: {c.teacherName} | ห้อง: {c.roomName}
                                 </Typography>
@@ -697,18 +730,30 @@ export default function ConflictDetector() {
                           <Typography variant="body2">
                             {schedule.subjectName}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: "text.secondary",
+                            }}
+                          >
                             ({schedule.subjectCode})
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <Stack spacing={0.5}>
-                            <Typography variant="body2" fontWeight="medium">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: "medium",
+                              }}
+                            >
                               {DAY_NAMES[schedule.day] || schedule.day}
                             </Typography>
                             <Typography
                               variant="caption"
-                              color="text.secondary"
+                              sx={{
+                                color: "text.secondary",
+                              }}
                             >
                               คาบที่ {schedule.periodStart}
                             </Typography>

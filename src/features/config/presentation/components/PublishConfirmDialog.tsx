@@ -76,7 +76,6 @@ export function PublishConfirmDialog({
       <DialogTitle>
         {isReady ? "ยืนยันการเผยแพร่" : "เผยแพร่โดยมีปัญหาที่ยังไม่แก้ไข"}
       </DialogTitle>
-
       <DialogContent>
         {isReady ? (
           <Typography>
@@ -92,7 +91,9 @@ export function PublishConfirmDialog({
                 <ListItem key={i} disablePadding sx={{ py: 0.25 }}>
                   <ListItemText
                     primary={`• ${issue}`}
-                    primaryTypographyProps={{ variant: "body2" }}
+                    slotProps={{
+                      primary: { variant: "body2" },
+                    }}
                   />
                 </ListItem>
               ))}
@@ -114,7 +115,6 @@ export function PublishConfirmDialog({
           </>
         )}
       </DialogContent>
-
       <DialogActions>
         <Button onClick={handleClose} disabled={isPending}>
           ยกเลิก

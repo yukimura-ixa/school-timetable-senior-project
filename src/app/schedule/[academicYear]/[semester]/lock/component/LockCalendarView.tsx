@@ -144,7 +144,13 @@ function LockCalendarView({
   if (timeslotsData.isLoading) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
-        <Typography color="text.secondary">กำลังโหลดตารางเรียน...</Typography>
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
+          กำลังโหลดตารางเรียน...
+        </Typography>
       </Box>
     );
   }
@@ -152,7 +158,11 @@ function LockCalendarView({
   if (!timeslotGrid) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           ไม่พบข้อมูลตารางเรียน กรุณาตั้งค่าตารางเรียนก่อน
         </Typography>
       </Box>
@@ -221,7 +231,12 @@ function LockCalendarView({
                 fontWeight: "bold",
               }}
             >
-              <Typography variant="body2" fontWeight="bold">
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 คาบ {period}
               </Typography>
             </Paper>
@@ -244,7 +259,12 @@ function LockCalendarView({
                   zIndex: 1,
                 }}
               >
-                <Typography variant="body2" fontWeight="medium">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: "medium",
+                  }}
+                >
                   {dayOfWeekThai[day]}
                 </Typography>
               </Paper>
@@ -340,7 +360,12 @@ function LockCalendarView({
                           justifyContent: "center",
                         }}
                       >
-                        <Typography variant="caption" color="text.disabled">
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "text.disabled",
+                          }}
+                        >
                           ว่าง
                         </Typography>
                       </Box>
@@ -352,7 +377,6 @@ function LockCalendarView({
           ))}
         </Box>
       </Paper>
-
       {/* Lock Detail Dialog */}
       <Dialog
         open={!!selectedLock}
@@ -384,7 +408,12 @@ function LockCalendarView({
                 {/* Subject Info */}
                 <Card variant="outlined">
                   <CardContent>
-                    <Typography variant="overline" color="text.secondary">
+                    <Typography
+                      variant="overline"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       วิชา
                     </Typography>
                     <Typography variant="h6">
@@ -397,8 +426,10 @@ function LockCalendarView({
                 <Box>
                   <Typography
                     variant="body2"
-                    color="text.secondary"
                     gutterBottom
+                    sx={{
+                      color: "text.secondary",
+                    }}
                   >
                     สถานที่
                   </Typography>
@@ -409,8 +440,10 @@ function LockCalendarView({
                 <Box>
                   <Typography
                     variant="body2"
-                    color="text.secondary"
                     gutterBottom
+                    sx={{
+                      color: "text.secondary",
+                    }}
                   >
                     คาบเรียน
                   </Typography>
@@ -433,8 +466,10 @@ function LockCalendarView({
                 <Box>
                   <Typography
                     variant="body2"
-                    color="text.secondary"
                     gutterBottom
+                    sx={{
+                      color: "text.secondary",
+                    }}
                   >
                     ชั้นเรียน ({selectedLock.GradeIDs.length} ห้อง)
                   </Typography>
@@ -453,8 +488,10 @@ function LockCalendarView({
                 <Box>
                   <Typography
                     variant="body2"
-                    color="text.secondary"
                     gutterBottom
+                    sx={{
+                      color: "text.secondary",
+                    }}
                   >
                     ครูผู้สอน ({selectedLock.teachers.length} คน)
                   </Typography>

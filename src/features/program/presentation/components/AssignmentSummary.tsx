@@ -62,7 +62,12 @@ export function AssignmentSummary({
   if (selectedCount === 0) {
     return (
       <Box sx={{ p: 2, bgcolor: "action.hover", borderRadius: 1, mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           ยังไม่ได้เลือกรายวิชา กรุณาเลือกรายวิชาที่ต้องการมอบหมายให้หลักสูตร
         </Typography>
       </Box>
@@ -78,7 +83,14 @@ export function AssignmentSummary({
 
   return (
     <Box sx={{ mb: 2 }}>
-      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+      <Stack
+        direction="row"
+        spacing={1}
+        useFlexGap
+        sx={{
+          flexWrap: "wrap",
+        }}
+      >
         {/* Total Count */}
         <Chip
           label={`เลือกแล้ว ${selectedCount} รายวิชา`}

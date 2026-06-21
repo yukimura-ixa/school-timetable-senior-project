@@ -34,7 +34,12 @@ export function TeacherWorkloadCard({
         <Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <ScheduleIcon fontSize="small" />
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               ชั่วโมงสอน/สัปดาห์
             </Typography>
           </Box>
@@ -73,7 +78,12 @@ export function TeacherWorkloadCard({
         <Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <SubjectIcon fontSize="small" />
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               วิชาที่สอน
             </Typography>
           </Box>
@@ -85,7 +95,12 @@ export function TeacherWorkloadCard({
         <Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <ClassIcon fontSize="small" />
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               ชั้นเรียน
             </Typography>
           </Box>

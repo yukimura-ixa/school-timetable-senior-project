@@ -75,7 +75,9 @@ function DraggableSubject({ subject }: { subject: Subject }) {
             />
           </Box>
         }
-        secondaryTypographyProps={{ component: "div" }}
+        slotProps={{
+          secondary: { component: "div" },
+        }}
       />
     </ListItem>
   );
@@ -94,11 +96,22 @@ export function PaletteClient({ subjects }: Props) {
 
   return (
     <Paper sx={{ p: 2 }} data-testid="subject-palette">
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 1,
+        }}
+      >
         <Typography variant="h6">รายวิชาที่สอน</Typography>
-        <Chip label={`${subjects.length} วิชา`} size="small" color="primary" variant="outlined" />
+        <Chip
+          label={`${subjects.length} วิชา`}
+          size="small"
+          color="primary"
+          variant="outlined"
+        />
       </Box>
-
       {/* Search Box */}
       <TextField
         fullWidth
@@ -107,16 +120,23 @@ export function PaletteClient({ subjects }: Props) {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         sx={{ mb: 2 }}
-        inputProps={{ "aria-label": "ค้นหารายวิชา" }}
+        slotProps={{
+          htmlInput: { "aria-label": "ค้นหารายวิชา" },
+        }}
       />
-
       {/* Subject List */}
       <Box
         sx={{ maxHeight: "calc(72vh - 150px)", overflow: "auto" }}
         aria-live="polite"
       >
         {filteredSubjects.length === 0 ? (
-          <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+          <Typography
+            align="center"
+            sx={{
+              color: "text.secondary",
+              py: 4,
+            }}
+          >
             {searchQuery ? "ไม่พบรายวิชา" : "ไม่มีรายวิชา"}
           </Typography>
         ) : (
@@ -127,11 +147,13 @@ export function PaletteClient({ subjects }: Props) {
           </List>
         )}
       </Box>
-
       <Typography
         variant="caption"
-        color="text.secondary"
-        sx={{ mt: 1, display: "block" }}
+        sx={{
+          color: "text.secondary",
+          mt: 1,
+          display: "block",
+        }}
       >
         ลากรายวิชาไปวางในช่วงเวลาที่ต้องการ
       </Typography>

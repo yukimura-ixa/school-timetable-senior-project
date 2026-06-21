@@ -50,20 +50,31 @@ export function RoomUtilizationSection({
       <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
         🏫 การใช้ห้องเรียน
       </Typography>
-
       <Card elevation={2}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
             สรุปการใช้งานห้องเรียน
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              mb: 3,
+            }}
+          >
             แสดงอัตราการใช้งานห้องเรียนแต่ละห้อง เรียงจากมากไปน้อย
           </Typography>
 
           {/* Room List */}
           <Box sx={{ maxHeight: 600, overflowY: "auto" }}>
             {sortedOccupancy.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" align="center">
+              <Typography
+                variant="body2"
+                align="center"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ไม่มีข้อมูลการใช้ห้องเรียน
               </Typography>
             ) : (
@@ -93,7 +104,12 @@ export function RoomUtilizationSection({
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {room.roomName}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         อาคาร {room.building}
                       </Typography>
                     </Box>
@@ -141,8 +157,11 @@ export function RoomUtilizationSection({
                     <Box sx={{ mt: 2 }}>
                       <Typography
                         variant="caption"
-                        color="text.secondary"
-                        sx={{ mb: 1, display: "block" }}
+                        sx={{
+                          color: "text.secondary",
+                          mb: 1,
+                          display: "block",
+                        }}
                       >
                         การใช้งานแต่ละวัน:
                       </Typography>

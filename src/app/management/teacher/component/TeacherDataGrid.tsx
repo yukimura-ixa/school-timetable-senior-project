@@ -317,7 +317,13 @@ export function TeacherDataGrid({
   return (
     <Box sx={{ width: "100%", height: 600 }}>
       {/* Toolbar */}
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
         <Box>
           {selectedCount > 0 && (
             <Button
@@ -343,7 +349,6 @@ export function TeacherDataGrid({
           เพิ่มข้อมูลครู
         </Button>
       </Stack>
-
       {/* DataGrid */}
       <DataGrid<teacher>
         rows={rows}
@@ -389,14 +394,12 @@ export function TeacherDataGrid({
           footerRowSelected: (count) => `เลือก ${count} รายการ`,
         }}
       />
-
       {/* Add Dialog */}
       <AddTeacherDialog
         open={showAddDialog}
         onClose={() => setShowAddDialog(false)}
         onSuccess={onMutate}
       />
-
       {/* Confirm Dialog */}
       {dialog}
     </Box>

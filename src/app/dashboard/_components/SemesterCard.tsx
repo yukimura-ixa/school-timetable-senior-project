@@ -123,7 +123,6 @@ export function SemesterCard({
           <PinOutlinedIcon fontSize="small" />
         )}
       </IconButton>
-
       <CardContent sx={{ flexGrow: 1, pt: 5 }}>
         {/* Header */}
         <Box sx={{ mb: 2 }}>
@@ -152,10 +151,20 @@ export function SemesterCard({
           <Box
             sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
           >
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               ความสมบูรณ์
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               {semester.configCompleteness}%
             </Typography>
           </Box>
@@ -178,48 +187,76 @@ export function SemesterCard({
           <Box>
             <Typography
               variant="caption"
-              color="text.secondary"
-              display="block"
+              sx={{
+                color: "text.secondary",
+                display: "block",
+              }}
             >
               ห้องเรียน
             </Typography>
-            <Typography variant="body2" fontWeight="medium">
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: "medium",
+              }}
+            >
               {semester.classCount || 0}
             </Typography>
           </Box>
           <Box>
             <Typography
               variant="caption"
-              color="text.secondary"
-              display="block"
+              sx={{
+                color: "text.secondary",
+                display: "block",
+              }}
             >
               ครู
             </Typography>
-            <Typography variant="body2" fontWeight="medium">
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: "medium",
+              }}
+            >
               {semester.teacherCount || 0}
             </Typography>
           </Box>
           <Box>
             <Typography
               variant="caption"
-              color="text.secondary"
-              display="block"
+              sx={{
+                color: "text.secondary",
+                display: "block",
+              }}
             >
               วิชา
             </Typography>
-            <Typography variant="body2" fontWeight="medium">
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: "medium",
+              }}
+            >
               {semester.subjectCount || 0}
             </Typography>
           </Box>
           <Box>
             <Typography
               variant="caption"
-              color="text.secondary"
-              display="block"
+              sx={{
+                color: "text.secondary",
+                display: "block",
+              }}
             >
               ห้อง
             </Typography>
-            <Typography variant="body2" fontWeight="medium">
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: "medium",
+              }}
+            >
               {semester.roomCount || 0}
             </Typography>
           </Box>
@@ -227,21 +264,28 @@ export function SemesterCard({
 
         {/* Dates */}
         <Box sx={{ pt: 1, borderTop: 1, borderColor: "divider" }}>
-          <Typography variant="caption" color="text.secondary" display="block">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              display: "block",
+            }}
+          >
             อัปเดตล่าสุด: {formatDate(semester.updatedAt)}
           </Typography>
           {semester.publishedAt && (
             <Typography
               variant="caption"
-              color="text.secondary"
-              display="block"
+              sx={{
+                color: "text.secondary",
+                display: "block",
+              }}
             >
               เผยแพร่: {formatDate(semester.publishedAt)}
             </Typography>
           )}
         </Box>
       </CardContent>
-
       {/* Actions */}
       <CardActions
         sx={{
@@ -292,7 +336,6 @@ export function SemesterCard({
           </Button>
         </Box>
       </CardActions>
-
       {/* Configure Timeslots Dialog */}
       <ConfigureTimeslotsDialog
         open={configDialogOpen}

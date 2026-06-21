@@ -178,7 +178,9 @@ export function AddProgramDialog({
             size="small"
             required
             fullWidth
-            inputProps={{ "data-testid": "program-track-select" }}
+            slotProps={{
+              htmlInput: { "data-testid": "program-track-select" },
+            }}
           >
             {TRACK_OPTIONS.map((opt) => (
               <MenuItem key={opt.value} value={opt.value}>
@@ -202,7 +204,9 @@ export function AddProgramDialog({
             fullWidth
             error={!!errors.programCode}
             helperText={errors.programCode || "เช่น GENERAL-M1-2567"}
-            inputProps={{ "data-testid": "program-code" }}
+            slotProps={{
+              htmlInput: { "data-testid": "program-code" },
+            }}
           />
 
           {/* Program Name */}
@@ -226,7 +230,9 @@ export function AddProgramDialog({
             error={!!errors.programName}
             helperText={errors.programName}
             autoFocus
-            inputProps={{ "data-testid": "program-name" }}
+            slotProps={{
+              htmlInput: { "data-testid": "program-name" },
+            }}
           />
 
           {/* Min Total Credits */}
@@ -242,7 +248,9 @@ export function AddProgramDialog({
             }
             size="small"
             fullWidth
-            inputProps={{ min: 0 }}
+            slotProps={{
+              htmlInput: { min: 0 },
+            }}
           />
 
           {/* Is Active */}

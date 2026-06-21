@@ -71,14 +71,25 @@ export default function ManagementIndexPage() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           จัดการระบบ
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           เลือกเมนูด้านล่างเพื่อจัดการข้อมูลพื้นฐานของระบบ
         </Typography>
       </Box>
-
       <Grid container spacing={3}>
         {managementPages.map((page) => (
           <Grid key={page.href} size={{ xs: 12, sm: 6, md: 4 }}>
@@ -118,12 +129,19 @@ export default function ManagementIndexPage() {
                 <Typography
                   variant="h6"
                   component="h2"
-                  fontWeight="bold"
                   gutterBottom
+                  sx={{
+                    fontWeight: "bold",
+                  }}
                 >
                   {page.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   {page.description}
                 </Typography>
               </Paper>

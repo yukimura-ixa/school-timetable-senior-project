@@ -103,7 +103,13 @@ export default function ForgotPasswordPageClient() {
           />
 
           <Stack spacing={3} component="form" onSubmit={handleSubmit}>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Box
                 sx={{
                   width: 44,
@@ -120,10 +126,19 @@ export default function ForgotPasswordPageClient() {
                 <MailLockIcon />
               </Box>
               <Box>
-                <Typography variant="h6" component="h1" sx={{ fontWeight: 700 }}>
+                <Typography
+                  variant="h6"
+                  component="h1"
+                  sx={{ fontWeight: 700 }}
+                >
                   ลืมรหัสผ่าน?
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   กรอกอีเมลเพื่อรับลิงก์รีเซ็ตรหัสผ่าน
                 </Typography>
               </Box>
@@ -137,7 +152,8 @@ export default function ForgotPasswordPageClient() {
 
             {success && (
               <Alert severity="success" sx={{ borderRadius: 2 }}>
-                เราส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลของคุณแล้ว หากไม่พบให้ตรวจสอบโฟลเดอร์สแปม
+                เราส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลของคุณแล้ว
+                หากไม่พบให้ตรวจสอบโฟลเดอร์สแปม
               </Alert>
             )}
 
@@ -152,7 +168,14 @@ export default function ForgotPasswordPageClient() {
               helperText={cooldown ? `ส่งใหม่ได้อีก ${cooldown} วินาที` : ""}
             />
 
-            <Stack direction="row" spacing={2} justifyContent="space-between" alignItems="center">
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Link href="/signin" style={{ textDecoration: "none" }}>
                 <Button startIcon={<ArrowBackIcon />} variant="text">
                   กลับไปหน้าเข้าสู่ระบบ
@@ -163,7 +186,11 @@ export default function ForgotPasswordPageClient() {
                 type="submit"
                 variant="contained"
                 disabled={submitting || cooldown > 0}
-                startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : null}
+                startIcon={
+                  submitting ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : null
+                }
                 sx={{
                   borderRadius: 2,
                   px: 3,

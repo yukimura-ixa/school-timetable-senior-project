@@ -27,8 +27,13 @@ import type { SemesterDTO } from "@/features/semester/application/schemas/semest
 
 export function SemesterSelector() {
   const router = useRouter();
-  const { selectedSemester, academicYear, semester, setSemester, clearSemester } =
-    useSemesterStore();
+  const {
+    selectedSemester,
+    academicYear,
+    semester,
+    setSemester,
+    clearSemester,
+  } = useSemesterStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -171,7 +176,6 @@ export function SemesterSelector() {
           </Typography>
         </Box>
       </Button>
-
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -212,7 +216,12 @@ export function SemesterSelector() {
         <Box sx={{ maxHeight: 320, overflowY: "auto", py: 0.5 }}>
           {semesters.length === 0 ? (
             <MenuItem disabled sx={{ py: 2, justifyContent: "center" }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ยังไม่มีข้อมูลภาคเรียน
               </Typography>
             </MenuItem>

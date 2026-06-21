@@ -181,8 +181,11 @@ export function FormDialog({
           <Typography
             id={descriptionId}
             variant="body2"
-            color="text.secondary"
-            sx={{ px: 3, pb: 2 }}
+            sx={{
+              color: "text.secondary",
+              px: 3,
+              pb: 2,
+            }}
           >
             {description}
           </Typography>
@@ -190,7 +193,6 @@ export function FormDialog({
 
         <DialogContent dividers>{children}</DialogContent>
       </Dialog>
-
       <ConfirmDiscardDialog
         open={showDiscardConfirm}
         onDiscard={handleDiscardConfirm}

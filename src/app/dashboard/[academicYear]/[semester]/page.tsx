@@ -20,12 +20,36 @@ export const metadata: Metadata = {
 function InvalidParam({ message }: { message: string }) {
   return (
     <Box sx={{ p: 4 }}>
-      <Paper sx={{ p: 3, borderColor: "error.light", borderWidth: 1, borderStyle: "solid" }}>
-        <Typography color="error" fontWeight={700}>
+      <Paper
+        sx={{
+          p: 3,
+          borderColor: "error.light",
+          borderWidth: 1,
+          borderStyle: "solid",
+        }}
+      >
+        <Typography
+          color="error"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           ข้อผิดพลาด
         </Typography>
-        <Typography color="error.main">{message}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          sx={{
+            color: "error.main",
+          }}
+        >
+          {message}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 1,
+          }}
+        >
           กรุณาเลือกภาคเรียนจากหน้าหลัก
         </Typography>
       </Paper>
@@ -55,15 +79,30 @@ export default async function DashboardPage({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3, p: 3 }}>
       <Box>
-        <Typography variant="h4" fontWeight={800}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 800,
+          }}
+        >
           ภาพรวมภาคเรียน
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           ภาคเรียนที่ {semester}/{year}
         </Typography>
       </Box>
-
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 3,
+        }}
+      >
         <Box sx={{ flex: 2, minWidth: 0 }}>
           <Suspense fallback={<ActionCenterSkeleton />}>
             <ActionCenter
@@ -78,7 +117,6 @@ export default async function DashboardPage({
           <QuickNav year={year} semester={semester} />
         </Box>
       </Box>
-
       <Suspense fallback={<ChartsSkeleton />}>
         <ChartsSection year={year} semesterEnum={semesterEnum} />
       </Suspense>
@@ -101,7 +139,13 @@ function ActionCenterSkeleton() {
 
 function ChartsSkeleton() {
   return (
-    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" }, gap: 3 }}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+        gap: 3,
+      }}
+    >
       {[1, 2].map((i) => (
         <Paper key={i} sx={{ p: 3 }}>
           <Skeleton variant="text" width={160} height={24} sx={{ mb: 2 }} />
@@ -128,11 +172,23 @@ async function ChartsSection({
     dashboardRepository.getTeachersBasic(),
     dashboardRepository.getSubjectsBasic(),
   ]);
-  const teacherWorkload = calculateTeacherWorkload(schedules, teachers).slice(0, 10);
-  const subjectDistribution = calculateSubjectDistribution(schedules, subjects).slice(0, 10);
+  const teacherWorkload = calculateTeacherWorkload(schedules, teachers).slice(
+    0,
+    10,
+  );
+  const subjectDistribution = calculateSubjectDistribution(
+    schedules,
+    subjects,
+  ).slice(0, 10);
 
   return (
-    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" }, gap: 3 }}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+        gap: 3,
+      }}
+    >
       <TeacherWorkloadChart workload={teacherWorkload} />
       <SubjectDistributionChart distribution={subjectDistribution} />
     </Box>

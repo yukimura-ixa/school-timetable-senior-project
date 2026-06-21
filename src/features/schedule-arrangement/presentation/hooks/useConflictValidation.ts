@@ -135,10 +135,11 @@ export function useConflictValidation(): ConflictValidationOperations {
     // Check if room is occupied in any other timeslot at the same time
     const conflictingSlots = timeSlotData.AllData.filter((slot) => {
       return (
+        // Fixed: RoomID → roomID (camelCase)
         slot.TimeslotID !== timeslotID &&
         slot.DayOfWeek === timeslot.DayOfWeek &&
         slot.StartTime === timeslot.StartTime &&
-        slot.subject?.roomID === roomID // Fixed: RoomID → roomID (camelCase)
+        slot.subject?.roomID === roomID
       );
     });
 

@@ -124,7 +124,9 @@ export default async function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   <span className="relative flex items-center">
                     <span className="mr-2 md:mr-3 text-xl md:text-2xl">📋</span>
-                    <span className="hidden sm:inline">ดูตารางเรียนตัวอย่าง</span>
+                    <span className="hidden sm:inline">
+                      ดูตารางเรียนตัวอย่าง
+                    </span>
                     <span className="sm:hidden">ตารางเรียน</span>
                   </span>
                 </Link>
@@ -133,7 +135,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
       <section className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl -mt-8 mb-8">
         <div>
           <Suspense fallback={<QuickStatsCardsSkeleton />}>
@@ -141,7 +142,6 @@ export default async function HomePage() {
           </Suspense>
         </div>
       </section>
-
       <section className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl mb-8 md:mb-12">
         <DataTableSection
           totalClasses={totalClasses}
@@ -149,7 +149,6 @@ export default async function HomePage() {
           currentConfigId={currentConfigId || undefined}
         />
       </section>
-
       <section className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl mb-8 md:mb-12">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">
           ภาพรวมการใช้งาน
@@ -158,7 +157,6 @@ export default async function HomePage() {
           <MiniCharts />
         </Suspense>
       </section>
-
       <footer className="bg-white border-t border-gray-200 py-6 md:py-8 mt-8 md:mt-12">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl text-center text-sm md:text-base text-gray-600">
           <p>© 2026 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma</p>

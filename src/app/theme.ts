@@ -151,13 +151,6 @@ const theme = createTheme({
             transform: "translateY(0px)",
           },
         },
-        containedPrimary: {
-          background: "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)",
-          border: "none",
-          "&:hover": {
-            background: "linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)",
-          },
-        },
         outlined: {
           borderWidth: "1.5px",
           "&:hover": {
@@ -166,6 +159,18 @@ const theme = createTheme({
           },
         },
       },
+      variants: [
+        {
+          props: { variant: "contained", color: "primary" },
+          style: {
+            background: "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)",
+            border: "none",
+            "&:hover": {
+              background: "linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)",
+            },
+          },
+        },
+      ],
     },
     MuiPaper: {
       styleOverrides: {

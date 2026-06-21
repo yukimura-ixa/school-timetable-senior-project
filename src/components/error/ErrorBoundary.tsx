@@ -2,7 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Box, Typography, Button, Paper, Stack } from "@mui/material";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import HomeIcon from "@mui/icons-material/Home";
 
@@ -128,8 +128,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <Typography
               variant="body1"
-              color="text.secondary"
-              sx={{ mb: 3, fontSize: { xs: "0.875rem", sm: "1rem" } }}
+              sx={{
+                color: "text.secondary",
+                mb: 3,
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              }}
             >
               ขออภัย เกิดข้อผิดพลาดที่ไม่คาดคิด
               กรุณาลองรีเฟรชหน้านี้หรือกลับไปหน้าแรก
@@ -168,7 +171,9 @@ export class ErrorBoundary extends Component<Props, State> {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
-              justifyContent="center"
+              sx={{
+                justifyContent: "center",
+              }}
             >
               <Button
                 variant="contained"

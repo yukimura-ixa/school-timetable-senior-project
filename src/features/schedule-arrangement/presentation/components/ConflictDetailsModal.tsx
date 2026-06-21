@@ -51,7 +51,13 @@ export default function ConflictDetailsModal({
       }}
     >
       <DialogTitle>
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+          }}
+        >
           <Chip label={conflict.conflictType} color="error" size="small" />
           <Typography variant="subtitle1">{conflict.message}</Typography>
         </Stack>
@@ -98,8 +104,11 @@ export default function ConflictDetailsModal({
 
         <Typography
           variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mt: 2 }}
+          sx={{
+            color: "text.secondary",
+            display: "block",
+            mt: 2,
+          }}
         >
           คาบที่พยายามจัด: {attempt.timeslotId}
         </Typography>

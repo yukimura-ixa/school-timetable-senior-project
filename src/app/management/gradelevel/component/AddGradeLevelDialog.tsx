@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import { enqueueSnackbar } from "notistack";
 import { FormDialog, FormDialogActions } from "@/components/dialogs/FormDialog";
 import { SubmitButton } from "@/components/buttons/SubmitButton";
@@ -198,7 +198,13 @@ export function AddGradeLevelDialog({
     >
       <form onSubmit={handleSubmit}>
         {/* Add Row Button */}
-        <Stack direction="row" justifyContent="flex-end" mb={2}>
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: "flex-end",
+            mb: 2,
+          }}
+        >
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
@@ -225,11 +231,18 @@ export function AddGradeLevelDialog({
               {/* Row Header */}
               <Stack
                 direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={2}
+                sx={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                }}
               >
-                <Typography variant="subtitle2" color="text.secondary">
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   รายการที่ {index + 1}
                 </Typography>
                 {gradeLevels.length > 1 && (
@@ -264,7 +277,9 @@ export function AddGradeLevelDialog({
                   required
                   error={!!errors[`${grade.id}-year`]}
                   helperText={errors[`${grade.id}-year`]}
-                  inputProps={{ "data-testid": `grade-year-${index}` }}
+                  slotProps={{
+                    htmlInput: { "data-testid": `grade-year-${index}` },
+                  }}
                 >
                   {[1, 2, 3, 4, 5, 6].map((y) => (
                     <MenuItem key={y} value={y}>
@@ -289,10 +304,12 @@ export function AddGradeLevelDialog({
                   required
                   error={!!errors[`${grade.id}-number`]}
                   helperText={errors[`${grade.id}-number`]}
-                  inputProps={{
-                    min: 1,
-                    max: 99,
-                    "data-testid": `grade-number-${index}`,
+                  slotProps={{
+                    htmlInput: {
+                      min: 1,
+                      max: 99,
+                      "data-testid": `grade-number-${index}`,
+                    },
                   }}
                 />
 
@@ -311,9 +328,11 @@ export function AddGradeLevelDialog({
                   size="small"
                   error={!!errors[`${grade.id}-studentCount`]}
                   helperText={errors[`${grade.id}-studentCount`]}
-                  inputProps={{
-                    min: 0,
-                    "data-testid": `grade-students-${index}`,
+                  slotProps={{
+                    htmlInput: {
+                      min: 0,
+                      "data-testid": `grade-students-${index}`,
+                    },
                   }}
                 />
 
@@ -330,7 +349,9 @@ export function AddGradeLevelDialog({
                     )
                   }
                   size="small"
-                  inputProps={{ "data-testid": `grade-program-${index}` }}
+                  slotProps={{
+                    htmlInput: { "data-testid": `grade-program-${index}` },
+                  }}
                 >
                   <MenuItem value="">
                     <em>ไม่ระบุ</em>

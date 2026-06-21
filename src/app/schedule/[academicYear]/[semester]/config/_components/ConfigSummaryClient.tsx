@@ -81,7 +81,11 @@ interface Props {
   configId: string;
 }
 
-export function ConfigSummaryClient({ academicYear, semester, configId }: Props) {
+export function ConfigSummaryClient({
+  academicYear,
+  semester,
+  configId,
+}: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data, error, isLoading, mutate } = useSWR<ApiResponse>(
@@ -97,7 +101,9 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
         Semester: sem === 1 ? "SEMESTER_1" : "SEMESTER_2",
       }),
   );
-  const breakGroupCount = breakGroupsData?.success ? (breakGroupsData.data?.length ?? 0) : 0;
+  const breakGroupCount = breakGroupsData?.success
+    ? (breakGroupsData.data?.length ?? 0)
+    : 0;
 
   if (isLoading) {
     return (
@@ -161,7 +167,14 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
   return (
     <Box sx={{ py: 2 }}>
       {/* Status chip */}
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
         <Chip
           label={STATUS_LABEL[row.status]}
           color={STATUS_COLOR[row.status]}
@@ -169,12 +182,16 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
           data-testid="config-status-badge"
         />
         {!isDraft && (
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             การตั้งค่าถูกล็อกแล้ว — แก้ไขได้เฉพาะในสถานะแบบร่าง
           </Typography>
         )}
       </Stack>
-
       {parsed ? (
         <Paper variant="outlined" sx={{ mb: 3 }}>
           <Table size="small">
@@ -186,7 +203,9 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
                 <TableCell>{parsed.slots?.length ?? 0} คาบ</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>ความยาวคาบ (นาที)</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>
+                  ความยาวคาบ (นาที)
+                </TableCell>
                 <TableCell>
                   {parsed.slots?.map((s) => s.duration).join(" / ") ?? "-"}
                 </TableCell>
@@ -203,7 +222,9 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
               </TableRow>
               {breakGroupCount > 0 && (
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>กลุ่มพักกลางวัน</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>
+                    กลุ่มพักกลางวัน
+                  </TableCell>
                   <TableCell>{breakGroupCount} กลุ่ม</TableCell>
                 </TableRow>
               )}
@@ -215,9 +236,7 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
           ข้อมูลการตั้งค่าอยู่ในรูปแบบที่ไม่รู้จัก — กรุณาบันทึกใหม่
         </Alert>
       )}
-
       <Divider sx={{ mb: 2 }} />
-
       <Button
         variant="outlined"
         startIcon={<EditIcon />}
@@ -226,7 +245,6 @@ export function ConfigSummaryClient({ academicYear, semester, configId }: Props)
       >
         แก้ไขการตั้งค่า
       </Button>
-
       <ConfigureTimeslotsDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}

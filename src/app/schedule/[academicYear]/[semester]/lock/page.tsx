@@ -42,14 +42,18 @@ async function LockSchedulePage({ params }: Props) {
           academicYear={academicYear}
         />
       </div>
-
       <Divider sx={{ my: 4 }} />
-
       <Box sx={{ mb: 5 }}>
         <Typography variant="h6" sx={{ mb: 0.5 }}>
           เผยแพร่ตาราง
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mb: 2,
+          }}
+        >
           ตรวจความพร้อมก่อนเผยแพร่ — ทุกระดับชั้นต้องจัดครบและผ่านเกณฑ์ ศธ.
         </Typography>
         <PublishReadinessCard configId={configId} />

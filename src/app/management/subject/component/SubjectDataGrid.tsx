@@ -377,7 +377,13 @@ export function SubjectDataGrid({
   return (
     <Box sx={{ width: "100%", height: 600 }}>
       {/* Toolbar */}
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
         <Box>
           {selectedCount > 0 && (
             <Button
@@ -399,7 +405,6 @@ export function SubjectDataGrid({
           เพิ่มวิชา
         </Button>
       </Stack>
-
       {/* DataGrid */}
       <DataGrid
         rows={rows}
@@ -429,14 +434,12 @@ export function SubjectDataGrid({
           footerRowSelected: (count) => `เลือก ${count} รายการ`,
         }}
       />
-
       {/* Add Dialog */}
       <AddSubjectDialog
         open={showAddDialog}
         onClose={() => setShowAddDialog(false)}
         onSuccess={onMutate}
       />
-
       {/* Confirm Dialog */}
       {dialog}
     </Box>

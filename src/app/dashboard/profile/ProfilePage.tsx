@@ -61,10 +61,12 @@ export default function ProfilePage() {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="50vh"
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "50vh",
+          }}
         >
           <CircularProgress aria-label="กำลังโหลด" />
         </Box>
@@ -82,11 +84,24 @@ export default function ProfilePage() {
       <SkipLink />
       <Stack spacing={3}>
         {/* Header */}
-        <Box id="main-content" display="flex" alignItems="center" gap={2}>
+        <Box
+          id="main-content"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
           <IconButton onClick={() => router.back()} aria-label="กลับ">
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h4" component="h1" fontWeight={600}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             โปรไฟล์ของฉัน
           </Typography>
         </Box>
@@ -109,7 +124,6 @@ export default function ProfilePage() {
             change-email verification flow can't deliver. Component kept in
             this file for easy restoration when email is re-enabled. */}
       </Stack>
-
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
@@ -185,7 +199,12 @@ function ProfileSection({
       <CardHeader
         avatar={<PersonIcon color="primary" />}
         title={
-          <Typography variant="h6" fontWeight={600}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             ข้อมูลส่วนตัว
           </Typography>
         }
@@ -195,7 +214,13 @@ function ProfileSection({
       <CardContent>
         <Stack spacing={3}>
           {/* Avatar Display */}
-          <Box display="flex" alignItems="center" gap={3}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+            }}
+          >
             <Avatar
               src={currentImage}
               alt={name || "User"}
@@ -209,10 +234,20 @@ function ProfileSection({
               {!currentImage && <PersonIcon sx={{ fontSize: 40 }} />}
             </Avatar>
             <Box>
-              <Typography variant="body1" fontWeight={500}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 500,
+                }}
+              >
                 รูปโปรไฟล์
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 {isGoogleAvatar
                   ? "ใช้รูปจาก Google Account"
                   : currentImage
@@ -230,7 +265,12 @@ function ProfileSection({
             placeholder="เช่น นายสมชาย ใจดี"
             helperText="ชื่อที่จะแสดงในระบบ"
           />
-          <Box display="flex" justifyContent="flex-end">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
             <Button
               variant="contained"
               startIcon={
@@ -330,7 +370,12 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
       <CardHeader
         avatar={<LockIcon color="warning" />}
         title={
-          <Typography variant="h6" fontWeight={600}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             เปลี่ยนรหัสผ่าน
           </Typography>
         }
@@ -346,24 +391,28 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
             onChange={(e) => setCurrentPassword(e.target.value)}
             fullWidth
             data-testid="current-password-field"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    edge="end"
-                    aria-label={
-                      showCurrentPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
-                    }
-                  >
-                    {showCurrentPassword ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
+                      edge="end"
+                      aria-label={
+                        showCurrentPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
+                      }
+                    >
+                      {showCurrentPassword ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
           <TextField
@@ -379,24 +428,26 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
                 : ""
             }
             error={Boolean(newPassword && newPassword.length < 8)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    edge="end"
-                    aria-label={
-                      showNewPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
-                    }
-                  >
-                    {showNewPassword ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      edge="end"
+                      aria-label={
+                        showNewPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
+                      }
+                    >
+                      {showNewPassword ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
           <TextField
@@ -422,13 +473,21 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
             }
             label="ออกจากระบบในอุปกรณ์อื่นทั้งหมด"
           />
-          <Box display="flex" justifyContent="flex-end">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
             <Button
               variant="contained"
               color="warning"
               startIcon={
                 saving ? (
-                  <CircularProgress size={20} aria-label="กำลังเปลี่ยนรหัสผ่าน" />
+                  <CircularProgress
+                    size={20}
+                    aria-label="กำลังเปลี่ยนรหัสผ่าน"
+                  />
                 ) : (
                   <LockIcon />
                 )

@@ -33,7 +33,13 @@ export function CopyPreviousStep({
 
   return (
     <Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          mb: 2,
+        }}
+      >
         เลือกภาคเรียนที่ต้องการคัดลอกค่าตั้งต้น (ไม่บังคับ)
       </Typography>
       <FormControl fullWidth sx={{ mb: 2 }}>
@@ -53,7 +59,6 @@ export function CopyPreviousStep({
             ))}
         </Select>
       </FormControl>
-
       {copyFrom && (
         <FormGroup>
           <FormControlLabel
@@ -83,7 +88,13 @@ export function CopyPreviousStep({
             }
             label="คัดลอกการมอบหมายครู (Teaching Assignments)"
           />
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              mt: 1,
+            }}
+          >
             หมายเหตุ: ข้อมูลนักเรียนและรายวิชาจะไม่ถูกคัดลอก
           </Typography>
         </FormGroup>

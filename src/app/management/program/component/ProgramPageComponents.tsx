@@ -110,7 +110,13 @@ export function ProgramYearCard({
         <CardContent sx={{ p: 3, position: "relative", zIndex: 1 }}>
           <Stack spacing={2.5}>
             {/* Header */}
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Box
                 className="card-icon"
                 sx={{
@@ -144,13 +150,21 @@ export function ProgramYearCard({
             <Box>
               <Typography
                 variant="h6"
-                fontWeight={700}
                 gutterBottom
-                sx={{ color: "text.primary" }}
+                sx={{
+                  fontWeight: 700,
+                  color: "text.primary",
+                }}
               >
                 หลักสูตร{label}
               </Typography>
-              <Stack direction="row" alignItems="center" spacing={1}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: "center",
+                }}
+              >
                 <Box
                   sx={{
                     display: "flex",
@@ -165,8 +179,10 @@ export function ProgramYearCard({
                   <TrendingUpIcon sx={{ fontSize: 16, color: color }} />
                   <Typography
                     variant="body2"
-                    fontWeight={600}
-                    sx={{ color: color }}
+                    sx={{
+                      fontWeight: 600,
+                      color: color,
+                    }}
                   >
                     {count > 0 ? `${count} หลักสูตร` : "ยังไม่มีหลักสูตร"}
                   </Typography>
@@ -177,11 +193,18 @@ export function ProgramYearCard({
             {/* Footer */}
             <Stack
               direction="row"
-              alignItems="center"
-              justifyContent="flex-end"
-              sx={{ color: color }}
+              sx={{
+                alignItems: "center",
+                justifyContent: "flex-end",
+                color: color,
+              }}
             >
-              <Typography variant="body2" fontWeight={600}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 จัดการ
               </Typography>
               <ArrowForwardIcon
@@ -269,10 +292,21 @@ export function ProgramStatsDisplay({
           border: `1px solid ${alpha("#3b82f6", 0.2)}`,
         }}
       >
-        <Typography variant="h5" fontWeight={700} color="#3b82f6">
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            color: "#3b82f6",
+          }}
+        >
           {totalPrograms}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           หลักสูตรทั้งหมด
         </Typography>
       </Box>
@@ -288,10 +322,21 @@ export function ProgramStatsDisplay({
           border: `1px solid ${alpha("#10b981", 0.2)}`,
         }}
       >
-        <Typography variant="h5" fontWeight={700} color="#10b981">
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            color: "#10b981",
+          }}
+        >
           {activeYears}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           ระดับชั้น
         </Typography>
       </Box>
@@ -351,16 +396,25 @@ export function ProgramPageHeader({
           animation: `${pulse} 4s ease-in-out infinite 1s`,
         }}
       />
-
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
         spacing={2}
-        sx={{ position: "relative", zIndex: 1 }}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: { xs: "flex-start", sm: "center" },
+          position: "relative",
+          zIndex: 1,
+        }}
       >
         <Box>
-          <Stack direction="row" alignItems="center" spacing={2} mb={1}>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
             <Box
               sx={{
                 width: 48,
@@ -377,8 +431,8 @@ export function ProgramPageHeader({
             </Box>
             <Typography
               variant="h4"
-              fontWeight={800}
               sx={{
+                fontWeight: 800,
                 background: "linear-gradient(135deg, #1e293b 0%, #475569 100%)",
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
@@ -388,7 +442,13 @@ export function ProgramPageHeader({
               จัดการหลักสูตร
             </Typography>
           </Stack>
-          <Typography variant="body1" color="text.secondary" sx={{ ml: 7.5 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+              ml: 7.5,
+            }}
+          >
             จัดการหลักสูตรการศึกษาสำหรับแต่ละระดับชั้น
           </Typography>
           {statsSlot && <Box sx={{ ml: 7.5 }}>{statsSlot}</Box>}

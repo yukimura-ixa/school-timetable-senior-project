@@ -46,8 +46,9 @@ const ROW_HEIGHT = 60;
 const TableBody = (props: Props) => {
   const theme = useTheme();
 
-  const teachingCount = props.columns.filter((c) => c.kind === "teaching")
-    .length;
+  const teachingCount = props.columns.filter(
+    (c) => c.kind === "teaching",
+  ).length;
   const breakCount = props.columns.length - teachingCount;
   const dayMinWidth =
     teachingCount * TEACH_WIDTH +
@@ -86,7 +87,14 @@ const TableBody = (props: Props) => {
       : formatGradeLabel(firstClass?.GradeID ?? "");
 
     return (
-      <Stack spacing={0.5} alignItems="center" sx={{ width: "100%", px: 0.25 }}>
+      <Stack
+        spacing={0.5}
+        sx={{
+          alignItems: "center",
+          width: "100%",
+          px: 0.25,
+        }}
+      >
         {isLocked && (
           <Tooltip title="Locked">
             <LockIcon sx={{ fontSize: 14, color: theme.palette.error.main }} />
@@ -94,8 +102,8 @@ const TableBody = (props: Props) => {
         )}
         <Typography
           variant="caption"
-          fontWeight={isLocked ? "bold" : "medium"}
           sx={{
+            fontWeight: isLocked ? "bold" : "medium",
             fontSize: "0.7rem",
             color: isLocked ? "error.main" : "text.primary",
             lineHeight: 1.1,

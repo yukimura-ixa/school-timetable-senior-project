@@ -370,7 +370,13 @@ export function GradeLevelDataGrid({
   return (
     <Box sx={{ width: "100%", height: 600 }}>
       {/* Toolbar */}
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
         <Box>
           {selectedCount > 0 && (
             <Button
@@ -392,7 +398,6 @@ export function GradeLevelDataGrid({
           เพิ่มระดับชั้น
         </Button>
       </Stack>
-
       {/* DataGrid */}
       <DataGrid
         rows={rows}
@@ -422,7 +427,6 @@ export function GradeLevelDataGrid({
           footerRowSelected: (count) => `เลือก ${count} รายการ`,
         }}
       />
-
       {/* Add Dialog */}
       <AddGradeLevelDialog
         open={showAddDialog}
@@ -430,7 +434,6 @@ export function GradeLevelDataGrid({
         onSuccess={onMutate}
         programsByYear={programsByYear}
       />
-
       {/* Confirm Dialog */}
       {dialog}
     </Box>

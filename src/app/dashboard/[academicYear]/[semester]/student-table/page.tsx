@@ -43,7 +43,10 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import { useGradeLevels } from "@/hooks";
 import { useUIStore } from "@/stores/uiStore";
-import { getTimeslotsByTermAction, getBreakContextAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import {
+  getTimeslotsByTermAction,
+  getBreakContextAction,
+} from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
 
@@ -150,16 +153,18 @@ function StudentTablePage() {
       ? ["timetable-config", String(academicYear), String(semester)]
       : null;
 
-  const {
-    data: configData,
-  } = useSWR(configKey, async (key) => {
-    if (!key) throw new Error("Missing config key");
-    const [, year, sem] = key;
-    return await getTimetableConfigAction({
-      academicYear: parseInt(year, 10),
-      semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-    });
-  }, { revalidateOnFocus: false });
+  const { data: configData } = useSWR(
+    configKey,
+    async (key) => {
+      if (!key) throw new Error("Missing config key");
+      const [, year, sem] = key;
+      return await getTimetableConfigAction({
+        academicYear: parseInt(year, 10),
+        semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
+      });
+    },
+    { revalidateOnFocus: false },
+  );
 
   type BreakContextKey = readonly ["break-context", string, string];
   const breakContextKey: BreakContextKey | null =
@@ -167,16 +172,18 @@ function StudentTablePage() {
       ? ["break-context", String(academicYear), String(semester)]
       : null;
 
-  const {
-    data: breakContextData,
-  } = useSWR(breakContextKey, async (key) => {
-    if (!key) throw new Error("Missing break context key");
-    const [, year, sem] = key;
-    return await getBreakContextAction({
-      AcademicYear: parseInt(year, 10),
-      Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-    });
-  }, { revalidateOnFocus: false });
+  const { data: breakContextData } = useSWR(
+    breakContextKey,
+    async (key) => {
+      if (!key) throw new Error("Missing break context key");
+      const [, year, sem] = key;
+      return await getBreakContextAction({
+        AcademicYear: parseInt(year, 10),
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
+      });
+    },
+    { revalidateOnFocus: false },
+  );
 
   const {
     data: classDataResponse,
@@ -189,11 +196,11 @@ function StudentTablePage() {
         throw new Error("Missing class schedule key");
       }
       const [, gradeId, year, sem] = key;
-      return (await getClassSchedulesAction({
+      return await getClassSchedulesAction({
         GradeID: gradeId,
         AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-      }));
+      });
     },
     {
       revalidateOnFocus: false,
@@ -497,7 +504,12 @@ function StudentTablePage() {
                 <Box
                   sx={{ mt: 2, p: 1, bgcolor: "action.hover", borderRadius: 1 }}
                 >
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     เลือกแล้ว {selectedGradeIds.length} ห้องเรียน
                   </Typography>
                 </Box>
@@ -539,10 +551,21 @@ function StudentTablePage() {
               <ClassIcon
                 sx={{ fontSize: 64, color: colors.slate[400], mb: 2 }}
               />
-              <Typography variant="h6" color="text.secondary" gutterBottom>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 กรุณาเลือกห้องเรียน
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 เลือกห้องเรียนจากรายการด้านบนเพื่อดูตารางเรียน
               </Typography>
             </Paper>
@@ -569,7 +592,12 @@ function StudentTablePage() {
                     <Typography variant="h6" gutterBottom>
                       ตารางเรียน: {getGradeLabel(selectedGradeId)}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       ภาคเรียนที่ {semester}/{academicYear}
                     </Typography>
                   </Box>

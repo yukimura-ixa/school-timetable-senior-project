@@ -102,7 +102,6 @@ export function ComplianceSection({
       >
         📋 การตรวจสอบหลักสูตร
       </Typography>
-
       {/* Overall Compliance Summary */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -165,13 +164,17 @@ export function ComplianceSection({
           </Box>
         </CardContent>
       </Card>
-
       {/* Program Compliance Cards */}
       {programCompliance.length === 0 ? (
         <Card>
           <CardContent>
             <Box sx={{ py: 4, textAlign: "center" }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ไม่มีข้อมูลแผนการเรียน
               </Typography>
             </Box>
@@ -252,10 +255,20 @@ export function ComplianceSection({
                         mb: 0.5,
                       }}
                     >
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         หน่วยกิตรวม
                       </Typography>
-                      <Typography variant="body2" fontWeight={600}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 600,
+                        }}
+                      >
                         {totalCurrentCredits}/{totalRequiredCredits} หน่วย
                       </Typography>
                     </Box>
@@ -293,7 +306,12 @@ export function ComplianceSection({
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         • วิชาแกน
                       </Typography>
                       <Typography
@@ -319,7 +337,12 @@ export function ComplianceSection({
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         • วิชาเพิ่มเติม
                       </Typography>
                       <Typography
@@ -345,7 +368,12 @@ export function ComplianceSection({
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         • กิจกรรม
                       </Typography>
                       <Typography

@@ -181,8 +181,8 @@ export function RoomSelectionContent({
         direction="row"
         spacing={1}
         useFlexGap
-        flexWrap="wrap"
         sx={{
+          flexWrap: "wrap",
           mb: 2.5,
           p: 1.5,
           borderRadius: 1.5,
@@ -191,17 +191,22 @@ export function RoomSelectionContent({
       >
         <Chip label={subject} color="primary" size="small" />
         <Chip label={describeGrade(grade)} size="small" />
-        <Chip label={describeTimeslot(timeslot)} size="small" variant="outlined" />
+        <Chip
+          label={describeTimeslot(timeslot)}
+          size="small"
+          variant="outlined"
+        />
       </Stack>
-
       <Typography
         variant="subtitle2"
-        color="text.secondary"
-        sx={{ mb: 1, fontWeight: 600 }}
+        sx={{
+          color: "text.secondary",
+          mb: 1,
+          fontWeight: 600,
+        }}
       >
         ห้องว่าง · {available.length} ห้อง
       </Typography>
-
       {available.length === 0 ? (
         <Alert severity="warning">ไม่มีห้องว่างในช่วงเวลานี้</Alert>
       ) : (
@@ -229,7 +234,8 @@ export function RoomSelectionContent({
                   border: "1.5px solid",
                   borderColor: isSelected ? "primary.main" : "divider",
                   bgcolor: isSelected ? "action.selected" : "background.paper",
-                  transition: "border-color .15s, box-shadow .15s, transform .15s",
+                  transition:
+                    "border-color .15s, box-shadow .15s, transform .15s",
                   "&:hover": {
                     borderColor: isSelected ? "primary.main" : "primary.light",
                     boxShadow: 2,
@@ -239,20 +245,32 @@ export function RoomSelectionContent({
               >
                 <Stack
                   direction="row"
-                  alignItems="center"
                   spacing={0.75}
-                  sx={{ mb: 0.75 }}
+                  sx={{
+                    alignItems: "center",
+                    mb: 0.75,
+                  }}
                 >
                   {isSelected ? (
                     <CheckIcon fontSize="small" color="primary" />
                   ) : (
                     <RoomIcon fontSize="small" color="action" />
                   )}
-                  <Typography variant="subtitle2" noWrap sx={{ fontWeight: 700 }}>
+                  <Typography
+                    variant="subtitle2"
+                    noWrap
+                    sx={{ fontWeight: 700 }}
+                  >
                     {room.RoomName}
                   </Typography>
                 </Stack>
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    display: "block",
+                  }}
+                >
                   {room.Building} · {room.Floor}
                 </Typography>
                 {room.Capacity != null && (
@@ -268,7 +286,6 @@ export function RoomSelectionContent({
           })}
         </Box>
       )}
-
       {/* Occupied rooms: collapsed by default, for context only */}
       {occupied.length > 0 && (
         <Box sx={{ mt: 2 }}>
@@ -310,10 +327,19 @@ export function RoomSelectionContent({
                     borderColor: "divider",
                   }}
                 >
-                  <Typography variant="subtitle2" noWrap sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle2"
+                    noWrap
+                    sx={{ fontWeight: 600 }}
+                  >
                     {room.RoomName}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     {room.Building} · {room.Floor}
                   </Typography>
                 </Box>
@@ -322,7 +348,6 @@ export function RoomSelectionContent({
           </Collapse>
         </Box>
       )}
-
       {/* Remember this room as the teacher+subject default for future drops */}
       {resp && selectedRoom && (
         <FormControlLabel
@@ -339,7 +364,6 @@ export function RoomSelectionContent({
           label={`ตั้ง "${selectedRoom.RoomName}" เป็นห้องเริ่มต้นสำหรับวิชานี้`}
         />
       )}
-
       {/* Commit bar */}
       <Box
         sx={{
@@ -353,7 +377,12 @@ export function RoomSelectionContent({
           gap: 1,
         }}
       >
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {selectedRoom
             ? `เลือก: ${selectedRoom.RoomName}`
             : "เลือกห้องเพื่อจัดตาราง"}
