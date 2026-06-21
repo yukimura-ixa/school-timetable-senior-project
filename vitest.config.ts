@@ -69,6 +69,11 @@ export default defineConfig({
         inline: [
           "@prisma/client",
           "@mui/x-data-grid", // Has CSS imports
+          // MUI v9 imports react-transition-group via a directory specifier,
+          // which Node's ESM loader rejects (ERR_UNSUPPORTED_DIR_IMPORT).
+          // Inlining lets Vite resolve it.
+          "@mui/material",
+          "react-transition-group",
           // Inline all CSS to avoid extension errors
           /\.css$/,
         ],
