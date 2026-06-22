@@ -268,6 +268,8 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       authenticatedAdmin,
     }) => {
       const { page } = authenticatedAdmin;
+      // The dnd-kit drag below is retried; give the whole test headroom.
+      test.setTimeout(120_000);
       const teacherId = await getE2ETeacherId(page);
 
       await page.goto(
@@ -292,7 +294,13 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       // early), leaving the slot empty. Retry the whole drag until a placement
       // registers — this is the long-standing source of this test's flakiness.
       let placed = false;
-      for (let attempt = 0; attempt < 4 && !placed; attempt++) {
+      for (let attempt = 0; attempt < 6 && !placed; attempt++) {
+        // A prior attempt's placement may have landed after its poll expired;
+        // never re-drag in that case or we'd fill a second slot.
+        if ((await emptyCount()) < baseline) {
+          placed = true;
+          break;
+        }
         // (Re)tag the first empty slot each attempt — a prior failed drop or a
         // re-render can drop the marker.
         await page.evaluate(() => {
@@ -313,7 +321,7 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
         // picker (see ArrangeDndProvider). Handle both paths.
         const roomDialog = page.getByTestId("room-selection-dialog");
         const pickerOpened = await roomDialog
-          .waitFor({ state: "visible", timeout: 8000 })
+          .waitFor({ state: "visible", timeout: 3000 })
           .then(() => true)
           .catch(() => false);
         if (pickerOpened) {
@@ -329,7 +337,7 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
         // A class landed iff the empty count dropped below baseline. Only retry
         // when nothing was placed, so a successful drop can't double-place.
         placed = await expect
-          .poll(emptyCount, { timeout: 8000 })
+          .poll(emptyCount, { timeout: 4000 })
           .toBeLessThan(baseline)
           .then(() => true)
           .catch(() => false);
