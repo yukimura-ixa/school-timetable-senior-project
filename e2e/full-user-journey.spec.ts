@@ -303,16 +303,25 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
         page.locator('[data-journey-target="1"]'),
       );
 
-      // Room dialog opens; pick the first enabled room and confirm.
+      // The drop either opens the room picker, or — when the teacher+subject's
+      // default room is free at this timeslot — auto-assigns it and skips the
+      // picker (see ArrangeDndProvider). Which path runs depends on seed/data
+      // state, so handle both; the placement assertion below is the invariant
+      // that proves the drop landed either way.
       const roomDialog = page.getByTestId("room-selection-dialog");
-      await expect(roomDialog).toBeVisible({ timeout: 10000 });
-      await roomDialog
-        .locator('[data-testid^="room-option-"]:not([aria-disabled="true"])')
-        .first()
-        .click();
-      const confirm = roomDialog.getByTestId("room-confirm");
-      if (await confirm.isVisible().catch(() => false)) await confirm.click();
-      await expect(roomDialog).toBeHidden({ timeout: 10000 });
+      const pickerOpened = await roomDialog
+        .waitFor({ state: "visible", timeout: 10000 })
+        .then(() => true)
+        .catch(() => false);
+      if (pickerOpened) {
+        await roomDialog
+          .locator('[data-testid^="room-option-"]:not([aria-disabled="true"])')
+          .first()
+          .click();
+        const confirm = roomDialog.getByTestId("room-confirm");
+        if (await confirm.isVisible().catch(() => false)) await confirm.click();
+        await expect(roomDialog).toBeHidden({ timeout: 10000 });
+      }
 
       // Placed: one fewer empty slot.
       await expect.poll(emptyCount, { timeout: 10000 }).toBe(baseline - 1);
