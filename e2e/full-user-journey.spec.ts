@@ -286,45 +286,58 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       const baseline = await emptyCount();
       test.skip(baseline === 0, "No empty slot for the E2E teacher");
 
-      // Tag the first empty slot so we can target it precisely.
-      await page.evaluate(() => {
-        const card = [
-          ...document.querySelectorAll('[data-testid="timeslot-card"]'),
-        ].find((c) => /คาบว่าง/.test(c.textContent ?? ""));
-        card?.setAttribute("data-journey-target", "1");
-      });
-
       // dnd-kit's PointerSensor needs intermediate mouse moves to trip its
-      // activation constraint; Playwright's dragTo (single down→up) doesn't,
-      // so the drop never fires. Use the manual-pointer helper instead.
-      await dragAndDrop(
-        page,
-        page.getByTestId("subject-item").first(),
-        page.locator('[data-journey-target="1"]'),
-      );
+      // activation constraint, and in CI the drop still occasionally lands on
+      // no droppable (closestCenter misses if the pointer settles a frame
+      // early), leaving the slot empty. Retry the whole drag until a placement
+      // registers — this is the long-standing source of this test's flakiness.
+      let placed = false;
+      for (let attempt = 0; attempt < 4 && !placed; attempt++) {
+        // (Re)tag the first empty slot each attempt — a prior failed drop or a
+        // re-render can drop the marker.
+        await page.evaluate(() => {
+          const card = [
+            ...document.querySelectorAll('[data-testid="timeslot-card"]'),
+          ].find((c) => /คาบว่าง/.test(c.textContent ?? ""));
+          card?.setAttribute("data-journey-target", "1");
+        });
 
-      // The drop either opens the room picker, or — when the teacher+subject's
-      // default room is free at this timeslot — auto-assigns it and skips the
-      // picker (see ArrangeDndProvider). Which path runs depends on seed/data
-      // state, so handle both; the placement assertion below is the invariant
-      // that proves the drop landed either way.
-      const roomDialog = page.getByTestId("room-selection-dialog");
-      const pickerOpened = await roomDialog
-        .waitFor({ state: "visible", timeout: 10000 })
-        .then(() => true)
-        .catch(() => false);
-      if (pickerOpened) {
-        await roomDialog
-          .locator('[data-testid^="room-option-"]:not([aria-disabled="true"])')
-          .first()
-          .click();
-        const confirm = roomDialog.getByTestId("room-confirm");
-        if (await confirm.isVisible().catch(() => false)) await confirm.click();
-        await expect(roomDialog).toBeHidden({ timeout: 10000 });
+        await dragAndDrop(
+          page,
+          page.getByTestId("subject-item").first(),
+          page.locator('[data-journey-target="1"]'),
+        );
+
+        // The drop either opens the room picker, or — when the teacher+subject's
+        // default room is free at this timeslot — auto-assigns it and skips the
+        // picker (see ArrangeDndProvider). Handle both paths.
+        const roomDialog = page.getByTestId("room-selection-dialog");
+        const pickerOpened = await roomDialog
+          .waitFor({ state: "visible", timeout: 8000 })
+          .then(() => true)
+          .catch(() => false);
+        if (pickerOpened) {
+          await roomDialog
+            .locator('[data-testid^="room-option-"]:not([aria-disabled="true"])')
+            .first()
+            .click();
+          const confirm = roomDialog.getByTestId("room-confirm");
+          if (await confirm.isVisible().catch(() => false)) await confirm.click();
+          await expect(roomDialog).toBeHidden({ timeout: 10000 });
+        }
+
+        // A class landed iff the empty count dropped below baseline. Only retry
+        // when nothing was placed, so a successful drop can't double-place.
+        placed = await expect
+          .poll(emptyCount, { timeout: 8000 })
+          .toBeLessThan(baseline)
+          .then(() => true)
+          .catch(() => false);
       }
+      expect(placed, "drag-drop never registered a placement").toBe(true);
 
-      // Placed: one fewer empty slot.
-      await expect.poll(emptyCount, { timeout: 10000 }).toBe(baseline - 1);
+      // Placed exactly one: one fewer empty slot.
+      await expect.poll(emptyCount, { timeout: 5000 }).toBe(baseline - 1);
 
       // Capture the exact slot we placed into (stable across reload) so the
       // delete below targets THIS class — not another of the teacher's
