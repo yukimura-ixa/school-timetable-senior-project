@@ -31,7 +31,7 @@ test.describe("TC-007: Semester Configuration", () => {
 
     // Step 1 of the wizard stepper is always present on the config route.
     await expect(
-      page.getByRole("button", { name: /ตั้งค่าคาบเรียน/ }),
+      page.getByRole("tab", { name: /ตั้งค่าคาบเรียน/ }),
     ).toBeVisible({ timeout: 30000 });
 
     // ConfigSummaryClient settles to either the status badge (config exists)
