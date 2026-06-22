@@ -62,6 +62,11 @@ describe("checkPublishReadiness", () => {
       },
     ],
     totalTimeslots: 35,
+    timeslots: Array.from({ length: 35 }, (_, i) => ({
+      TimeslotID: `TS-${i + 1}`,
+    })) as FullConfigData["timeslots"],
+    slots: [],
+    gradeBreakIndex: new Map(),
     requiredSubjects: new Map([["M1-1", ["TH101"]]]),
   };
 
@@ -72,7 +77,7 @@ describe("checkPublishReadiness", () => {
   it('should return "ready" status when all checks pass', () => {
     const readyData: FullConfigData = {
       ...mockBaseConfigData,
-      schedules: Array(35).fill({ GradeID: "M1-1", SubjectCode: "TH101" }),
+      schedules: Array(35).fill({ GradeID: "M1-1", SubjectCode: "TH101", TimeslotID: "TS-1" }),
     };
     mockedValidateProgramMOECredits.mockReturnValue(
       moeValidationService.createMOEValidationResult({ isValid: true }),
@@ -86,7 +91,7 @@ describe("checkPublishReadiness", () => {
   it('should return "incomplete" status if timetables are not complete', () => {
     const incompleteData: FullConfigData = {
       ...mockBaseConfigData,
-      schedules: Array(30).fill({ GradeID: "M1-1", SubjectCode: "TH101" }), // 30 out of 35
+      schedules: Array(30).fill({ GradeID: "M1-1", SubjectCode: "TH101", TimeslotID: "TS-1" }), // 30 out of 35
     };
     mockedValidateProgramMOECredits.mockReturnValue(
       moeValidationService.createMOEValidationResult({ isValid: true }),
@@ -102,7 +107,7 @@ describe("checkPublishReadiness", () => {
   it('should return "moe-failed" status if MoE compliance fails', () => {
     const moeFailedData: FullConfigData = {
       ...mockBaseConfigData,
-      schedules: Array(35).fill({ GradeID: "M1-1", SubjectCode: "TH101" }),
+      schedules: Array(35).fill({ GradeID: "M1-1", SubjectCode: "TH101", TimeslotID: "TS-1" }),
     };
     mockedValidateProgramMOECredits.mockReturnValue(
       moeValidationService.createMOEValidationResult({
@@ -122,7 +127,7 @@ describe("checkPublishReadiness", () => {
   it('should return "incomplete" status if both timetable and MoE checks fail', () => {
     const bothFailedData: FullConfigData = {
       ...mockBaseConfigData,
-      schedules: Array(20).fill({ GradeID: "M1-1", SubjectCode: "TH101" }),
+      schedules: Array(20).fill({ GradeID: "M1-1", SubjectCode: "TH101", TimeslotID: "TS-1" }),
     };
 
     mockedValidateProgramMOECredits.mockReturnValue(
