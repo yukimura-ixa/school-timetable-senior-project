@@ -205,7 +205,7 @@ export default function ProgramSubjectAssignmentPage({
       >
         <Stack
           direction={{ xs: "column", sm: "row" }}
-          gap={2}
+          spacing={2}
           sx={{ justifyContent: "space-between" }}
         >
           <Box sx={{ minWidth: 0 }}>
@@ -220,7 +220,7 @@ export default function ProgramSubjectAssignmentPage({
             </Typography>
             <Stack
               direction="row"
-              gap={1}
+              spacing={1}
               sx={{ mt: 1.25, flexWrap: "wrap" }}
             >
               {trackLabel && (
@@ -250,7 +250,7 @@ export default function ProgramSubjectAssignmentPage({
 
           {/* Ledger */}
           <Box sx={{ minWidth: { sm: 240 }, flexShrink: 0 }}>
-            <Stack direction="row" gap={0.75} sx={{ alignItems: "baseline" }}>
+            <Stack direction="row" spacing={0.75} sx={{ alignItems: "baseline" }}>
               <Typography
                 variant="h3"
                 sx={{
@@ -295,7 +295,7 @@ export default function ProgramSubjectAssignmentPage({
       {/* Toolbar */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        gap={1.5}
+        spacing={1.5}
         sx={{ mt: 2.5, alignItems: { sm: "center" } }}
       >
         <TextField
@@ -345,7 +345,7 @@ export default function ProgramSubjectAssignmentPage({
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Stack
               direction="row"
-              gap={1.25}
+              spacing={1.25}
               sx={{ width: "100%", pr: 1, alignItems: "center" }}
             >
               <Box
@@ -441,7 +441,7 @@ export default function ProgramSubjectAssignmentPage({
                           <TableCell align="center">
                             <Stack
                               direction="row"
-                              gap={0.75}
+                              spacing={0.75}
                               sx={{ justifyContent: "center", alignItems: "center" }}
                             >
                               <CreditField
