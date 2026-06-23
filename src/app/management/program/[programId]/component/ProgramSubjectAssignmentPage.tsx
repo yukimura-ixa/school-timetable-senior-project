@@ -38,6 +38,10 @@ import { useProgramSubjects } from "@/features/program/presentation/hooks/usePro
 import { useSubjectAssignment } from "@/features/program/presentation/hooks/useSubjectAssignment";
 import { MOEValidationAlert } from "@/features/program/presentation/components/MOEValidationAlert";
 import { subjectCreditValues } from "@/models/credit-value";
+import {
+  moeArea as areaOf,
+  compareByMoeArea,
+} from "@/features/program/domain/moe-learning-area";
 
 interface ProgramSubjectAssignmentPageProps {
   programId: number;
@@ -55,38 +59,6 @@ const CATEGORY_LABEL: Record<string, string> = {
   CORE: "วิชาพื้นฐาน",
   ADDITIONAL: "วิชาเพิ่มเติม",
   ACTIVITY: "กิจกรรมพัฒนาผู้เรียน",
-};
-
-// MOE / สพฐ. learning areas, keyed by the subject code's leading character.
-const MOE_RANK: Record<string, number> = {
-  ท: 1, ค: 2, ว: 3, ส: 4, พ: 5, ศ: 6, ง: 7, อ: 8, จ: 8, ญ: 8, ฝ: 8, ก: 9,
-};
-const MOE_AREA: Record<string, string> = {
-  ท: "ภาษาไทย",
-  ค: "คณิตศาสตร์",
-  ว: "วิทยาศาสตร์และเทคโนโลยี",
-  ส: "สังคมศึกษาฯ",
-  พ: "สุขศึกษาและพลศึกษา",
-  ศ: "ศิลปะ",
-  ง: "การงานอาชีพ",
-  อ: "ภาษาต่างประเทศ",
-  จ: "ภาษาต่างประเทศ",
-  ก: "กิจกรรมพัฒนาผู้เรียน",
-};
-const MOE_COLOR: Record<string, string> = {
-  ท: "#D8345B", ค: "#E07A2B", ว: "#1E9E55", ส: "#7C4DDB",
-  พ: "#0E9AA7", ศ: "#C23AA0", ง: "#B07A2C", อ: "#2563EB",
-  จ: "#2563EB", ก: "#64748B",
-};
-
-const FALLBACK_AREA = { name: "", color: "#64748B", rank: 50 };
-const areaOf = (code: string) => {
-  const k = code.charAt(0);
-  return {
-    name: MOE_AREA[k] ?? FALLBACK_AREA.name,
-    color: MOE_COLOR[k] ?? FALLBACK_AREA.color,
-    rank: MOE_RANK[k] ?? FALLBACK_AREA.rank,
-  };
 };
 
 const num = (v: unknown) => Number(v) || 0;
@@ -173,11 +145,15 @@ export default function ProgramSubjectAssignmentPage({
 
   const accent = TRACK_META[program?.Track ?? "GENERAL"]?.color ?? "#546e7a";
 
+  // ACTIVITY subjects (กิจกรรมพัฒนาผู้เรียน) carry no credit toward the total —
+  // mirror the MoE validator, which excludes them from credit sums.
   const totalCredits = useMemo(
     () =>
       subjects.reduce((sum, s) => {
         const c = subjectConfigs[s.SubjectCode];
-        return c?.selected ? sum + num(c.minCredits) : sum;
+        return c?.selected && s.Category !== "ACTIVITY"
+          ? sum + num(c.minCredits)
+          : sum;
       }, 0),
     [subjects, subjectConfigs],
   );
@@ -247,11 +223,7 @@ export default function ProgramSubjectAssignmentPage({
   const basket = useMemo(() => {
     return subjects
       .filter((s) => subjectConfigs[s.SubjectCode]?.selected)
-      .sort((a, b) => {
-        const ra = areaOf(a.SubjectCode).rank;
-        const rb = areaOf(b.SubjectCode).rank;
-        return ra - rb || a.SubjectCode.localeCompare(b.SubjectCode, "th");
-      });
+      .sort((a, b) => compareByMoeArea(a.SubjectCode, b.SubjectCode));
   }, [subjects, subjectConfigs]);
 
   if (isLoading) {
