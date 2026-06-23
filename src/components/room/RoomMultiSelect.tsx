@@ -93,14 +93,18 @@ export default function RoomMultiSelect({
           required={required}
           error={error}
           helperText={helperText}
-          InputProps={{
-            ...params.InputProps,
-            startAdornment: (
-              <>
-                <MeetingRoomIcon sx={{ mr: 1, color: "action.active" }} />
-                {params.InputProps.startAdornment}
-              </>
-            ),
+          slotProps={{
+            ...params.slotProps,
+
+            input: {
+              ...params.slotProps.input,
+              startAdornment: (
+                <>
+                  <MeetingRoomIcon sx={{ mr: 1, color: "action.active" }} />
+                  {params.slotProps.input.startAdornment}
+                </>
+              ),
+            },
           }}
         />
       )}
@@ -141,7 +145,12 @@ export default function RoomMultiSelect({
                 )}
               </Typography>
               {(option.building !== "-" || option.floor !== "-") && (
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   {option.building !== "-" && `อาคาร ${option.building}`}
                   {option.building !== "-" && option.floor !== "-" && " • "}
                   {option.floor !== "-" && `ชั้น ${option.floor}`}
@@ -165,7 +174,13 @@ export default function RoomMultiSelect({
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <LocationOnIcon sx={{ fontSize: 16, color: "primary.main" }} />
-              <Typography variant="caption" fontWeight={600} color="primary">
+              <Typography
+                variant="caption"
+                color="primary"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 {params.group}
               </Typography>
             </Box>
@@ -173,9 +188,9 @@ export default function RoomMultiSelect({
           <ul style={{ padding: 0 }}>{params.children}</ul>
         </li>
       )}
-      renderTags={(tagValue, getTagProps) =>
+      renderValue={(tagValue, getItemProps) =>
         tagValue.map((option, index) => {
-          const { key, ...tagProps } = getTagProps({ index });
+          const { key, ...tagProps } = getItemProps({ index });
           return (
             <Chip
               key={key}

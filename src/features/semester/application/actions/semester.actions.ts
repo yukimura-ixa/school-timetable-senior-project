@@ -248,7 +248,7 @@ export async function createSemesterWithTimeslotsAction(input: {
         // per-grade break guard can read it (c6r: previously stored as {}).
         const built = buildTimetableConfigData(input.timeslotConfig);
         if (built) {
-          configData = built as unknown as Prisma.InputJsonValue;
+          configData = built;
         }
       }
 

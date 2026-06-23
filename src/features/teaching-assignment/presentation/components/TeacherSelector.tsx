@@ -129,19 +129,22 @@ export function TeacherSelector({
           <TextField
             {...params}
             label="เลือกครู"
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {isLoading ? <CircularProgress size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
+            slotProps={{
+              ...params.slotProps,
+
+              input: {
+                ...params.slotProps.input,
+                endAdornment: (
+                  <>
+                    {isLoading ? <CircularProgress size={20} /> : null}
+                    {params.slotProps.input.endAdornment}
+                  </>
+                ),
+              },
             }}
           />
         )}
       />
-
       <TextField
         size="small"
         type="number"
@@ -149,9 +152,10 @@ export function TeacherSelector({
         value={hours}
         onChange={(e) => setHours(Number(e.target.value))}
         sx={{ width: 120 }}
-        inputProps={{ min: 1, max: 20 }}
+        slotProps={{
+          htmlInput: { min: 1, max: 20 },
+        }}
       />
-
       <Button
         variant="contained"
         size="small"

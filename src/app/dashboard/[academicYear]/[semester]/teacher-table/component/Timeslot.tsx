@@ -100,8 +100,10 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
           >
             <Typography
               variant="subtitle2"
-              fontWeight="bold"
-              sx={{ color: colors.emerald.main }}
+              sx={{
+                fontWeight: "bold",
+                color: colors.emerald.main,
+              }}
             >
               คาบที่
             </Typography>
@@ -125,7 +127,12 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                 }}
               >
                 {!isBreak && (
-                  <Typography variant="subtitle2" fontWeight="bold">
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
                     {(col.periodNumber ?? 0) < 10
                       ? `0${col.periodNumber}`
                       : col.periodNumber}
@@ -153,15 +160,18 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
           >
             <Typography
               variant="caption"
-              fontWeight="medium"
-              color="text.secondary"
+              sx={{
+                fontWeight: "medium",
+                color: "text.secondary",
+              }}
             >
               เวลา
             </Typography>
           </Box>
           {columns.map((col, idx) => {
             const isBreak = col.kind === "break";
-            const slot = col.slotIndex >= 0 ? monSlots[col.slotIndex] : undefined;
+            const slot =
+              col.slotIndex >= 0 ? monSlots[col.slotIndex] : undefined;
             return (
               <Box
                 key={`time-${col.TimeslotID || `syn-${idx}`}`}
@@ -183,8 +193,11 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                   <>
                     <Typography
                       variant="caption"
-                      color="text.secondary"
-                      sx={{ fontSize: "0.65rem", lineHeight: 1 }}
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: "0.65rem",
+                        lineHeight: 1,
+                      }}
                     >
                       {formatTime(slot.StartTime)}
                     </Typography>
@@ -199,8 +212,11 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                     />
                     <Typography
                       variant="caption"
-                      color="text.secondary"
-                      sx={{ fontSize: "0.65rem", lineHeight: 1 }}
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: "0.65rem",
+                        lineHeight: 1,
+                      }}
                     >
                       {formatTime(slot.EndTime)}
                     </Typography>
@@ -209,8 +225,11 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                 {isBreak && (
                   <Typography
                     variant="caption"
-                    color="text.disabled"
-                    sx={{ fontSize: "0.6rem", letterSpacing: 0.5 }}
+                    sx={{
+                      color: "text.disabled",
+                      fontSize: "0.6rem",
+                      letterSpacing: 0.5,
+                    }}
                   >
                     พัก
                   </Typography>
@@ -244,8 +263,10 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
               >
                 <Typography
                   variant="subtitle1"
-                  fontWeight="bold"
-                  sx={{ color: day.TextColor }}
+                  sx={{
+                    fontWeight: "bold",
+                    color: day.TextColor,
+                  }}
                 >
                   {day.Day}
                 </Typography>
@@ -264,9 +285,7 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                   : 0;
                 const breakSlot =
                   isBreak ||
-                  (data
-                    ? isBreakForTeacher(slotNumber, slots)
-                    : false);
+                  (data ? isBreakForTeacher(slotNumber, slots) : false);
                 const subject = data?.subject;
                 const subjectCode = subject?.SubjectCode ?? "";
                 const isLocked = Boolean(subject?.IsLocked);
@@ -315,9 +334,9 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                       isBreak ? null : (
                         <Typography
                           variant="caption"
-                          fontWeight="medium"
-                          color="text.disabled"
                           sx={{
+                            fontWeight: "medium",
+                            color: "text.disabled",
                             letterSpacing: 0.5,
                             textTransform: "uppercase",
                             fontSize: "0.7rem",
@@ -327,16 +346,21 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                         </Typography>
                       )
                     ) : (
-                      <Stack spacing={0.25} alignItems="center">
+                      <Stack
+                        spacing={0.25}
+                        sx={{
+                          alignItems: "center",
+                        }}
+                      >
                         {subjectCode && (
                           <Typography
                             variant="body2"
-                            fontWeight="bold"
                             sx={{
+                              fontWeight: "bold",
+
                               fontSize:
-                                subjectCode.length > 8
-                                  ? "0.75rem"
-                                  : "0.875rem",
+                                subjectCode.length > 8 ? "0.75rem" : "0.875rem",
+
                               color: theme.palette.text.primary,
                               lineHeight: 1.2,
                             }}
@@ -347,8 +371,10 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                         {!isLocked && grade && (
                           <Typography
                             variant="caption"
-                            color="primary.main"
-                            fontWeight="medium"
+                            sx={{
+                              color: "primary.main",
+                              fontWeight: "medium",
+                            }}
                           >
                             {grade}
                           </Typography>
@@ -357,8 +383,8 @@ function TimeSlot({ timeSlotData, slots = [] }: Props) {
                           <Tooltip title={roomName}>
                             <Typography
                               variant="caption"
-                              color="text.secondary"
                               sx={{
+                                color: "text.secondary",
                                 fontSize: "0.7rem",
                                 opacity: 0.8,
                                 maxWidth: "100%",

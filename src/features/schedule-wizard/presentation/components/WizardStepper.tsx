@@ -100,8 +100,13 @@ export function WizardStepper({ state, basePath }: WizardStepperProps) {
           );
         })}
       </Stepper>
-
-      <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          mt: 1,
+        }}
+      >
         <Button
           size="small"
           startIcon={<ArrowBackIcon />}

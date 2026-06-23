@@ -72,7 +72,6 @@ export function QualityMetricsSection({
       >
         ✨ คุณภาพตารางเรียน
       </Typography>
-
       <Box
         sx={{
           display: "grid",
@@ -143,7 +142,12 @@ export function QualityMetricsSection({
               }}
             >
               <Box>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   ความขัดแย้ง
                 </Typography>
                 <Typography
@@ -157,7 +161,12 @@ export function QualityMetricsSection({
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   ครูที่ใช้งาน
                 </Typography>
                 <Typography
@@ -168,7 +177,12 @@ export function QualityMetricsSection({
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   คะแนนสมดุล
                 </Typography>
                 <Typography
@@ -227,7 +241,12 @@ export function QualityMetricsSection({
                 }}
               >
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     จำนวนชั้นเรียน
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -235,7 +254,12 @@ export function QualityMetricsSection({
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     ครูทั้งหมด
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -247,7 +271,13 @@ export function QualityMetricsSection({
 
             {/* Balance Score */}
             <Box sx={{ mt: 3, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
+              <Typography
+                variant="body2"
+                gutterBottom
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 คะแนนความสมดุลโดยรวม
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -279,8 +309,11 @@ export function QualityMetricsSection({
               </Box>
               <Typography
                 variant="caption"
-                color="text.secondary"
-                sx={{ mt: 0.5, display: "block" }}
+                sx={{
+                  color: "text.secondary",
+                  mt: 0.5,
+                  display: "block",
+                }}
               >
                 คะแนนเต็ม 100 (คำนวณจากความสมบูรณ์และการล็อก)
               </Typography>
@@ -288,7 +321,6 @@ export function QualityMetricsSection({
           </CardContent>
         </Card>
       </Box>
-
       {/* Quality Check Results */}
       {!qualityCheck.isAcceptable && qualityCheck.reasons.length > 0 && (
         <Card sx={{ mt: 3 }}>
@@ -326,7 +358,6 @@ export function QualityMetricsSection({
           </CardContent>
         </Card>
       )}
-
       {/* Success Message when quality is good */}
       {qualityCheck.isAcceptable && metrics.completionRate >= 95 && (
         <Card

@@ -91,7 +91,6 @@ export function TimeDistributionSection({
       >
         ⏰ การกระจายช่วงเวลา
       </Typography>
-
       {/* Period Distribution Chart */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -106,7 +105,12 @@ export function TimeDistributionSection({
 
           {periodDistribution.length === 0 ? (
             <Box sx={{ py: 4, textAlign: "center" }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ไม่มีข้อมูลการกระจายคาบเรียน
               </Typography>
             </Box>
@@ -217,45 +221,66 @@ export function TimeDistributionSection({
                   <Box sx={{ p: 2, bgcolor: "#fef3c7", borderRadius: 1 }}>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       gutterBottom
+                      sx={{
+                        color: "text.secondary",
+                      }}
                     >
                       คาบเรียนยอดนิยม
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {peakPeriods.map((p) => `คาบที่ ${p.period}`).join(", ")}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {maxPeriodLoad} คาบ
                     </Typography>
                   </Box>
                   <Box sx={{ p: 2, bgcolor: "#dbeafe", borderRadius: 1 }}>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       gutterBottom
+                      sx={{
+                        color: "text.secondary",
+                      }}
                     >
                       ค่าเฉลี่ยต่อคาบ
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {avgPeriodLoad.toFixed(1)}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       คาบ
                     </Typography>
                   </Box>
                   <Box sx={{ p: 2, bgcolor: "#e0e7ff", borderRadius: 1 }}>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       gutterBottom
+                      sx={{
+                        color: "text.secondary",
+                      }}
                     >
                       คาบเรียนน้อยที่สุด
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {leastPeriods.map((p) => `คาบที่ ${p.period}`).join(", ")}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {minPeriodLoad} คาบ
                     </Typography>
                   </Box>
@@ -265,7 +290,6 @@ export function TimeDistributionSection({
           )}
         </CardContent>
       </Card>
-
       {/* Day Distribution Chart */}
       <Card>
         <CardContent>
@@ -280,7 +304,12 @@ export function TimeDistributionSection({
 
           {dayDistribution.length === 0 ? (
             <Box sx={{ py: 4, textAlign: "center" }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ไม่มีข้อมูลการกระจายตามวัน
               </Typography>
             </Box>
@@ -391,8 +420,10 @@ export function TimeDistributionSection({
                   <Box sx={{ p: 2, bgcolor: "#fecaca", borderRadius: 1 }}>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       gutterBottom
+                      sx={{
+                        color: "text.secondary",
+                      }}
                     >
                       วันที่ยุ่งที่สุด
                     </Typography>
@@ -401,30 +432,44 @@ export function TimeDistributionSection({
                         .map((d) => dayNames[d.day] || d.day)
                         .join(", ")}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {maxDayLoad} คาบ
                     </Typography>
                   </Box>
                   <Box sx={{ p: 2, bgcolor: "#dbeafe", borderRadius: 1 }}>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       gutterBottom
+                      sx={{
+                        color: "text.secondary",
+                      }}
                     >
                       ค่าเฉลี่ยต่อวัน
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {avgDayLoad.toFixed(1)}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       คาบ
                     </Typography>
                   </Box>
                   <Box sx={{ p: 2, bgcolor: "#d1fae5", borderRadius: 1 }}>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       gutterBottom
+                      sx={{
+                        color: "text.secondary",
+                      }}
                     >
                       วันที่ว่างที่สุด
                     </Typography>
@@ -433,7 +478,12 @@ export function TimeDistributionSection({
                         .map((d) => dayNames[d.day] || d.day)
                         .join(", ")}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {minDayLoad} คาบ
                     </Typography>
                   </Box>

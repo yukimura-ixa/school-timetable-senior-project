@@ -109,7 +109,13 @@ export default function ResetPasswordPageClient({ token, error }: Props) {
           />
 
           <Stack spacing={3} component="form" onSubmit={handleSubmit}>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Box
                 sx={{
                   width: 44,
@@ -129,7 +135,12 @@ export default function ResetPasswordPageClient({ token, error }: Props) {
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
                   รีเซ็ตรหัสผ่าน
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   กำหนดรหัสผ่านใหม่เพื่อเข้าใช้งานระบบ
                 </Typography>
               </Box>
@@ -168,7 +179,14 @@ export default function ResetPasswordPageClient({ token, error }: Props) {
               </>
             )}
 
-            <Stack direction="row" spacing={2} justifyContent="space-between" alignItems="center">
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Link href="/signin" style={{ textDecoration: "none" }}>
                 <Button startIcon={<ArrowBackIcon />} variant="text">
                   กลับไปหน้าเข้าสู่ระบบ
@@ -180,7 +198,11 @@ export default function ResetPasswordPageClient({ token, error }: Props) {
                   type="submit"
                   variant="contained"
                   disabled={submitting}
-                  startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : null}
+                  startIcon={
+                    submitting ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : null
+                  }
                   sx={{
                     borderRadius: 2,
                     px: 3,

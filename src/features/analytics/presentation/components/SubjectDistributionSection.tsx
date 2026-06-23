@@ -75,11 +75,16 @@ export function SubjectDistributionSection({
       >
         📚 การกระจายวิชาตามประเภท
       </Typography>
-
       {sortedDistribution.length === 0 ? (
         <Card>
           <CardContent>
-            <Typography variant="body1" color="text.secondary" align="center">
+            <Typography
+              variant="body1"
+              align="center"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               ไม่มีข้อมูลการกระจายวิชา
             </Typography>
           </CardContent>
@@ -154,7 +159,12 @@ export function SubjectDistributionSection({
                     >
                       {item.totalHours}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       ชั่วโมงทั้งหมด
                     </Typography>
                   </Box>
@@ -194,8 +204,11 @@ export function SubjectDistributionSection({
                     </Box>
                     <Typography
                       variant="caption"
-                      color="text.secondary"
-                      sx={{ mt: 0.5, display: "block" }}
+                      sx={{
+                        color: "text.secondary",
+                        mt: 0.5,
+                        display: "block",
+                      }}
                     >
                       {item.percentage.toFixed(1)}% ของชั่วโมงทั้งหมด
                     </Typography>
@@ -219,7 +232,12 @@ export function SubjectDistributionSection({
                 }}
               >
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     ชั่วโมงทั้งหมด
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -227,7 +245,12 @@ export function SubjectDistributionSection({
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     จำนวนประเภท
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -235,7 +258,12 @@ export function SubjectDistributionSection({
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     วิชาทั้งหมด
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>

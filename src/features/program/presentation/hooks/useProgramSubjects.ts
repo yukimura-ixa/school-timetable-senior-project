@@ -30,6 +30,10 @@ export type ProgramSubject = {
 export type Program = {
   ProgramID: number;
   ProgramName: string;
+  ProgramCode?: string;
+  Track?: string;
+  Year?: number;
+  MinTotalCredits?: number;
   program_subject: ProgramSubject[];
 };
 

@@ -24,6 +24,8 @@ import {
   GridRowModesModel,
   GridEventListener,
   GridRowEditStopReasons,
+  GridEditSingleSelectCell,
+  type GridRenderEditCellParams,
 } from "@mui/x-data-grid";
 import { alpha, Box, Button, Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -302,6 +304,9 @@ export function SubjectDataGrid({
         const opt = LEARNING_AREA_OPTIONS.find((o) => o.value === value);
         return opt?.label || value;
       },
+      renderEditCell: (params: GridRenderEditCellParams) => (
+        <GridEditSingleSelectCell {...params} value={params.value ?? ""} />
+      ),
     },
     {
       field: "ActivityType",
@@ -315,6 +320,9 @@ export function SubjectDataGrid({
         const opt = ACTIVITY_TYPE_OPTIONS.find((o) => o.value === value);
         return opt?.label || value;
       },
+      renderEditCell: (params: GridRenderEditCellParams) => (
+        <GridEditSingleSelectCell {...params} value={params.value ?? ""} />
+      ),
     },
     {
       field: "IsGraded",
@@ -377,7 +385,13 @@ export function SubjectDataGrid({
   return (
     <Box sx={{ width: "100%", height: 600 }}>
       {/* Toolbar */}
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
         <Box>
           {selectedCount > 0 && (
             <Button
@@ -399,7 +413,6 @@ export function SubjectDataGrid({
           เพิ่มวิชา
         </Button>
       </Stack>
-
       {/* DataGrid */}
       <DataGrid
         rows={rows}
@@ -429,14 +442,12 @@ export function SubjectDataGrid({
           footerRowSelected: (count) => `เลือก ${count} รายการ`,
         }}
       />
-
       {/* Add Dialog */}
       <AddSubjectDialog
         open={showAddDialog}
         onClose={() => setShowAddDialog(false)}
         onSuccess={onMutate}
       />
-
       {/* Confirm Dialog */}
       {dialog}
     </Box>

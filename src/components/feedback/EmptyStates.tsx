@@ -78,16 +78,23 @@ export function EmptyState({
       )}
       <Typography
         variant="h5"
-        color="text.primary"
         gutterBottom
-        sx={{ fontWeight: 600, mb: 1 }}
+        sx={{
+          color: "text.primary",
+          fontWeight: 600,
+          mb: 1,
+        }}
       >
         {title}
       </Typography>
       <Typography
         variant="body1"
-        color="text.secondary"
-        sx={{ mb: 3, maxWidth: 480, lineHeight: 1.7 }}
+        sx={{
+          color: "text.secondary",
+          mb: 3,
+          maxWidth: 480,
+          lineHeight: 1.7,
+        }}
       >
         {description}
       </Typography>

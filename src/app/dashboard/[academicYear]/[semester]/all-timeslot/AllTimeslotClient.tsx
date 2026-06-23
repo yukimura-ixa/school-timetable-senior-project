@@ -227,8 +227,10 @@ const AllTimeslotClient = ({
           <Stack spacing={2}>
             <Stack
               direction="row"
-              justifyContent="space-between"
-              alignItems="center"
+              sx={{
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
               <Typography
                 variant="h6"
@@ -359,7 +361,12 @@ const AllTimeslotClient = ({
               ยังไม่มีข้อมูลตารางสอนในภาคเรียนนี้
             </Typography>
 
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               {isAdmin
                 ? "กรุณาตั้งค่าช่วงเวลาและเพิ่มคาบเรียนจากหน้าจัดตารางก่อน จากนั้นข้อมูลจะถูกแสดงที่นี่โดยอัตโนมัติ"
                 : "ผู้ดูแลระบบยังไม่ได้เผยแพร่ตารางสอนสำหรับภาคเรียนนี้"}
@@ -382,12 +389,20 @@ const AllTimeslotClient = ({
         <Paper sx={{ p: 2 }}>
           <Stack
             direction={isTablet ? "column" : "row"}
-            justifyContent="space-between"
-            alignItems={isTablet ? "flex-start" : "center"}
             spacing={2}
             className="no-print"
+            sx={{
+              justifyContent: "space-between",
+              alignItems: isTablet ? "flex-start" : "center",
+            }}
           >
-            <Stack direction="row" spacing={2} flexWrap="wrap">
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                flexWrap: "wrap",
+              }}
+            >
               <Button
                 variant="contained"
                 startIcon={<FilterListIcon />}
@@ -463,7 +478,13 @@ const AllTimeslotClient = ({
               )}
             </Stack>
 
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Tooltip
                 title={isAdmin ? "เมนูเพิ่มเติม" : exportDisabledTooltip}
               >

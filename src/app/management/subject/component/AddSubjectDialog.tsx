@@ -21,7 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import { enqueueSnackbar } from "notistack";
 import { FormDialog, FormDialogActions } from "@/components/dialogs/FormDialog";
 import { SubmitButton } from "@/components/buttons/SubmitButton";
@@ -229,7 +229,13 @@ export function AddSubjectDialog({
     >
       <form onSubmit={handleSubmit}>
         {/* Add Row Button */}
-        <Stack direction="row" justifyContent="flex-end" mb={2}>
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: "flex-end",
+            mb: 2,
+          }}
+        >
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
@@ -256,11 +262,18 @@ export function AddSubjectDialog({
               {/* Row Header */}
               <Stack
                 direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={2}
+                sx={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                }}
               >
-                <Typography variant="subtitle2" color="text.secondary">
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   รายการที่ {index + 1}
                 </Typography>
                 {subjects.length > 1 && (
@@ -295,7 +308,9 @@ export function AddSubjectDialog({
                   required
                   error={!!errors[`${subject.id}-subjectCode`]}
                   helperText={errors[`${subject.id}-subjectCode`]}
-                  inputProps={{ "data-testid": `subject-code-${index}` }}
+                  slotProps={{
+                    htmlInput: { "data-testid": `subject-code-${index}` },
+                  }}
                 />
 
                 {/* Subject Name */}
@@ -310,7 +325,9 @@ export function AddSubjectDialog({
                   required
                   error={!!errors[`${subject.id}-subjectName`]}
                   helperText={errors[`${subject.id}-subjectName`]}
-                  inputProps={{ "data-testid": `subject-name-${index}` }}
+                  slotProps={{
+                    htmlInput: { "data-testid": `subject-name-${index}` },
+                  }}
                 />
 
                 {/* Credit */}

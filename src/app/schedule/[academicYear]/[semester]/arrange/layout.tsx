@@ -1,5 +1,12 @@
 import React from "react";
-import { Container, Box, Paper, Stack, Typography, Button } from "@mui/material";
+import {
+  Container,
+  Box,
+  Paper,
+  Stack,
+  Typography,
+  Button,
+} from "@mui/material";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import { prisma } from "@/lib/prisma";
 import type { semester } from "@/prisma/generated/client";
@@ -47,15 +54,31 @@ export default async function ArrangeLayout({
             borderRadius: 2,
           }}
         >
-          <Stack spacing={2} alignItems="center">
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <AssignmentIndIcon
               color="primary"
               sx={{ fontSize: 56, opacity: 0.7 }}
             />
-            <Typography variant="h6" fontWeight="bold">
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
               ยังไม่มีครูที่ได้รับมอบหมายวิชา
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                maxWidth: 480,
+              }}
+            >
               ก่อนจะจัดตารางเรียน ต้องมอบหมายวิชาให้ครูในเทอมนี้ก่อน
               เพื่อให้ระบบรู้ว่ามีรายวิชาใดต้องวางลงในตาราง
             </Typography>

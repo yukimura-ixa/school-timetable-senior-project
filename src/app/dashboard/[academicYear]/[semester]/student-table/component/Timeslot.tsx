@@ -4,7 +4,10 @@ import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import { isBreakForGrade, buildGradeGroupIndex } from "@/utils/break-utils";
-import type { SlotConfig, BreakGroup } from "@/features/timeslot/domain/models/break.types";
+import type {
+  SlotConfig,
+  BreakGroup,
+} from "@/features/timeslot/domain/models/break.types";
 import {
   Box,
   Typography,
@@ -107,8 +110,10 @@ export default function TimeSlot({
           >
             <Typography
               variant="subtitle2"
-              fontWeight="bold"
-              sx={{ color: colors.emerald.main }}
+              sx={{
+                fontWeight: "bold",
+                color: colors.emerald.main,
+              }}
             >
               คาบที่
             </Typography>
@@ -132,7 +137,12 @@ export default function TimeSlot({
                 }}
               >
                 {!isBreak && (
-                  <Typography variant="subtitle2" fontWeight="bold">
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
                     {(col.periodNumber ?? 0) < 10
                       ? `0${col.periodNumber}`
                       : col.periodNumber}
@@ -160,8 +170,10 @@ export default function TimeSlot({
           >
             <Typography
               variant="caption"
-              fontWeight="medium"
-              color="text.secondary"
+              sx={{
+                fontWeight: "medium",
+                color: "text.secondary",
+              }}
             >
               เวลา
             </Typography>
@@ -191,8 +203,11 @@ export default function TimeSlot({
                   <>
                     <Typography
                       variant="caption"
-                      color="text.secondary"
-                      sx={{ fontSize: "0.65rem", lineHeight: 1 }}
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: "0.65rem",
+                        lineHeight: 1,
+                      }}
                     >
                       {formatTime(slot.StartTime)}
                     </Typography>
@@ -207,8 +222,11 @@ export default function TimeSlot({
                     />
                     <Typography
                       variant="caption"
-                      color="text.secondary"
-                      sx={{ fontSize: "0.65rem", lineHeight: 1 }}
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: "0.65rem",
+                        lineHeight: 1,
+                      }}
                     >
                       {formatTime(slot.EndTime)}
                     </Typography>
@@ -217,8 +235,11 @@ export default function TimeSlot({
                 {isBreak && (
                   <Typography
                     variant="caption"
-                    color="text.disabled"
-                    sx={{ fontSize: "0.6rem", letterSpacing: 0.5 }}
+                    sx={{
+                      color: "text.disabled",
+                      fontSize: "0.6rem",
+                      letterSpacing: 0.5,
+                    }}
                   >
                     พัก
                   </Typography>
@@ -252,8 +273,10 @@ export default function TimeSlot({
               >
                 <Typography
                   variant="subtitle1"
-                  fontWeight="bold"
-                  sx={{ color: day.TextColor }}
+                  sx={{
+                    fontWeight: "bold",
+                    color: day.TextColor,
+                  }}
                 >
                   {day.Day}
                 </Typography>
@@ -273,7 +296,12 @@ export default function TimeSlot({
                 const showBreak =
                   isBreak ||
                   (data && searchGradeID
-                    ? isBreakForGrade(slotNumber, searchGradeID, slots, breakIndex)
+                    ? isBreakForGrade(
+                        slotNumber,
+                        searchGradeID,
+                        slots,
+                        breakIndex,
+                      )
                     : false);
                 const subject = data?.subject;
                 const subjectCode = subject?.SubjectCode ?? "";
@@ -327,9 +355,9 @@ export default function TimeSlot({
                       isBreak ? null : (
                         <Typography
                           variant="caption"
-                          fontWeight="medium"
-                          color="text.disabled"
                           sx={{
+                            fontWeight: "medium",
+                            color: "text.disabled",
                             letterSpacing: 0.5,
                             textTransform: "uppercase",
                             fontSize: "0.7rem",
@@ -339,14 +367,21 @@ export default function TimeSlot({
                         </Typography>
                       )
                     ) : (
-                      <Stack spacing={0.25} alignItems="center">
+                      <Stack
+                        spacing={0.25}
+                        sx={{
+                          alignItems: "center",
+                        }}
+                      >
                         {subjectCode && (
                           <Typography
                             variant="body2"
-                            fontWeight="bold"
                             sx={{
+                              fontWeight: "bold",
+
                               fontSize:
                                 subjectCode.length > 8 ? "0.75rem" : "0.875rem",
+
                               color: theme.palette.text.primary,
                               lineHeight: 1.2,
                             }}
@@ -357,8 +392,10 @@ export default function TimeSlot({
                         {teacherName && (
                           <Typography
                             variant="caption"
-                            color="primary.main"
-                            fontWeight="medium"
+                            sx={{
+                              color: "primary.main",
+                              fontWeight: "medium",
+                            }}
                           >
                             {teacherName}
                           </Typography>
@@ -367,8 +404,8 @@ export default function TimeSlot({
                           <Tooltip title={roomName}>
                             <Typography
                               variant="caption"
-                              color="text.secondary"
                               sx={{
+                                color: "text.secondary",
                                 fontSize: "0.7rem",
                                 opacity: 0.8,
                                 maxWidth: "100%",

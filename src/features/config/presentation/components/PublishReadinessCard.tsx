@@ -29,7 +29,9 @@ type Props = {
 };
 
 export function PublishReadinessCard({ configId, onStatusChange }: Props) {
-  const [readiness, setReadiness] = useState<PublishReadinessResult | null>(null);
+  const [readiness, setReadiness] = useState<PublishReadinessResult | null>(
+    null,
+  );
   const [fetchError, setFetchError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -92,7 +94,12 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
           expandIcon={<ExpandMoreIcon />}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Typography variant="body2" fontWeight={500}>
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 500,
+              }}
+            >
               ความพร้อมในการเผยแพร่
             </Typography>
             {renderChip()}
@@ -134,15 +141,26 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
                   </ListItemIcon>
                   <ListItemText
                     primary="ชั้นเรียนครบทุกคาบ"
-                    primaryTypographyProps={{ variant: "body2" }}
+                    slotProps={{
+                      primary: { variant: "body2" },
+                    }}
                   />
                 </ListItem>
 
                 {readiness?.details.incompleteGrades.map((g) => (
-                  <ListItem key={g.gradeName} disablePadding sx={{ pl: 4, py: 0.25 }}>
+                  <ListItem
+                    key={g.gradeName}
+                    disablePadding
+                    sx={{ pl: 4, py: 0.25 }}
+                  >
                     <ListItemText
                       primary={`${g.gradeName}: ${g.scheduledHours}/${g.requiredHours} คาบ`}
-                      primaryTypographyProps={{ variant: "caption", color: "text.secondary" }}
+                      slotProps={{
+                        primary: {
+                          variant: "caption",
+                          color: "text.secondary",
+                        },
+                      }}
                     />
                   </ListItem>
                 ))}
@@ -153,7 +171,9 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
                   sx={{ py: 0.5 }}
                 >
                   <ListItemIcon sx={{ minWidth: 32 }}>
-                    {readiness?.details.moeValidationResults.every((r) => r.isValid) ? (
+                    {readiness?.details.moeValidationResults.every(
+                      (r) => r.isValid,
+                    ) ? (
                       <CheckCircleIcon color="success" fontSize="small" />
                     ) : (
                       <ErrorIcon color="warning" fontSize="small" />
@@ -161,7 +181,9 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
                   </ListItemIcon>
                   <ListItemText
                     primary="หลักสูตรผ่าน MoE"
-                    primaryTypographyProps={{ variant: "body2" }}
+                    slotProps={{
+                      primary: { variant: "body2" },
+                    }}
                   />
                 </ListItem>
               </List>
@@ -181,7 +203,6 @@ export function PublishReadinessCard({ configId, onStatusChange }: Props) {
           )}
         </AccordionDetails>
       </Accordion>
-
       {readiness && (
         <PublishConfirmDialog
           open={dialogOpen}

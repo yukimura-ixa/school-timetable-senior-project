@@ -135,26 +135,28 @@ const SearchBar = React.forwardRef<HTMLDivElement, SearchBarProps>(
         variant={variant}
         size={size}
         sx={customSx}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Search sx={{ color: "action.active" }} />
-            </InputAdornment>
-          ),
-          endAdornment: hasValue ? (
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="ล้างการค้นหา"
-                onClick={handleClear}
-                edge="end"
-                size="small"
-              >
-                <Clear fontSize="small" />
-              </IconButton>
-            </InputAdornment>
-          ) : null,
-        }}
         {...rest}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search sx={{ color: "action.active" }} />
+              </InputAdornment>
+            ),
+            endAdornment: hasValue ? (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="ล้างการค้นหา"
+                  onClick={handleClear}
+                  edge="end"
+                  size="small"
+                >
+                  <Clear fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ) : null,
+          },
+        }}
       />
     );
   },

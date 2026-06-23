@@ -97,7 +97,9 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
   const stats = result?.stats;
   const completion =
     stats && stats.totalSubjectsToPlace > 0
-      ? Math.round((stats.successfullyPlaced / stats.totalSubjectsToPlace) * 100)
+      ? Math.round(
+          (stats.successfullyPlaced / stats.totalSubjectsToPlace) * 100,
+        )
       : 0;
 
   return (
@@ -106,9 +108,15 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
         <Typography variant="h6" sx={{ mb: 1 }}>
           สร้างตารางสอนอัตโนมัติทั้งโรงเรียน
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          ระบบจะจัดคาบของครูทุกคนตามภาระงานสอน
-          โดยหลีกเลี่ยงการชนกันของครู ห้อง และระดับชั้น
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mb: 2,
+          }}
+        >
+          ระบบจะจัดคาบของครูทุกคนตามภาระงานสอน โดยหลีกเลี่ยงการชนกันของครู ห้อง
+          และระดับชั้น
         </Typography>
         <Button
           variant="contained"
@@ -126,13 +134,11 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
           {loading ? "กำลังสร้าง..." : "สร้างตารางอัตโนมัติทั้งโรงเรียน"}
         </Button>
       </Paper>
-
       {error && (
         <Alert severity="error" sx={{ mt: 3 }}>
           {error}
         </Alert>
       )}
-
       {stats && (
         <Paper variant="outlined" sx={{ p: 3, mt: 3 }}>
           <Stack
@@ -141,7 +147,12 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
             sx={{ justifyContent: "space-between", flexWrap: "wrap", mb: 2 }}
           >
             <Box>
-              <Typography variant="overline" color="text.secondary">
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 จัดสำเร็จ
               </Typography>
               <Typography variant="h5">
@@ -149,7 +160,12 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
               </Typography>
             </Box>
             <Box>
-              <Typography variant="overline" color="text.secondary">
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ไม่สำเร็จ
               </Typography>
               <Typography
@@ -160,13 +176,23 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
               </Typography>
             </Box>
             <Box>
-              <Typography variant="overline" color="text.secondary">
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 คุณภาพ
               </Typography>
               <Typography variant="h5">{stats.qualityScore}</Typography>
             </Box>
             <Box>
-              <Typography variant="overline" color="text.secondary">
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 เวลาที่ใช้
               </Typography>
               <Typography variant="h5">{stats.durationMs} ms</Typography>
@@ -220,7 +246,6 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
           </Box>
         </Paper>
       )}
-
       {result && result.perTeacher.length > 0 && (
         <Paper variant="outlined" sx={{ p: 3, mt: 3 }}>
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -254,7 +279,6 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
           </Table>
         </Paper>
       )}
-
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
         <DialogTitle>ยืนยันการสร้างตารางอัตโนมัติ</DialogTitle>
         <DialogContent>

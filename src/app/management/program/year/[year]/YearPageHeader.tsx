@@ -120,13 +120,15 @@ export function YearPageHeader({ year, children }: YearPageHeaderProps) {
           animation: `${pulse} 4s ease-in-out infinite 1s`,
         }}
       />
-
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
         spacing={2}
-        sx={{ position: "relative", zIndex: 1 }}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: { xs: "flex-start", sm: "center" },
+          position: "relative",
+          zIndex: 1,
+        }}
       >
         <Box>
           {/* Breadcrumb navigation */}
@@ -146,7 +148,14 @@ export function YearPageHeader({ year, children }: YearPageHeaderProps) {
             กลับไปหน้าหลัก
           </Button>
 
-          <Stack direction="row" alignItems="center" spacing={2} mb={1}>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
             <Box
               sx={{
                 width: 48,
@@ -162,12 +171,18 @@ export function YearPageHeader({ year, children }: YearPageHeaderProps) {
               <SchoolIcon sx={{ color: "#fff", fontSize: 26 }} />
             </Box>
             <Box>
-              <Stack direction="row" alignItems="center" spacing={1.5}>
+              <Stack
+                direction="row"
+                spacing={1.5}
+                sx={{
+                  alignItems: "center",
+                }}
+              >
                 <Typography
                   variant="h4"
                   component="h1"
-                  fontWeight={800}
                   sx={{
+                    fontWeight: 800,
                     background: `linear-gradient(135deg, #1e293b 0%, #475569 100%)`,
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
@@ -190,8 +205,10 @@ export function YearPageHeader({ year, children }: YearPageHeaderProps) {
               </Stack>
               <Typography
                 variant="body1"
-                color="text.secondary"
-                sx={{ mt: 0.5 }}
+                sx={{
+                  color: "text.secondary",
+                  mt: 0.5,
+                }}
               >
                 จัดการหลักสูตรการศึกษาสำหรับ {gradeInfo.shortLabel}
               </Typography>

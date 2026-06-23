@@ -3,7 +3,14 @@
 import { useEffect } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import useSWR from "swr";
-import { Box, Stack, Typography, LinearProgress, Chip, Divider } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  LinearProgress,
+  Chip,
+  Divider,
+} from "@mui/material";
 import {
   jsonFetcher,
   teacherScheduleKey,
@@ -34,7 +41,9 @@ export default function InspectorClient({ required, requiredTotal }: Props) {
   );
 
   useEffect(() => {
-    const handler = () => { void mutate(); };
+    const handler = () => {
+      void mutate();
+    };
     window.addEventListener("schedule-updated", handler);
     return () => window.removeEventListener("schedule-updated", handler);
   }, [mutate]);
@@ -60,8 +69,14 @@ export default function InspectorClient({ required, requiredTotal }: Props) {
         <Typography variant="subtitle2" gutterBottom>
           ความคืบหน้า
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          จัดแล้ว {progress.placed} / {progress.required} คาบ ({progress.percent}%)
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
+          จัดแล้ว {progress.placed} / {progress.required} คาบ (
+          {progress.percent}%)
         </Typography>
         <LinearProgress
           variant="determinate"
@@ -70,19 +85,29 @@ export default function InspectorClient({ required, requiredTotal }: Props) {
           sx={{ mt: 1, height: 8, borderRadius: 4 }}
         />
       </Box>
-
       <Divider />
-
       <Box>
         <Typography variant="subtitle2" gutterBottom>
           ยังไม่ได้จัด
         </Typography>
         {remaining.length === 0 ? (
-          <Typography variant="body2" color="success.main">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "success.main",
+            }}
+          >
             จัดครบทุกวิชาแล้ว
           </Typography>
         ) : (
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Stack
+            direction="row"
+            spacing={1}
+            useFlexGap
+            sx={{
+              flexWrap: "wrap",
+            }}
+          >
             {remaining.map((r) => (
               <Chip
                 key={r.SubjectCode}
@@ -94,17 +119,28 @@ export default function InspectorClient({ required, requiredTotal }: Props) {
           </Stack>
         )}
       </Box>
-
       {failures.length > 0 && (
         <>
           <Divider />
           <Box>
-            <Typography variant="subtitle2" color="warning.main" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+              sx={{
+                color: "warning.main",
+              }}
+            >
               ⚠ ข้อขัดแย้งจากการจัดอัตโนมัติ
             </Typography>
             <Stack spacing={0.5}>
               {failures.map((f, i) => (
-                <Typography key={`${f.subjectCode}-${i}`} variant="caption" color="text.secondary">
+                <Typography
+                  key={`${f.subjectCode}-${i}`}
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   {f.subjectCode}: {f.reason}
                 </Typography>
               ))}

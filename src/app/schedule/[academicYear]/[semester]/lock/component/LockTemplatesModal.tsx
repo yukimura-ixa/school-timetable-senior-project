@@ -167,19 +167,38 @@ export default function LockTemplatesModal({
         data-testid="lock-templates-modal"
       >
         <DialogTitle>
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <TemplateIcon />
             <Typography variant="h6">เลือกเทมเพลตล็อกคาบ</Typography>
           </Stack>
         </DialogTitle>
         <DialogContent dividers>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
+          <Typography
+            variant="body2"
+            gutterBottom
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             เลือกเทมเพลตสำเร็จรูปเพื่อล็อกคาบเรียนอย่างรวดเร็ว
           </Typography>
 
           {Object.entries(templatesByCategory).map(([category, templates]) => (
             <Box key={category} sx={{ mt: 3 }}>
-              <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
                 <Typography variant="h6">
                   {CATEGORY_LABELS[category as LockTemplate["category"]]}
                 </Typography>
@@ -209,23 +228,37 @@ export default function LockTemplatesModal({
                         <Stack
                           direction="row"
                           spacing={1}
-                          alignItems="center"
-                          mb={1}
+                          sx={{
+                            alignItems: "center",
+                            mb: 1,
+                          }}
                         >
                           <Typography variant="h4">{template.icon}</Typography>
                           <Box>
-                            <Typography variant="subtitle1" fontWeight="bold">
+                            <Typography
+                              variant="subtitle1"
+                              sx={{
+                                fontWeight: "bold",
+                              }}
+                            >
                               {template.name}
                             </Typography>
                             <Typography
                               variant="caption"
-                              color="text.secondary"
+                              sx={{
+                                color: "text.secondary",
+                              }}
                             >
                               {template.nameEn}
                             </Typography>
                           </Box>
                         </Stack>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "text.secondary",
+                          }}
+                        >
                           {template.description}
                         </Typography>
                       </CardContent>
@@ -247,7 +280,6 @@ export default function LockTemplatesModal({
           <Button onClick={onClose}>ปิด</Button>
         </DialogActions>
       </Dialog>
-
       {/* Preview Dialog */}
       {selectedTemplate && (
         <Dialog
@@ -258,11 +290,22 @@ export default function LockTemplatesModal({
           data-testid="lock-template-preview-modal"
         >
           <DialogTitle>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Typography variant="h4">{selectedTemplate.icon}</Typography>
               <Box>
                 <Typography variant="h6">{selectedTemplate.name}</Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   {selectedTemplate.nameEn}
                 </Typography>
               </Box>

@@ -206,11 +206,11 @@ function TeacherTablePage() {
         throw new Error("Missing class schedule key");
       }
       const [, teacherId, year, sem] = key;
-      return (await getClassSchedulesAction({
+      return await getClassSchedulesAction({
         TeacherID: teacherId,
         AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-      }));
+      });
     },
     {
       revalidateOnFocus: false,
@@ -600,7 +600,12 @@ function TeacherTablePage() {
                       borderRadius: 1,
                     }}
                   >
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       เลือกแล้ว {selectedTeacherIds.length} ครู
                     </Typography>
                   </Box>
@@ -636,10 +641,21 @@ function TeacherTablePage() {
             <SchoolIcon
               sx={{ fontSize: 64, color: colors.slate[400], mb: 2 }}
             />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               กรุณาเลือกครู
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               เลือกครูจากรายการด้านบนเพื่อดูตารางสอน
             </Typography>
           </Paper>
@@ -667,7 +683,12 @@ function TeacherTablePage() {
                     <Typography variant="h6" gutterBottom>
                       ตารางสอน{teacherName && `: ${teacherName}`}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       ภาคเรียนที่ {semester}/{academicYear}
                     </Typography>
                   </Box>

@@ -34,8 +34,9 @@ export function AllTimeslotGrid({
   const theme = useTheme();
   return (
     <Box
-      mt={3}
+      className="printable-table"
       sx={{
+        mt: 3,
         overflowX: "auto",
         overflowY: "hidden",
         border: "1px solid",
@@ -46,7 +47,6 @@ export function AllTimeslotGrid({
         p: 2,
         boxShadow: theme.shadows[1],
       }}
-      className="printable-table"
     >
       <Stack>
         {/* Header Row */}
@@ -64,9 +64,20 @@ export function AllTimeslotGrid({
               border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <GridOnIcon fontSize="small" color="primary" />
-              <Typography variant="subtitle2" fontWeight="bold">
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 ตารางสรุปภาครวม
               </Typography>
             </Stack>

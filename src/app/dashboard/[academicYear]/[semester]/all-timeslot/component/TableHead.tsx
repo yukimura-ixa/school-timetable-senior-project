@@ -21,8 +21,9 @@ const BREAK_WIDTH = 24;
 const CELL_GAP = 4;
 
 const TableHead = (props: Props) => {
-  const teachingCount = props.columns.filter((c) => c.kind === "teaching")
-    .length;
+  const teachingCount = props.columns.filter(
+    (c) => c.kind === "teaching",
+  ).length;
   const breakCount = props.columns.length - teachingCount;
   const dayMinWidth =
     teachingCount * TEACH_WIDTH +
@@ -55,8 +56,11 @@ const TableHead = (props: Props) => {
           >
             <Typography
               variant="caption"
-              fontWeight="bold"
-              sx={{ color: item.TextColor, letterSpacing: 0.5 }}
+              sx={{
+                fontWeight: "bold",
+                color: item.TextColor,
+                letterSpacing: 0.5,
+              }}
             >
               {item.Day}
             </Typography>
@@ -86,8 +90,11 @@ const TableHead = (props: Props) => {
                   {!isBreak && (
                     <Typography
                       variant="caption"
-                      fontWeight="bold"
-                      sx={{ fontSize: "0.7rem", opacity: 0.7 }}
+                      sx={{
+                        fontWeight: "bold",
+                        fontSize: "0.7rem",
+                        opacity: 0.7,
+                      }}
                     >
                       {col.periodNumber}
                     </Typography>

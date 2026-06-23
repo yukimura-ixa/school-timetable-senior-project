@@ -115,6 +115,10 @@ export async function dragAndDrop(
     // Start drag
     await page.mouse.move(sourceCenter.x, sourceCenter.y);
     await page.mouse.down();
+    // dnd-kit's PointerSensor activates only after the pointer moves past its
+    // distance constraint; nudge before the long traversal so the drag reliably
+    // starts (a single source→target jump can otherwise skip activation).
+    await page.mouse.move(sourceCenter.x + 8, sourceCenter.y + 8, { steps: 4 });
     await page.waitForTimeout(dragDelay);
 
     if (captureScreenshots) {
@@ -126,7 +130,10 @@ export async function dragAndDrop(
 
     // Move to target
     await page.mouse.move(targetCenter.x, targetCenter.y, { steps });
-    await page.waitForTimeout(100);
+    // A second settle move over the target lets dnd-kit's collision detection
+    // (which runs on pointermove) register the droppable before release.
+    await page.mouse.move(targetCenter.x, targetCenter.y, { steps: 2 });
+    await page.waitForTimeout(dropDelay);
 
     if (captureScreenshots) {
       const timestamp = Date.now();

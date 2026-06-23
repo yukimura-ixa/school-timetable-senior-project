@@ -60,7 +60,10 @@ type Props = {
   initialBreakGroups?: BreakGroup[];
 };
 
-export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }: Props) {
+export function TimeslotConfigurationStep({
+  initialConfig,
+  initialBreakGroups,
+}: Props) {
   const {
     academicYear,
     semester,
@@ -69,7 +72,12 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
   } = useCreateSemester();
 
   // Core schedule fields (Days / StartTime) held in config state
-  const [config, setConfig] = useState<Pick<CreateTimeslotsInput, "AcademicYear" | "Semester" | "Days" | "StartTime">>({
+  const [config, setConfig] = useState<
+    Pick<
+      CreateTimeslotsInput,
+      "AcademicYear" | "Semester" | "Days" | "StartTime"
+    >
+  >({
     AcademicYear: academicYear,
     Semester: semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
     Days: initialConfig?.Days ?? ["MON", "TUE", "WED", "THU", "FRI"],
@@ -100,9 +108,9 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
     }));
   });
 
-  const [breakDefs, setBreakDefs] = useState<BreakDefinition[]>(
-    [...DEFAULT_BREAK_DEFINITIONS],
-  );
+  const [breakDefs, setBreakDefs] = useState<BreakDefinition[]>([
+    ...DEFAULT_BREAK_DEFINITIONS,
+  ]);
 
   const errors = (() => {
     const newErrors: Record<string, string> = {};
@@ -195,12 +203,23 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
           กำหนดค่าตารางเรียนสำหรับภาคเรียนที่ {semester}/{academicYear}
         </Typography>
       </Alert>
-
       {/* Days Selection */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
           <CalendarMonth color="primary" />
-          <Typography variant="subtitle1" fontWeight={600}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             วันที่เรียน
           </Typography>
         </Stack>
@@ -224,17 +243,33 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
           </Typography>
         )}
         <Box sx={{ mt: 1 }}>
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             เลือก: {config.Days.length} วัน
           </Typography>
         </Box>
       </Paper>
-
       {/* Time Configuration */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
           <AccessTime color="primary" />
-          <Typography variant="subtitle1" fontWeight={600}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             ตั้งค่าเวลา
           </Typography>
         </Stack>
@@ -247,9 +282,11 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
             onChange={(e) =>
               setConfig((prev) => ({ ...prev, StartTime: e.target.value }))
             }
-            InputLabelProps={{ shrink: true }}
             error={!!errors.startTime}
             helperText={errors.startTime || "เช่น 08:30"}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
           />
           <TextField
             fullWidth
@@ -262,12 +299,23 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
           />
         </Stack>
       </Paper>
-
       {/* Periods Per Day */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
           <Schedule color="primary" />
-          <Typography variant="subtitle1" fontWeight={600}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             จำนวนคาบต่อวัน
           </Typography>
         </Stack>
@@ -283,14 +331,25 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
             valueLabelDisplay="on"
           />
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            mt: 1,
+          }}
+        >
           {timeslotPerDay} คาบต่อวัน
         </Typography>
       </Paper>
-
       {/* Break Groups */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontWeight: 600,
+            mb: 2,
+          }}
+        >
           กลุ่มการพัก (Break Groups)
         </Typography>
         <Stack spacing={2}>
@@ -304,7 +363,13 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
                 borderRadius: 1,
               }}
             >
-              <Stack direction="row" spacing={2} alignItems="center">
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{
+                  alignItems: "center",
+                }}
+              >
                 <TextField
                   size="small"
                   label="รหัสกลุ่ม"
@@ -342,10 +407,15 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
           ))}
         </Stack>
       </Paper>
-
       {/* Break Definitions */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontWeight: 600,
+            mb: 2,
+          }}
+        >
           กำหนดเวลาพัก (Break Definitions)
         </Typography>
         <Stack spacing={2}>
@@ -359,7 +429,13 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
                 borderRadius: 1,
               }}
             >
-              <Stack direction="row" spacing={2} alignItems="center">
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{
+                  alignItems: "center",
+                }}
+              >
                 <TextField
                   size="small"
                   label="ชื่อช่วงพัก"
@@ -425,12 +501,16 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
           </Box>
         </Stack>
       </Paper>
-
       <Divider sx={{ my: 3 }} />
-
       {/* Preview */}
       <Paper variant="outlined" sx={{ p: 2, bgcolor: "grey.50" }}>
-        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontWeight: 600,
+            mb: 2,
+          }}
+        >
           ตัวอย่างตารางเรียน (วันจันทร์-ศุกร์)
         </Typography>
         <Stack spacing={1}>
@@ -462,8 +542,11 @@ export function TimeslotConfigurationStep({ initialConfig, initialBreakGroups }:
         </Stack>
         <Typography
           variant="caption"
-          color="text.secondary"
-          sx={{ mt: 2, display: "block" }}
+          sx={{
+            color: "text.secondary",
+            mt: 2,
+            display: "block",
+          }}
         >
           เวลาเลิก:{" "}
           {previewSchedule.length > 0

@@ -64,20 +64,31 @@ export function TeacherWorkloadSection({
       <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
         👥 การกระจายภาระงานสอน
       </Typography>
-
       <Card elevation={2}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
             สรุปภาระงานสอนของครู
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              mb: 3,
+            }}
+          >
             แสดงจำนวนชั่วโมงสอนของครูแต่ละคน เรียงจากมากไปน้อย
           </Typography>
 
           {/* Teacher List */}
           <Box sx={{ maxHeight: 600, overflowY: "auto" }}>
             {sortedWorkloads.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" align="center">
+              <Typography
+                variant="body2"
+                align="center"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ไม่มีข้อมูลภาระงานสอน
               </Typography>
             ) : (
@@ -107,7 +118,12 @@ export function TeacherWorkloadSection({
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {workload.teacherName}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         {workload.department || "ไม่ระบุแผนก"}
                       </Typography>
                     </Box>

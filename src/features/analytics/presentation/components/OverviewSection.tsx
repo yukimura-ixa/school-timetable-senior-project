@@ -53,7 +53,6 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
       <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
         📊 ภาพรวมตารางเรียน
       </Typography>
-
       <Box
         sx={{
           display: "grid",
@@ -94,8 +93,10 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
                 >
                   <Typography
                     variant="body2"
-                    color="text.secondary"
-                    sx={{ fontWeight: 500 }}
+                    sx={{
+                      color: "text.secondary",
+                      fontWeight: 500,
+                    }}
                   >
                     {card.title}
                   </Typography>
@@ -126,7 +127,6 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
           </Box>
         ))}
       </Box>
-
       {/* Additional Stats */}
       <Box
         sx={{
@@ -141,7 +141,13 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
       >
         <Card elevation={1}>
           <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body2"
+              gutterBottom
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               จำนวนระดับชั้น
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -151,7 +157,13 @@ export function OverviewSection({ stats }: OverviewSectionProps) {
         </Card>
         <Card elevation={1}>
           <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body2"
+              gutterBottom
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               จำนวนห้องเรียน
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>

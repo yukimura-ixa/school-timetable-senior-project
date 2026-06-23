@@ -183,11 +183,20 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
       <Paper sx={{ p: 3, mb: 4 }} data-testid="analytics-dashboard-empty">
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
           <AssessmentIcon color="primary" />
-          <Typography variant="h6" fontWeight="bold">
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
             สถิติภาพรวม
           </Typography>
         </Box>
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           ยังไม่มีข้อมูลภาคเรียนในระบบ
         </Typography>
       </Paper>
@@ -198,11 +207,15 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
     <Paper sx={{ p: 3, mb: 4 }} data-testid="analytics-dashboard-content">
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
         <AssessmentIcon color="primary" />
-        <Typography variant="h6" fontWeight="bold">
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           สถิติภาพรวม
         </Typography>
       </Box>
-
       <Grid container spacing={3}>
         {/* Overview Stats */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -212,11 +225,21 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
                 <SchoolIcon color="primary" fontSize="small" />
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   ภาคเรียนทั้งหมด
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold">
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 {stats.total}
               </Typography>
             </CardContent>
@@ -230,14 +253,21 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
                 <TrendingUpIcon color="success" fontSize="small" />
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   ความสมบูรณ์เฉลี่ย
                 </Typography>
               </Box>
               <Typography
                 variant="h4"
-                fontWeight="bold"
                 color={getCompletenessColor(stats.avgCompleteness)}
+                sx={{
+                  fontWeight: "bold",
+                }}
               >
                 {stats.avgCompleteness.toFixed(1)}%
               </Typography>
@@ -252,11 +282,21 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
                 <StarIcon sx={{ color: "#ffc107" }} fontSize="small" />
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   ปักหมุด
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold">
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 {stats.pinned}
               </Typography>
             </CardContent>
@@ -270,11 +310,21 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
                 <AssessmentIcon color="info" fontSize="small" />
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   เข้าถึง 30 วันล่าสุด
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold">
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 {stats.recentlyAccessed}
               </Typography>
             </CardContent>
@@ -285,7 +335,13 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card variant="outlined" sx={{ height: "100%" }}>
             <CardContent>
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+              <Typography
+                variant="subtitle1"
+                gutterBottom
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 สถานะภาคเรียน
               </Typography>
               <Stack spacing={2} sx={{ mt: 2 }}>
@@ -329,7 +385,12 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                             {count} ภาคเรียน
                           </Typography>
                         </Box>
-                        <Typography variant="body2" fontWeight="bold">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                        >
                           {percentage.toFixed(1)}%
                         </Typography>
                       </Box>
@@ -360,7 +421,13 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card variant="outlined" sx={{ height: "100%" }}>
             <CardContent>
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+              <Typography
+                variant="subtitle1"
+                gutterBottom
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 การกระจายความสมบูรณ์
               </Typography>
               <Stack spacing={2} sx={{ mt: 2 }}>
@@ -408,7 +475,12 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                             {item.value} ภาคเรียน
                           </Typography>
                         </Box>
-                        <Typography variant="body2" fontWeight="bold">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                        >
                           {percentage.toFixed(1)}%
                         </Typography>
                       </Box>
@@ -436,7 +508,13 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
         <Grid size={{ xs: 12 }}>
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+              <Typography
+                variant="subtitle1"
+                gutterBottom
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
                 ข้อมูลทรัพยากรรวม
               </Typography>
               <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -451,10 +529,20 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                       }}
                     >
                       <ClassIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
-                      <Typography variant="h5" fontWeight="bold">
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
                         {stats.totalClasses}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         ห้องเรียน
                       </Typography>
                     </Box>
@@ -474,10 +562,20 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                         color="success"
                         sx={{ fontSize: 40, mb: 1 }}
                       />
-                      <Typography variant="h5" fontWeight="bold">
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
                         {stats.totalTeachers}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         ครู
                       </Typography>
                     </Box>
@@ -497,10 +595,20 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                         color="warning"
                         sx={{ fontSize: 40, mb: 1 }}
                       />
-                      <Typography variant="h5" fontWeight="bold">
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
                         {stats.totalSubjects}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         วิชา
                       </Typography>
                     </Box>
@@ -517,10 +625,20 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                       }}
                     >
                       <RoomIcon color="error" sx={{ fontSize: 40, mb: 1 }} />
-                      <Typography variant="h5" fontWeight="bold">
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
                         {stats.totalRooms}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         ห้อง
                       </Typography>
                     </Box>
@@ -536,7 +654,13 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
           <Grid size={{ xs: 12 }}>
             <Card variant="outlined">
               <CardContent>
-                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  sx={{
+                    fontWeight: "bold",
+                  }}
+                >
                   ปีการศึกษา (5 ล่าสุด)
                 </Typography>
                 <Stack spacing={2} sx={{ mt: 2 }}>
@@ -552,7 +676,12 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                             mb: 0.5,
                           }}
                         >
-                          <Typography variant="body1" fontWeight="bold">
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              fontWeight: "bold",
+                            }}
+                          >
                             {year}
                           </Typography>
                           <Box
@@ -567,8 +696,10 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                             </Typography>
                             <Typography
                               variant="body2"
-                              fontWeight="bold"
                               color="primary"
+                              sx={{
+                                fontWeight: "bold",
+                              }}
                             >
                               {percentage.toFixed(1)}%
                             </Typography>

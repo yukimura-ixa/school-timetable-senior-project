@@ -58,7 +58,6 @@ export default function WelcomePanel() {
         }}
         className="card-glow"
       />
-
       {/* Floating icons decoration */}
       <Stack
         direction="row"
@@ -85,7 +84,6 @@ export default function WelcomePanel() {
           <GroupsIcon sx={{ fontSize: 32, color: "white" }} />
         </Box>
       </Stack>
-
       {/* Main content */}
       <Stack spacing={4} sx={{ position: "relative", zIndex: 1 }}>
         {/* Logo/Icon */}
@@ -150,9 +148,9 @@ export default function WelcomePanel() {
             <Stack
               key={index}
               direction="row"
-              alignItems="center"
               spacing={1.5}
               sx={{
+                alignItems: "center",
                 opacity: 0,
                 animation: animations.fadeIn,
                 animationDelay: `${0.3 + index * 0.15}s`,
@@ -177,7 +175,6 @@ export default function WelcomePanel() {
           ))}
         </Stack>
       </Stack>
-
       {/* Bottom decoration */}
       <Box
         sx={{

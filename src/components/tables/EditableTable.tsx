@@ -370,7 +370,10 @@ export function EditableTable<T extends Record<string, unknown>>({
     // Use custom render if provided and not editing
     if (!isEditing && column.render) {
       // ColumnDef<T> is a mapped union — TypeScript can't narrow K here
-      return (column.render as (value: T[keyof T], row: T) => ReactNode)(value, row);
+      return (column.render as (value: T[keyof T], row: T) => ReactNode)(
+        value,
+        row,
+      );
     }
 
     // Check if field should be editable
@@ -475,7 +478,6 @@ export function EditableTable<T extends Record<string, unknown>>({
   return (
     <>
       {dialog}
-
       <Toolbar sx={{ pl: 2, pr: 2 }}>
         <Typography sx={{ flex: "1 1 100%" }} variant="h6" component="div">
           {title}
@@ -487,9 +489,11 @@ export function EditableTable<T extends Record<string, unknown>>({
             value={searchTerm}
             onChange={handleSearch}
             sx={{ mr: 2, width: 300 }}
-            inputProps={{
-              "aria-label": searchPlaceholder,
-              ...(searchTestId ? { "data-testid": searchTestId } : {}),
+            slotProps={{
+              htmlInput: {
+                "aria-label": searchPlaceholder,
+                ...(searchTestId ? { "data-testid": searchTestId } : {}),
+              },
             }}
           />
         )}
@@ -542,7 +546,6 @@ export function EditableTable<T extends Record<string, unknown>>({
           </IconButton>
         )}
       </Toolbar>
-
       <TableContainer component={Paper}>
         <MuiTable size="small">
           <TableHead>
@@ -556,8 +559,10 @@ export function EditableTable<T extends Record<string, unknown>>({
                     filtered.length > 0 && selected.length === filtered.length
                   }
                   onChange={(e) => toggleAll(e.target.checked)}
-                  inputProps={{ "aria-label": "เลือกทั้งหมด" }}
                   disabled={addMode && disableSelectionDuringCreate}
+                  slotProps={{
+                    input: { "aria-label": "เลือกทั้งหมด" },
+                  }}
                 />
               </TableCell>
               {columns.map((col) => (

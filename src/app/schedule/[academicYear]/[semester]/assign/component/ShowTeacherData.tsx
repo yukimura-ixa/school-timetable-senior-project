@@ -229,18 +229,6 @@ function ShowTeacherData({
               <TextField
                 {...params}
                 placeholder="ค้นหาครูผู้สอน"
-                inputProps={{
-                  ...params.inputProps,
-                  "aria-label": "ค้นหาครูผู้สอน",
-                }}
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: "rgba(255,255,255,0.7)" }} />
-                    </InputAdornment>
-                  ),
-                }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "rgba(255,255,255,0.15)",
@@ -259,6 +247,23 @@ function ShowTeacherData({
                     opacity: 1,
                   },
                 }}
+                slotProps={{
+                  ...params.slotProps,
+
+                  input: {
+                    ...params.slotProps.input,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: "rgba(255,255,255,0.7)" }} />
+                      </InputAdornment>
+                    ),
+                  },
+
+                  htmlInput: {
+                    ...params.slotProps.htmlInput,
+                    "aria-label": "ค้นหาครูผู้สอน",
+                  },
+                }}
               />
             )}
             renderOption={({ key, ...props }, option) => (
@@ -272,7 +277,12 @@ function ShowTeacherData({
                       {option.Prefix}
                       {option.Firstname} {option.Lastname}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {option.Department || "ไม่ระบุกลุ่มสาระ"}
                     </Typography>
                   </Box>
@@ -514,10 +524,21 @@ function ShowTeacherData({
           <AssignmentIcon
             sx={{ fontSize: 64, color: "primary.main", opacity: 0.5, mb: 2 }}
           />
-          <Typography variant="h6" color="text.secondary" gutterBottom>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             กรุณาเลือกครูผู้สอน
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             เลือกครูจากช่องค้นหาด้านบนเพื่อดูข้อมูลภาระงานสอน
           </Typography>
         </Paper>

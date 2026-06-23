@@ -199,7 +199,13 @@ export default function SignInForm() {
         <form onSubmit={handleSubmit} noValidate id="signin-form">
           <Stack spacing={3}>
             {/* Header */}
-            <Stack spacing={2} alignItems="center" sx={{ mb: 1 }}>
+            <Stack
+              spacing={2}
+              sx={{
+                alignItems: "center",
+                mb: 1,
+              }}
+            >
               <Box
                 sx={{
                   ...iconBoxSx(gradients.blue, colors.blue.main, "large"),
@@ -222,8 +228,10 @@ export default function SignInForm() {
                 </Typography>
                 <Typography
                   variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 0.5 }}
+                  sx={{
+                    color: "text.secondary",
+                    mt: 0.5,
+                  }}
                 >
                   ระบบจัดตารางเรียนสำหรับผู้ดูแล
                 </Typography>
@@ -309,7 +317,12 @@ export default function SignInForm() {
                 />
               }
               label={
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   จำฉันไว้ในระบบ
                 </Typography>
               }
@@ -359,7 +372,12 @@ export default function SignInForm() {
 
             {/* Divider */}
             <Divider sx={{ color: "text.secondary" }}>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 หรือ
               </Typography>
             </Divider>

@@ -15,9 +15,7 @@ import {
 } from "@mui/material";
 
 // Import from the unified design system
-import {
-  colors,
-} from "@/shared/design-system";
+import { colors } from "@/shared/design-system";
 
 /**
  * DesignSystem Component
@@ -33,13 +31,14 @@ const DesignSystem: React.FC = () => {
       <Typography variant="h1" gutterBottom sx={{ mb: 4 }}>
         PT Design System v2.0
       </Typography>
-
       {/* Typography Section */}
       <section className="mb-12">
         <Typography
           variant="overline"
-          color="text.secondary"
-          sx={{ fontWeight: 800 }}
+          sx={{
+            color: "text.secondary",
+            fontWeight: 800,
+          }}
         >
           Typography (Inter + Sarabun)
         </Typography>
@@ -54,18 +53,24 @@ const DesignSystem: React.FC = () => {
             Body 1 - The quick brown fox jumps over the lazy dog.
             ภาษาไทยที่สวยงามในระบบ.
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Body 2 - Secondary text for descriptions and metadata.
           </Typography>
         </Stack>
       </section>
-
       {/* Colors & Gradients */}
       <section className="mb-12">
         <Typography
           variant="overline"
-          color="text.secondary"
-          sx={{ fontWeight: 800 }}
+          sx={{
+            color: "text.secondary",
+            fontWeight: 800,
+          }}
         >
           Colors & Gradients
         </Typography>
@@ -93,13 +98,14 @@ const DesignSystem: React.FC = () => {
           </Grid>
         </Grid>
       </section>
-
       {/* MUI Token Showcase (from design-system.ts) */}
       <section className="mb-12">
         <Typography
           variant="overline"
-          color="text.secondary"
-          sx={{ fontWeight: 800 }}
+          sx={{
+            color: "text.secondary",
+            fontWeight: 800,
+          }}
         >
           MUI Token Showcase (design-system.ts)
         </Typography>
@@ -116,7 +122,13 @@ const DesignSystem: React.FC = () => {
                 p: 1,
               }}
             >
-              <Typography variant="caption" color="white" fontWeight={700}>
+              <Typography
+                variant="caption"
+                color="white"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 blue.main
               </Typography>
             </Box>
@@ -132,7 +144,13 @@ const DesignSystem: React.FC = () => {
                 p: 1,
               }}
             >
-              <Typography variant="caption" color="white" fontWeight={700}>
+              <Typography
+                variant="caption"
+                color="white"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 emerald.main
               </Typography>
             </Box>
@@ -148,7 +166,13 @@ const DesignSystem: React.FC = () => {
                 p: 1,
               }}
             >
-              <Typography variant="caption" color="white" fontWeight={700}>
+              <Typography
+                variant="caption"
+                color="white"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 violet.main
               </Typography>
             </Box>
@@ -164,7 +188,13 @@ const DesignSystem: React.FC = () => {
                 p: 1,
               }}
             >
-              <Typography variant="caption" color="white" fontWeight={700}>
+              <Typography
+                variant="caption"
+                color="white"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 amber.main
               </Typography>
             </Box>
@@ -180,7 +210,13 @@ const DesignSystem: React.FC = () => {
                 p: 1,
               }}
             >
-              <Typography variant="caption" color="white" fontWeight={700}>
+              <Typography
+                variant="caption"
+                color="white"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 red.main
               </Typography>
             </Box>
@@ -196,20 +232,27 @@ const DesignSystem: React.FC = () => {
                 p: 1,
               }}
             >
-              <Typography variant="caption" color="white" fontWeight={700}>
+              <Typography
+                variant="caption"
+                color="white"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 cyan.main
               </Typography>
             </Box>
           </Grid>
         </Grid>
       </section>
-
       {/* Glassmorphism Section */}
       <section className="mb-12">
         <Typography
           variant="overline"
-          color="text.secondary"
-          sx={{ fontWeight: 800 }}
+          sx={{
+            color: "text.secondary",
+            fontWeight: 800,
+          }}
         >
           Glassmorphism Base
         </Typography>
@@ -248,13 +291,14 @@ const DesignSystem: React.FC = () => {
           </div>
         </Box>
       </section>
-
       {/* Components Section */}
       <section className="mb-12">
         <Typography
           variant="overline"
-          color="text.secondary"
-          sx={{ fontWeight: 800 }}
+          sx={{
+            color: "text.secondary",
+            fontWeight: 800,
+          }}
         >
           Modernized Components
         </Typography>
@@ -284,13 +328,14 @@ const DesignSystem: React.FC = () => {
           />
         </Stack>
       </section>
-
       {/* Data Cards */}
       <section>
         <Typography
           variant="overline"
-          color="text.secondary"
-          sx={{ fontWeight: 800 }}
+          sx={{
+            color: "text.secondary",
+            fontWeight: 800,
+          }}
         >
           Surface Units
         </Typography>
@@ -300,10 +345,20 @@ const DesignSystem: React.FC = () => {
             <Grid size={{ xs: 4 }} key={i}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6" color="text.primary">
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "text.primary",
+                    }}
+                  >
                     Card Item {i}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     Standardized card with soft shadows and refined borders.
                   </Typography>
                   <Box

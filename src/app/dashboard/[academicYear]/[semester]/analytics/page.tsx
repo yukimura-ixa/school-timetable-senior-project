@@ -44,17 +44,20 @@ export default async function AnalyticsPage({
         <Typography variant="h4" component="h1" gutterBottom>
           📊 วิเคราะห์ข้อมูลตารางเรียน
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           การกระจายช่วงเวลาและความสอดคล้องหลักสูตร ภาคเรียนที่ {semester}/
           {academicYear}
         </Typography>
       </Box>
-
       {/* Section 0: Overview Stats */}
       {overviewStatsResult.success && (
         <OverviewSection stats={overviewStatsResult.data} />
       )}
-
       {/* Section 1: Time Distribution */}
       <Suspense fallback={<TimeSkeleton />}>
         {periodDistributionResult.success && dayDistributionResult.success ? (
@@ -77,7 +80,6 @@ export default async function AnalyticsPage({
           />
         )}
       </Suspense>
-
       {/* Section 2: Curriculum Compliance */}
       <Suspense fallback={<ComplianceSkeleton />}>
         {programComplianceResult.success ? (
@@ -113,7 +115,12 @@ function ErrorDisplay({ title, message }: { title: string; message: string }) {
       <Typography variant="h6" color="error" gutterBottom>
         {title}
       </Typography>
-      <Typography variant="body2" color="error.dark">
+      <Typography
+        variant="body2"
+        sx={{
+          color: "error.dark",
+        }}
+      >
         {message}
       </Typography>
     </Box>

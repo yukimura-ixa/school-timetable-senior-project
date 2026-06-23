@@ -57,7 +57,7 @@ test.describe("Scheduling Wizard", () => {
 
     for (const label of STEP_LABELS) {
       await expect(
-        page.getByRole("button", { name: new RegExp(label) }),
+        page.getByRole("tab", { name: new RegExp(label) }),
       ).toBeVisible({ timeout: 15000 });
     }
   });

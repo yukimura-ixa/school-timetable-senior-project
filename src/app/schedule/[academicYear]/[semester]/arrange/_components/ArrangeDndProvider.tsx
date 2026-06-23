@@ -51,7 +51,11 @@ type RoomModalState = {
   resp?: string;
 };
 
-export function ArrangeDndProvider({ children }: { children: React.ReactNode }) {
+export function ArrangeDndProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -79,7 +83,10 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveSubject(
-      (event.active.data.current as { SubjectName?: string; GradeName?: string }) ?? null,
+      (event.active.data.current as {
+        SubjectName?: string;
+        GradeName?: string;
+      }) ?? null,
     );
   };
 
@@ -92,7 +99,9 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -134,7 +143,9 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
         };
         const conflict: ConflictResult = {
           hasConflict: true,
-          conflictType: reasonToConflictType[result.reason] ?? ConflictType.TEACHER_CONFLICT,
+          conflictType:
+            reasonToConflictType[result.reason] ??
+            ConflictType.TEACHER_CONFLICT,
           message: result.message || "ไม่สามารถจัดตารางได้",
         };
         setConflictModal({ conflict, attempt, respId: subjectData.RespID });
@@ -229,16 +240,32 @@ export function ArrangeDndProvider({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <DndContext id="arrange-dnd" sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+      id="arrange-dnd"
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       {children}
       <DragOverlay>
         {activeSubject ? (
           <Paper sx={{ p: 1, px: 1.5, boxShadow: 4 }}>
-            <Typography variant="body2" fontWeight="bold">
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
               {activeSubject.SubjectName ?? "รายวิชา"}
             </Typography>
             {activeSubject.GradeName && (
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 {activeSubject.GradeName}
               </Typography>
             )}

@@ -60,7 +60,12 @@ export default function Loading() {
           open
           sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
         >
-          <Stack spacing={2} alignItems="center">
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <CircularProgress
               color="inherit"
               thickness={4}
@@ -78,7 +83,6 @@ export default function Loading() {
           </Stack>
         </Backdrop>
       )}
-
       {isStuck && (
         <Box
           sx={{
@@ -103,14 +107,30 @@ export default function Loading() {
             }}
           >
             <Stack spacing={1.5}>
-              <Typography variant="subtitle1" fontWeight={600}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 การโหลดใช้เวลานานผิดปกติ
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 ตรวจสอบอินเทอร์เน็ตหรือรีเฟรชหน้าเพื่อพยายามอีกครั้ง
                 ระบบยังคงแสดงข้อมูล ล่าสุดที่มีเพื่อให้คุณทำงานต่อได้
               </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  flexWrap: "wrap",
+                }}
+              >
                 <Button
                   variant="contained"
                   onClick={() => window.location.reload()}
