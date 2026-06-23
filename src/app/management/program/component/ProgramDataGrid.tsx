@@ -13,6 +13,7 @@
  */
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   DataGrid,
   GridColDef,
@@ -32,6 +33,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { enqueueSnackbar } from "notistack";
 import type { program, $Enums } from "@/prisma/generated/client";
 import {
@@ -79,6 +81,7 @@ export function ProgramDataGrid({
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const { confirm, dialog } = useConfirmDialog();
+  const router = useRouter();
 
   // Sync with initialData changes
   React.useEffect(() => {
@@ -287,7 +290,7 @@ export function ProgramDataGrid({
       field: "actions",
       type: "actions",
       headerName: "จัดการ",
-      width: 80,
+      width: 120,
       cellClassName: "actions",
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -311,6 +314,13 @@ export function ProgramDataGrid({
         }
 
         return [
+          <GridActionsCellItem
+            key="manage"
+            icon={<MenuBookIcon />}
+            label="จัดการหลักสูตร"
+            onClick={() => router.push(`/management/program/${id}`)}
+            color="inherit"
+          />,
           <GridActionsCellItem
             key="edit"
             icon={<EditIcon />}
