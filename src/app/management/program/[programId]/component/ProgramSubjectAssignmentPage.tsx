@@ -96,6 +96,11 @@ const creditOf = (credit: string) =>
 const clampCredit = (n: number) =>
   Math.max(0, Math.min(9, Math.round(n * 2) / 2));
 
+// A program holds one term's per-semester credits, but MinTotalCredits (like
+// the MoE minimums) is an annual figure. Divide by the terms in a year so the
+// ledger compares like with like. Mirrors TERMS_PER_YEAR in moe-validation.
+const TERMS_PER_YEAR = 2;
+
 function Stepper({
   value,
   onMinus,
@@ -184,7 +189,9 @@ export default function ProgramSubjectAssignmentPage({
     [subjectConfigs],
   );
 
-  const target = program?.MinTotalCredits ?? 0;
+  // MinTotalCredits is annual; the editor works in one term, so compare the
+  // per-term selection against the per-term target.
+  const target = (program?.MinTotalCredits ?? 0) / TERMS_PER_YEAR;
   const progressPct =
     target > 0 ? Math.min(100, (totalCredits / target) * 100) : 0;
   const shortfall = Math.round((target - totalCredits) * 10) / 10;
@@ -346,7 +353,7 @@ export default function ProgramSubjectAssignmentPage({
                 {fmt(totalCredits)}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {target > 0 ? `/ ${target} หน่วยกิต` : "หน่วยกิต"}
+                {target > 0 ? `/ ${fmt(target)} หน่วยกิต` : "หน่วยกิต"}
               </Typography>
             </Stack>
             {target > 0 && (
