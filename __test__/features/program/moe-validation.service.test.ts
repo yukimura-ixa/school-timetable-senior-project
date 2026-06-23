@@ -199,8 +199,8 @@ describe("MOE Validation Service", () => {
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
       expect(result.warnings).toHaveLength(0);
-      expect(result.totalCredits).toBe(28); // THAI:5 + MATH:5 + SCI:5 + SOC:4 + HEALTH:2 + ARTS:2 + CAREER:2 + FOREIGN:3 = 28
-      expect(result.requiredCredits).toBe(28); // Junior total
+      expect(result.totalCredits).toBe(28); // program credits provided by the mock (per term)
+      expect(result.requiredCredits).toBe(11); // junior per-term floor: 22 นก./yr ÷ 2 terms
     });
 
     it("should detect insufficient credits for junior program", () => {
@@ -212,8 +212,8 @@ describe("MOE Validation Service", () => {
             SubjectCode: "THAI01",
             Category: SubjectCategory.CORE,
             IsMandatory: true,
-            MinCredits: 3, // Should be 5
-            MaxCredits: 3,
+            MinCredits: 1, // below the per-term THAI floor (1.5)
+            MaxCredits: 1,
             SortOrder: 1,
             subject: {
               SubjectCode: "THAI01",
@@ -233,8 +233,7 @@ describe("MOE Validation Service", () => {
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
       expect(result.errors[0]).toContain("ภาษาไทย");
-      expect(result.errors[0]).toContain("5");
-      // The actual implementation shows current credits (3)
+      expect(result.errors[0]).toContain("1.5"); // per-term required (3 นก./yr ÷ 2)
       expect(result.errors[0]).toContain("(ขาด");
     });
 
@@ -407,8 +406,8 @@ describe("MOE Validation Service", () => {
 
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
-      expect(result.totalCredits).toBe(17); // THAI:3 + MATH:3 + SCI:3 + SOC:2 + HEALTH:2 + ARTS:1 + CAREER:1 + FOREIGN:2 = 17
-      expect(result.requiredCredits).toBe(17);
+      expect(result.totalCredits).toBe(17); // program credits provided by the mock (per term)
+      expect(result.requiredCredits).toBe(6.5); // senior per-term floor: 13 นก./yr ÷ 2 terms
     });
 
     it("should warn if activities are missing", () => {

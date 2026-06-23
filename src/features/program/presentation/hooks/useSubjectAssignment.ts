@@ -11,6 +11,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { SubjectCategory } from "@/models/subject-category";
+import { compareByMoeArea } from "../../domain/moe-learning-area";
 import { assignSubjectsToProgramAction } from "../../application/actions/program.actions";
 import type { Subject, Program } from "./useProgramSubjects";
 
@@ -126,8 +127,11 @@ export function useSubjectAssignment(
     setAssigning(true);
 
     try {
+      // Persist SortOrder in the same MoE learning-area order the editor's
+      // basket displays, so saved order matches the ranks the user sees.
       const selectedSubjects = Object.values(subjectConfigs)
         .filter((config) => config.selected)
+        .sort((a, b) => compareByMoeArea(a.SubjectCode, b.SubjectCode))
         .map((config, i) => ({
           SubjectCode: config.SubjectCode,
           Category:

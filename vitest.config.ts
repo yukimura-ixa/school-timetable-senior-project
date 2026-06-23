@@ -10,7 +10,8 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   "**/__test__/features/teaching-assignment/teaching-assignment.repository.test.ts", // Covered by heavy Playwright regression workflow
   "**/__test__/features/teaching-assignment/teacher-validation.service.test.ts", // Duplicated by dedicated heavy suite run
   "**/__test__/features/conflict/**",
-  "**/__test__/features/program/**",
+  // "**/__test__/features/program/**" - RE-ENABLED (c17): assertions updated to
+  //   per-term + 2551 values; track-elective coverage now runs (53 tests green).
   // Note: src/features/schedule-arrangement tests are now included
   "**/__test__/moe-standards/**",
   "**/__test__/features/dashboard/**",
