@@ -20,7 +20,10 @@ import {
  *
  * Based on the 2551 core curriculum โครงสร้างเวลาเรียน (1 credit = 40 hr/term):
  * - ม.ต้น (junior) รายวิชาพื้นฐาน totals 880 hr/yr = 22 credits/yr.
- * - ม.ปลาย (senior) รายวิชาพื้นฐาน totals 1,640 hr = 41 credits over 3 yr (≈13.7/yr).
+ * - ม.ปลาย (senior) is the per-year floor across ม.4–ม.6 พื้นฐาน (13 credits/yr,
+ *   of the 41 over 3 yr). One senior bucket serves M4–M6, so each area takes the
+ *   minimum any of those years allocates — SOCIAL is 2 not 3 because ม.6 carries
+ *   no ประวัติศาสตร์.
  * เทคโนโลยี (การออกแบบฯ / วิทยาการคำนวณ) is counted under SCIENCE per the 2560
  * revision, which is why CAREER drops to 1. The validator divides these by
  * TERMS_PER_YEAR to compare against a single term's program credits.
