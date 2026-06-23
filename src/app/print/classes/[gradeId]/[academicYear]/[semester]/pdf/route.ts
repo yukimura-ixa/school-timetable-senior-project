@@ -24,7 +24,16 @@ export async function GET(req: Request, { params }: { params: Promise<Params> })
     `/print/classes/${gradeId}/${academicYear}/${semester}`,
     base,
   ).toString();
-  const pdf = await renderUrlToPdf(printUrl, { landscape: false }); // public: no cookies
+  let pdf: Buffer;
+  try {
+    pdf = await renderUrlToPdf(printUrl, { landscape: false }); // public: no cookies
+  } catch (err) {
+    console.error("[print/classes] PDF render failed:", err);
+    return new Response("ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่อีกครั้ง", {
+      status: 500,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
   return new Response(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
