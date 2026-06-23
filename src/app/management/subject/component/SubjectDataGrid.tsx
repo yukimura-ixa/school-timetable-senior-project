@@ -24,6 +24,8 @@ import {
   GridRowModesModel,
   GridEventListener,
   GridRowEditStopReasons,
+  GridEditSingleSelectCell,
+  type GridRenderEditCellParams,
 } from "@mui/x-data-grid";
 import { alpha, Box, Button, Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -302,6 +304,9 @@ export function SubjectDataGrid({
         const opt = LEARNING_AREA_OPTIONS.find((o) => o.value === value);
         return opt?.label || value;
       },
+      renderEditCell: (params: GridRenderEditCellParams) => (
+        <GridEditSingleSelectCell {...params} value={params.value ?? ""} />
+      ),
     },
     {
       field: "ActivityType",
@@ -315,6 +320,9 @@ export function SubjectDataGrid({
         const opt = ACTIVITY_TYPE_OPTIONS.find((o) => o.value === value);
         return opt?.label || value;
       },
+      renderEditCell: (params: GridRenderEditCellParams) => (
+        <GridEditSingleSelectCell {...params} value={params.value ?? ""} />
+      ),
     },
     {
       field: "IsGraded",
