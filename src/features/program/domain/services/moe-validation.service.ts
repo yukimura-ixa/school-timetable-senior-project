@@ -34,6 +34,13 @@ export const MOE_MIN_CREDITS: Record<
 };
 
 /**
+ * Terms in a Thai school year. MOE_MIN_CREDITS above are annual figures, but a
+ * program holds a single term's subjects with per-semester credits — so the
+ * validator divides the annual minimum by this to compare like with like.
+ */
+export const TERMS_PER_YEAR = 2;
+
+/**
  * Credit validation result per learning area
  */
 export type LearningAreaCreditStatus = {
@@ -129,7 +136,10 @@ export function validateProgramMOECredits(
 
   // Check each learning area
   for (const [learningArea, requirements] of Object.entries(MOE_MIN_CREDITS)) {
-    const required = isJunior ? requirements.junior : requirements.senior;
+    const annualRequired = isJunior
+      ? requirements.junior
+      : requirements.senior;
+    const required = annualRequired / TERMS_PER_YEAR;
     const current = calculateLearningAreaCredits(
       programSubjects,
       learningArea as LearningArea,

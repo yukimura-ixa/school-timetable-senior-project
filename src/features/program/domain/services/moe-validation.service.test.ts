@@ -164,20 +164,53 @@ describe("validateProgramMOECredits", () => {
     expect(result.isValid).toBe(false);
   });
 
-  it("uses junior requirements for year 1", () => {
+  it("uses per-term (half-annual) junior requirement for year 1", () => {
     const result = validateProgramMOECredits(1, []);
     const mathArea = result.learningAreas.find(
       (la) => la.learningArea === LearningArea.MATHEMATICS,
     );
-    expect(mathArea!.required).toBe(5);
+    // MOE_MIN_CREDITS are annual (two-term); a program holds one term.
+    expect(mathArea!.required).toBe(2.5); // 5 annual / 2 terms
   });
 
-  it("uses senior requirements for year 4", () => {
+  it("uses per-term (half-annual) senior requirement for year 4", () => {
     const result = validateProgramMOECredits(4, []);
     const mathArea = result.learningAreas.find(
       (la) => la.learningArea === LearningArea.MATHEMATICS,
     );
-    expect(mathArea!.required).toBe(3);
+    expect(mathArea!.required).toBe(1.5); // 3 annual / 2 terms
+  });
+
+  it("passes a one-term program that meets the per-term minimums", () => {
+    // Each area carries exactly its per-term (annual / 2) credits.
+    const subjects = Object.entries(MOE_MIN_CREDITS).map(([area, req], idx) =>
+      makeProgramSubject({
+        ProgramSubjectID: idx + 1,
+        SubjectCode: `SUB${idx}`,
+        MinCredits: req.junior / 2,
+        subject: {
+          ...makeProgramSubject().subject,
+          SubjectCode: `SUB${idx}`,
+          LearningArea: area,
+        },
+      }),
+    );
+    subjects.push(
+      makeProgramSubject({
+        ProgramSubjectID: 100,
+        SubjectCode: "ACT01",
+        MinCredits: 0,
+        Category: SubjectCategory.ACTIVITY,
+        subject: {
+          ...makeProgramSubject().subject,
+          SubjectCode: "ACT01",
+          Category: SubjectCategory.ACTIVITY,
+          LearningArea: null,
+        },
+      }),
+    );
+    const result = validateProgramMOECredits(1, subjects as never[]);
+    expect(result.isValid).toBe(true);
   });
 
   it("returns isValid true when all areas meet requirements", () => {
@@ -236,7 +269,7 @@ describe("validateProgramMOECredits", () => {
     const mathArea = result.learningAreas.find(
       (la) => la.learningArea === LearningArea.MATHEMATICS,
     );
-    expect(mathArea!.deficit).toBe(5);
+    expect(mathArea!.deficit).toBe(2.5); // per-term: 5 annual / 2 terms
     expect(mathArea!.isMet).toBe(false);
   });
 });
