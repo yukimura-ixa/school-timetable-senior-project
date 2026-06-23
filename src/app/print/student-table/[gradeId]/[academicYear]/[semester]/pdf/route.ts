@@ -37,17 +37,31 @@ export async function GET(
       : new URL(req.url).origin;
 
   // Forward the caller's session cookies so headless Chromium passes the admin
-  // auth check on the print page (which also self-enforces admin auth).
+  // auth check on the print page (which also self-enforces admin auth). Under
+  // https the session cookie is __Secure-prefixed, so mark it Secure or Chromium
+  // drops it.
+  const baseUrl = new URL(base);
   const cookies = parseCookieHeader(
     req.headers.get("cookie"),
-    new URL(base).hostname,
+    baseUrl.hostname,
+    baseUrl.protocol === "https:",
   );
 
   const printUrl = new URL(
     `/print/student-table/${gradeId}/${academicYear}/${semester}`,
     base,
   ).toString();
-  const pdf = await renderUrlToPdf(printUrl, { landscape: false, cookies });
+
+  let pdf: Buffer;
+  try {
+    pdf = await renderUrlToPdf(printUrl, { landscape: false, cookies });
+  } catch (err) {
+    console.error("[print/student-table] PDF render failed:", err);
+    return new Response("ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่อีกครั้ง", {
+      status: 500,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
 
   return new Response(new Uint8Array(pdf), {
     headers: {

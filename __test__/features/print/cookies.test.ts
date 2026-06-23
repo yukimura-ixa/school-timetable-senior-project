@@ -13,4 +13,21 @@ describe("parseCookieHeader", () => {
     expect(parseCookieHeader(null, "localhost")).toEqual([]);
     expect(parseCookieHeader("", "localhost")).toEqual([]);
   });
+  it("omits secure/sameSite on http (default) so __Secure- cookies are not required", () => {
+    expect(parseCookieHeader("a=1", "localhost")).toEqual([
+      { name: "a", value: "1", domain: "localhost", path: "/" },
+    ]);
+  });
+  it("marks cookies Secure + Lax under https so __Secure- session cookies are accepted", () => {
+    expect(parseCookieHeader("__Secure-session=tok", "example.com", true)).toEqual([
+      {
+        name: "__Secure-session",
+        value: "tok",
+        domain: "example.com",
+        path: "/",
+        secure: true,
+        sameSite: "Lax",
+      },
+    ]);
+  });
 });
