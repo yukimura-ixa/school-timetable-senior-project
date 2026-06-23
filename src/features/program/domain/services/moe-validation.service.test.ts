@@ -40,11 +40,11 @@ const makeProgramSubject = (overrides: Record<string, unknown> = {}) => ({
 
 describe("MOE_MIN_CREDITS", () => {
   it("has correct junior Thai requirement", () => {
-    expect(MOE_MIN_CREDITS.THAI.junior).toBe(5);
+    expect(MOE_MIN_CREDITS.THAI.junior).toBe(3); // 2551: 120 hr/yr = 3 นก.
   });
 
   it("has correct senior Thai requirement", () => {
-    expect(MOE_MIN_CREDITS.THAI.senior).toBe(3);
+    expect(MOE_MIN_CREDITS.THAI.senior).toBe(2);
   });
 
   it("covers all 8 learning areas", () => {
@@ -170,7 +170,7 @@ describe("validateProgramMOECredits", () => {
       (la) => la.learningArea === LearningArea.MATHEMATICS,
     );
     // MOE_MIN_CREDITS are annual (two-term); a program holds one term.
-    expect(mathArea!.required).toBe(2.5); // 5 annual / 2 terms
+    expect(mathArea!.required).toBe(1.5); // 3 annual / 2 terms
   });
 
   it("uses per-term (half-annual) senior requirement for year 4", () => {
@@ -178,7 +178,7 @@ describe("validateProgramMOECredits", () => {
     const mathArea = result.learningAreas.find(
       (la) => la.learningArea === LearningArea.MATHEMATICS,
     );
-    expect(mathArea!.required).toBe(1.5); // 3 annual / 2 terms
+    expect(mathArea!.required).toBe(1.0); // 2 annual / 2 terms
   });
 
   it("passes a one-term program that meets the per-term minimums", () => {
@@ -269,7 +269,7 @@ describe("validateProgramMOECredits", () => {
     const mathArea = result.learningAreas.find(
       (la) => la.learningArea === LearningArea.MATHEMATICS,
     );
-    expect(mathArea!.deficit).toBe(2.5); // per-term: 5 annual / 2 terms
+    expect(mathArea!.deficit).toBe(1.5); // per-term: 3 annual / 2 terms
     expect(mathArea!.isMet).toBe(false);
   });
 });
