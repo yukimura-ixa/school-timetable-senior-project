@@ -16,21 +16,27 @@ import {
 } from "@/config/moe-standards";
 
 /**
- * MOE minimum credit requirements per learning area (hours per week)
- * Based on พ.ศ. 2551 standards
+ * MOE minimum basic-subject credits per learning area, per academic year.
+ *
+ * Based on the 2551 core curriculum โครงสร้างเวลาเรียน (1 credit = 40 hr/term):
+ * - ม.ต้น (junior) รายวิชาพื้นฐาน totals 880 hr/yr = 22 credits/yr.
+ * - ม.ปลาย (senior) รายวิชาพื้นฐาน totals 1,640 hr = 41 credits over 3 yr (≈13.7/yr).
+ * เทคโนโลยี (การออกแบบฯ / วิทยาการคำนวณ) is counted under SCIENCE per the 2560
+ * revision, which is why CAREER drops to 1. The validator divides these by
+ * TERMS_PER_YEAR to compare against a single term's program credits.
  */
 export const MOE_MIN_CREDITS: Record<
   LearningArea,
   { junior: number; senior: number }
 > = {
-  THAI: { junior: 5, senior: 3 }, // ม.1-3: 200 hrs/yr = 5 hrs/wk, ม.4-6: 120 hrs/yr = 3 hrs/wk
-  MATHEMATICS: { junior: 5, senior: 3 },
-  SCIENCE: { junior: 5, senior: 3 },
-  SOCIAL: { junior: 4, senior: 2 }, // 160 hrs/yr = 4 hrs/wk junior, 80 hrs/yr = 2 hrs/wk senior
-  HEALTH_PE: { junior: 2, senior: 2 }, // 80 hrs/yr = 2 hrs/wk
-  ARTS: { junior: 2, senior: 1 }, // 80 hrs/yr = 2 hrs/wk junior, 40 hrs/yr = 1 hr/wk senior
-  CAREER: { junior: 2, senior: 1 },
-  FOREIGN_LANGUAGE: { junior: 3, senior: 2 }, // 120 hrs/yr = 3 hrs/wk junior, 80 hrs/yr = 2 hrs/wk senior
+  THAI: { junior: 3, senior: 2 }, // ม.ต้น 120 hr/yr = 3 นก.
+  MATHEMATICS: { junior: 3, senior: 2 },
+  SCIENCE: { junior: 4, senior: 2 }, // incl. การออกแบบฯ / วิทยาการคำนวณ
+  SOCIAL: { junior: 4, senior: 2 }, // incl. ประวัติศาสตร์
+  HEALTH_PE: { junior: 2, senior: 1 },
+  ARTS: { junior: 2, senior: 1 },
+  CAREER: { junior: 1, senior: 1 }, // เทคโนโลยี moved to SCIENCE (2560)
+  FOREIGN_LANGUAGE: { junior: 3, senior: 2 },
 };
 
 /**
