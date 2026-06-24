@@ -4,7 +4,7 @@ import { FUNDAMENTALS } from "@/prisma/data/fundamentals";
 describe("FUNDAMENTALS template data", () => {
   it("covers years 1..6", () => {
     const years = new Set(FUNDAMENTALS.map((f) => f.Year));
-    expect([...years].sort()).toEqual([1, 2, 3, 4, 5, 6]);
+    expect([...years].sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it("has a unique (Year, SubjectCode) key", () => {
@@ -32,5 +32,11 @@ describe("FUNDAMENTALS template data", () => {
     expect(find(1, "ท21101")!.MinCredits).toBe(1.5);
     expect(find(1, "ส21101")!.MinCredits).toBe(1.0);
     expect(find(4, "ท31101")!.MinCredits).toBe(1.0);
+  });
+
+  it("sets MaxCredits null and 1-based SortOrder per year", () => {
+    const m4 = FUNDAMENTALS.filter((f) => f.Year === 4);
+    expect(m4.every((f) => f.MaxCredits === null)).toBe(true);
+    expect(m4.map((f) => f.SortOrder)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });
