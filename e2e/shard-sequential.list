@@ -21,3 +21,7 @@ smoke/crud-smoke.spec.ts
 smoke/critical-smoke.spec.ts
 tests/admin/schedule-assignment.spec.ts
 debug-full-fill.spec.ts
+# Deep journey: mutates DB (creates semester/teacher/subject/…) AND spawns a
+# 2nd headless Chromium for the PDF export — CPU-starves under parallel workers
+# (export render times out). Belongs in sequential (1 worker). Issues 8fm/d9t/4i3.
+full-user-journey.spec.ts
