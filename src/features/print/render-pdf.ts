@@ -28,8 +28,34 @@ export async function renderUrlToPdf(
   try {
     const page = await browser.newPage();
     if (cookies.length) await page.setCookie(...cookies);
-    await page.goto(url, { waitUntil: "networkidle0", timeout: 30_000 });
-    await page.waitForSelector('[data-testid="schedule-grid"]', { timeout: 15_000 });
+    const response = await page.goto(url, {
+      waitUntil: "networkidle0",
+      timeout: 30_000,
+    });
+    // TimeslotGrid renders either schedule-grid (has data) or schedule-empty
+    // (no schedule for this grade/term) — accept both so an empty timetable
+    // still produces a PDF instead of failing the render.
+    try {
+      await page.waitForSelector(
+        '[data-testid="schedule-grid"], [data-testid="schedule-empty"]',
+        { timeout: 30_000 },
+      );
+    } catch (e) {
+      // Diagnostic (8fm/d9t/4i3): the render fails after goto succeeds, so the
+      // page loaded but rendered no grid. Capture what it actually is — 404
+      // (auth/data), signin redirect, or an error — instead of a bare selector
+      // timeout, so the CI log shows the real cause.
+      const httpStatus = response?.status();
+      const finalUrl = page.url();
+      const title = await page.title().catch(() => "?");
+      const body = await page
+        .evaluate(() => document.body?.innerText?.slice(0, 300) ?? "")
+        .catch(() => "?");
+      console.error(
+        `[render-pdf] grid selector timeout: status=${httpStatus} finalUrl=${finalUrl} title=${JSON.stringify(title)} body=${JSON.stringify(body)}`,
+      );
+      throw e;
+    }
     const pdf = await page.pdf({
       format: "a4",
       landscape,

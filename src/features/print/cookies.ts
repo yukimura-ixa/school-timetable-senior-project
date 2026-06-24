@@ -1,3 +1,22 @@
+import { getBaseUrl } from "@/utils/canonical-url";
+
+/**
+ * Origin for the headless self-render of a `/print/*` page.
+ *
+ * Order: trusted server-config `BASE_URL` first → canonical base in production →
+ * same-origin in dev. `BASE_URL` is a **runtime** env (unlike build-inlined
+ * `NEXT_PUBLIC_BASE_URL` that `getBaseUrl()` reads), and CI/E2E prod builds set
+ * it to the local test server — without this, `getBaseUrl()` points puppeteer at
+ * the live Vercel deployment, which 404s on the test's data/session. Never the
+ * spoofable `Host` header (avoids SSRF / forwarding session cookies off-origin).
+ */
+export function resolveSelfRenderBase(req: Request): string {
+  if (process.env.BASE_URL) return process.env.BASE_URL;
+  return process.env.NODE_ENV === "production"
+    ? getBaseUrl()
+    : new URL(req.url).origin;
+}
+
 export type PuppeteerCookie = {
   name: string;
   value: string;

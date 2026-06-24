@@ -430,6 +430,10 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       authenticatedAdmin,
     }) => {
       const { page } = authenticatedAdmin;
+      // PDF render is heavy under CI parallel load; CI runs --timeout=90000 and
+      // test.slow() triples it so the render + both downloads fit. The actual
+      // robustness fix is render-side in render-pdf.ts (grid-or-empty selector).
+      test.slow();
       await page.goto(`/dashboard/${SEMESTER}/student-table`);
       await waitForAppReady(page);
 
@@ -444,7 +448,10 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       await page.getByRole("button", { name: "นำออก Excel" }).click();
       expect((await xlsx).suggestedFilename()).toMatch(/\.xlsx$/);
 
-      const pdf = page.waitForEvent("download");
+      // The real flake is render-side (render-pdf.ts now waits for grid-or-empty
+      // + 30s); the download only fires after that render completes. 60s fits
+      // under the test.slow() budget. Issues: 8fm / d9t / 4i3.
+      const pdf = page.waitForEvent("download", { timeout: 60_000 });
       await page.getByRole("button", { name: "นำออก PDF" }).click();
       expect((await pdf).suggestedFilename()).toMatch(/\.pdf$/);
     });

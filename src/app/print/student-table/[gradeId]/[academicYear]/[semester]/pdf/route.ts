@@ -2,8 +2,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
-import { getBaseUrl } from "@/utils/canonical-url";
-import { parseCookieHeader } from "@/features/print/cookies";
+import { parseCookieHeader, resolveSelfRenderBase } from "@/features/print/cookies";
 import { renderUrlToPdf } from "@/features/print/render-pdf";
 
 type Params = { gradeId: string; academicYear: string; semester: string };
@@ -28,13 +27,7 @@ export async function GET(
     notFound();
   }
 
-  // Trusted, server-configured base in production (never the Host header, so a
-  // spoofed Host can't redirect the forwarded session cookies to an attacker
-  // origin); same-origin self-fetch only in local dev.
-  const base =
-    process.env.NODE_ENV === "production"
-      ? getBaseUrl()
-      : new URL(req.url).origin;
+  const base = resolveSelfRenderBase(req);
 
   // Forward the caller's session cookies so headless Chromium passes the admin
   // auth check on the print page (which also self-enforces admin auth). Under
