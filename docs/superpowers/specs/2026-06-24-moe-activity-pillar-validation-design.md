@@ -69,10 +69,9 @@ function validateActivityCoverage(
 
 - Collect `ps.subject.ActivityType` for `ps.Category === ACTIVITY` (ignore null).
 - Grade-aware **required** sets (warn per missing type):
-  - Junior **M1–M3**: `GUIDANCE`, `SCOUT`, `SOCIAL_SERVICE`
-  - Senior **M4–M6**: `GUIDANCE`, `CLUB`, `SOCIAL_SERVICE`
-- `OTHER` and the non-required student type satisfy **no** requirement (allowed, ignored for
-  coverage).
+  - Junior **M1–M3**: `GUIDANCE`, `SCOUT`, `CLUB`, `SOCIAL_SERVICE` (ม.ต้น runs both ลูกเสือ and ชุมนุม)
+  - Senior **M4–M6**: `GUIDANCE`, `CLUB`, `SOCIAL_SERVICE` (uniformed `SCOUT`/นศท. optional)
+- `OTHER` (and, at senior, `SCOUT`) satisfies **no** requirement (allowed, ignored for coverage).
 - Thai warnings per missing category, e.g. `ขาดกิจกรรมแนะแนว (GUIDANCE)`.
 - Wire into `validateProgramMOECredits`, **replacing** the coarse `hasActivities` warning block.
   Keep a "no activities at all" message when the program has zero `ACTIVITY` subjects.
@@ -88,10 +87,11 @@ function validateActivityCoverage(
 ### D. Tests (TDD)
 
 Add `validateActivityCoverage` cases to `__test__/features/program/moe-validation.service.test.ts`:
-- Junior with GUIDANCE+SCOUT+SOCIAL_SERVICE → no warning.
+- Junior with GUIDANCE+SCOUT+CLUB+SOCIAL_SERVICE → no warning.
+- Junior missing CLUB → warns missing CLUB.
 - Junior missing SCOUT → warns missing SCOUT.
 - Senior with GUIDANCE+CLUB+SOCIAL_SERVICE → no warning.
-- Senior with SCOUT only → warns missing CLUB + SOCIAL_SERVICE + GUIDANCE.
+- Senior with SCOUT only → warns missing GUIDANCE + CLUB + SOCIAL_SERVICE (SCOUT alone counts for nothing).
 - Program with only `OTHER` activities → warns full required set.
 - Program with zero ACTIVITY subjects → "no activities at all" message.
 
