@@ -122,7 +122,7 @@ model grade_fundamental {
   subject            subject @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_grade_fundamental_subject")
 
   @@unique([Year, SubjectCode], map: "grade_fundamental_year_subject_unique")
-  @@index([Year])
+  @@index([Year], map: "grade_fundamental_Year_idx")
 }
 
 model program_fundamental_override {
@@ -136,7 +136,7 @@ model program_fundamental_override {
   subject                      subject @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_pfo_subject")
 
   @@unique([ProgramID, SubjectCode], map: "program_fundamental_override_unique")
-  @@index([ProgramID])
+  @@index([ProgramID], map: "program_fundamental_override_ProgramID_idx")
 }
 
 model teacher {
