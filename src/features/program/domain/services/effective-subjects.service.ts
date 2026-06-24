@@ -93,5 +93,5 @@ export function toProgramSubjectShape(
     MaxCredits: r.MaxCredits,
     SortOrder: r.SortOrder,
     subject: r.subject,
-  })) as Array<program_subject & { subject: subject }>;
+  }));
 }
