@@ -139,9 +139,7 @@ export const findSubjectsByGrade = cache(
       grade.ProgramID,
     );
 
-    // Cast: EffectiveSubject is a superset of ProgramSubjectWithSubject; callers
-    // only access SubjectCode, SubjectName, Credit, Category which are all present.
-    return effective as unknown as ProgramSubjectWithSubject[];
+    return effective;
   },
 );
 
