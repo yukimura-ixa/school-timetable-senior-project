@@ -5,6 +5,7 @@
  * Provides data fetching methods for curriculum compliance analysis including program requirements and credit tracking.
  */
 
+import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 import prisma from "@/lib/prisma";
 import type { Prisma } from "@/prisma/generated/client";
 import type {
@@ -21,6 +22,7 @@ import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/uti
 // Prisma payload types for compliance queries
 type TimeslotId = { TimeslotID: string };
 
+// Program fetch excludes program_subject — effective subjects come from the seam
 type ProgramWithRelations = Prisma.programGetPayload<{
   include: {
     gradelevel: {
@@ -38,21 +40,16 @@ type ProgramWithRelations = Prisma.programGetPayload<{
         };
       };
     };
-    program_subject: {
-      include: {
-        subject: {
-          select: {
-            SubjectName: true;
-          };
-        };
-      };
-    };
   };
 }>;
 
 type GradeWithSchedules = ProgramWithRelations["gradelevel"][number];
 type ClassScheduleWithSubject = GradeWithSchedules["class_schedule"][number];
-type ProgramSubjectWithName = ProgramWithRelations["program_subject"][number];
+
+// Shape returned by getEffectiveSubjectsForValidation
+type ProgramSubjectWithName = Awaited<
+  ReturnType<typeof programRepository.getEffectiveSubjectsForValidation>
+>[number];
 
 /**
  * Get program compliance data
@@ -75,7 +72,7 @@ async function getProgramCompliance(
 
   const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
-  // Get all programs with their gradelevels
+  // Get all programs with their gradelevels (no program_subject — seam provides it)
   const programs = await prisma.program.findMany({
     include: {
       gradelevel: {
@@ -101,20 +98,21 @@ async function getProgramCompliance(
           },
         },
       },
-      program_subject: {
-        include: {
-          subject: {
-            select: {
-              SubjectName: true,
-            },
-          },
-        },
-      },
     },
   });
 
+  // Fetch effective subjects per-program via the seam (includes inherited CORE)
+  const effectiveSubjectsByProgram = await Promise.all(
+    programs.map((p) =>
+      programRepository.getEffectiveSubjectsForValidation(p.ProgramID),
+    ),
+  );
+
   // Transform to compliance data
-  return programs.map((program: ProgramWithRelations) => {
+  return Promise.all(
+    programs.map(async (program: ProgramWithRelations, idx: number) => {
+      const programSubjects: ProgramSubjectWithName[] =
+        effectiveSubjectsByProgram[idx] ?? [];
     // Collect all scheduled subjects for this program
     const scheduledSubjects = new Map<
       string,
@@ -174,8 +172,8 @@ async function getProgramCompliance(
       total: program.MinTotalCredits,
     };
 
-    // Calculate required credits per category from program_subject
-    program.program_subject.forEach((ps: ProgramSubjectWithName) => {
+    // Calculate required credits per category from effective subjects
+    programSubjects.forEach((ps: ProgramSubjectWithName) => {
       switch (ps.Category) {
         case "CORE":
           requiredCredits.core += ps.MinCredits;
@@ -218,20 +216,19 @@ async function getProgramCompliance(
 
     // Check for missing mandatory subjects
     const scheduledSubjectCodes = new Set(scheduledSubjects.keys());
-    const missingMandatorySubjects: MandatorySubjectInfo[] =
-      program.program_subject
-        .filter(
-          (ps: ProgramSubjectWithName) =>
-            ps.IsMandatory && !scheduledSubjectCodes.has(ps.SubjectCode),
-        )
-        .map((ps: ProgramSubjectWithName) => ({
-          subjectCode: ps.SubjectCode,
-          subjectName: ps.subject?.SubjectName || ps.SubjectCode,
-          category: ps.Category,
-          minCredits: ps.MinCredits,
-          maxCredits: ps.MaxCredits,
-          reason: "ยังไม่ได้จัดในตาราง",
-        }));
+    const missingMandatorySubjects: MandatorySubjectInfo[] = programSubjects
+      .filter(
+        (ps: ProgramSubjectWithName) =>
+          ps.IsMandatory && !scheduledSubjectCodes.has(ps.SubjectCode),
+      )
+      .map((ps: ProgramSubjectWithName) => ({
+        subjectCode: ps.SubjectCode,
+        subjectName: ps.subject?.SubjectName || ps.SubjectCode,
+        category: ps.Category,
+        minCredits: ps.MinCredits,
+        maxCredits: ps.MaxCredits,
+        reason: "ยังไม่ได้จัดในตาราง",
+      }));
 
     // Find track label
     const trackLabels: Record<string, string> = {
@@ -256,7 +253,8 @@ async function getProgramCompliance(
       missingMandatorySubjects,
       gradeCount: program.gradelevel.length,
     };
-  });
+  }),
+  );
 }
 
 /**
