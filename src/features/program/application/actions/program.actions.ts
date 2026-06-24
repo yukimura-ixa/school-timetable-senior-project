@@ -289,11 +289,21 @@ export const assignSubjectsToProgramAction = createAction(
       throw new Error("ไม่สามารถอัปเดตวิชาในหลักสูตรได้");
     }
 
-    // Validate MOE credits using updated assignments (with subject details)
-    // Note: program_subject is already correctly typed via Prisma's include
+    // Invalidate before reading through the seam so the effective-subjects
+    // cache is fresh (warm-tier cacheStrategy won't auto-invalidate on write).
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      `program_${input.ProgramID}`,
+    ]);
+
+    // Validate MOE credits using the effective subject set (template-inherited
+    // CORE + overrides + owned), sourced through the inheritance seam.
+    const effectiveSubjects =
+      await programRepository.getEffectiveSubjectsForValidation(input.ProgramID);
     const validationResult = validateProgramMOECredits(
       updatedProgram.Year,
-      updatedProgram.program_subject,
+      effectiveSubjects,
     );
 
     // Log warnings if not fully compliant (could display in UI)
@@ -303,7 +313,6 @@ export const assignSubjectsToProgramAction = createAction(
       });
     }
 
-    await invalidatePublicCache(["stats"]);
     return {
       program: updatedProgram,
       moeValidation: validationResult,
