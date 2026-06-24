@@ -93,6 +93,7 @@ export default defineConfig({
     alias: {
       // Handle module aliases from tsconfig.json paths
       "@/public": path.resolve(__dirname, "./public"),
+      "@/prisma/data": path.resolve(__dirname, "./prisma/data"),
       "@/prisma/generated/client": path.resolve(
         __dirname,
         "./prisma/generated/client",
