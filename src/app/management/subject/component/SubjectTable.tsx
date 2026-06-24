@@ -123,6 +123,7 @@ const subjectColumns: ColumnDef<subject>[] = [
       { value: "SCOUT", label: "ลูกเสือ/เนตรนารี" },
       { value: "GUIDANCE", label: "แนะแนว" },
       { value: "SOCIAL_SERVICE", label: "กิจกรรมเพื่อสังคม" },
+      { value: "OTHER", label: "อื่นๆ" },
     ],
     width: 150,
     render: (value: $Enums.ActivityType | null) => {
@@ -132,6 +133,7 @@ const subjectColumns: ColumnDef<subject>[] = [
         SCOUT: "ลูกเสือ/เนตรนารี",
         GUIDANCE: "แนะแนว",
         SOCIAL_SERVICE: "กิจกรรมเพื่อสังคม",
+        OTHER: "อื่นๆ",
       };
       return map[value] || value;
     },

@@ -335,4 +335,5 @@ enum ActivityType {
   SCOUT
   GUIDANCE
   SOCIAL_SERVICE
+  OTHER
 }

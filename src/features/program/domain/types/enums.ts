@@ -25,6 +25,7 @@ export enum ActivityType {
   SCOUT = "SCOUT",
   GUIDANCE = "GUIDANCE",
   SOCIAL_SERVICE = "SOCIAL_SERVICE",
+  OTHER = "OTHER",
 }
 
 export enum ProgramTrack {
