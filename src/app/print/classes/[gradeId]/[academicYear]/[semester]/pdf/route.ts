@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getBaseUrl } from "@/utils/canonical-url";
+import { resolveSelfRenderBase } from "@/features/print/cookies";
 import { renderUrlToPdf } from "@/features/print/render-pdf";
 
 type Params = { gradeId: string; academicYear: string; semester: string };
@@ -14,12 +14,7 @@ export async function GET(req: Request, { params }: { params: Promise<Params> })
     notFound();
   }
 
-  // Trusted, server-configured base in production (never the Host header, to
-  // avoid SSRF); same-origin self-fetch only in local dev.
-  const base =
-    process.env.NODE_ENV === "production"
-      ? getBaseUrl()
-      : new URL(req.url).origin;
+  const base = resolveSelfRenderBase(req);
   const printUrl = new URL(
     `/print/classes/${gradeId}/${academicYear}/${semester}`,
     base,
