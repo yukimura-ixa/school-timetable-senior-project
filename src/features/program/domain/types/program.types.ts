@@ -36,3 +36,5 @@ export type ProgramSubjectWithSubject =
  * Subject extracted from program_subject relation
  */
 export type ProgramSubject = ProgramSubjectWithSubject["subject"];
+
+export type { EffectiveSubject } from "@/features/program/domain/services/effective-subjects.service";

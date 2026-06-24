@@ -8,6 +8,12 @@
  */
 
 import prisma from "@/lib/prisma";
+import { cacheStrategy } from "@/lib/cache-config";
+import {
+  getEffectiveProgramSubjects,
+  toProgramSubjectShape,
+  type EffectiveSubject,
+} from "@/features/program/domain/services/effective-subjects.service";
 import type {
   CreateProgramInput,
   UpdateProgramInput,
@@ -316,6 +322,56 @@ export const programRepository = {
         SortOrder: "asc",
       },
     });
+  },
+
+  /**
+   * Effective subjects = per-year template (grade_fundamental) inherited by
+   * reference, minus per-program excludes, plus credit overrides, plus the
+   * program's own (ADDITIONAL/ACTIVITY) program_subject rows. The single seam
+   * all readers must use instead of reading program_subject directly.
+   */
+  async getEffectiveSubjects(programId: number): Promise<EffectiveSubject[]> {
+    const program = await prisma.program.findUnique({
+      where: { ProgramID: programId },
+      select: { ProgramID: true, Year: true },
+      ...cacheStrategy("warm", ["programs", `program_${programId}`]),
+    });
+    if (!program) return [];
+
+    const [template, overrides, programSubjects] = await Promise.all([
+      prisma.grade_fundamental.findMany({
+        where: { Year: program.Year },
+        include: { subject: true },
+        orderBy: { SortOrder: "asc" },
+        ...cacheStrategy("static", ["fundamentals", `fundamentals_y${program.Year}`]),
+      }),
+      prisma.program_fundamental_override.findMany({
+        where: { ProgramID: programId },
+        ...cacheStrategy("warm", ["programs", `program_${programId}`]),
+      }),
+      prisma.program_subject.findMany({
+        where: { ProgramID: programId },
+        include: { subject: true },
+        orderBy: { SortOrder: "asc" },
+        ...cacheStrategy("warm", ["programs", `program_${programId}`]),
+      }),
+    ]);
+
+    return getEffectiveProgramSubjects({
+      programId,
+      year: program.Year,
+      template,
+      overrides,
+      programSubjects,
+    });
+  },
+
+  /** Adapter to the shape moe-validation.service consumes. */
+  async getEffectiveSubjectsForValidation(programId: number) {
+    // Reference programRepository.* (not `this`) so destructured callers don't break.
+    return toProgramSubjectShape(
+      await programRepository.getEffectiveSubjects(programId),
+    );
   },
 
   /**
