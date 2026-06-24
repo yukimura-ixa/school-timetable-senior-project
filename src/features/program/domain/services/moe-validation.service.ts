@@ -183,13 +183,8 @@ export function validateProgramMOECredits(
     .filter((ps) => ps.Category !== SubjectCategory.ACTIVITY)
     .reduce((sum, ps) => sum + ps.MinCredits, 0);
 
-  // Check for activities
-  const hasActivities = programSubjects.some(
-    (ps) => ps.Category === SubjectCategory.ACTIVITY,
-  );
-  if (!hasActivities) {
-    warnings.push("ไม่พบกิจกรรมพัฒนาผู้เรียน (ชุมนุม, แนะแนว, ลูกเสือ)");
-  }
+  // Check activity-pillar coverage (กิจกรรมพัฒนาผู้เรียน), grade-aware (warnings only)
+  warnings.push(...validateActivityCoverage(year, programSubjects).warnings);
 
   // Check total credits
   if (totalCurrent < totalRequired) {
