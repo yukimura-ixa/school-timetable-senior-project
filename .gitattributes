@@ -28,6 +28,14 @@
 *.sh    text eol=lf
 *.svg   text eol=lf
 
+# Beads rewrites this JSONL export on every issue op, so two branches almost
+# always both touch it. A resulting merge conflict makes the PR CONFLICTING,
+# which silently stops GitHub from running pull_request CI/E2E (only CodeQL,
+# which uses the head ref, still fires). Union-merge so concurrent edits combine
+# instead of conflicting; beads reconciles from its Dolt store (source of truth)
+# on the next op. Keep PR branches merged with main regardless.
+.beads/issues.jsonl merge=union
+
 # Binary assets — never normalize or diff as text.
 *.png   binary
 *.jpg   binary
