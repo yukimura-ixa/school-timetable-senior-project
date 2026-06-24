@@ -1,5 +1,13 @@
 # MOE Standards Implementation Summary
 
+> **⚠️ Partly superseded (2026-06-24, bbn).** The standalone validation layer this document
+> describes — `src/utils/moe-validation.ts` (`validateProgramStandards`, `formatValidationResult`,
+> year helpers) and the `__test__/moe-standards/moe-property-based.test.ts` suite — has been
+> **removed** as dead code (no app consumers). The **live** MOE validator is
+> `src/features/program/domain/services/moe-validation.service.ts`. The `src/config/moe-standards.ts`
+> config (`getTrackElectives`, the `*_ELECTIVES` constants, `ProgramTrack`, `YearKey`) is still in
+> use. Treat code paths/file references below as historical unless they point at those live symbols.
+
 ## ✅ Implementation Complete
 
 **Date**: October 27, 2025  
