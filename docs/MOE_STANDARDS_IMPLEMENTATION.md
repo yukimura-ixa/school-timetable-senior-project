@@ -180,9 +180,10 @@ Each grade level (M1-M6) has:
 
 ### 2. Program Track Support
 
-- **General Track** — Balanced curriculum
-- **Science-Math Track** — STEM-focused electives
-- **Arts-Language Track** — Humanities-focused electives
+- **General Track** (`GENERAL`, ทั่วไป) — balanced curriculum
+- **Science-Math Track** (`SCIENCE_MATH`, วิทย์-คณิต) — STEM-focused electives
+- **Arts-Math Track** (`LANGUAGE_MATH`, ศิลป์-คำนวณ) — math + languages, no lab science
+- **Arts-Language Track** (`LANGUAGE_ARTS`, ศิลป์-ภาษา) — language-focused electives
 
 ### 3. Flexible Validation
 
@@ -207,7 +208,7 @@ Each grade level (M1-M6) has:
 ```typescript
 type YearKey = "M1" | "M2" | "M3" | "M4" | "M5" | "M6";
 type SubjectCategory = "CORE" | "ELECTIVE" | "ACTIVITY";
-type ProgramTrack = "GENERAL" | "SCIENCE_MATH" | "ARTS_LANGUAGE";
+type ProgramTrack = "GENERAL" | "SCIENCE_MATH" | "LANGUAGE_MATH" | "LANGUAGE_ARTS";
 
 interface SubjectWeeklyStandard {
   subjectCode: string;

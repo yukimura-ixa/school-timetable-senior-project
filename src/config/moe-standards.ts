@@ -293,7 +293,7 @@ const SCIENCE_MATH_ELECTIVES: SubjectWeeklyStandard[] = [
 /**
  * Arts-Language track electives for upper secondary
  */
-const ARTS_LANGUAGE_ELECTIVES: SubjectWeeklyStandard[] = [
+const LANGUAGE_ARTS_ELECTIVES: SubjectWeeklyStandard[] = [
   {
     subjectCode: "SS_ADV",
     subjectNameTh: "สังคมศึกษาเพิ่มเติม",
@@ -453,7 +453,7 @@ export const MOE_WEEKLY_STANDARDS: Record<YearKey, YearStandard> = {
     minTotalLessons: 30,
     maxTotalLessons: 34,
     coreSubjects: UPPER_SECONDARY_CORE,
-    electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...ARTS_LANGUAGE_ELECTIVES],
+    electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...LANGUAGE_ARTS_ELECTIVES],
     activities: COMMON_ACTIVITIES,
   },
   M5: {
@@ -462,7 +462,7 @@ export const MOE_WEEKLY_STANDARDS: Record<YearKey, YearStandard> = {
     minTotalLessons: 30,
     maxTotalLessons: 34,
     coreSubjects: UPPER_SECONDARY_CORE,
-    electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...ARTS_LANGUAGE_ELECTIVES],
+    electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...LANGUAGE_ARTS_ELECTIVES],
     activities: COMMON_ACTIVITIES,
   },
   M6: {
@@ -471,7 +471,7 @@ export const MOE_WEEKLY_STANDARDS: Record<YearKey, YearStandard> = {
     minTotalLessons: 30,
     maxTotalLessons: 34,
     coreSubjects: UPPER_SECONDARY_CORE,
-    electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...ARTS_LANGUAGE_ELECTIVES],
+    electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...LANGUAGE_ARTS_ELECTIVES],
     activities: COMMON_ACTIVITIES,
   },
 };
@@ -579,7 +579,7 @@ export function getTrackElectives(
     case "LANGUAGE_MATH":
       return LANGUAGE_MATH_ELECTIVES;
     case "LANGUAGE_ARTS":
-      return ARTS_LANGUAGE_ELECTIVES;
+      return LANGUAGE_ARTS_ELECTIVES;
     case "GENERAL":
     default:
       return standard.electiveSubjects;
