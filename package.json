@@ -69,6 +69,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:backfill:break-groups": "tsx prisma/migration-backfill-break-groups.ts",
+    "db:backfill:fundamentals": "tsx prisma/migration-backfill-fundamentals.ts",
     "admin:seed:prod": "tsx scripts/seed-prod-admin.ts",
     "doctor": "npx react-doctor@latest"
   },

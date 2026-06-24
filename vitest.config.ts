@@ -94,6 +94,10 @@ export default defineConfig({
       // Handle module aliases from tsconfig.json paths
       "@/public": path.resolve(__dirname, "./public"),
       "@/prisma/data": path.resolve(__dirname, "./prisma/data"),
+      "@/prisma/migration-backfill-fundamentals": path.resolve(
+        __dirname,
+        "./prisma/migration-backfill-fundamentals",
+      ),
       "@/prisma/generated/client": path.resolve(
         __dirname,
         "./prisma/generated/client",
