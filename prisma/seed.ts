@@ -77,6 +77,7 @@ import { generateTimeslotId } from "../src/utils/timeslot-id";
 import { generateTimeslots } from "../src/features/timeslot/domain/services/timeslot.service";
 import { buildGradeGroupIndex, isBreakForGrade } from "../src/utils/break-utils";
 import type { SlotConfig } from "../src/features/timeslot/domain/models/break.types";
+import { FUNDAMENTALS } from "./data/fundamentals";
 
 // ── Phase 2A canonical slot layout (single source of truth) ──────────────────
 // One real timeslot per slot. Breaks are real, occupying slots (universal recess
@@ -660,6 +661,27 @@ async function seedDemoData() {
   }
   console.log(`✅ ${ALL_GRADES.length} grade levels`);
 
+  // ── Seed grade_fundamental template rows ───────────────────────────────────
+  console.log("📋 Seeding grade_fundamental template rows...");
+  for (const row of FUNDAMENTALS) {
+    await withRetry(
+      () =>
+        prisma.grade_fundamental.upsert({
+          where: { Year_SubjectCode: { Year: row.Year, SubjectCode: row.SubjectCode } },
+          update: {},
+          create: {
+            Year: row.Year,
+            SubjectCode: row.SubjectCode,
+            MinCredits: row.MinCredits,
+            MaxCredits: row.MaxCredits,
+            SortOrder: row.SortOrder,
+          },
+        }),
+      `Upsert grade_fundamental y${row.Year} ${row.SubjectCode}`,
+    );
+  }
+  console.log(`✅ ${FUNDAMENTALS.length} grade_fundamental rows`);
+
   // ── Seed program-subject links ──────────────────────────────────────────────
   console.log("🔗 Seeding program-subject links...");
   const creditToNum = (c: subject_credit): number =>
@@ -686,6 +708,7 @@ async function seedDemoData() {
     for (let i = 0; i < codes.length; i++) {
       const code = codes[i];
       const subj = subjectMap.get(code)!;
+      if (subj.category === "CORE") continue;
       await withRetry(
         () =>
           prisma.program_subject.upsert({
