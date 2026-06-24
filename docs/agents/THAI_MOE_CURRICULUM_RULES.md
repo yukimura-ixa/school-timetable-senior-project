@@ -303,3 +303,65 @@ Tracked: beads `school-timetable-senior-project-h9t`.
 - [TruePlookpanya — แผนการเรียน ม.ปลาย มีสายอะไรบ้าง](https://www.trueplookpanya.com/knowledge/content/92354)
 - [รักวิทยา — ม.4 วิทยาศาสตร์-คณิตศาสตร์](https://www.rakwittaya.ac.th/sci-math.html)
 - [สสวท. (IPST) — หลักสูตรฉบับปรับปรุง 2560](https://www.ipst.ac.th/curriculum)
+
+---
+
+## 8. Senior (ม.ปลาย) semester-1 programs — from the school course structure
+
+> **Source**: `โครงสร้างหลักสูตร.69.pdf` (repo root), ปีการศึกษา **2569**. **ภาคเรียนที่ 1 only**
+> (left column of each grade table). All periods/credits taken from the PDF **text layer** and
+> **checksummed against each table's printed รวม**. Thai names read from **rendered page images**
+> (the embedded font has no ToUnicode map, so text extraction drops Thai glyphs but keeps digits).
+> Recorded faithfully to source — see anomalies in §8.5.
+
+### 8.1 Programs offered (ม.ปลาย, semester 1)
+
+| Grade | Plan | Track (verbatim) | พื้นฐาน | เพิ่มเติม | Credit-bearing total | +กิจกรรม → ชม./สัปดาห์ |
+| ----- | ---- | ---------------- | ------- | --------- | -------------------- | ---------------------- |
+| ม.4 | 4/1 | แผนการเรียนวิทย์ - คณิต | 14 / 7.0 | 16 / 8.0 | **30 / 15.0** | +3 → 33 |
+| ม.5 | 5/1 | แผนการเรียนวิทย์ - คณิต | 14 / 7.0 | 15 / 7.5 | **29 / 14.5** | +3 → 32 |
+| ม.6 | 6/1 | แผนการเรียนวิทย์ - คณิต | 13 / 6.5 | 17 / 8.5 | **30 / 15.0** | +3 → 33 |
+| ม.4 | 4/2 | ปวช. **ทวิศึกษา** — เทคโนโลยีธุรกิจดิจิทัล (รหัสสาขา 21910) | 14 / 7.0 | 14 / 7.0¹ | **28 / 14.0** | +3 → 35 |
+| ม.5 | 5/2 | แผนการเรียนทั่วไป | 14 / 7.0 | 16 / 8.0 | **30 / 15.0** | +3 → 33 |
+| ม.6 | 6/2 | แผนการเรียนทั่วไป | 13 / 6.5 | 14 / 7.0 | **27 / 13.5** | +3 → 30 |
+
+¹ ทวิศึกษา "เพิ่มเติม" = vocational competency modules (สมรรถนะวิชาชีพ), not academic electives. Cells are `periods / credits`.
+
+### 8.2 วิชาพื้นฐาน — shared across all plans of a grade (national core)
+
+Basic subjects are identical for every program in the same grade (verified: number patterns of 4/1≡4/2, 5/1≡5/2, 6/1≡6/2 match).
+
+- **ม.4 (14 / 7.0)**: ท31101 ภาษาไทย·2, ค31101 คณิตศาสตร์·2, ว31101 วิทยาศาสตร์ชีวภาพ1·1, ส31101 สังคมศึกษา·2, ส30101 ประวัติศาสตร์1·1, พ31101 สุขศึกษาฯ·1, ศ31101 ศิลปะ·1, ง31101 การงานอาชีพ·1, อ31101 ภาษาอังกฤษ·2, ว31171 เทคโนโลยี(การออกแบบ)1·1
+- **ม.5 (14 / 7.0)**: ท32101·2, ค32101·2, ว32101 วิทยาศาสตร์กายภาพ(เคมี)·1, ส32101·2, ส30103 ประวัติศาสตร์3·1, พ32101·1, ศ32101 ทัศนศิลป์1·1, ง32101 การงานอาชีพ3·1, อ32101·2, ว32171 เทคโนโลยีและการออกแบบ·1
+- **ม.6 (13 / 6.5)**: ท33101·2, ค33101·2, ส33101·2, ว33101 โลก ดาราศาสตร์ฯ·1, ว33171 เทคโนโลยีและการออกแบบ·1, พ33101·1, ศ33101 ศิลปะ(นาฏศิลป์)1·1, ง33101 การงานอาชีพ5·1, อ33101·2 (`code·periods`)
+
+### 8.3 วิชาเพิ่มเติม — the track differentiator
+
+**ม.4 วิทย์-คณิต (4/1) — 16 / 8.0**: ค31201 คณิตศาสตร์เพิ่มเติม 3/1.5 · ว31201 ฟิสิกส์1 3/1.5 · ว31241 ชีววิทยา1 2/1.0 · ว31221 เคมี1 3/1.5 · อ31201 ภาษาอังกฤษเพิ่มเติม1 2/1.0 · ว30286 การออกแบบกราฟิก 2/1.0 · โครงงาน1 (การสืบค้นข้อมูล) 1/0.5
+
+**ม.5 วิทย์-คณิต (5/1) — 15 / 7.5**: ค32201 คณิตศาสตร์เพิ่มเติม 3/1.5 · ว32203 ฟิสิกส์3 3/1.5 · ว32223 เคมี3 2/1.0 · ว32243 ชีววิทยา3 3/1.5 · อ32201 ภาษาอังกฤษเพิ่มเติม3 2/1.0 · I30201 การศึกษาค้นคว้า(IS) 1/0.5 · ว30294 หุ่นยนต์1 1/0.5
+
+**ม.6 วิทย์-คณิต (6/1) — 17 / 8.5**: ค33201 คณิตศาสตร์เพิ่มเติม 3/1.5 · ว33205 ฟิสิกส์5 3/1.5 · ว33225 เคมี5 3/1.5 · ว33245 ชีววิทยา5 3/1.5 · อ33201 ภาษาอังกฤษเพิ่มเติม5 2/1.0 · ว30297 (วิทย์ฯ เลือก) 2/1.0 · โครงงาน1 (การสืบค้นข้อมูล) 1/0.5
+
+**ม.4 ทวิศึกษา/ปวช. (4/2) — 14 / 7.0** (สมรรถนะวิชาชีพ; ปวช. codes): 20001-1005 ·4/2.0 · 219101-1001 พื้นฐานธุรกิจดิจิทัล 3/1.5 · 219101-2001 ระบบปฏิบัติการคอมพิวเตอร์ 4/2.0 · 219101-2002 อินเทอร์เน็ตในงานธุรกิจดิจิทัล 3/1.5
+
+**ม.5 ทั่วไป (5/2) — 16 / 8.0**: ค32201 คณิตศาสตร์เพิ่มเติม 3/1.5 · อ32201 ภาษาอังกฤษเพิ่มเติม3 2/1.0 · ง32201 งานประดิษฐ์ใบตอง 2/1.0 · I30201 การศึกษาค้นคว้า(IS) 1/0.5 · ว30294 หุ่นยนต์1 2/1.0 · ว30288 การพัฒนาและออกแบบเว็บ1 2/1.0 · จ32201 ภาษาจีน1 2/1.0 · ว……… *(ต้องเปิดวิทย์เพิ่มเติม — placeholder)* 2/1.0
+
+**ม.6 ทั่วไป (6/2) — 14 / 7.0**: ค33201 คณิตศาสตร์เพิ่มเติม 3/1.5 · ว30296 ฟิสิกส์กับเทคโนโลยี 2/1.0 · อ33201 ภาษาอังกฤษเพิ่มเติม1 2/1.0 · ง33201 การงานเพิ่มเติม 2/1.0 · โครงงาน1 (การสืบค้นข้อมูล) 1/0.5 · จ33201 ภาษาจีนเพื่อการสื่อสาร 2/1.0 · ว30284 ดวงดาวและอวกาศ 2/1.0
+
+### 8.4 กิจกรรมพัฒนาผู้เรียน (every program)
+
+All six list the **same 3 activity slots, 1 period each, no credit**: แนะแนว · กิจกรรมชุมนุม · บำเพ็ญประโยชน์. This realizes §6's pillar as **3 periods/week**, and notably **omits the uniformed นักเรียน category** (ลูกเสือ/นศท.) from the ม.ปลาย semester grid — consistent with §6.3's gap note.
+
+### 8.5 Anomalies (verbatim — not normalized)
+
+1. **Plan /2 changes track name by grade**: labeled **ทวิศึกษา (ปวช.)** at ม.4 (4/2) but **ทั่วไป** at ม.5/ม.6 (5/2, 6/2). Consistent with ทวิศึกษา being a new 2569 ม.4 offering while older cohorts continue as General — recorded as-is.
+2. **ทวิศึกษา uses ปวช. competency codes** (`20001-1005`, `219101-1001/2001/2002`) — outside the MOE basic-ed SubjectCode format `^[ก-ฮ][1-3]\d{4}$` (§1.3).
+3. **ม.5 ทั่วไป has a red placeholder** in เพิ่มเติม: *"ต้องเปิดวิทย์เพิ่มเติม"* (the school's own TODO to open a science elective) — counted as 2/1.0 in their รวม.
+
+### 8.6 Recheck of §7 against this ground truth
+
+- ✅ `SCIENCE_MATH` (วิทย์-คณิต) — confirmed real; เพิ่มเติม matches the archetype (ฟิสิกส์/เคมี/ชีววิทยา + คณิตเพิ่มเติม).
+- ⚠️ `GENERAL` (ทั่วไป) — exists, but §7 framed it as "no specialization." Ground truth: General **does carry electives** (คณิตเพิ่มเติม + อังกฤษ + จีน + หุ่นยนต์/เว็บ/งานประดิษฐ์, ~16 periods). Refine §7: GENERAL = a *light mixed* elective set, not "none."
+- ◻️ `LANGUAGE_MATH` / `LANGUAGE_ARTS` — **not offered by this school** → unverified here (not invalidated; the platform is multi-school). No change to §7's verdict on them.
+- 🆕 **`ProgramTrack` cannot represent ทวิศึกษา** (vocational dual). It needs a distinct program type + a SubjectCode scheme for ปวช. codes, and "เพิ่มเติม" credits that are competency modules. New gap beyond §7. Tracked: beads `school-timetable-senior-project-rne`.
