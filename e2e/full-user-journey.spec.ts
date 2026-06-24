@@ -444,7 +444,11 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       await page.getByRole("button", { name: "นำออก Excel" }).click();
       expect((await xlsx).suggestedFilename()).toMatch(/\.xlsx$/);
 
-      const pdf = page.waitForEvent("download");
+      // PDF render (headless Chromium) under CI parallel load (workers=3) can
+      // exceed the 30s default download wait; raise it. Per-test ceiling is 150s
+      // in CI (playwright.config.ts), so 90s leaves headroom. Do not lower back
+      // to 30s — flake re-surfaces. Issues: 8fm / d9t / 4i3.
+      const pdf = page.waitForEvent("download", { timeout: 90_000 });
       await page.getByRole("button", { name: "นำออก PDF" }).click();
       expect((await pdf).suggestedFilename()).toMatch(/\.pdf$/);
     });
