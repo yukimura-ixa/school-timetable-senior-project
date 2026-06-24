@@ -77,13 +77,14 @@ function validateActivityCoverage(
 - Wire into `validateProgramMOECredits`, **replacing** the coarse `hasActivities` warning block.
   Keep a "no activities at all" message when the program has zero `ACTIVITY` subjects.
 
-### C. Cleanup
+### C. Cleanup — DEFERRED to `school-timetable-senior-project-bbn`
 
-- Delete `src/utils/moe-validation.ts` (no consumers, no tests).
-- Fix `COMMON_ACTIVITIES` in `src/config/moe-standards.ts` to reflect the real categories
-  (แนะแนว/ลูกเสือ/ชุมนุม/บำเพ็ญฯ) instead of Homeroom + Club. Keep `YearStandard.activities`.
-- Update affected assertions in `__test__/moe-standards/moe-standards.test.ts` and
-  `__test__/moe-standards/moe-property-based.test.ts`.
+The legacy layer (`COMMON_ACTIVITIES`/`YearStandard.activities`/`getMOEStandards` in
+`src/config/moe-standards.ts` + all of `src/utils/moe-validation.ts`) is unconsumed by the live
+app, **but** `__test__/moe-standards/moe-standards.test.ts` and `moe-property-based.test.ts` test
+*only* that layer — so any edit cascades into rewriting both test files. That removal is orthogonal
+to this feature and is split into its own issue (`-bbn`). `-9vz` is now **purely additive** (A, B,
+D below); no legacy files are touched.
 
 ### D. Tests (TDD)
 
