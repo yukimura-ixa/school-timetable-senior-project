@@ -98,6 +98,10 @@ export default defineConfig({
         __dirname,
         "./prisma/migration-backfill-fundamentals",
       ),
+      "@/scripts/check-program-subject-reads": path.resolve(
+        __dirname,
+        "./scripts/check-program-subject-reads",
+      ),
       "@/prisma/generated/client": path.resolve(
         __dirname,
         "./prisma/generated/client",
