@@ -7,7 +7,7 @@
  * @module moe-validation.service
  */
 
-import { LearningArea, SubjectCategory } from "@/prisma/generated/client";
+import { LearningArea, SubjectCategory, ActivityType } from "@/prisma/generated/client";
 import type { program_subject, subject } from "@/prisma/generated/client";
 import {
   getTrackElectives,
@@ -253,6 +253,57 @@ export function validateMandatorySubjects(
     isValid: errors.length === 0,
     errors,
   };
+}
+
+const REQUIRED_ACTIVITY_TYPES: Record<"junior" | "senior", ActivityType[]> = {
+  junior: ["GUIDANCE", "SCOUT", "CLUB"],
+  senior: ["GUIDANCE", "CLUB"],
+};
+
+const ACTIVITY_TYPE_LABEL_TH: Record<ActivityType, string> = {
+  GUIDANCE: "กิจกรรมแนะแนว",
+  SCOUT: "กิจกรรมนักเรียน (ลูกเสือ/เนตรนารี/นศท.)",
+  CLUB: "กิจกรรมชุมนุม",
+  SOCIAL_SERVICE: "กิจกรรมเพื่อสังคมและสาธารณประโยชน์",
+  OTHER: "กิจกรรมอื่น ๆ",
+};
+
+/**
+ * Warn (never block) when a program lacks the grade-appropriate
+ * กิจกรรมพัฒนาผู้เรียน categories. Junior (ม.1–3) must run ลูกเสือ + ชุมนุม + แนะแนว;
+ * senior (ม.4–6) must run แนะแนว + ชุมนุม (uniformed/นศท. optional). SOCIAL_SERVICE
+ * and OTHER are allowed but satisfy no requirement.
+ */
+export function validateActivityCoverage(
+  year: number,
+  programSubjects: Array<program_subject & { subject: subject }>,
+): { warnings: string[] } {
+  const isJunior = year >= 1 && year <= 3;
+  const isSenior = year >= 4 && year <= 6;
+  if (!isJunior && !isSenior) return { warnings: [] };
+
+  const present = new Set(
+    programSubjects
+      .filter((ps) => ps.Category === SubjectCategory.ACTIVITY)
+      .map((ps) => ps.subject.ActivityType)
+      .filter((t): t is ActivityType => t != null),
+  );
+
+  if (present.size === 0) {
+    return {
+      warnings: ["ไม่พบกิจกรรมพัฒนาผู้เรียน (ชุมนุม, แนะแนว, ลูกเสือ)"],
+    };
+  }
+
+  const required = isJunior
+    ? REQUIRED_ACTIVITY_TYPES.junior
+    : REQUIRED_ACTIVITY_TYPES.senior;
+
+  const warnings = required
+    .filter((t) => !present.has(t))
+    .map((t) => `ขาด${ACTIVITY_TYPE_LABEL_TH[t]} (${t})`);
+
+  return { warnings };
 }
 
 /**

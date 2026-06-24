@@ -3,8 +3,9 @@ import {
   validateProgramMOECredits,
   calculateLearningAreaCredits,
   validateTrackElectives,
+  validateActivityCoverage,
 } from "@/features/program/domain/services/moe-validation.service";
-import { SubjectCategory, LearningArea } from "@/prisma/generated/client";
+import { SubjectCategory, LearningArea, ActivityType } from "@/prisma/generated/client";
 import type { program_subject, subject } from "@/prisma/generated/client";
 
 describe("MOE Validation Service", () => {
@@ -1029,6 +1030,83 @@ describe("MOE Validation Service", () => {
         );
         expect(trackErrors).toHaveLength(0);
       });
+    });
+  });
+
+  describe("validateActivityCoverage", () => {
+    function mkActivity(
+      type: ActivityType | null,
+      id = Math.floor(Math.random() * 100000),
+    ): program_subject & { subject: subject } {
+      return {
+        ProgramSubjectID: id,
+        ProgramID: 1,
+        SubjectCode: `ACT${id}`,
+        Category: SubjectCategory.ACTIVITY,
+        IsMandatory: true,
+        MinCredits: 1,
+        MaxCredits: 1,
+        SortOrder: id,
+        subject: {
+          SubjectCode: `ACT${id}`,
+          SubjectName: "กิจกรรม",
+          Credit: "CREDIT_10",
+          Category: SubjectCategory.ACTIVITY,
+          LearningArea: null,
+          ActivityType: type,
+          IsGraded: false,
+          Description: "",
+        },
+      };
+    }
+
+    it("junior with GUIDANCE+SCOUT+CLUB has no warnings", () => {
+      const subjects = [
+        mkActivity("GUIDANCE"),
+        mkActivity("SCOUT"),
+        mkActivity("CLUB"),
+      ];
+      expect(validateActivityCoverage(1, subjects).warnings).toHaveLength(0);
+    });
+
+    it("junior missing CLUB warns about CLUB", () => {
+      const subjects = [mkActivity("GUIDANCE"), mkActivity("SCOUT")];
+      const { warnings } = validateActivityCoverage(2, subjects);
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0]).toContain("CLUB");
+    });
+
+    it("junior missing SCOUT warns about SCOUT", () => {
+      const subjects = [mkActivity("GUIDANCE"), mkActivity("CLUB")];
+      const { warnings } = validateActivityCoverage(3, subjects);
+      expect(warnings.some((w) => w.includes("SCOUT"))).toBe(true);
+    });
+
+    it("senior with GUIDANCE+CLUB has no warnings (SCOUT/SOCIAL_SERVICE optional)", () => {
+      const subjects = [mkActivity("GUIDANCE"), mkActivity("CLUB")];
+      expect(validateActivityCoverage(4, subjects).warnings).toHaveLength(0);
+    });
+
+    it("senior with SCOUT only warns about GUIDANCE and CLUB", () => {
+      const { warnings } = validateActivityCoverage(5, [mkActivity("SCOUT")]);
+      expect(warnings.some((w) => w.includes("GUIDANCE"))).toBe(true);
+      expect(warnings.some((w) => w.includes("CLUB"))).toBe(true);
+    });
+
+    it("OTHER-only program still warns the full required set", () => {
+      const { warnings } = validateActivityCoverage(4, [mkActivity("OTHER")]);
+      expect(warnings.some((w) => w.includes("GUIDANCE"))).toBe(true);
+      expect(warnings.some((w) => w.includes("CLUB"))).toBe(true);
+    });
+
+    it("zero activity subjects → single generic warning", () => {
+      const { warnings } = validateActivityCoverage(1, []);
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0]).toContain("กิจกรรมพัฒนาผู้เรียน");
+    });
+
+    it("out-of-range year returns no warnings", () => {
+      expect(validateActivityCoverage(7, []).warnings).toHaveLength(0);
     });
   });
 });
