@@ -83,16 +83,10 @@ export const getTeacherByIdAction = createAction(
       asResponse: false,
     });
     const userRole = normalizeAppRole(session?.user?.role);
-    const userId = session?.user?.id;
 
-    // SECURITY: Enforce role-based access
-    // Only Admin or the Teacher themselves can view their profile details
+    // SECURITY: teacher profile details are admin-only.
     if (!isAdminRole(userRole)) {
-      const isOwner =
-        userRole === "teacher" && userId === input.TeacherID.toString();
-      if (!isOwner) {
-        throw new Error("Unauthorized: You can only view your own profile.");
-      }
+      throw new Error("Unauthorized: admin access required.");
     }
 
     const teacher = await teacherRepository.findById(input.TeacherID);

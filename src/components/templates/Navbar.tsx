@@ -134,9 +134,7 @@ function Navbar() {
                               ? "bg-slate-300 animate-pulse"
                               : hydratedRole === "admin"
                                 ? "bg-purple-500"
-                                : hydratedRole === "teacher"
-                                  ? "bg-blue-500"
-                                  : "bg-green-500"
+                                : "bg-green-500"
                           }`}
                         />
                         {showLoading
@@ -144,9 +142,7 @@ function Navbar() {
                           : hydratedSession && hydratedRole
                             ? hydratedRole === "admin"
                               ? "ผู้ดูแลระบบ"
-                              : hydratedRole === "teacher"
-                                ? "คุณครู"
-                                : "นักเรียน"
+                              : "ไม่ระบุ"
                             : "ไม่ระบุ"}
                       </p>
                     </div>

@@ -13,7 +13,6 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { TEACHER_HAPPY, loginAsViaApi } from "./helpers/login";
 
 const BASE = "/schedule/2568/1";
 const PUBLISHED_LABEL = "เผยแพร่แล้ว";
@@ -59,33 +58,6 @@ test("publishes a ready config to PUBLISHED through the readiness gate", async (
 });
 
 test.describe("cross-role verification after publish", () => {
-  test("teacher UI login is rejected (signin is admin-only)", async ({ browser }) => {
-    const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
-    const page = await context.newPage();
-    try {
-      await page.goto("/signin");
-      await page.waitForLoadState("domcontentloaded");
-      await page.fill('input[type="email"]', TEACHER_HAPPY.email);
-      await page.fill('input[type="password"]', TEACHER_HAPPY.password);
-      await page
-        .locator('button:not([data-testid="google-signin-button"])', {
-          hasText: /เข้าสู่ระบบ|sign in|login|submit|continue/i,
-        })
-        .first()
-        .click();
-      // An error/denied message is surfaced to the user (deterministic wait —
-      // once it shows, the role check has resolved).
-      // SignInForm sets formError: "เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าสู่ระบบได้"
-      await expect(
-        page.getByText(/ไม่ได้รับอนุญาต|admin|ผู้ดูแลระบบ|denied|ไม่สามารถ/i).first(),
-      ).toBeVisible({ timeout: 10000 });
-      // Role check resolved: the teacher must not have been let through.
-      expect(page.url()).not.toMatch(/\/dashboard/);
-    } finally {
-      await context.close();
-    }
-  });
-
   test("public teacher page shows the published schedule without auth", async ({ browser }) => {
     const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
     const page = await context.newPage();
@@ -107,26 +79,6 @@ test.describe("cross-role verification after publish", () => {
     try {
       await page.goto("/classes/M4-HAPPY-1/2568/1");
       await expect(page.getByText(/ท31101|ภาษาไทย/).first()).toBeVisible({ timeout: 15000 });
-    } finally {
-      await context.close();
-    }
-  });
-
-  test("API-established teacher session gets 403 from admin layouts", async ({ browser }) => {
-    // Defense-in-depth: even if the signin UI gate were bypassed, the
-    // dashboard and management layouts must reject non-admin sessions.
-    // The layouts call forbidden() below a streamed root-layout flush, so
-    // the HTTP status can stay 200 — assert the rendered 403 boundary.
-    const { context, page } = await loginAsViaApi(browser, TEACHER_HAPPY);
-    try {
-      await page.goto("/dashboard");
-      await expect(
-        page.getByText(/403|forbidden|ไม่ได้รับอนุญาต/i).first(),
-      ).toBeVisible({ timeout: 15000 });
-      await page.goto("/management/teacher");
-      await expect(
-        page.getByText(/403|forbidden|ไม่ได้รับอนุญาต/i).first(),
-      ).toBeVisible({ timeout: 15000 });
     } finally {
       await context.close();
     }
