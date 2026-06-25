@@ -1536,9 +1536,54 @@ async function main() {
     );
   }
 
-  // Teacher auth user removed: admin is the only privileged auth persona;
-  // teacher/student roles were dropped. The teaching-staff entity
-  // (e2e.teacher@school.ac.th) is still seeded below for arrange/fixture tests.
+  // ===== GUEST AUTH USER (E2E boundary fixture) =====
+  // A non-admin authenticated user. No role is set, so normalizeAppRole treats
+  // it as a guest (AppRole is "admin" | undefined). NOT a product persona —
+  // there is no non-admin login experience; it exists solely to drive the
+  // authed-non-admin 403 boundary test (28-draft-role-visibility). The
+  // teaching-staff entity (e2e.teacher@school.ac.th) is seeded separately for
+  // arrange/fixture tests. Skipped in production: no loginable non-admin
+  // account should exist there.
+  if (!isProduction) {
+    const guestEmail = "e2e.guest@school.ac.th";
+    const guestPassword = process.env.GUEST_PASSWORD ?? "guest123";
+
+    const existingGuestUser = await withRetry(
+      () => prisma.user.findUnique({ where: { email: guestEmail } }),
+      "Check existing guest user",
+    );
+    if (existingGuestUser) {
+      await withRetry(
+        () =>
+          prisma.account.deleteMany({
+            where: { userId: existingGuestUser.id },
+          }),
+        "Delete guest accounts",
+      );
+      await withRetry(
+        () => prisma.user.delete({ where: { id: existingGuestUser.id } }),
+        "Delete guest user",
+      );
+    }
+
+    const guestSignUp = await auth.api.signUpEmail({
+      body: { email: guestEmail, password: guestPassword, name: "E2E Guest" },
+    });
+    if (!guestSignUp?.user) {
+      throw new Error("Failed to create guest user via better-auth API");
+    }
+    // No role update: a non-admin role normalizes to guest. Just verify the
+    // email so the account can sign in via the auth API.
+    await withRetry(
+      () =>
+        prisma.user.update({
+          where: { id: guestSignUp.user.id },
+          data: { emailVerified: true },
+        }),
+      "Verify guest user",
+    );
+    console.log(`✅ Guest auth user created (${guestEmail})`);
+  }
 
   // ===== SEEDING MODE SELECTION =====
   const isDemoMode = process.env.SEED_DEMO_DATA === "true";
