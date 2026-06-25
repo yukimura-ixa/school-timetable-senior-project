@@ -59,7 +59,7 @@ export const programRepository = {
     Track?: ProgramTrack;
     IsActive?: boolean;
   }) {
-    return prisma.program.findMany({
+    const programs = await prisma.program.findMany({
       where: {
         ...(filters.Year !== undefined && { Year: filters.Year }),
         ...(filters.Track && { Track: filters.Track }),
@@ -72,16 +72,19 @@ export const programRepository = {
             Number: "asc",
           },
         },
-        program_subject: {
-          include: {
-            subject: true,
-          },
-          orderBy: {
-            SortOrder: "asc",
-          },
-        },
       },
     });
+
+    // Surface inherited CORE: replace raw (now CORE-less) program_subject rows
+    // with the effective set composed through the seam.
+    return Promise.all(
+      programs.map(async (program) => ({
+        ...program,
+        program_subject: toProgramSubjectShape(
+          await programRepository.getEffectiveSubjects(program.ProgramID),
+        ),
+      })),
+    );
   },
 
   /**
@@ -138,70 +141,60 @@ export const programRepository = {
    * Returns program associated with a specific grade level including subjects
    */
   async findByGrade(gradeId: string, semester?: string, academicYear?: number) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
-    const gradelevel: any = await prisma.gradelevel.findUnique({
+    const gradelevel = await prisma.gradelevel.findUnique({
       where: { GradeID: gradeId },
-      include: {
-        program: {
-          include: {
-            program_subject: {
-              include: {
-                subject:
-                  semester && academicYear
-                    ? {
-                        include: {
-                          teachers_responsibility: {
-                            where: {
-                              GradeID: gradeId,
-                              Semester: semester as "SEMESTER_1" | "SEMESTER_2",
-                              AcademicYear: academicYear,
-                            },
-                            include: {
-                              teacher: {
-                                select: {
-                                  Prefix: true,
-                                  Firstname: true,
-                                  Lastname: true,
-                                },
-                              },
-                            },
-                          },
-                        },
-                      }
-                    : true,
-              },
-              orderBy: {
-                SortOrder: "asc",
-              },
-            },
-          },
-        },
-      },
+      include: { program: true },
     });
 
     if (!gradelevel?.program) {
       return null;
     }
 
-    // Transform program_subject to subjects array for easier consumption
-    const program = {
-      ...gradelevel.program,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
-      subjects: gradelevel.program.program_subject.map((ps: any) => ({
-        ...ps.subject,
-        MinCredits: ps.MinCredits,
-        MaxCredits: ps.MaxCredits,
-        Category: ps.Category,
-        IsMandatory: ps.IsMandatory,
-        SortOrder: ps.SortOrder,
-        teachers_responsibility:
-          "teachers_responsibility" in ps.subject
-            ? ps.subject.teachers_responsibility
-            : [],
-      })),
-    };
+    const effective = await programRepository.getEffectiveSubjects(
+      gradelevel.program.ProgramID,
+    );
 
-    return program;
+    // Attach this grade/term's teacher assignments to each effective subject.
+    // A flat query keyed by SubjectCode reaches inherited CORE rows too — the
+    // old per-subject nested include could not, since CORE left program_subject.
+    const responsibilities =
+      semester && academicYear
+        ? await prisma.teachers_responsibility.findMany({
+            where: {
+              GradeID: gradeId,
+              Semester: semester as "SEMESTER_1" | "SEMESTER_2",
+              AcademicYear: academicYear,
+              SubjectCode: { in: effective.map((e) => e.SubjectCode) },
+            },
+            include: {
+              teacher: {
+                select: { Prefix: true, Firstname: true, Lastname: true },
+              },
+            },
+          })
+        : [];
+
+    const teachersByCode = new Map<string, typeof responsibilities>();
+    for (const tr of responsibilities) {
+      const list = teachersByCode.get(tr.SubjectCode) ?? [];
+      list.push(tr);
+      teachersByCode.set(tr.SubjectCode, list);
+    }
+
+    const subjects = effective.map((e) => ({
+      ...e.subject,
+      MinCredits: e.MinCredits,
+      MaxCredits: e.MaxCredits,
+      Category: e.Category,
+      IsMandatory: e.IsMandatory,
+      SortOrder: e.SortOrder,
+      teachers_responsibility: teachersByCode.get(e.SubjectCode) ?? [],
+    }));
+
+    return {
+      ...gradelevel.program,
+      subjects,
+    };
   },
 
   /**
