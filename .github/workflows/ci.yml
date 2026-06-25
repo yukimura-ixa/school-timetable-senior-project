@@ -147,3 +147,50 @@ jobs:
             .next/
             node_modules/.prisma/
           retention-days: 1
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_timetable
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_timetable"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install & generate
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma generate
+
+      - name: Migrate & seed
+        run: |
+          pnpm prisma migrate deploy
+          pnpm db:seed:clean
+        env:
+          SEED_FOR_TESTS: "true"
+          SEED_CLEAN_DATA: "true"
+
+      - name: Run integration tests
+        run: pnpm test:integration
