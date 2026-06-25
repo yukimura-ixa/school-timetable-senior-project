@@ -56,17 +56,19 @@ model room {
 }
 
 model subject {
-  SubjectCode             String                    @id
-  SubjectName             String
-  Credit                  subject_credit
-  ActivityType            ActivityType?
-  Description             String?
-  IsGraded                Boolean                   @default(true)
-  LearningArea            LearningArea?
-  Category                SubjectCategory           @default(CORE)
-  class_schedule          class_schedule[]
-  program_subject         program_subject[]
-  teachers_responsibility teachers_responsibility[]
+  SubjectCode                  String                        @id
+  SubjectName                  String
+  Credit                       subject_credit
+  ActivityType                 ActivityType?
+  Description                  String?
+  IsGraded                     Boolean                       @default(true)
+  LearningArea                 LearningArea?
+  Category                     SubjectCategory               @default(CORE)
+  class_schedule               class_schedule[]
+  program_subject              program_subject[]
+  teachers_responsibility      teachers_responsibility[]
+  grade_fundamental            grade_fundamental[]
+  program_fundamental_override program_fundamental_override[]
 
   @@index([Category])
   @@index([LearningArea])
@@ -74,16 +76,17 @@ model subject {
 }
 
 model program {
-  ProgramID       Int               @id @default(autoincrement())
-  ProgramName     String
-  Description     String?
-  IsActive        Boolean           @default(true)
-  MinTotalCredits Float             @default(0)
-  ProgramCode     String            @unique
-  Track           ProgramTrack
-  Year            Int
-  gradelevel      gradelevel[]
-  program_subject program_subject[]
+  ProgramID                    Int                           @id @default(autoincrement())
+  ProgramName                  String
+  Description                  String?
+  IsActive                     Boolean                       @default(true)
+  MinTotalCredits              Float                         @default(0)
+  ProgramCode                  String                        @unique
+  Track                        ProgramTrack
+  Year                         Int
+  gradelevel                   gradelevel[]
+  program_subject              program_subject[]
+  program_fundamental_override program_fundamental_override[]
 
   @@unique([Year, Track], map: "program_year_track_unique")
   @@index([Year])
@@ -107,6 +110,33 @@ model program_subject {
   @@index([SubjectCode])
   @@index([Category])
   @@index([IsMandatory])
+}
+
+model grade_fundamental {
+  GradeFundamentalID Int     @id @default(autoincrement())
+  Year               Int
+  SubjectCode        String
+  MinCredits         Float
+  MaxCredits         Float?
+  SortOrder          Int     @default(0)
+  subject            subject @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_grade_fundamental_subject")
+
+  @@unique([Year, SubjectCode], map: "grade_fundamental_year_subject_unique")
+  @@index([Year], map: "grade_fundamental_Year_idx")
+}
+
+model program_fundamental_override {
+  ProgramFundamentalOverrideID Int     @id @default(autoincrement())
+  ProgramID                    Int
+  SubjectCode                  String
+  Excluded                     Boolean @default(false)
+  MinCredits                   Float?
+  MaxCredits                   Float?
+  program                      program @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, map: "fk_pfo_program")
+  subject                      subject @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_pfo_subject")
+
+  @@unique([ProgramID, SubjectCode], map: "program_fundamental_override_unique")
+  @@index([ProgramID], map: "program_fundamental_override_ProgramID_idx")
 }
 
 model teacher {

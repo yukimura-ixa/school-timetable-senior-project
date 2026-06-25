@@ -18,6 +18,7 @@ import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 import { buildGradeGroupIndex } from "@/utils/break-utils";
 import { toBreakGroups } from "@/features/timeslot/domain/services/break-context";
 import { breakGroupRepository } from "@/features/timeslot/infrastructure/repositories/break-group.repository";
+import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 
 /**
  * Type for config data
@@ -283,7 +284,7 @@ export async function findFullConfigData(
   }
 
   const { AcademicYear, Semester } = config;
-  const [timeslots, schedules, grades, programs, breakGroupRows] =
+  const [timeslots, schedules, grades, basePrograms, breakGroupRows] =
     await Promise.all([
       prisma.timeslot.findMany({
         where: { AcademicYear, Semester },
@@ -301,16 +302,21 @@ export async function findFullConfigData(
         where: {
           IsActive: true,
         },
-        include: {
-          program_subject: {
-            include: {
-              subject: true,
-            },
-          },
-        },
       }),
       breakGroupRepository.findByConfigId(configId),
     ]);
+
+  // Enrich each program with its effective subjects (includes inherited
+  // fundamentals) before building requiredSubjects and returning.
+  const programs = await Promise.all(
+    basePrograms.map(async (program) => ({
+      ...program,
+      program_subject:
+        await programRepository.getEffectiveSubjectsForValidation(
+          program.ProgramID,
+        ),
+    })),
+  );
 
   // Per-period break config + grade→group index, so completeness can exclude
   // each grade's OWN staggered break (consistent with the solver's break guard).

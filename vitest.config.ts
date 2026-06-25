@@ -12,6 +12,16 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   "**/__test__/features/conflict/**",
   // "**/__test__/features/program/**" - RE-ENABLED (c17): assertions updated to
   //   per-term + 2551 values; track-elective coverage now runs (53 tests green).
+  // ...except the DB-backed program integration tests below: the unit-tests CI
+  // job runs with a dummy DATABASE_URL (no seed), so these only pass in a
+  // seeded DB job. Pure program unit tests (effective-subjects.service,
+  // fundamentals-data/-backfill, moe-validation) still run here.
+  "**/__test__/features/program/program-repository-effective.test.ts",
+  "**/__test__/features/program/program-validation-effective.test.ts",
+  "**/__test__/features/program/seed-effective-parity.test.ts",
+  "**/__test__/features/program/program-display-reads-effective.test.ts",
+  "**/__test__/features/program/assign-subjects-guard.test.ts",
+  "**/__test__/features/program/fundamental-override.test.ts",
   // Note: src/features/schedule-arrangement tests are now included
   "**/__test__/moe-standards/**",
   "**/__test__/features/dashboard/**",
@@ -93,6 +103,15 @@ export default defineConfig({
     alias: {
       // Handle module aliases from tsconfig.json paths
       "@/public": path.resolve(__dirname, "./public"),
+      "@/prisma/data": path.resolve(__dirname, "./prisma/data"),
+      "@/prisma/migration-backfill-fundamentals": path.resolve(
+        __dirname,
+        "./prisma/migration-backfill-fundamentals",
+      ),
+      "@/scripts/check-program-subject-reads": path.resolve(
+        __dirname,
+        "./scripts/check-program-subject-reads",
+      ),
       "@/prisma/generated/client": path.resolve(
         __dirname,
         "./prisma/generated/client",

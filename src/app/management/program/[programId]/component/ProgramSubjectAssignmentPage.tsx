@@ -36,6 +36,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import CloseIcon from "@mui/icons-material/Close";
 import { useProgramSubjects } from "@/features/program/presentation/hooks/useProgramSubjects";
 import { useSubjectAssignment } from "@/features/program/presentation/hooks/useSubjectAssignment";
+import { InheritedFundamentalsSection } from "@/features/program/presentation/components/InheritedFundamentalsSection";
 import { MOEValidationAlert } from "@/features/program/presentation/components/MOEValidationAlert";
 import { subjectCreditValues } from "@/models/credit-value";
 import {
@@ -54,7 +55,9 @@ const TRACK_META: Record<string, { label: string; color: string }> = {
   GENERAL: { label: "ทั่วไป", color: "#546e7a" },
 };
 
-const CATEGORY_ORDER = ["CORE", "ADDITIONAL", "ACTIVITY"] as const;
+// CORE is inherited from the grade template (handled by the inherited section),
+// never owned via this catalog — only ADDITIONAL/ACTIVITY are selectable here.
+const CATEGORY_ORDER = ["ADDITIONAL", "ACTIVITY"] as const;
 const CATEGORY_LABEL: Record<string, string> = {
   CORE: "วิชาพื้นฐาน",
   ADDITIONAL: "วิชาเพิ่มเติม",
@@ -126,7 +129,7 @@ function Stepper({
 export default function ProgramSubjectAssignmentPage({
   programId,
 }: ProgramSubjectAssignmentPageProps) {
-  const { program, subjects, isLoading, mutateProgram } =
+  const { program, subjects, inherited, isLoading, mutateProgram, mutateInherited } =
     useProgramSubjects(programId);
 
   const {
@@ -165,12 +168,23 @@ export default function ProgramSubjectAssignmentPage({
     [subjectConfigs],
   );
 
+  // Effective total counts inherited (non-excluded) CORE plus owned selected
+  // credits — the figure the MoE minimum is measured against.
+  const inheritedCredits = useMemo(
+    () =>
+      inherited
+        .filter((r) => !r.excluded)
+        .reduce((sum, r) => sum + num(r.MinCredits), 0),
+    [inherited],
+  );
+  const grandTotal = totalCredits + inheritedCredits;
+
   // MinTotalCredits is annual; the editor works in one term, so compare the
   // per-term selection against the per-term target.
   const target = (program?.MinTotalCredits ?? 0) / TERMS_PER_YEAR;
   const progressPct =
-    target > 0 ? Math.min(100, (totalCredits / target) * 100) : 0;
-  const shortfall = Math.round((target - totalCredits) * 10) / 10;
+    target > 0 ? Math.min(100, (grandTotal / target) * 100) : 0;
+  const shortfall = Math.round((target - grandTotal) * 10) / 10;
 
   // Add a subject and seed its credit window from the catalogue credit, so a
   // freshly-added subject reads its real credit instead of the hook's `?? 1`.
@@ -322,7 +336,7 @@ export default function ProgramSubjectAssignmentPage({
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {fmt(totalCredits)}
+                {fmt(grandTotal)}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 {target > 0 ? `/ ${fmt(target)} หน่วยกิต` : "หน่วยกิต"}
@@ -348,17 +362,48 @@ export default function ProgramSubjectAssignmentPage({
               variant="caption"
               sx={{ color: "text.secondary", display: "block", mt: 0.75 }}
             >
-              เลือกแล้ว {selectedCount} วิชา · บังคับ {mandatoryCount} วิชา
+              พื้นฐาน {fmt(inheritedCredits)} · กำหนดเอง {fmt(totalCredits)}{" "}
+              หน่วยกิต
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: "text.secondary", display: "block", mt: 0.25 }}
+            >
+              เลือกเอง {selectedCount} วิชา · บังคับ {mandatoryCount} วิชา
             </Typography>
           </Box>
         </Stack>
       </Paper>
 
+      {/* Inherited fundamentals (CORE) — shared from the grade template */}
+      {inherited.length > 0 && (
+        <Box sx={{ mt: 2.5 }}>
+          <InheritedFundamentalsSection
+            programId={programId}
+            year={program?.Year}
+            accent={accent}
+            inherited={inherited}
+            onChanged={mutateInherited}
+          />
+        </Box>
+      )}
+
+      {/* Owned subjects — ADDITIONAL / ACTIVITY, this program only */}
+      <Typography
+        variant="subtitle2"
+        sx={{ fontWeight: 700, mt: 3, mb: 0.5, px: 0.5 }}
+      >
+        วิชาที่กำหนดเอง{" "}
+        <Box component="span" sx={{ color: "text.secondary", fontWeight: 400 }}>
+          · เพิ่มเติม / กิจกรรมพัฒนาผู้เรียน เฉพาะหลักสูตรนี้
+        </Box>
+      </Typography>
+
       {/* Two-pane editor */}
       <Paper
         variant="outlined"
         sx={{
-          mt: 2.5,
+          mt: 1.5,
           borderRadius: 3,
           overflow: "hidden",
           display: "flex",
@@ -711,8 +756,8 @@ export default function ProgramSubjectAssignmentPage({
       >
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            {selectedCount} รายวิชา · {fmt(totalCredits)} หน่วยกิต · บังคับ{" "}
-            {mandatoryCount}
+            {selectedCount} รายวิชาที่กำหนดเอง · {fmt(totalCredits)} หน่วยกิต ·{" "}
+            บังคับ {mandatoryCount}
           </Typography>
           {selectedCount === 0 ? (
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
@@ -740,7 +785,7 @@ export default function ProgramSubjectAssignmentPage({
             "&:hover": { bgcolor: accent, filter: "brightness(0.92)" },
           }}
         >
-          {assigning ? "กำลังบันทึก..." : `บันทึก ${selectedCount} รายวิชา`}
+          {assigning ? "กำลังบันทึก..." : "บันทึกวิชาที่กำหนดเอง"}
         </Button>
       </Paper>
     </Container>

@@ -38,6 +38,9 @@
       "@/app/*": [
         "./src/app/*"
       ],
+      "@/prisma/data": [
+        "prisma/data"
+      ],
       "@/prisma/generated/client": [
         "prisma/generated/client"
       ]

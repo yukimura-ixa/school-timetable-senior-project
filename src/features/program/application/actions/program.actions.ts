@@ -28,6 +28,12 @@ import {
   getProgramByGradeSchema,
   getProgramsByYearSchema,
   assignSubjectsToProgramSchema,
+  setFundamentalOverrideSchema,
+  clearFundamentalOverrideSchema,
+  getFundamentalsByYearSchema,
+  createFundamentalSchema,
+  updateFundamentalSchema,
+  deleteFundamentalSchema,
   type CreateProgramInput,
   type GetProgramByGradeInput,
   type UpdateProgramInput,
@@ -35,6 +41,12 @@ import {
   type GetProgramByIdInput,
   type GetProgramsByYearInput,
   type AssignSubjectsToProgramInput,
+  type SetFundamentalOverrideInput,
+  type ClearFundamentalOverrideInput,
+  type GetFundamentalsByYearInput,
+  type CreateFundamentalInput,
+  type UpdateFundamentalInput,
+  type DeleteFundamentalInput,
 } from "../schemas/program.schemas";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
@@ -289,11 +301,21 @@ export const assignSubjectsToProgramAction = createAction(
       throw new Error("ไม่สามารถอัปเดตวิชาในหลักสูตรได้");
     }
 
-    // Validate MOE credits using updated assignments (with subject details)
-    // Note: program_subject is already correctly typed via Prisma's include
+    // Invalidate before reading through the seam so the effective-subjects
+    // cache is fresh (warm-tier cacheStrategy won't auto-invalidate on write).
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      `program_${input.ProgramID}`,
+    ]);
+
+    // Validate MOE credits using the effective subject set (template-inherited
+    // CORE + overrides + owned), sourced through the inheritance seam.
+    const effectiveSubjects =
+      await programRepository.getEffectiveSubjectsForValidation(input.ProgramID);
     const validationResult = validateProgramMOECredits(
       updatedProgram.Year,
-      updatedProgram.program_subject,
+      effectiveSubjects,
     );
 
     // Log warnings if not fully compliant (could display in UI)
@@ -303,11 +325,165 @@ export const assignSubjectsToProgramAction = createAction(
       });
     }
 
-    await invalidatePublicCache(["stats"]);
     return {
       program: updatedProgram,
       moeValidation: validationResult,
     };
+  },
+);
+
+
+/**
+ * Get a program's effective subjects (inherited CORE + overrides + owned)
+ * with seam metadata (source/overridden) for the assignment editor UI.
+ */
+export const getEffectiveSubjectsAction = createAction(
+  getProgramByIdSchema,
+  async (input: GetProgramByIdInput) => {
+    return await programRepository.getEffectiveSubjects(input.ProgramID);
+  },
+);
+
+/**
+ * Exclude an inherited fundamental from a program or override its credits by
+ * upserting a program_fundamental_override row. Returns the refreshed
+ * effective subjects.
+ */
+export const setFundamentalOverrideAction = createAction(
+  setFundamentalOverrideSchema,
+  async (input: SetFundamentalOverrideInput) => {
+    const existsError = await validateProgramExists(input.ProgramID);
+    if (existsError) {
+      throw new Error(existsError);
+    }
+
+    await programRepository.setFundamentalOverride(
+      input.ProgramID,
+      input.SubjectCode,
+      {
+        Excluded: input.Excluded,
+        MinCredits: input.MinCredits,
+        MaxCredits: input.MaxCredits,
+      },
+    );
+
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      `program_${input.ProgramID}`,
+    ]);
+
+    return await programRepository.getEffectiveSubjects(input.ProgramID);
+  },
+);
+
+/**
+ * Clear a fundamental override, reverting the subject to the grade template.
+ * Returns the refreshed effective subjects.
+ */
+export const clearFundamentalOverrideAction = createAction(
+  clearFundamentalOverrideSchema,
+  async (input: ClearFundamentalOverrideInput) => {
+    const existsError = await validateProgramExists(input.ProgramID);
+    if (existsError) {
+      throw new Error(existsError);
+    }
+
+    await programRepository.clearFundamentalOverride(
+      input.ProgramID,
+      input.SubjectCode,
+    );
+
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      `program_${input.ProgramID}`,
+    ]);
+
+    return await programRepository.getEffectiveSubjects(input.ProgramID);
+  },
+);
+
+
+/**
+ * Get a program's full inherited-fundamentals view (every grade-template
+ * subject annotated with this program's exclude/override state) for the
+ * inherited section of the assignment editor.
+ */
+export const getInheritedFundamentalsAction = createAction(
+  getProgramByIdSchema,
+  async (input: GetProgramByIdInput) => {
+    return await programRepository.getInheritedFundamentals(input.ProgramID);
+  },
+);
+
+
+/**
+ * Admin: list the grade-fundamental template rows for one year.
+ */
+export const getFundamentalsByYearAction = createAction(
+  getFundamentalsByYearSchema,
+  async (input: GetFundamentalsByYearInput) => {
+    return await programRepository.listFundamentalsByYear(input.Year);
+  },
+);
+
+/**
+ * Admin: add a CORE subject to a year's template. Affects every program of
+ * that grade by inheritance, so invalidate the fundamentals + programs caches.
+ */
+export const createFundamentalAction = createAction(
+  createFundamentalSchema,
+  async (input: CreateFundamentalInput) => {
+    const row = await programRepository.createFundamental(input);
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      "fundamentals",
+      `fundamentals_y${input.Year}`,
+    ]);
+    return row;
+  },
+);
+
+/**
+ * Admin: edit a template row's credits / order.
+ */
+export const updateFundamentalAction = createAction(
+  updateFundamentalSchema,
+  async (input: UpdateFundamentalInput) => {
+    const row = await programRepository.updateFundamental(
+      input.GradeFundamentalID,
+      {
+        MinCredits: input.MinCredits,
+        MaxCredits: input.MaxCredits,
+        SortOrder: input.SortOrder,
+      },
+    );
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      "fundamentals",
+      `fundamentals_y${input.Year}`,
+    ]);
+    return row;
+  },
+);
+
+/**
+ * Admin: remove a CORE subject from a year's template.
+ */
+export const deleteFundamentalAction = createAction(
+  deleteFundamentalSchema,
+  async (input: DeleteFundamentalInput) => {
+    await programRepository.deleteFundamental(input.GradeFundamentalID);
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      "fundamentals",
+      `fundamentals_y${input.Year}`,
+    ]);
+    return { ok: true };
   },
 );
 

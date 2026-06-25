@@ -8,11 +8,18 @@
  */
 
 import prisma from "@/lib/prisma";
+import { cacheStrategy } from "@/lib/cache-config";
+import {
+  getEffectiveProgramSubjects,
+  toProgramSubjectShape,
+  type EffectiveSubject,
+} from "@/features/program/domain/services/effective-subjects.service";
 import type {
   CreateProgramInput,
   UpdateProgramInput,
   AssignSubjectsToProgramInput,
 } from "../../application/schemas/program.schemas";
+import { SubjectCategory } from "@/prisma/generated/client";
 import type { ProgramTrack } from "@/prisma/generated/client";
 import type { ProgramWithRelations } from "../../domain/types/program.types";
 
@@ -53,7 +60,7 @@ export const programRepository = {
     Track?: ProgramTrack;
     IsActive?: boolean;
   }) {
-    return prisma.program.findMany({
+    const programs = await prisma.program.findMany({
       where: {
         ...(filters.Year !== undefined && { Year: filters.Year }),
         ...(filters.Track && { Track: filters.Track }),
@@ -66,16 +73,19 @@ export const programRepository = {
             Number: "asc",
           },
         },
-        program_subject: {
-          include: {
-            subject: true,
-          },
-          orderBy: {
-            SortOrder: "asc",
-          },
-        },
       },
     });
+
+    // Surface inherited CORE: replace raw (now CORE-less) program_subject rows
+    // with the effective set composed through the seam.
+    return Promise.all(
+      programs.map(async (program) => ({
+        ...program,
+        program_subject: toProgramSubjectShape(
+          await programRepository.getEffectiveSubjects(program.ProgramID),
+        ),
+      })),
+    );
   },
 
   /**
@@ -132,70 +142,60 @@ export const programRepository = {
    * Returns program associated with a specific grade level including subjects
    */
   async findByGrade(gradeId: string, semester?: string, academicYear?: number) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
-    const gradelevel: any = await prisma.gradelevel.findUnique({
+    const gradelevel = await prisma.gradelevel.findUnique({
       where: { GradeID: gradeId },
-      include: {
-        program: {
-          include: {
-            program_subject: {
-              include: {
-                subject:
-                  semester && academicYear
-                    ? {
-                        include: {
-                          teachers_responsibility: {
-                            where: {
-                              GradeID: gradeId,
-                              Semester: semester as "SEMESTER_1" | "SEMESTER_2",
-                              AcademicYear: academicYear,
-                            },
-                            include: {
-                              teacher: {
-                                select: {
-                                  Prefix: true,
-                                  Firstname: true,
-                                  Lastname: true,
-                                },
-                              },
-                            },
-                          },
-                        },
-                      }
-                    : true,
-              },
-              orderBy: {
-                SortOrder: "asc",
-              },
-            },
-          },
-        },
-      },
+      include: { program: true },
     });
 
     if (!gradelevel?.program) {
       return null;
     }
 
-    // Transform program_subject to subjects array for easier consumption
-    const program = {
-      ...gradelevel.program,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
-      subjects: gradelevel.program.program_subject.map((ps: any) => ({
-        ...ps.subject,
-        MinCredits: ps.MinCredits,
-        MaxCredits: ps.MaxCredits,
-        Category: ps.Category,
-        IsMandatory: ps.IsMandatory,
-        SortOrder: ps.SortOrder,
-        teachers_responsibility:
-          "teachers_responsibility" in ps.subject
-            ? ps.subject.teachers_responsibility
-            : [],
-      })),
-    };
+    const effective = await programRepository.getEffectiveSubjects(
+      gradelevel.program.ProgramID,
+    );
 
-    return program;
+    // Attach this grade/term's teacher assignments to each effective subject.
+    // A flat query keyed by SubjectCode reaches inherited CORE rows too — the
+    // old per-subject nested include could not, since CORE left program_subject.
+    const responsibilities =
+      semester && academicYear
+        ? await prisma.teachers_responsibility.findMany({
+            where: {
+              GradeID: gradeId,
+              Semester: semester as "SEMESTER_1" | "SEMESTER_2",
+              AcademicYear: academicYear,
+              SubjectCode: { in: effective.map((e) => e.SubjectCode) },
+            },
+            include: {
+              teacher: {
+                select: { Prefix: true, Firstname: true, Lastname: true },
+              },
+            },
+          })
+        : [];
+
+    const teachersByCode = new Map<string, typeof responsibilities>();
+    for (const tr of responsibilities) {
+      const list = teachersByCode.get(tr.SubjectCode) ?? [];
+      list.push(tr);
+      teachersByCode.set(tr.SubjectCode, list);
+    }
+
+    const subjects = effective.map((e) => ({
+      ...e.subject,
+      MinCredits: e.MinCredits,
+      MaxCredits: e.MaxCredits,
+      Category: e.Category,
+      IsMandatory: e.IsMandatory,
+      SortOrder: e.SortOrder,
+      teachers_responsibility: teachersByCode.get(e.SubjectCode) ?? [],
+    }));
+
+    return {
+      ...gradelevel.program,
+      subjects,
+    };
   },
 
   /**
@@ -262,24 +262,37 @@ export const programRepository = {
   async assignSubjects(
     data: AssignSubjectsToProgramInput,
   ): Promise<ProgramWithRelations | null> {
+    // CORE is owned by grade_fundamental inheritance, never by program_subject.
+    // The editor surfaces inherited CORE as selected, so a naive save would
+    // re-duplicate it as owned and silently break inheritance. Drop CORE here
+    // and scope the delete to non-CORE so this write only ever replaces the
+    // program's owned (ADDITIONAL/ACTIVITY) rows. Inherited CORE is
+    // excluded/overridden through program_fundamental_override instead.
+    const ownedSubjects = data.subjects.filter(
+      (subject) => subject.Category !== SubjectCategory.CORE,
+    );
+
     return prisma.$transaction(async (tx) => {
       await tx.program_subject.deleteMany({
         where: {
           ProgramID: data.ProgramID,
+          Category: { not: SubjectCategory.CORE },
         },
       });
 
-      await tx.program_subject.createMany({
-        data: data.subjects.map((subject, index) => ({
-          ProgramID: data.ProgramID,
-          SubjectCode: subject.SubjectCode,
-          Category: subject.Category,
-          IsMandatory: subject.IsMandatory,
-          MinCredits: subject.MinCredits,
-          MaxCredits: subject.MaxCredits,
-          SortOrder: subject.SortOrder ?? index + 1,
-        })),
-      });
+      if (ownedSubjects.length > 0) {
+        await tx.program_subject.createMany({
+          data: ownedSubjects.map((subject, index) => ({
+            ProgramID: data.ProgramID,
+            SubjectCode: subject.SubjectCode,
+            Category: subject.Category,
+            IsMandatory: subject.IsMandatory,
+            MinCredits: subject.MinCredits,
+            MaxCredits: subject.MaxCredits,
+            SortOrder: subject.SortOrder ?? index + 1,
+          })),
+        });
+      }
 
       // Cast required: Prisma transaction doesn't infer include types
       return tx.program.findUnique({
@@ -315,6 +328,198 @@ export const programRepository = {
       orderBy: {
         SortOrder: "asc",
       },
+    });
+  },
+
+  /**
+   * Effective subjects = per-year template (grade_fundamental) inherited by
+   * reference, minus per-program excludes, plus credit overrides, plus the
+   * program's own (ADDITIONAL/ACTIVITY) program_subject rows. The single seam
+   * all readers must use instead of reading program_subject directly.
+   */
+  async getEffectiveSubjects(programId: number): Promise<EffectiveSubject[]> {
+    const program = await prisma.program.findUnique({
+      where: { ProgramID: programId },
+      select: { ProgramID: true, Year: true },
+      ...cacheStrategy("warm", ["programs", `program_${programId}`]),
+    });
+    if (!program) return [];
+
+    const [template, overrides, programSubjects] = await Promise.all([
+      prisma.grade_fundamental.findMany({
+        where: { Year: program.Year },
+        include: { subject: true },
+        orderBy: { SortOrder: "asc" },
+        ...cacheStrategy("static", ["fundamentals", `fundamentals_y${program.Year}`]),
+      }),
+      prisma.program_fundamental_override.findMany({
+        where: { ProgramID: programId },
+        ...cacheStrategy("warm", ["programs", `program_${programId}`]),
+      }),
+      prisma.program_subject.findMany({
+        where: { ProgramID: programId },
+        include: { subject: true },
+        orderBy: { SortOrder: "asc" },
+        ...cacheStrategy("warm", ["programs", `program_${programId}`]),
+      }),
+    ]);
+
+    return getEffectiveProgramSubjects({
+      programId,
+      year: program.Year,
+      template,
+      overrides,
+      programSubjects,
+    });
+  },
+
+  /** Adapter to the shape moe-validation.service consumes. */
+  async getEffectiveSubjectsForValidation(programId: number) {
+    // Reference programRepository.* (not `this`) so destructured callers don't break.
+    return toProgramSubjectShape(
+      await programRepository.getEffectiveSubjects(programId),
+    );
+  },
+
+  /**
+   * Upsert a per-program override of an inherited fundamental: exclude it
+   * (Excluded:true) or override its credits. Only provided fields are changed.
+   */
+  async setFundamentalOverride(
+    programId: number,
+    subjectCode: string,
+    override: {
+      Excluded?: boolean;
+      MinCredits?: number | null;
+      MaxCredits?: number | null;
+    },
+  ) {
+    return prisma.program_fundamental_override.upsert({
+      where: {
+        ProgramID_SubjectCode: {
+          ProgramID: programId,
+          SubjectCode: subjectCode,
+        },
+      },
+      update: {
+        ...(override.Excluded !== undefined && { Excluded: override.Excluded }),
+        ...(override.MinCredits !== undefined && {
+          MinCredits: override.MinCredits,
+        }),
+        ...(override.MaxCredits !== undefined && {
+          MaxCredits: override.MaxCredits,
+        }),
+      },
+      create: {
+        ProgramID: programId,
+        SubjectCode: subjectCode,
+        Excluded: override.Excluded ?? false,
+        MinCredits: override.MinCredits ?? null,
+        MaxCredits: override.MaxCredits ?? null,
+      },
+    });
+  },
+
+  /** Remove a fundamental override, reverting the subject to the template. */
+  async clearFundamentalOverride(programId: number, subjectCode: string) {
+    return prisma.program_fundamental_override.deleteMany({
+      where: { ProgramID: programId, SubjectCode: subjectCode },
+    });
+  },
+
+
+  /**
+   * Full inherited-fundamentals view for one program's year, annotated with
+   * per-program override state. Unlike getEffectiveSubjects (which drops
+   * excluded rows), this keeps every template subject so the editor can render
+   * excluded ones with a restore control.
+   */
+  async getInheritedFundamentals(programId: number) {
+    const program = await prisma.program.findUnique({
+      where: { ProgramID: programId },
+      select: { Year: true },
+    });
+    if (!program) return [];
+
+    const [template, overrides] = await Promise.all([
+      prisma.grade_fundamental.findMany({
+        where: { Year: program.Year },
+        include: { subject: true },
+        orderBy: { SortOrder: "asc" },
+      }),
+      prisma.program_fundamental_override.findMany({
+        where: { ProgramID: programId },
+      }),
+    ]);
+
+    const overrideByCode = new Map(overrides.map((o) => [o.SubjectCode, o]));
+
+    return template.map((t) => {
+      const ov = overrideByCode.get(t.SubjectCode);
+      const overridden =
+        ov != null && (ov.MinCredits != null || ov.MaxCredits != null);
+      return {
+        SubjectCode: t.SubjectCode,
+        subject: t.subject,
+        SortOrder: t.SortOrder,
+        TemplateMinCredits: t.MinCredits,
+        TemplateMaxCredits: t.MaxCredits,
+        excluded: ov?.Excluded ?? false,
+        overridden,
+        MinCredits: ov?.MinCredits ?? t.MinCredits,
+        MaxCredits: ov?.MaxCredits ?? t.MaxCredits,
+      };
+    });
+  },
+
+
+  /** Admin: the grade-fundamental template rows for one year. */
+  async listFundamentalsByYear(year: number) {
+    return prisma.grade_fundamental.findMany({
+      where: { Year: year },
+      include: { subject: true },
+      orderBy: { SortOrder: "asc" },
+    });
+  },
+
+  /** Admin: add a CORE subject to a year's template. */
+  async createFundamental(data: {
+    Year: number;
+    SubjectCode: string;
+    MinCredits: number;
+    MaxCredits?: number | null;
+    SortOrder?: number;
+  }) {
+    return prisma.grade_fundamental.create({
+      data: {
+        Year: data.Year,
+        SubjectCode: data.SubjectCode,
+        MinCredits: data.MinCredits,
+        MaxCredits: data.MaxCredits ?? null,
+        SortOrder: data.SortOrder ?? 0,
+      },
+    });
+  },
+
+  /** Admin: edit a template row's credits / order. */
+  async updateFundamental(
+    gradeFundamentalId: number,
+    data: { MinCredits?: number; MaxCredits?: number | null; SortOrder?: number },
+  ) {
+    return prisma.grade_fundamental.update({
+      where: { GradeFundamentalID: gradeFundamentalId },
+      data: {
+        ...(data.MinCredits !== undefined && { MinCredits: data.MinCredits }),
+        ...(data.MaxCredits !== undefined && { MaxCredits: data.MaxCredits }),
+        ...(data.SortOrder !== undefined && { SortOrder: data.SortOrder }),
+      },
+    });
+  },
+
+  /** Admin: remove a CORE subject from a year's template. */
+  async deleteFundamental(gradeFundamentalId: number) {
+    return prisma.grade_fundamental.delete({
+      where: { GradeFundamentalID: gradeFundamentalId },
     });
   },
 

@@ -23,7 +23,7 @@ type ProgramData = {
 };
 
 const getProgramSubjects = (
-  programData: ProgramData | ActionResult<ProgramData> | null | undefined,
+  programData: ProgramData | ActionResult<ProgramData | null> | null | undefined,
 ): ProgramSubject[] => {
   if (!programData) return [];
   if ("subjects" in programData && Array.isArray(programData.subjects)) {
@@ -41,7 +41,7 @@ const getProgramSubjects = (
 };
 
 export default function ExportAllProgram(
-  programData: ProgramData | ActionResult<ProgramData> | null | undefined,
+  programData: ProgramData | ActionResult<ProgramData | null> | null | undefined,
   GradeID: string,
   semester: string | number,
   academicYear: string | number,

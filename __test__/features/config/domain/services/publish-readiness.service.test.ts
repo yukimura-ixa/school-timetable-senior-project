@@ -141,4 +141,59 @@ describe("checkPublishReadiness", () => {
     expect(result.status).toBe("incomplete");
     expect(result.issues).toHaveLength(2);
   });
+
+  it("should forward inherited CORE subject from program_subject to validateProgramMOECredits", () => {
+    // Simulates what findFullConfigData produces after the effective-subjects
+    // seam enriches a program: an inherited CORE subject (e.g. from
+    // grade_fundamental) appears in program_subject alongside any
+    // program-specific rows. checkPublishReadiness must pass that full array to
+    // validateProgramMOECredits unchanged so inherited credits count.
+    const inheritedSubject = {
+      ProgramSubjectID: 99,
+      ProgramID: 1,
+      SubjectCode: "FUND001",
+      Category: "CORE" as const,
+      IsMandatory: true,
+      MinCredits: 1.0,
+      MaxCredits: 1.0,
+      SortOrder: 0,
+      subject: {
+        SubjectCode: "FUND001",
+        SubjectName: "Fundamental Thai",
+        Credit: "CREDIT_10" as const,
+        Category: "CORE" as const,
+        LearningArea: "THAI" as const,
+        ActivityType: null,
+        IsGraded: true,
+        Description: "",
+      },
+    };
+
+    const dataWithInherited: FullConfigData = {
+      ...mockBaseConfigData,
+      schedules: Array(35).fill({ GradeID: "M1-1", SubjectCode: "TH101", TimeslotID: "TS-1" }),
+      programs: [
+        {
+          ...mockBaseConfigData.programs[0],
+          program_subject: [
+            ...mockBaseConfigData.programs[0].program_subject,
+            inheritedSubject,
+          ],
+        },
+      ],
+    };
+
+    mockedValidateProgramMOECredits.mockReturnValue(
+      moeValidationService.createMOEValidationResult({ isValid: true }),
+    );
+
+    checkPublishReadiness(dataWithInherited);
+
+    // The inherited subject must be in the array passed to MoE validation.
+    expect(mockedValidateProgramMOECredits).toHaveBeenCalledOnce();
+    const calledSubjects = mockedValidateProgramMOECredits.mock.calls[0][1];
+    expect(calledSubjects).toContainEqual(
+      expect.objectContaining({ SubjectCode: "FUND001" }),
+    );
+  });
 });

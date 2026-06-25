@@ -3,8 +3,9 @@
  * Data access layer for teacher-subject assignments (teachers_responsibility table)
  */
 
-import prisma from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
+import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
+import prisma from "@/lib/prisma";
 import { cache } from "react";
 import type {
   AssignmentWithRelations,
@@ -133,21 +134,12 @@ export const findSubjectsByGrade = cache(
       return [];
     }
 
-    // Then get all subjects in that program
-    return prisma.program_subject.findMany({
-      where: { ProgramID: grade.ProgramID },
-      include: {
-        subject: {
-          select: {
-            SubjectCode: true,
-            SubjectName: true,
-            Credit: true,
-            Category: true,
-          },
-        },
-      },
-      orderBy: { subject: { SubjectName: "asc" } },
-    });
+    // Delegate to the effective-subjects seam so inherited CORE rows are included
+    const effective = await programRepository.getEffectiveSubjectsForValidation(
+      grade.ProgramID,
+    );
+
+    return effective;
   },
 );
 

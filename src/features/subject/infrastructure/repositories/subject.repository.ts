@@ -7,6 +7,7 @@
  * @module subject.repository
  */
 
+import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 import prisma from "@/lib/prisma";
 import type { subject } from "@/prisma/generated/client";
 import type {
@@ -57,33 +58,23 @@ export const subjectRepository = {
    * Note: Subjects are determined by the grade's program, not by semester
    */
   async findByGrade(gradeId: string): Promise<subject[]> {
-    // Get the gradelevel with its program
+    // Look up the grade's program
     const gradelevel = await prisma.gradelevel.findUnique({
       where: { GradeID: gradeId },
-      include: {
-        program: {
-          include: {
-            program_subject: {
-              include: {
-                subject: true,
-              },
-            },
-          },
-        },
-      },
+      select: { ProgramID: true },
     });
 
-    if (!gradelevel?.program) {
+    if (!gradelevel?.ProgramID) {
       return [];
     }
 
-    // Extract subjects from program_subject relation
-    const subjects = gradelevel.program.program_subject.map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
-      (ps: any) => ps.subject,
+    // Delegate to the effective-subjects seam so inherited CORE rows are included
+    const effective = await programRepository.getEffectiveSubjects(
+      gradelevel.ProgramID,
     );
 
-    return subjects;
+    // Each EffectiveSubject has a fully-loaded `subject` relation
+    return effective.map((ps) => ps.subject);
   },
 
   /**
