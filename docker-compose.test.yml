@@ -25,7 +25,9 @@ services:
     ports:
       - "5433:5432" # Use 5433 to avoid conflicts with existing PostgreSQL
     volumes:
-      - test_db_data:/var/lib/postgresql/data
+      # postgres:18 changed the data layout: mount the parent dir and let PG
+      # place data in a version subdirectory (mounting .../data crash-loops).
+      - test_db_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U test_user -d test_timetable"]
       interval: 10s
@@ -52,7 +54,8 @@ services:
       # Use custom port in host mode
       PGPORT: 5433
     volumes:
-      - test_db_data_host:/var/lib/postgresql/data
+      # postgres:18 layout — mount the parent dir, not .../data (see above).
+      - test_db_data_host:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U test_user -d test_timetable -p 5433"]
       interval: 10s
