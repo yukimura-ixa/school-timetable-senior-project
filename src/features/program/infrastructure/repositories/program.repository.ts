@@ -19,6 +19,7 @@ import type {
   UpdateProgramInput,
   AssignSubjectsToProgramInput,
 } from "../../application/schemas/program.schemas";
+import { SubjectCategory } from "@/prisma/generated/client";
 import type { ProgramTrack } from "@/prisma/generated/client";
 import type { ProgramWithRelations } from "../../domain/types/program.types";
 
@@ -261,24 +262,37 @@ export const programRepository = {
   async assignSubjects(
     data: AssignSubjectsToProgramInput,
   ): Promise<ProgramWithRelations | null> {
+    // CORE is owned by grade_fundamental inheritance, never by program_subject.
+    // The editor surfaces inherited CORE as selected, so a naive save would
+    // re-duplicate it as owned and silently break inheritance. Drop CORE here
+    // and scope the delete to non-CORE so this write only ever replaces the
+    // program's owned (ADDITIONAL/ACTIVITY) rows. Inherited CORE is
+    // excluded/overridden through program_fundamental_override instead.
+    const ownedSubjects = data.subjects.filter(
+      (subject) => subject.Category !== SubjectCategory.CORE,
+    );
+
     return prisma.$transaction(async (tx) => {
       await tx.program_subject.deleteMany({
         where: {
           ProgramID: data.ProgramID,
+          Category: { not: SubjectCategory.CORE },
         },
       });
 
-      await tx.program_subject.createMany({
-        data: data.subjects.map((subject, index) => ({
-          ProgramID: data.ProgramID,
-          SubjectCode: subject.SubjectCode,
-          Category: subject.Category,
-          IsMandatory: subject.IsMandatory,
-          MinCredits: subject.MinCredits,
-          MaxCredits: subject.MaxCredits,
-          SortOrder: subject.SortOrder ?? index + 1,
-        })),
-      });
+      if (ownedSubjects.length > 0) {
+        await tx.program_subject.createMany({
+          data: ownedSubjects.map((subject, index) => ({
+            ProgramID: data.ProgramID,
+            SubjectCode: subject.SubjectCode,
+            Category: subject.Category,
+            IsMandatory: subject.IsMandatory,
+            MinCredits: subject.MinCredits,
+            MaxCredits: subject.MaxCredits,
+            SortOrder: subject.SortOrder ?? index + 1,
+          })),
+        });
+      }
 
       // Cast required: Prisma transaction doesn't infer include types
       return tx.program.findUnique({
@@ -365,6 +379,52 @@ export const programRepository = {
     return toProgramSubjectShape(
       await programRepository.getEffectiveSubjects(programId),
     );
+  },
+
+  /**
+   * Upsert a per-program override of an inherited fundamental: exclude it
+   * (Excluded:true) or override its credits. Only provided fields are changed.
+   */
+  async setFundamentalOverride(
+    programId: number,
+    subjectCode: string,
+    override: {
+      Excluded?: boolean;
+      MinCredits?: number | null;
+      MaxCredits?: number | null;
+    },
+  ) {
+    return prisma.program_fundamental_override.upsert({
+      where: {
+        ProgramID_SubjectCode: {
+          ProgramID: programId,
+          SubjectCode: subjectCode,
+        },
+      },
+      update: {
+        ...(override.Excluded !== undefined && { Excluded: override.Excluded }),
+        ...(override.MinCredits !== undefined && {
+          MinCredits: override.MinCredits,
+        }),
+        ...(override.MaxCredits !== undefined && {
+          MaxCredits: override.MaxCredits,
+        }),
+      },
+      create: {
+        ProgramID: programId,
+        SubjectCode: subjectCode,
+        Excluded: override.Excluded ?? false,
+        MinCredits: override.MinCredits ?? null,
+        MaxCredits: override.MaxCredits ?? null,
+      },
+    });
+  },
+
+  /** Remove a fundamental override, reverting the subject to the template. */
+  async clearFundamentalOverride(programId: number, subjectCode: string) {
+    return prisma.program_fundamental_override.deleteMany({
+      where: { ProgramID: programId, SubjectCode: subjectCode },
+    });
   },
 
   /**

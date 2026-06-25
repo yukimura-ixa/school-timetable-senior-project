@@ -28,6 +28,8 @@ import {
   getProgramByGradeSchema,
   getProgramsByYearSchema,
   assignSubjectsToProgramSchema,
+  setFundamentalOverrideSchema,
+  clearFundamentalOverrideSchema,
   type CreateProgramInput,
   type GetProgramByGradeInput,
   type UpdateProgramInput,
@@ -35,6 +37,8 @@ import {
   type GetProgramByIdInput,
   type GetProgramsByYearInput,
   type AssignSubjectsToProgramInput,
+  type SetFundamentalOverrideInput,
+  type ClearFundamentalOverrideInput,
 } from "../schemas/program.schemas";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
@@ -317,6 +321,78 @@ export const assignSubjectsToProgramAction = createAction(
       program: updatedProgram,
       moeValidation: validationResult,
     };
+  },
+);
+
+
+/**
+ * Get a program's effective subjects (inherited CORE + overrides + owned)
+ * with seam metadata (source/overridden) for the assignment editor UI.
+ */
+export const getEffectiveSubjectsAction = createAction(
+  getProgramByIdSchema,
+  async (input: GetProgramByIdInput) => {
+    return await programRepository.getEffectiveSubjects(input.ProgramID);
+  },
+);
+
+/**
+ * Exclude an inherited fundamental from a program or override its credits by
+ * upserting a program_fundamental_override row. Returns the refreshed
+ * effective subjects.
+ */
+export const setFundamentalOverrideAction = createAction(
+  setFundamentalOverrideSchema,
+  async (input: SetFundamentalOverrideInput) => {
+    const existsError = await validateProgramExists(input.ProgramID);
+    if (existsError) {
+      throw new Error(existsError);
+    }
+
+    await programRepository.setFundamentalOverride(
+      input.ProgramID,
+      input.SubjectCode,
+      {
+        Excluded: input.Excluded,
+        MinCredits: input.MinCredits,
+        MaxCredits: input.MaxCredits,
+      },
+    );
+
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      `program_${input.ProgramID}`,
+    ]);
+
+    return await programRepository.getEffectiveSubjects(input.ProgramID);
+  },
+);
+
+/**
+ * Clear a fundamental override, reverting the subject to the grade template.
+ * Returns the refreshed effective subjects.
+ */
+export const clearFundamentalOverrideAction = createAction(
+  clearFundamentalOverrideSchema,
+  async (input: ClearFundamentalOverrideInput) => {
+    const existsError = await validateProgramExists(input.ProgramID);
+    if (existsError) {
+      throw new Error(existsError);
+    }
+
+    await programRepository.clearFundamentalOverride(
+      input.ProgramID,
+      input.SubjectCode,
+    );
+
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      `program_${input.ProgramID}`,
+    ]);
+
+    return await programRepository.getEffectiveSubjects(input.ProgramID);
   },
 );
 

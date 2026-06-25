@@ -165,6 +165,48 @@ export type AssignSubjectsToProgramInput = v.InferOutput<
   typeof assignSubjectsToProgramSchema
 >;
 
+
+export const setFundamentalOverrideSchema = v.object({
+  ProgramID: v.number("รหัสหลักสูตรต้องเป็นตัวเลข"),
+  SubjectCode: v.pipe(
+    v.string("รหัสวิชาต้องเป็นข้อความ"),
+    v.minLength(1, "รหัสวิชาห้ามว่าง"),
+  ),
+  Excluded: v.optional(v.boolean("สถานะยกเว้นต้องเป็น true/false")),
+  MinCredits: v.optional(
+    v.nullable(
+      v.pipe(
+        v.number("หน่วยกิตขั้นต่ำต้องเป็นตัวเลข"),
+        v.minValue(0, "หน่วยกิตขั้นต่ำต้องไม่น้อยกว่า 0"),
+      ),
+    ),
+  ),
+  MaxCredits: v.optional(
+    v.nullable(
+      v.pipe(
+        v.number("หน่วยกิตสูงสุดต้องเป็นตัวเลข"),
+        v.minValue(0, "หน่วยกิตสูงสุดต้องไม่น้อยกว่า 0"),
+      ),
+    ),
+  ),
+});
+
+export type SetFundamentalOverrideInput = v.InferOutput<
+  typeof setFundamentalOverrideSchema
+>;
+
+export const clearFundamentalOverrideSchema = v.object({
+  ProgramID: v.number("รหัสหลักสูตรต้องเป็นตัวเลข"),
+  SubjectCode: v.pipe(
+    v.string("รหัสวิชาต้องเป็นข้อความ"),
+    v.minLength(1, "รหัสวิชาห้ามว่าง"),
+  ),
+});
+
+export type ClearFundamentalOverrideInput = v.InferOutput<
+  typeof clearFundamentalOverrideSchema
+>;
+
 /**
  * Schema for getting program count (for pagination)
  */
