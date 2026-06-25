@@ -9,9 +9,24 @@
  */
 
 import useSWR from "swr";
-import { getProgramByIdAction } from "../../application/actions/program.actions";
+import {
+  getProgramByIdAction,
+  getInheritedFundamentalsAction,
+} from "../../application/actions/program.actions";
 import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
-import type { SubjectCategory } from "@/prisma/generated/client";
+import type { SubjectCategory, subject } from "@/prisma/generated/client";
+
+export type InheritedFundamental = {
+  SubjectCode: string;
+  subject: subject;
+  SortOrder: number;
+  TemplateMinCredits: number;
+  TemplateMaxCredits: number | null;
+  excluded: boolean;
+  overridden: boolean;
+  MinCredits: number;
+  MaxCredits: number | null;
+};
 
 export type Subject = {
   SubjectCode: string;
@@ -88,15 +103,41 @@ export function useProgramSubjects(programId: number) {
       ? (subjectsResponse.data as Subject[])
       : [];
 
-  const isLoading = isProgramLoading || isSubjectsLoading;
-  const error = programError || subjectsError;
+  // Inherited fundamentals (CORE) from this program's grade template, annotated
+  // with per-program exclude/override state. Drives the inherited section.
+  const {
+    data: inheritedResponse,
+    error: inheritedError,
+    mutate: mutateInherited,
+    isLoading: isInheritedLoading,
+  } = useSWR(
+    ["program-inherited", programId],
+    async ([, id]) => await getInheritedFundamentalsAction({ ProgramID: id }),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
+    },
+  );
+
+  const inherited: InheritedFundamental[] =
+    inheritedResponse &&
+    "success" in inheritedResponse &&
+    inheritedResponse.success &&
+    inheritedResponse.data
+      ? inheritedResponse.data
+      : [];
+
+  const isLoading = isProgramLoading || isSubjectsLoading || isInheritedLoading;
+  const error = programError || subjectsError || inheritedError;
 
   return {
     program,
     subjects,
+    inherited,
     isLoading,
     error,
     mutateProgram,
     mutateSubjects,
+    mutateInherited,
   };
 }

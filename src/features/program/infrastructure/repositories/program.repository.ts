@@ -427,6 +427,51 @@ export const programRepository = {
     });
   },
 
+
+  /**
+   * Full inherited-fundamentals view for one program's year, annotated with
+   * per-program override state. Unlike getEffectiveSubjects (which drops
+   * excluded rows), this keeps every template subject so the editor can render
+   * excluded ones with a restore control.
+   */
+  async getInheritedFundamentals(programId: number) {
+    const program = await prisma.program.findUnique({
+      where: { ProgramID: programId },
+      select: { Year: true },
+    });
+    if (!program) return [];
+
+    const [template, overrides] = await Promise.all([
+      prisma.grade_fundamental.findMany({
+        where: { Year: program.Year },
+        include: { subject: true },
+        orderBy: { SortOrder: "asc" },
+      }),
+      prisma.program_fundamental_override.findMany({
+        where: { ProgramID: programId },
+      }),
+    ]);
+
+    const overrideByCode = new Map(overrides.map((o) => [o.SubjectCode, o]));
+
+    return template.map((t) => {
+      const ov = overrideByCode.get(t.SubjectCode);
+      const overridden =
+        ov != null && (ov.MinCredits != null || ov.MaxCredits != null);
+      return {
+        SubjectCode: t.SubjectCode,
+        subject: t.subject,
+        SortOrder: t.SortOrder,
+        TemplateMinCredits: t.MinCredits,
+        TemplateMaxCredits: t.MaxCredits,
+        excluded: ov?.Excluded ?? false,
+        overridden,
+        MinCredits: ov?.MinCredits ?? t.MinCredits,
+        MaxCredits: ov?.MaxCredits ?? t.MaxCredits,
+      };
+    });
+  },
+
   /**
    * Delete a program
    * Note: Will cascade delete program_subject entries

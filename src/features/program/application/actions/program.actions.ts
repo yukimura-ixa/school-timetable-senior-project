@@ -396,6 +396,19 @@ export const clearFundamentalOverrideAction = createAction(
   },
 );
 
+
+/**
+ * Get a program's full inherited-fundamentals view (every grade-template
+ * subject annotated with this program's exclude/override state) for the
+ * inherited section of the assignment editor.
+ */
+export const getInheritedFundamentalsAction = createAction(
+  getProgramByIdSchema,
+  async (input: GetProgramByIdInput) => {
+    return await programRepository.getInheritedFundamentals(input.ProgramID);
+  },
+);
+
 /**
  * Delete a program by ID
  * Note: Will cascade delete program_subject entries
