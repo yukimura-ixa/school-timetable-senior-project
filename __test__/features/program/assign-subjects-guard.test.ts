@@ -2,6 +2,7 @@ import { describe, it, expect, afterAll } from "vitest";
 import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 import prisma from "@/lib/prisma";
 import { SubjectCategory } from "@/prisma/generated/client";
+import { createThrowawayProgram } from "./_fundamentals-test-helpers";
 
 // Guard (issue by3/x1b): once findById feeds the effective set into the editor,
 // inherited CORE renders as "selected" and a save would re-duplicate it into
@@ -20,32 +21,13 @@ describe("assignSubjects never persists inherited CORE as owned (integration)", 
   });
 
   it("drops CORE rows from the owned write, keeps inheritance intact", async () => {
-    const base = await prisma.program.findFirst();
-    expect(base).not.toBeNull();
-
-    const fundamental = await prisma.grade_fundamental.findFirst({
-      where: { Year: base!.Year },
-    });
-    expect(fundamental, "seed must provide a grade_fundamental for the year").not.toBeNull();
-    const coreCode = fundamental!.SubjectCode;
+    const { program, coreCode } = await createThrowawayProgram();
+    programId = program.ProgramID;
 
     const additional = await prisma.subject.findFirst({
       where: { Category: SubjectCategory.ADDITIONAL },
     });
     expect(additional).not.toBeNull();
-
-    const program = await prisma.program.create({
-      data: {
-        ProgramCode: `TEST-GUARD-${Date.now()}`,
-        ProgramName: "assignSubjects guard test",
-        Year: base!.Year,
-        Track: base!.Track,
-        MinTotalCredits: base!.MinTotalCredits,
-        Description: base!.Description,
-        IsActive: true,
-      },
-    });
-    programId = program.ProgramID;
 
     await programRepository.assignSubjects({
       ProgramID: program.ProgramID,

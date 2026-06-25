@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 import prisma from "@/lib/prisma";
+import { createThrowawayProgram } from "./_fundamentals-test-helpers";
 
 // program_fundamental_override seam (issue x1b Task 10): the inherited-section
 // controls exclude a CORE fundamental or override its credits per program.
@@ -12,25 +13,9 @@ describe("fundamental override seam (integration)", () => {
   let coreCode: string;
 
   beforeAll(async () => {
-    const base = await prisma.program.findFirst();
-    const fundamental = await prisma.grade_fundamental.findFirst({
-      where: { Year: base!.Year },
-      orderBy: { SortOrder: "asc" },
-    });
-    coreCode = fundamental!.SubjectCode;
-
-    const program = await prisma.program.create({
-      data: {
-        ProgramCode: `TEST-OVERRIDE-${Date.now()}`,
-        ProgramName: "override test",
-        Year: base!.Year,
-        Track: base!.Track,
-        MinTotalCredits: base!.MinTotalCredits,
-        Description: base!.Description,
-        IsActive: true,
-      },
-    });
+    const { program, coreCode: code } = await createThrowawayProgram();
     programId = program.ProgramID;
+    coreCode = code;
   });
 
   afterAll(async () => {
