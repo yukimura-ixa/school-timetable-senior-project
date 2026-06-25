@@ -30,6 +30,10 @@ import {
   assignSubjectsToProgramSchema,
   setFundamentalOverrideSchema,
   clearFundamentalOverrideSchema,
+  getFundamentalsByYearSchema,
+  createFundamentalSchema,
+  updateFundamentalSchema,
+  deleteFundamentalSchema,
   type CreateProgramInput,
   type GetProgramByGradeInput,
   type UpdateProgramInput,
@@ -39,6 +43,10 @@ import {
   type AssignSubjectsToProgramInput,
   type SetFundamentalOverrideInput,
   type ClearFundamentalOverrideInput,
+  type GetFundamentalsByYearInput,
+  type CreateFundamentalInput,
+  type UpdateFundamentalInput,
+  type DeleteFundamentalInput,
 } from "../schemas/program.schemas";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
@@ -406,6 +414,76 @@ export const getInheritedFundamentalsAction = createAction(
   getProgramByIdSchema,
   async (input: GetProgramByIdInput) => {
     return await programRepository.getInheritedFundamentals(input.ProgramID);
+  },
+);
+
+
+/**
+ * Admin: list the grade-fundamental template rows for one year.
+ */
+export const getFundamentalsByYearAction = createAction(
+  getFundamentalsByYearSchema,
+  async (input: GetFundamentalsByYearInput) => {
+    return await programRepository.listFundamentalsByYear(input.Year);
+  },
+);
+
+/**
+ * Admin: add a CORE subject to a year's template. Affects every program of
+ * that grade by inheritance, so invalidate the fundamentals + programs caches.
+ */
+export const createFundamentalAction = createAction(
+  createFundamentalSchema,
+  async (input: CreateFundamentalInput) => {
+    const row = await programRepository.createFundamental(input);
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      "fundamentals",
+      `fundamentals_y${input.Year}`,
+    ]);
+    return row;
+  },
+);
+
+/**
+ * Admin: edit a template row's credits / order.
+ */
+export const updateFundamentalAction = createAction(
+  updateFundamentalSchema,
+  async (input: UpdateFundamentalInput) => {
+    const row = await programRepository.updateFundamental(
+      input.GradeFundamentalID,
+      {
+        MinCredits: input.MinCredits,
+        MaxCredits: input.MaxCredits,
+        SortOrder: input.SortOrder,
+      },
+    );
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      "fundamentals",
+      `fundamentals_y${input.Year}`,
+    ]);
+    return row;
+  },
+);
+
+/**
+ * Admin: remove a CORE subject from a year's template.
+ */
+export const deleteFundamentalAction = createAction(
+  deleteFundamentalSchema,
+  async (input: DeleteFundamentalInput) => {
+    await programRepository.deleteFundamental(input.GradeFundamentalID);
+    await invalidatePublicCache([
+      "stats",
+      "programs",
+      "fundamentals",
+      `fundamentals_y${input.Year}`,
+    ]);
+    return { ok: true };
   },
 );
 

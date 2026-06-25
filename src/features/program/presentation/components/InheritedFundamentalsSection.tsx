@@ -94,15 +94,16 @@ export function InheritedFundamentalsSection({
 
   const run = async (code: string, action: () => Promise<unknown>, ok: string) => {
     setSavingCode(code);
+    // try/catch without finally: catch swallows the error, so the reset below
+    // runs on every path while staying React Compiler friendly (no finalizer).
     try {
       await action();
       await onChanged();
       enqueueSnackbar(ok, { variant: "success" });
     } catch {
       enqueueSnackbar("บันทึกไม่สำเร็จ", { variant: "error" });
-    } finally {
-      setSavingCode(null);
     }
+    setSavingCode(null);
   };
 
   const exclude = (code: string) =>
@@ -173,7 +174,7 @@ export function InheritedFundamentalsSection({
             สืบทอดจากเทมเพลตชั้น{year != null ? ` ม.${year}` : ""}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            ใช้ร่วมกับทุกหลักสูตรชั้นนี้ — ปรับเฉพาะที่นี่ได้
+            ใช้ร่วมกับทุกหลักสูตรชั้นนี้ · ปรับเฉพาะที่นี่ได้
           </Typography>
         </Box>
         <Box sx={{ flex: 1 }} />
@@ -294,7 +295,7 @@ export function InheritedFundamentalsSection({
           <Box component="span" sx={{ color: INHERIT, fontWeight: 700 }}>
             {" "}เฉพาะหลักสูตรนี้
           </Box>{" "}
-          — หลักสูตรอื่นของชั้นไม่เปลี่ยน · บันทึกทันที
+          (หลักสูตรอื่นของชั้นไม่เปลี่ยน) · บันทึกทันที
         </Typography>
       </Stack>
     </Paper>

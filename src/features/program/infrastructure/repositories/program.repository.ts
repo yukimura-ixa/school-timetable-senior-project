@@ -472,6 +472,57 @@ export const programRepository = {
     });
   },
 
+
+  /** Admin: the grade-fundamental template rows for one year. */
+  async listFundamentalsByYear(year: number) {
+    return prisma.grade_fundamental.findMany({
+      where: { Year: year },
+      include: { subject: true },
+      orderBy: { SortOrder: "asc" },
+    });
+  },
+
+  /** Admin: add a CORE subject to a year's template. */
+  async createFundamental(data: {
+    Year: number;
+    SubjectCode: string;
+    MinCredits: number;
+    MaxCredits?: number | null;
+    SortOrder?: number;
+  }) {
+    return prisma.grade_fundamental.create({
+      data: {
+        Year: data.Year,
+        SubjectCode: data.SubjectCode,
+        MinCredits: data.MinCredits,
+        MaxCredits: data.MaxCredits ?? null,
+        SortOrder: data.SortOrder ?? 0,
+      },
+    });
+  },
+
+  /** Admin: edit a template row's credits / order. */
+  async updateFundamental(
+    gradeFundamentalId: number,
+    data: { MinCredits?: number; MaxCredits?: number | null; SortOrder?: number },
+  ) {
+    return prisma.grade_fundamental.update({
+      where: { GradeFundamentalID: gradeFundamentalId },
+      data: {
+        ...(data.MinCredits !== undefined && { MinCredits: data.MinCredits }),
+        ...(data.MaxCredits !== undefined && { MaxCredits: data.MaxCredits }),
+        ...(data.SortOrder !== undefined && { SortOrder: data.SortOrder }),
+      },
+    });
+  },
+
+  /** Admin: remove a CORE subject from a year's template. */
+  async deleteFundamental(gradeFundamentalId: number) {
+    return prisma.grade_fundamental.delete({
+      where: { GradeFundamentalID: gradeFundamentalId },
+    });
+  },
+
   /**
    * Delete a program
    * Note: Will cascade delete program_subject entries

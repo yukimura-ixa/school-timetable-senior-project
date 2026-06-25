@@ -207,6 +207,60 @@ export type ClearFundamentalOverrideInput = v.InferOutput<
   typeof clearFundamentalOverrideSchema
 >;
 
+
+const yearField = v.pipe(
+  v.number("ระดับชั้นต้องเป็นตัวเลข"),
+  v.minValue(1, "ระดับชั้นต้องอยู่ระหว่าง 1-6"),
+  v.maxValue(6, "ระดับชั้นต้องอยู่ระหว่าง 1-6"),
+);
+
+const creditField = v.pipe(
+  v.number("หน่วยกิตต้องเป็นตัวเลข"),
+  v.minValue(0, "หน่วยกิตต้องไม่น้อยกว่า 0"),
+);
+
+export const getFundamentalsByYearSchema = v.object({ Year: yearField });
+
+export type GetFundamentalsByYearInput = v.InferOutput<
+  typeof getFundamentalsByYearSchema
+>;
+
+export const createFundamentalSchema = v.object({
+  Year: yearField,
+  SubjectCode: v.pipe(
+    v.string("รหัสวิชาต้องเป็นข้อความ"),
+    v.minLength(1, "รหัสวิชาห้ามว่าง"),
+  ),
+  MinCredits: creditField,
+  MaxCredits: v.optional(v.nullable(creditField)),
+  SortOrder: v.optional(v.number()),
+});
+
+export type CreateFundamentalInput = v.InferOutput<
+  typeof createFundamentalSchema
+>;
+
+export const updateFundamentalSchema = v.object({
+  GradeFundamentalID: v.number("รหัสวิชาพื้นฐานต้องเป็นตัวเลข"),
+  Year: yearField,
+  MinCredits: v.optional(creditField),
+  MaxCredits: v.optional(v.nullable(creditField)),
+  SortOrder: v.optional(v.number()),
+});
+
+export type UpdateFundamentalInput = v.InferOutput<
+  typeof updateFundamentalSchema
+>;
+
+export const deleteFundamentalSchema = v.object({
+  GradeFundamentalID: v.number("รหัสวิชาพื้นฐานต้องเป็นตัวเลข"),
+  Year: yearField,
+});
+
+export type DeleteFundamentalInput = v.InferOutput<
+  typeof deleteFundamentalSchema
+>;
+
 /**
  * Schema for getting program count (for pagination)
  */
