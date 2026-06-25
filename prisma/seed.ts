@@ -278,6 +278,36 @@ const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = {
 // DEMO DATA SEEDING FUNCTION
 // Creates minimal but complete data for production demos
 // ============================================================================
+/**
+ * Seed the per-year CORE template (grade_fundamental) that every program
+ * inherits. Shared by the demo path and the clean/test path so the two cannot
+ * drift — both must seed the template for inheritance to function. Requires the
+ * subject catalog to be seeded first (FK fk_grade_fundamental_subject).
+ */
+async function seedGradeFundamentals() {
+  console.log("📋 Seeding grade_fundamental template rows...");
+  for (const row of FUNDAMENTALS) {
+    await withRetry(
+      () =>
+        prisma.grade_fundamental.upsert({
+          where: {
+            Year_SubjectCode: { Year: row.Year, SubjectCode: row.SubjectCode },
+          },
+          update: {},
+          create: {
+            Year: row.Year,
+            SubjectCode: row.SubjectCode,
+            MinCredits: row.MinCredits,
+            MaxCredits: row.MaxCredits,
+            SortOrder: row.SortOrder,
+          },
+        }),
+      `Upsert grade_fundamental y${row.Year} ${row.SubjectCode}`,
+    );
+  }
+  console.log(`✅ ${FUNDAMENTALS.length} grade_fundamental rows`);
+}
+
 async function seedDemoData() {
   console.log("🌐 Starting demo data seed 2568 (idempotent, additive)...");
 
@@ -662,25 +692,7 @@ async function seedDemoData() {
   console.log(`✅ ${ALL_GRADES.length} grade levels`);
 
   // ── Seed grade_fundamental template rows ───────────────────────────────────
-  console.log("📋 Seeding grade_fundamental template rows...");
-  for (const row of FUNDAMENTALS) {
-    await withRetry(
-      () =>
-        prisma.grade_fundamental.upsert({
-          where: { Year_SubjectCode: { Year: row.Year, SubjectCode: row.SubjectCode } },
-          update: {},
-          create: {
-            Year: row.Year,
-            SubjectCode: row.SubjectCode,
-            MinCredits: row.MinCredits,
-            MaxCredits: row.MaxCredits,
-            SortOrder: row.SortOrder,
-          },
-        }),
-      `Upsert grade_fundamental y${row.Year} ${row.SubjectCode}`,
-    );
-  }
-  console.log(`✅ ${FUNDAMENTALS.length} grade_fundamental rows`);
+  await seedGradeFundamentals();
 
   // ── Seed program-subject links ──────────────────────────────────────────────
   console.log("🔗 Seeding program-subject links...");
@@ -2686,6 +2698,10 @@ async function main() {
   console.log(
     `✅ Created ${totalSubjects} subjects (${coreSubjects.length} core + ${additionalSubjects.length} additional + ${activitySubjects.length} activities)`,
   );
+
+  // Inherited CORE template — every program inherits these by reference. The
+  // clean/test/prod path (this one) must seed it too, not just the demo path.
+  await seedGradeFundamentals();
 
   // ===== PROGRAMS (3 tracks × 6 years) =====
   console.log("🎓 Creating programs...");
