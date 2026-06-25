@@ -18,7 +18,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    setupFiles: ["./vitest.setup.ts"],
+    setupFiles: ["./vitest.integration.setup.ts"],
     fileParallelism: false,
     sequence: { hooks: "list" },
     include: [
