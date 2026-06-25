@@ -99,15 +99,10 @@ function TeacherTablePage() {
   const canFetch = Boolean(session?.user) && !isSessionLoading;
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
-  const isTeacher = userRole === "teacher";
-  const currentTeacherId =
-    isTeacher && session?.user?.id ? parseInt(session.user.id) : null;
-
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
     null,
   );
-  const effectiveTeacherId =
-    isTeacher && currentTeacherId ? currentTeacherId : selectedTeacherId;
+  const effectiveTeacherId = selectedTeacherId;
 
   // Bulk operation state
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);

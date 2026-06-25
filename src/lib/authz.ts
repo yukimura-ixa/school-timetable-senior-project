@@ -1,15 +1,12 @@
 /**
  * Simple authorization utilities for role checks.
- * Project policy: only "admin" is privileged; "teacher" and "student" are guests.
+ * Project policy: only "admin" is privileged; everyone else is a guest.
  */
 
-export type AppRole = "admin" | "teacher" | "student" | undefined;
+export type AppRole = "admin" | undefined;
 
 export function normalizeAppRole(rawRole: string | null | undefined): AppRole {
-  if (rawRole === "admin" || rawRole === "teacher" || rawRole === "student") {
-    return rawRole;
-  }
-  return undefined;
+  return rawRole === "admin" ? "admin" : undefined;
 }
 
 export const toAppRole = normalizeAppRole;

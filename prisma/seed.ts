@@ -1536,60 +1536,9 @@ async function main() {
     );
   }
 
-  // ===== TEACHER AUTH USER (E2E) =====
-  // Login for the pinned E2E teacher fixture (e2e.teacher@school.ac.th).
-  const teacherPassword = process.env.TEACHER_PASSWORD ?? "teacher123";
-  const teacherEmail = "e2e.teacher@school.ac.th";
-
-  if (
-    isProduction &&
-    (!process.env.TEACHER_PASSWORD || teacherPassword === "teacher123")
-  ) {
-    throw new Error(
-      "🔒 SECURITY: TEACHER_PASSWORD must be set to a strong, non-default " +
-        "password in production.",
-    );
-  }
-
-  const existingTeacherUser = await withRetry(
-    () => prisma.user.findUnique({ where: { email: teacherEmail } }),
-    "Check existing teacher user",
-  );
-  if (existingTeacherUser) {
-    console.log("🗑️  Deleting existing teacher user and auth data...");
-    await withRetry(
-      () =>
-        prisma.account.deleteMany({
-          where: { userId: existingTeacherUser.id },
-        }),
-      "Delete teacher accounts",
-    );
-    await withRetry(
-      () => prisma.user.delete({ where: { id: existingTeacherUser.id } }),
-      "Delete teacher user",
-    );
-    console.log("✅ Existing teacher user deleted");
-  }
-
-  const teacherSignUp = await auth.api.signUpEmail({
-    body: {
-      email: teacherEmail,
-      password: teacherPassword,
-      name: "E2E ทดสอบ",
-    },
-  });
-  if (!teacherSignUp?.user) {
-    throw new Error("Failed to create teacher user via better-auth API");
-  }
-  await withRetry(
-    () =>
-      prisma.user.update({
-        where: { id: teacherSignUp.user.id },
-        data: { role: "teacher", emailVerified: true },
-      }),
-    "Update teacher user role",
-  );
-  console.log(`✅ Teacher auth user created (${teacherEmail})`);
+  // Teacher auth user removed: admin is the only privileged auth persona;
+  // teacher/student roles were dropped. The teaching-staff entity
+  // (e2e.teacher@school.ac.th) is still seeded below for arrange/fixture tests.
 
   // ===== SEEDING MODE SELECTION =====
   const isDemoMode = process.env.SEED_DEMO_DATA === "true";
