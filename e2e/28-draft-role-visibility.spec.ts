@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { GUEST_E2E, loginViaApi } from "./helpers/login";
 
 /**
  * Role boundaries around the seeded world (1-2568 PUBLISHED, 2-2568 DRAFT).
@@ -14,6 +15,25 @@ test.describe("draft-term role visibility", () => {
     try {
       await page.goto("/management/teacher");
       await expect(page).toHaveURL(/\/signin/, { timeout: 15000 });
+    } finally {
+      await context.close();
+    }
+  });
+
+  test("API-established non-admin session gets 403 on admin layouts", async ({ browser }) => {
+    // The signin UI is admin-only, but mint a non-admin session directly via
+    // the auth API: the dashboard/management layouts must still 403 it
+    // (defense-in-depth). Uses a role-neutral guest fixture (no teacher role).
+    const { context, page } = await loginViaApi(browser, GUEST_E2E);
+    try {
+      await page.goto("/dashboard");
+      await expect(
+        page.getByText(/403|forbidden|ไม่ได้รับอนุญาต/i).first(),
+      ).toBeVisible({ timeout: 15000 });
+      await page.goto("/management/teacher");
+      await expect(
+        page.getByText(/403|forbidden|ไม่ได้รับอนุญาต/i).first(),
+      ).toBeVisible({ timeout: 15000 });
     } finally {
       await context.close();
     }
