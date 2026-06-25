@@ -6,6 +6,7 @@ import ClassIcon from "@mui/icons-material/Class";
 import SchoolIcon from "@mui/icons-material/School";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -56,6 +57,13 @@ const managementPages: ManagementCard[] = [
     href: "/management/program",
     icon: <SchoolIcon sx={{ fontSize: 48 }} />,
     color: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
+  },
+  {
+    title: "เทมเพลตวิชาพื้นฐาน",
+    description: "กำหนดวิชาพื้นฐาน (CORE) รายชั้น ใช้ร่วมทุกหลักสูตร",
+    href: "/management/fundamentals",
+    icon: <AccountTreeIcon sx={{ fontSize: 48 }} />,
+    color: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
   },
   {
     title: "จัดการห้องเรียน",
