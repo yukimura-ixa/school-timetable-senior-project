@@ -3288,6 +3288,10 @@ async function main() {
 
       let sortOrder = 1;
       for (const item of plan) {
+        // CORE is inherited from grade_fundamental, never owned. programPlans
+        // (set above) keeps the full plan for schedule seeding; only the
+        // persisted program_subject rows omit CORE so inheritance stays active.
+        if (item.category === "CORE") continue;
         const subject = subjectByCode.get(item.code);
         if (!subject) {
           throw new Error(`Missing subject in catalog: ${item.code}`);
@@ -3585,6 +3589,8 @@ async function main() {
 
   let sortOrder = 1;
   for (const ps of m1SciSubjects) {
+    // CORE comes from grade_fundamental inheritance, not owned program_subject.
+    if (ps.category === "CORE") continue;
     const subject = [
       ...coreSubjects,
       ...additionalSubjects,
