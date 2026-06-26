@@ -387,6 +387,12 @@ async function seedDemoData() {
     { code: "ว31241", name: "ชีววิทยา 1", credit: "CREDIT_10", learningArea: "SCIENCE", category: "ADDITIONAL" },
     { code: "อ31201", name: "ภาษาอังกฤษเพิ่มเติม 1", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
     { code: "ว30286", name: "การออกแบบกราฟิก", credit: "CREDIT_10", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    // ม.4 ทวิศึกษา (4/2) ปวช. สมรรถนะวิชาชีพ — §8.3. ปวช. codes fall outside the
+    // MOE ^[ก-ฮ][1-3]\d{4}$ format and carry no learning area (LearningArea null).
+    { code: "20001-1005", name: "สมรรถนะวิชาชีพพื้นฐาน (20001-1005)", credit: "CREDIT_20", learningArea: null, category: "ADDITIONAL" },
+    { code: "219101-1001", name: "พื้นฐานธุรกิจดิจิทัล", credit: "CREDIT_15", learningArea: null, category: "ADDITIONAL" },
+    { code: "219101-2001", name: "ระบบปฏิบัติการคอมพิวเตอร์", credit: "CREDIT_20", learningArea: null, category: "ADDITIONAL" },
+    { code: "219101-2002", name: "อินเทอร์เน็ตในงานธุรกิจดิจิทัล", credit: "CREDIT_15", learningArea: null, category: "ADDITIONAL" },
     // ม.5 วิทย์-คณิต (5/1) เพิ่มเติม — §8.3. I30201 (IS) skipped: no MOE
     // learning area, same convention as junior I20201.
     { code: "ค32201", name: "คณิตศาสตร์เพิ่มเติม ม.5", credit: "CREDIT_15", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
@@ -505,6 +511,7 @@ async function seedDemoData() {
     { code: "M4-SCI",       name: "หลักสูตรวิทย์-คณิต ม.4",       year: 4, track: "SCIENCE_MATH"  as ProgramTrack, minCredits: 41 },
     { code: "M4-LANG-MATH", name: "หลักสูตรศิลป์-คำนวณ ม.4",      year: 4, track: "LANGUAGE_MATH" as ProgramTrack, minCredits: 41 },
     { code: "M4-LANG-ARTS", name: "หลักสูตรศิลป์-ภาษา ม.4",       year: 4, track: "LANGUAGE_ARTS" as ProgramTrack, minCredits: 41 },
+    { code: "M4-DUAL",      name: "หลักสูตรทวิศึกษา เทคโนโลยีธุรกิจดิจิทัล ม.4", year: 4, track: "DUAL_VOCATIONAL" as ProgramTrack, minCredits: 41 },
     { code: "M5-SCI",       name: "หลักสูตรวิทย์-คณิต ม.5",       year: 5, track: "SCIENCE_MATH"  as ProgramTrack, minCredits: 41 },
     { code: "M5-LANG-MATH", name: "หลักสูตรศิลป์-คำนวณ ม.5",      year: 5, track: "LANGUAGE_MATH" as ProgramTrack, minCredits: 41 },
     { code: "M5-LANG-ARTS", name: "หลักสูตรศิลป์-ภาษา ม.5",       year: 5, track: "LANGUAGE_ARTS" as ProgramTrack, minCredits: 41 },
@@ -721,6 +728,9 @@ async function seedDemoData() {
     "M5-LANG-MATH": ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","ค32201","จ32201","ง32201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
     "M6-LANG-MATH": ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","ค33201","จ33201","ง33201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
     "M4-LANG-ARTS": ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","จ31201","ญ31201","ส31102","ศ31201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
+    // ทวิศึกษา inherits the standard ม.4 CORE (grade_fundamental); ปวช. competency
+    // modules are its program-owned เพิ่มเติม. No classroom seeded (curriculum only).
+    "M4-DUAL":      ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","20001-1005","219101-1001","219101-2001","219101-2002","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
     "M5-LANG-ARTS": ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","จ32201","ญ32201","ส32102","ศ32201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
     "M6-LANG-ARTS": ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","จ33201","ญ33201","ส33102","ศ33201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
   };
