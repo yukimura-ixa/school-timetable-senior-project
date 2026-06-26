@@ -400,8 +400,10 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/schedule/${TEST_SEMESTER}/assign`);
       await page.waitForLoadState("networkidle");
 
-      // Verify page loads
-      await expect(page).toHaveURL(/\/assign/);
+      // /assign permanent-redirects to the consolidated management page (lyw).
+      await expect(page).toHaveURL(
+        /\/management\/teacher-assignment\?(?=.*\bmode=by-grade\b)(?=.*\byear=2568\b)/,
+      );
 
       // Wait for page content to render - could be a table, list, or selector
       const pageContent = page
@@ -440,8 +442,11 @@ test.describe("Critical Path Smoke Tests", () => {
         `/schedule/${TEST_SEMESTER}/assign/teacher_responsibility?TeacherID=1`,
       );
 
-      // The page should load (but may show loading or specific teacher data)
-      await expect(page).toHaveURL(/\/assign\/teacher_responsibility/);
+      // teacher_responsibility permanent-redirects to by-teacher mode, mapping
+      // ?TeacherID (PascalCase) to the canonical ?teacherId (lyw).
+      await expect(page).toHaveURL(
+        /\/management\/teacher-assignment\?(?=.*\bmode=by-teacher\b)(?=.*\bteacherId=1\b)/,
+      );
 
       // Page should render without server error
       const pageContent = page.locator("body");
@@ -456,14 +461,14 @@ test.describe("Critical Path Smoke Tests", () => {
       );
       await page.waitForLoadState("networkidle");
 
+      // Redirects to by-teacher mode with no teacher selected (no TeacherID →
+      // no teacherId param); the consolidated page prompts to pick a teacher (lyw).
+      await expect(page).toHaveURL(
+        /\/management\/teacher-assignment\?(?=.*\bmode=by-teacher\b)/,
+      );
       await expect(
         page.getByText("กรุณาเลือกครูผู้สอน"),
       ).toBeVisible({ timeout: 15000 });
-      // The wizard stepper also renders a "ย้อนกลับ" (previous-step) button on
-      // schedule pages, so scope to the first match to avoid a strict-mode
-      // violation — this smoke check only needs a back affordance present.
-      await expect(page.getByText("ย้อนกลับ").first()).toBeVisible();
-      await expect(page).toHaveURL(/\/assign\/teacher_responsibility/);
     });
   });
 

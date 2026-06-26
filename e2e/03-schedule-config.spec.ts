@@ -102,8 +102,8 @@ test.describe("TC-009: Schedule Assignment Interface", () => {
     });
     await waitForAppReady(page);
 
-    // Verify URL contains assign
-    expect(page.url()).toContain("/assign");
+    // /assign now permanent-redirects to the consolidated management page (lyw).
+    await expect(page).toHaveURL(/\/management\/teacher-assignment/);
 
     // Take screenshot
     await page.screenshot({
