@@ -264,10 +264,16 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       for (const area of areas) expect(body).toContain(area);
     });
 
-    // QUARANTINED (ed1): dnd-kit's drop rarely registers under headless
-    // chromium in CI (passes ~1/6 runs; pre-existing — fails on main too).
-    // The room-picker handling below is correct; the drag harness itself needs
-    // a local repro to fix. Restore to `test(` once the drop is reliable.
+    // QUARANTINED: this strict drag→place→persist→delete flow is unreliable in
+    // CI headless chromium — the dnd-kit pointer drop intermittently fails to
+    // register, so the placement count never changes (the :poll on empty slots
+    // below times out). It fails even single-worker in the sequential shard, so
+    // this is NOT CPU contention and does NOT reproduce locally (passes locally).
+    // The softer drag coverage in 08-drag-and-drop.spec.ts (draggability +
+    // visual feedback) is the accepted substitute. Restore to `test(` only once
+    // the drop is deterministic in CI — likely via a non-pointer drive path
+    // (the board's KeyboardSensor uses sortableKeyboardCoordinates, which can't
+    // target a specific grid cell, so that needs work first).
     test.fixme("arrange: drag-drop places a class, persists, then delete restores", async ({
       authenticatedAdmin,
     }) => {
