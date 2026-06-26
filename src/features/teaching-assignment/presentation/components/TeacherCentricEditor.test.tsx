@@ -1,11 +1,23 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom/vitest";
 import {
   TeacherCentricEditor,
   type AssignmentWithRelations,
 } from "./TeacherCentricEditor";
+import { syncAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
+
+vi.mock("@/features/assign/application/actions/assign.actions", () => ({
+  syncAssignmentsAction: vi.fn(),
+}));
+vi.mock("@/features/subject/application/actions/subject.actions", () => ({
+  getSubjectsByGradeAction: vi.fn().mockResolvedValue({ success: true, data: [] }),
+}));
+vi.mock("@/hooks/use-grade-levels", () => ({
+  useGradeLevels: () => ({ data: [], isLoading: false }),
+}));
 
 function makeAssignment(over: {
   GradeID: string;
@@ -42,6 +54,13 @@ const baseProps = {
   onSaved: vi.fn(),
 };
 
+beforeEach(() => {
+  vi.mocked(syncAssignmentsAction).mockReset();
+  vi.mocked(syncAssignmentsAction).mockResolvedValue({
+    status: "success",
+  } as never);
+});
+
 describe("TeacherCentricEditor", () => {
   it("renders a section for each grade level ม.1 through ม.6", () => {
     render(<TeacherCentricEditor {...baseProps} assignments={[]} />);
@@ -63,5 +82,37 @@ describe("TeacherCentricEditor", () => {
     render(<TeacherCentricEditor {...baseProps} assignments={assignments} />);
     expect(screen.getByText("ม.1/1")).toBeInTheDocument();
     expect(screen.getByText(/คณิตศาสตร์/)).toBeInTheDocument();
+  });
+
+  it("saves with the credit converted to the schema's numeric format", async () => {
+    const user = userEvent.setup();
+    const onSaved = vi.fn();
+    const assignments = [
+      makeAssignment({
+        GradeID: "101",
+        Year: 1,
+        SubjectCode: "ค21101",
+        SubjectName: "คณิตศาสตร์",
+        Credit: "CREDIT_10",
+      }),
+    ];
+    render(
+      <TeacherCentricEditor
+        {...baseProps}
+        assignments={assignments}
+        onSaved={onSaved}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /บันทึก/ }));
+    await waitFor(() =>
+      expect(syncAssignmentsAction).toHaveBeenCalledTimes(1),
+    );
+    expect(syncAssignmentsAction).toHaveBeenCalledWith({
+      TeacherID: 7,
+      AcademicYear: 2567,
+      Semester: "SEMESTER_1",
+      Resp: [{ GradeID: "101", SubjectCode: "ค21101", Credit: "1.0" }],
+    });
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
   });
 });
