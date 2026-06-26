@@ -38,6 +38,7 @@ const TRACK_OPTIONS: { value: $Enums.ProgramTrack; label: string }[] = [
   { value: "LANGUAGE_MATH", label: "ศิลป์-คำนวณ" },
   { value: "LANGUAGE_ARTS", label: "ศิลป์-ภาษา" },
   { value: "GENERAL", label: "ทั่วไป" },
+  { value: "DUAL_VOCATIONAL", label: "ทวิศึกษา" },
 ];
 
 // ==================== Component ====================

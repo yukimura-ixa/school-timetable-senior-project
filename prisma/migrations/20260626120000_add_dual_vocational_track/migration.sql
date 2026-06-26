@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ProgramTrack" ADD VALUE 'DUAL_VOCATIONAL';

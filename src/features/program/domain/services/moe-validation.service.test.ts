@@ -285,6 +285,12 @@ describe("validateTrackElectives", () => {
     expect(result.warnings).toHaveLength(0);
   });
 
+  it("returns empty errors for DUAL_VOCATIONAL track (ทวิศึกษา is exempt)", () => {
+    const result = validateTrackElectives("DUAL_VOCATIONAL", 4, []);
+    expect(result.errors).toHaveLength(0);
+    expect(result.warnings).toHaveLength(0);
+  });
+
   it("checks track electives for non-GENERAL tracks", () => {
     mockGetTrackElectives.mockReturnValue([
       { group: "คณิตศาสตร์", minCredits: 6 },

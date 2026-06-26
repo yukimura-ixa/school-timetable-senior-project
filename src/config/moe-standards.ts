@@ -556,7 +556,8 @@ export type ProgramTrack =
   | "GENERAL"
   | "SCIENCE_MATH"
   | "LANGUAGE_MATH"
-  | "LANGUAGE_ARTS";
+  | "LANGUAGE_ARTS"
+  | "DUAL_VOCATIONAL";
 
 /**
  * Helper: Get recommended electives for a program track

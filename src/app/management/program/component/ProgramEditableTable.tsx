@@ -24,6 +24,7 @@ const trackLabels: Record<$Enums.ProgramTrack, string> = {
   LANGUAGE_MATH: "ศิลป์-คำนวณ",
   LANGUAGE_ARTS: "ศิลป์-ภาษา",
   GENERAL: "ทั่วไป",
+  DUAL_VOCATIONAL: "ทวิศึกษา",
 };
 
 const columnsForYear = (_year: number): ColumnDef<program>[] => [

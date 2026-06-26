@@ -19,6 +19,7 @@ const TRACK_LABELS_THAI: Record<ProgramTrack, string> = {
   LANGUAGE_MATH: "แผนศิลป์-คำนวณ",
   LANGUAGE_ARTS: "แผนศิลป์-ภาษา",
   GENERAL: "แผนทั่วไป",
+  DUAL_VOCATIONAL: "แผนทวิศึกษา",
 };
 
 export interface LearningAreaView {

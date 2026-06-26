@@ -193,8 +193,10 @@ export function validateProgramMOECredits(
     );
   }
 
-  // Check track-specific electives for upper secondary
-  if (track && isSenior && track !== "GENERAL") {
+  // Check track-specific electives for upper secondary. ทวิศึกษา (vocational
+  // dual) carries ปวช. competency modules, not academic track electives, so it
+  // is exempt like GENERAL.
+  if (track && isSenior && track !== "GENERAL" && track !== "DUAL_VOCATIONAL") {
     const trackResult = validateTrackElectives(track, year, programSubjects);
     errors.push(...trackResult.errors);
     warnings.push(...trackResult.warnings);
@@ -325,6 +327,7 @@ function getTrackNameThai(track: ProgramTrack): string {
     LANGUAGE_MATH: "แผนศิลป์-คำนวณ",
     LANGUAGE_ARTS: "แผนศิลป์-ภาษา",
     GENERAL: "แผนทั่วไป",
+    DUAL_VOCATIONAL: "แผนทวิศึกษา",
   };
   return names[track];
 }
@@ -346,7 +349,7 @@ export function validateTrackElectives(
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  if (track === "GENERAL") {
+  if (track === "GENERAL" || track === "DUAL_VOCATIONAL") {
     return { errors, warnings }; // No track-specific requirements
   }
 
