@@ -24,11 +24,11 @@ export class NavigationHelper {
 
     const term = String(academicYearOrTerm);
     if (term.includes("/")) {
-      const [year, sem] = term.split("/");
+      const [year = "", sem = ""] = term.split("/");
       return { academicYear: year, semester: sem };
     }
     if (term.includes("-")) {
-      const [sem, year] = term.split("-");
+      const [sem = "", year = ""] = term.split("-");
       return { academicYear: year, semester: sem };
     }
 

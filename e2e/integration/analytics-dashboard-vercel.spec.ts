@@ -131,7 +131,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       percentages.forEach((pct) => {
         const match = pct.match(/(\d+\.?\d*)%/);
         if (match) {
-          const value = parseFloat(match[1]);
+          const value = parseFloat(match[1] ?? "0");
           expect(value).toBeGreaterThanOrEqual(0);
           expect(value).toBeLessThanOrEqual(100);
         }

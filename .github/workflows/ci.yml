@@ -49,6 +49,9 @@ jobs:
       - name: TypeScript
         run: pnpm typecheck
 
+      - name: TypeScript (e2e specs)
+        run: pnpm typecheck:e2e
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest

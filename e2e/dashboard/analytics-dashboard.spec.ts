@@ -339,7 +339,7 @@ test.describe("Analytics Dashboard", () => {
         // Extract number from text like "67.5%"
         const match = percentageText.match(/(\d+\.?\d*)%/);
         if (match) {
-          const percentage = parseFloat(match[1]);
+          const percentage = parseFloat(match[1] ?? "0");
 
           // Should be between 0 and 100
           expect(percentage).toBeGreaterThanOrEqual(0);
@@ -393,7 +393,7 @@ test.describe("Analytics Dashboard", () => {
         percentages.forEach((text) => {
           const match = text.match(/(\d+\.?\d*)%/);
           if (match) {
-            total += parseFloat(match[1]);
+            total += parseFloat(match[1] ?? "0");
           }
         });
 
@@ -452,7 +452,7 @@ test.describe("Analytics Dashboard", () => {
         percentages.slice(0, 3).forEach((text) => {
           const match = text.match(/(\d+\.?\d*)%/);
           if (match) {
-            total += parseFloat(match[1]);
+            total += parseFloat(match[1] ?? "0");
           }
         });
 
@@ -580,14 +580,14 @@ test.describe("Analytics Dashboard", () => {
         percentages.forEach((text) => {
           const match = text.match(/(\d+\.?\d*)%/);
           if (match) {
-            percentageValues.push(parseFloat(match[1]));
+            percentageValues.push(parseFloat(match[1] ?? "0"));
           }
         });
 
         // Verify descending order
         for (let i = 0; i < percentageValues.length - 1; i++) {
           expect(percentageValues[i]).toBeGreaterThanOrEqual(
-            percentageValues[i + 1],
+            percentageValues[i + 1] ?? 0,
           );
         }
       }
@@ -637,7 +637,7 @@ test.describe("Analytics Dashboard", () => {
       const totalMatch = totalText?.match(/(\d+)/);
 
       if (totalMatch) {
-        const dashboardTotal = parseInt(totalMatch[1]);
+        const dashboardTotal = parseInt(totalMatch[1] ?? "0");
 
         // Count actual semester cards on page
         const semesterCards = await page
@@ -791,7 +791,7 @@ test.describe("Analytics Dashboard", () => {
 
       const percentMatch = avgText?.match(/(\d+\.?\d*)%/);
       if (percentMatch) {
-        const percentage = parseFloat(percentMatch[1]);
+        const percentage = parseFloat(percentMatch[1] ?? "0");
 
         // Should handle 100% correctly
         if (percentage === 100) {

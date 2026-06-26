@@ -151,7 +151,7 @@ test.describe("Program Management - Filtering", () => {
       console.log("Initial rows:", initialRows);
 
       // Select Semester 1
-      await semesterSelect.selectOption({ label: /ภาคเรียนที่ 1|SEMESTER_1/ });
+      await semesterSelect.selectOption({ label: "ภาคเรียนที่ 1" });
 
       // Wait for table to update after filter change
       await page
@@ -201,7 +201,7 @@ test.describe("Program Management - Filtering", () => {
       console.log("Initial rows:", initialRows);
 
       // Select a specific year (2568 - current year from seed)
-      await yearSelect.selectOption({ label: /2568/ });
+      await yearSelect.selectOption({ label: "2568" });
 
       // Wait for table to update
       await page
@@ -252,7 +252,7 @@ test.describe("Program Management - Filtering", () => {
       const initialRows = await page.locator("table tbody tr").count();
 
       // Select Semester 1
-      await semesterSelect.selectOption({ label: /ภาคเรียนที่ 1|SEMESTER_1/ });
+      await semesterSelect.selectOption({ label: "ภาคเรียนที่ 1" });
 
       // Wait for first filter to apply
       await page
@@ -267,7 +267,7 @@ test.describe("Program Management - Filtering", () => {
         .catch(() => {});
 
       // Select Year 2568
-      await yearSelect.selectOption({ label: /2568/ });
+      await yearSelect.selectOption({ label: "2568" });
 
       // Wait for second filter to apply
       await page
@@ -445,7 +445,7 @@ test.describe("Program Management - CRUD Operations", () => {
         .first();
       if ((await semesterSelect.count()) > 0) {
         await semesterSelect.selectOption({
-          label: /ภาคเรียนที่ 1|SEMESTER_1/,
+          label: "ภาคเรียนที่ 1",
         });
       }
 
@@ -533,7 +533,7 @@ test.describe("Program Management - CRUD Operations", () => {
         .first();
       if ((await semesterSelect.count()) > 0) {
         await semesterSelect.selectOption({
-          label: /ภาคเรียนที่ 2|SEMESTER_2/,
+          label: "ภาคเรียนที่ 2",
         });
       }
 
@@ -682,7 +682,7 @@ test.describe("Program Management - CRUD Operations", () => {
         })
         .first();
       if ((await semesterSelect.count()) > 0) {
-        await semesterSelect.selectOption({ label: /ภาคเรียนที่ 2/ });
+        await semesterSelect.selectOption({ label: "ภาคเรียนที่ 2" });
       }
 
       const yearInput = page.locator('input[name*="year"]').first();
@@ -782,7 +782,7 @@ test.describe("Program Management - Data Validation", () => {
     if ((await yearSelect.count()) > 0) {
       // TODO(seed-2568): historical-year coverage may need rework — 2567 no longer seeded
       // Test Year 2568
-      await yearSelect.selectOption({ label: /2568/ });
+      await yearSelect.selectOption({ label: "2568" });
       await expect(
         page.locator('main, [role="main"], body').first(),
       ).toBeVisible({
@@ -792,7 +792,7 @@ test.describe("Program Management - Data Validation", () => {
       console.log("Programs in 2567:", rows2567);
 
       // Test Year 2568
-      await yearSelect.selectOption({ label: /2568/ });
+      await yearSelect.selectOption({ label: "2568" });
       await expect(
         page.locator('main, [role="main"], body').first(),
       ).toBeVisible({
@@ -802,7 +802,7 @@ test.describe("Program Management - Data Validation", () => {
       console.log("Programs in 2568:", rows2568);
 
       // Test Year 2569
-      await yearSelect.selectOption({ label: /2569/ });
+      await yearSelect.selectOption({ label: "2569" });
       await expect(
         page.locator('main, [role="main"], body').first(),
       ).toBeVisible({
@@ -854,7 +854,7 @@ test.describe("Program Management - Data Validation", () => {
       const allRows = await page.locator("table tbody tr").count();
 
       // Semester 1 only
-      await semesterSelect.selectOption({ label: /ภาคเรียนที่ 1|SEMESTER_1/ });
+      await semesterSelect.selectOption({ label: "ภาคเรียนที่ 1" });
       await expect(
         page.locator('main, [role="main"], body').first(),
       ).toBeVisible({
@@ -863,7 +863,7 @@ test.describe("Program Management - Data Validation", () => {
       const sem1Rows = await page.locator("table tbody tr").count();
 
       // Semester 2 only
-      await semesterSelect.selectOption({ label: /ภาคเรียนที่ 2|SEMESTER_2/ });
+      await semesterSelect.selectOption({ label: "ภาคเรียนที่ 2" });
       await expect(
         page.locator('main, [role="main"], body').first(),
       ).toBeVisible({

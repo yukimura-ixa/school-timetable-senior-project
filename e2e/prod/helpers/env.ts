@@ -33,11 +33,11 @@ export function getSemesterRouteParts(): {
   const raw =
     process.env.E2E_SEMESTER_ID ?? process.env.SEMESTER_ID ?? "1-2568";
   if (raw.includes("/")) {
-    const [year, semesterNum] = raw.split("/");
+    const [year = "", semesterNum = ""] = raw.split("/");
     return { academicYear: year, semester: semesterNum };
   }
   if (raw.includes("-")) {
-    const [semesterNum, year] = raw.split("-");
+    const [semesterNum = "", year = ""] = raw.split("-");
     return { academicYear: year, semester: semesterNum };
   }
   return { academicYear: raw, semester: "" };

@@ -780,7 +780,7 @@ export class ArrangePage extends BasePage {
         if (text) {
           // Subject code: Thai learning area letter or Latin prefix + 5 digits (e.g., "ท21101", "TH21101")
           const match = text.match(/([ทควสพศงอ]\d{5}|[A-Z]{2}\d{5})/);
-          if (match) codes.push(match[1]);
+          if (match?.[1]) codes.push(match[1]);
         }
       }
     }

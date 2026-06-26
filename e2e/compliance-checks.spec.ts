@@ -159,7 +159,7 @@ test.describe("Compliance Analytics Checks", () => {
     // 1. Navigate to Analytics and wait for Server Component data loading
     // Per Context7 docs: wait for POST responses (Server Components/Actions)
     const responsePromise = page.waitForResponse(
-      (response) => response.request().method() === "POST" && response.ok,
+      (response) => response.request().method() === "POST" && response.ok(),
       { timeout: 20000 },
     );
 

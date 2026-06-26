@@ -17,14 +17,14 @@ import { semester, day_of_week } from "../../prisma/generated/client";
 export const testSemesters = {
   semester1_2568: {
     SemesterAndyear: "1-2568" as const,
-    Semester: 1 as semester,
+    Semester: 1,
     Year: 2568,
     DisplayName: "ภาคเรียนที่ 1/2568",
     IsActive: true,
   },
   semester2_2568: {
     SemesterAndyear: "2-2568" as const,
-    Semester: 2 as semester,
+    Semester: 2,
     Year: 2568,
     DisplayName: "ภาคเรียนที่ 2/2568",
     IsActive: false,

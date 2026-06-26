@@ -60,7 +60,7 @@ export class StudentTablePO extends BasePage {
   /**
    * Navigate to student table for specific semester
    */
-  async goto(academicYear: number | string, semester: number | string) {
+  async gotoSemester(academicYear: number | string, semester: number | string) {
     await super.goto(`/dashboard/${academicYear}/${semester}/student-table`);
     await this.waitForPageLoad();
 

@@ -289,7 +289,7 @@ test.describe("Admin: Schedule Assignment - Cross-Semester Navigation", () => {
       arrangePage,
     }) => {
       // Arrange
-      const teacherName = getTeacherName(testTeacher.TeacherID);
+      const teacherName = `${testTeacher.Prefix}${testTeacher.Firstname} ${testTeacher.Lastname}`;
       await arrangePage.selectTeacher(teacherName);
 
       // Get first available subject

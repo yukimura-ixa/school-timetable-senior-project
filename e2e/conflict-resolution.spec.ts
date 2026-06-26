@@ -14,8 +14,8 @@ test.describe("Arrange grid: conflict resolution modal", () => {
     page,
   }) => {
     await arrangePage.navigateTo(
-      String(testSemester.semester),
-      String(testSemester.academicYear),
+      String(testSemester.Semester),
+      String(testSemester.Year),
     );
     await arrangePage.waitForPageReady();
 

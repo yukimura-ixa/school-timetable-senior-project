@@ -126,7 +126,7 @@ export const searchReplacePatterns = [
 
   // Semester
   {
-    search: /'2567\\/1'/g,
+    search: /'2567\/1'/g,
     replace: "`${testSemester.Year}/${testSemester.Semester}`",
   },
 

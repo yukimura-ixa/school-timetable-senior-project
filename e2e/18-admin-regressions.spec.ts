@@ -89,7 +89,9 @@ test.describe("Admin regressions (SBTM)", () => {
 
     await nav.goToTeacherArrange(
       testSemesters.semester1_2568.SemesterAndyear,
-      String(testTeacher.TeacherID),
+      // e2e teacher's TeacherID is an unstable auto-increment; any seeded
+      // teacher exercises the arrange page structure this test checks.
+      "1",
     );
 
     // The time row may use td or th depending on the component version

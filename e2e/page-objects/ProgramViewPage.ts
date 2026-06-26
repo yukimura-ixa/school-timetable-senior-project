@@ -58,7 +58,7 @@ export class ProgramViewPage extends BasePage {
       .first();
     await gradeOption.waitFor({ state: "visible", timeout: 5000 });
     // Use dispatchEvent to click through CSS transform issues
-    await gradeOption.evaluate((el) => el.click());
+    await gradeOption.evaluate((el) => (el as HTMLElement).click());
     await this.waitForPageLoad();
   }
 
