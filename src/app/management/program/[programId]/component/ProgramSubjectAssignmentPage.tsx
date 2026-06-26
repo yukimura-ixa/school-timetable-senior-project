@@ -362,8 +362,11 @@ export default function ProgramSubjectAssignmentPage({
               variant="caption"
               sx={{ color: "text.secondary", display: "block", mt: 0.75 }}
             >
-              พื้นฐาน {fmt(inheritedCredits)} · กำหนดเอง {fmt(totalCredits)}{" "}
-              หน่วยกิต
+              พื้นฐาน{" "}
+              <span data-testid="ledger-inherited-credits">
+                {fmt(inheritedCredits)}
+              </span>{" "}
+              · กำหนดเอง {fmt(totalCredits)} หน่วยกิต
             </Typography>
             <Typography
               variant="caption"

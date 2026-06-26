@@ -261,6 +261,7 @@ export function FundamentalsTemplateEditor() {
             return (
               <Stack
                 key={r.GradeFundamentalID}
+                data-testid={`template-row-${r.SubjectCode}`}
                 direction="row"
                 spacing={1.5}
                 sx={{ alignItems: "center", px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider", opacity: busy ? 0.6 : 1 }}

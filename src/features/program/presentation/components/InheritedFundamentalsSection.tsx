@@ -190,6 +190,7 @@ export function InheritedFundamentalsSection({
         return (
           <Stack
             key={row.SubjectCode}
+            data-testid={`inherited-row-${row.SubjectCode}`}
             direction="row"
             spacing={1.5}
             sx={{
@@ -265,7 +266,11 @@ export function InheritedFundamentalsSection({
                   </>
                 ) : (
                   <>
-                    <Typography variant="caption" sx={{ color: "text.secondary", fontVariantNumeric: "tabular-nums", mr: 0.5 }}>
+                    <Typography
+                      variant="caption"
+                      data-testid={`inherited-credit-${row.SubjectCode}`}
+                      sx={{ color: "text.secondary", fontVariantNumeric: "tabular-nums", mr: 0.5 }}
+                    >
                       {fmt(row.MinCredits)} นก.
                     </Typography>
                     <Button
