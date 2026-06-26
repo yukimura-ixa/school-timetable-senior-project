@@ -264,11 +264,12 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       for (const area of areas) expect(body).toContain(area);
     });
 
-    // QUARANTINED (ed1): dnd-kit's drop rarely registers under headless
-    // chromium in CI (passes ~1/6 runs; pre-existing — fails on main too).
-    // The room-picker handling below is correct; the drag harness itself needs
-    // a local repro to fix. Restore to `test(` once the drop is reliable.
-    test.fixme("arrange: drag-drop places a class, persists, then delete restores", async ({
+    // Runs in the sequential shard (workers=1; see e2e/shard-sequential.list).
+    // The earlier flake was CPU contention under parallel workers — dnd-kit's
+    // PointerSensor activation intermittently failed to trip. Single-worker plus
+    // the nudge in dragAndDrop makes the drop reliable; sequential retries cover
+    // any residual jitter.
+    test("arrange: drag-drop places a class, persists, then delete restores", async ({
       authenticatedAdmin,
     }) => {
       const { page } = authenticatedAdmin;
