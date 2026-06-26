@@ -21,10 +21,14 @@ describe("programRepository.getEffectiveSubjects (integration)", () => {
     expect(owned.some((e) => e.Category === "ACTIVITY")).toBe(true);
   });
 
-  it("validation adapter strips metadata but keeps IsMandatory + subject", async () => {
+  it("validation adapter keeps inherited CORE values and drops the source tag", async () => {
     const rows = await programRepository.getEffectiveSubjectsForValidation(m4SciId);
-    expect(rows[0]).toHaveProperty("IsMandatory");
-    expect(rows[0]).toHaveProperty("subject");
-    expect(rows[0]).not.toHaveProperty("source");
+    const core = rows.find((r) => r.SubjectCode === "ท31101");
+    expect(core).toBeDefined();
+    // Inherited CORE is always mandatory and carries its real subject relation.
+    expect(core!.IsMandatory).toBe(true);
+    expect(core!.subject.SubjectName).toBeTruthy();
+    // The validation shape strips the EffectiveSubject `source` discriminator.
+    expect(core).not.toHaveProperty("source");
   });
 });

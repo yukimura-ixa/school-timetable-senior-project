@@ -77,7 +77,9 @@ export const programRepository = {
     });
 
     // Surface inherited CORE: replace raw (now CORE-less) program_subject rows
-    // with the effective set composed through the seam.
+    // with the effective set composed through the seam. N+1 by design — one
+    // getEffectiveSubjects pass per program, run in parallel via Promise.all;
+    // fine for the small per-year program counts, revisit if volume grows.
     return Promise.all(
       programs.map(async (program) => ({
         ...program,
