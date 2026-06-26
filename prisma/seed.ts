@@ -548,6 +548,11 @@ async function seedDemoData() {
     { id: "M6-1", year: 6, number: 1, students: 32, programCode: "M6-SCI" },
     { id: "M6-2", year: 6, number: 2, students: 32, programCode: "M6-LANG-MATH" },
     { id: "M6-3", year: 6, number: 3, students: 32, programCode: "M6-LANG-ARTS" },
+    // ทวิศึกษา / ทั่วไป sections (3lk): section 4, core+activities scheduled;
+    // electives/ปวช. entered via the app, not pre-scheduled.
+    { id: "M4-4", year: 4, number: 4, students: 30, programCode: "M4-DUAL" },
+    { id: "M5-4", year: 5, number: 4, students: 30, programCode: "M5-GEN" },
+    { id: "M6-4", year: 6, number: 4, students: 30, programCode: "M6-GEN" },
   ];
 
   // ── Period schedule ─────────────────────────────────────────────────────────
@@ -872,10 +877,14 @@ async function seedDemoData() {
            adv_ส:"teacher11@school.ac.th", adv_ศ:"teacher16@school.ac.th", ACT:"teacher28@school.ac.th" },
     },
   };
+  // ทั่วไป / ทวิศึกษา (3lk) reuse the grade's real CORE teachers (core is
+  // grade-wide); only core+activities are scheduled for those section-4 rooms.
+  UPPER_TEACHERS.GENERAL = UPPER_TEACHERS.SCIENCE_MATH;
+  UPPER_TEACHERS.DUAL_VOCATIONAL = UPPER_TEACHERS.SCIENCE_MATH;
 
   function buildUpperSecSlots(yearNum: number, track: string): SlotDef[] {
     // Section mapping: SCI→1, LANG-MATH→2, LANG-ARTS→3
-    const sectionNum = track === "SCIENCE_MATH" ? 1 : track === "LANGUAGE_MATH" ? 2 : 3;
+    const sectionNum = track === "SCIENCE_MATH" ? 1 : track === "LANGUAGE_MATH" ? 2 : track === "LANGUAGE_ARTS" ? 3 : 4;
     const dayBase = yearNum - 4; // M4→0, M5→1, M6→2
     const periBase = sectionNum - 1;
     const d = (offset: number): day_of_week => DAYS[(dayBase + offset) % 5];
@@ -934,7 +943,7 @@ async function seedDemoData() {
         { day: d(0), period: p(5), subjectCode: `ง${yr}201`, teacherEmail: te("ง"),     teachHour: 2 },
         { day: d(1), period: p(5), subjectCode: `ง${yr}201`, teacherEmail: te("ง"),     teachHour: 2 },
       );
-    } else { // LANGUAGE_ARTS
+    } else if (track === "LANGUAGE_ARTS") {
       slots.push(
         { day: d(0), period: p(3), subjectCode: `จ${yr}201`,  teacherEmail: te("จ"),     teachHour: 3 },
         { day: d(1), period: p(3), subjectCode: `จ${yr}201`,  teacherEmail: te("จ"),     teachHour: 3 },
@@ -966,6 +975,9 @@ async function seedDemoData() {
     "M6-1":{yearNum:6,sectionNum:1,track:"SCIENCE_MATH"},
     "M6-2":{yearNum:6,sectionNum:2,track:"LANGUAGE_MATH"},
     "M6-3":{yearNum:6,sectionNum:3,track:"LANGUAGE_ARTS"},
+    "M4-4":{yearNum:4,sectionNum:4,track:"DUAL_VOCATIONAL"},
+    "M5-4":{yearNum:5,sectionNum:4,track:"GENERAL"},
+    "M6-4":{yearNum:6,sectionNum:4,track:"GENERAL"},
   };
 
   // ── S1 (1-2568): timeslots ──────────────────────────────────────────────────
