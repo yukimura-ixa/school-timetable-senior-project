@@ -378,11 +378,15 @@ async function seedDemoData() {
     { code: "อ33101", name: "ภาษาอังกฤษ พื้นฐาน ม.6", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "CORE" },
     // Lower-sec additional (used by E2E teacher fixture)
     { code: "ค21201", name: "คณิตศาสตร์เพิ่มเติม ม.1", credit: "CREDIT_15", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
-    // SCI-MATH electives (ค shared with LANG-MATH)
-    { code: "ค31201", name: "คณิตศาสตร์เพิ่มเติม ม.4", credit: "CREDIT_20", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
-    { code: "ว31201", name: "ฟิสิกส์ ม.4", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
-    { code: "ว31202", name: "เคมี ม.4", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
-    { code: "ว31203", name: "ชีววิทยา ม.4", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    // ม.4 วิทย์-คณิต (4/1) เพิ่มเติม — real codes/credits from
+    // โครงสร้างหลักสูตร.69.pdf (THAI_MOE_CURRICULUM_RULES.md §8.3). ค31201 shared
+    // with LANG-MATH. Codeless โครงงาน1 skipped per the 84k convention.
+    { code: "ค31201", name: "คณิตศาสตร์เพิ่มเติม ม.4", credit: "CREDIT_15", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
+    { code: "ว31201", name: "ฟิสิกส์ 1", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว31221", name: "เคมี 1", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว31241", name: "ชีววิทยา 1", credit: "CREDIT_10", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "อ31201", name: "ภาษาอังกฤษเพิ่มเติม 1", credit: "CREDIT_10", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
+    { code: "ว30286", name: "การออกแบบกราฟิก", credit: "CREDIT_10", learningArea: "SCIENCE", category: "ADDITIONAL" },
     { code: "ค32201", name: "คณิตศาสตร์เพิ่มเติม ม.5", credit: "CREDIT_20", learningArea: "MATHEMATICS", category: "ADDITIONAL" },
     { code: "ว32201", name: "ฟิสิกส์ ม.5", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
     { code: "ว32202", name: "เคมี ม.5", credit: "CREDIT_15", learningArea: "SCIENCE", category: "ADDITIONAL" },
@@ -703,7 +707,7 @@ async function seedDemoData() {
     "M1-GEN": ["ท21101","ค21101","ว21101","ส21101","พ21101","ศ21101","ง21101","อ21101","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M1"],
     "M2-GEN": ["ท22101","ค22101","ว22101","ส22101","พ22101","ศ22101","ง22101","อ22101","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M2"],
     "M3-GEN": ["ท23101","ค23101","ว23101","ส23101","พ23101","ศ23101","ง23101","อ23101","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M3"],
-    "M4-SCI":       ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","ค31201","ว31201","ว31202","ว31203","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
+    "M4-SCI":       ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","ค31201","ว31201","ว31221","ว31241","อ31201","ว30286","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
     "M5-SCI":       ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","ค32201","ว32201","ว32202","ว32203","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
     "M6-SCI":       ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","ค33201","ว33201","ว33202","ว33203","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
     "M4-LANG-MATH": ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","ค31201","จ31201","ง31201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
