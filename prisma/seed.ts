@@ -414,8 +414,14 @@ async function seedDemoData() {
     { code: "จ33201", name: "ภาษาจีน ม.6", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
     // Career/Tech — LANG-MATH only
     { code: "ง31201", name: "การงานอาชีพและเทคโนโลยี ม.4", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
-    { code: "ง32201", name: "การงานอาชีพและเทคโนโลยี ม.5", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
-    { code: "ง33201", name: "การงานอาชีพและเทคโนโลยี ม.6", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
+    // ง3x201 renamed to §8.3's real ทั่วไป subjects (seed names were placeholders;
+    // these codes are also referenced by the synthetic LANG-MATH demo programs).
+    { code: "ง32201", name: "งานประดิษฐ์ใบตอง ม.5", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
+    { code: "ง33201", name: "การงานเพิ่มเติม ม.6", credit: "CREDIT_10", learningArea: "CAREER", category: "ADDITIONAL" },
+    // ม.5/6 ทั่วไป (GENERAL) เพิ่มเติม — §8.3 vocational/science electives
+    { code: "ว30288", name: "การพัฒนาและออกแบบเว็บ 1", credit: "CREDIT_10", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว30296", name: "ฟิสิกส์กับเทคโนโลยี", credit: "CREDIT_10", learningArea: "SCIENCE", category: "ADDITIONAL" },
+    { code: "ว30284", name: "ดวงดาวและอวกาศ", credit: "CREDIT_10", learningArea: "SCIENCE", category: "ADDITIONAL" },
     // Japanese — LANG-ARTS only
     { code: "ญ31201", name: "ภาษาญี่ปุ่น ม.4", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
     { code: "ญ32201", name: "ภาษาญี่ปุ่น ม.5", credit: "CREDIT_15", learningArea: "FOREIGN_LANGUAGE", category: "ADDITIONAL" },
@@ -515,9 +521,11 @@ async function seedDemoData() {
     { code: "M5-SCI",       name: "หลักสูตรวิทย์-คณิต ม.5",       year: 5, track: "SCIENCE_MATH"  as ProgramTrack, minCredits: 41 },
     { code: "M5-LANG-MATH", name: "หลักสูตรศิลป์-คำนวณ ม.5",      year: 5, track: "LANGUAGE_MATH" as ProgramTrack, minCredits: 41 },
     { code: "M5-LANG-ARTS", name: "หลักสูตรศิลป์-ภาษา ม.5",       year: 5, track: "LANGUAGE_ARTS" as ProgramTrack, minCredits: 41 },
+    { code: "M5-GEN",       name: "หลักสูตรทั่วไป ม.5",            year: 5, track: "GENERAL"        as ProgramTrack, minCredits: 41 },
     { code: "M6-SCI",       name: "หลักสูตรวิทย์-คณิต ม.6",       year: 6, track: "SCIENCE_MATH"  as ProgramTrack, minCredits: 41 },
     { code: "M6-LANG-MATH", name: "หลักสูตรศิลป์-คำนวณ ม.6",      year: 6, track: "LANGUAGE_MATH" as ProgramTrack, minCredits: 41 },
     { code: "M6-LANG-ARTS", name: "หลักสูตรศิลป์-ภาษา ม.6",       year: 6, track: "LANGUAGE_ARTS" as ProgramTrack, minCredits: 41 },
+    { code: "M6-GEN",       name: "หลักสูตรทั่วไป ม.6",            year: 6, track: "GENERAL"        as ProgramTrack, minCredits: 41 },
   ];
 
   // ── Grade Levels (18) ───────────────────────────────────────────────────────
@@ -733,6 +741,10 @@ async function seedDemoData() {
     "M4-DUAL":      ["ท31101","ค31101","ว31101","ส31101","พ31101","อ31101","20001-1005","219101-1001","219101-2001","219101-2002","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M4"],
     "M5-LANG-ARTS": ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","จ32201","ญ32201","ส32102","ศ32201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
     "M6-LANG-ARTS": ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","จ33201","ญ33201","ส33102","ศ33201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
+    // ม.5/6 ทั่วไป (GENERAL) — §8.3. Inherits CORE; light mixed electives. IS,
+    // codeless โครงงาน, and the §8.5 'ต้องเปิดวิทย์เพิ่มเติม' placeholder skipped.
+    "M5-GEN":       ["ท32101","ค32101","ว32101","ส32101","พ32101","อ32101","ค32201","อ32201","ง32201","ว30294","ว30288","จ32201","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M5"],
+    "M6-GEN":       ["ท33101","ค33101","ว33101","ส33101","พ33101","อ33101","ค33201","ว30296","อ33201","ง33201","จ33201","ว30284","ACT-GUIDE","ACT-CLUB","ACT-SCOUT-M6"],
   };
 
   let psCount = 0;
