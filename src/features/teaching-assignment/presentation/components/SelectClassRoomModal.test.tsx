@@ -38,6 +38,6 @@ describe("SelectClassRoomModal", () => {
       expect.arrayContaining(["101", "103"]),
       1,
     );
-    expect(onConfirm.mock.calls[0][0]).toHaveLength(2);
+    expect(onConfirm.mock.calls[0]![0]).toHaveLength(2);
   });
 });

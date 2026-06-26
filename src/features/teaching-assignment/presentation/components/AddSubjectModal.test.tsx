@@ -45,7 +45,7 @@ describe("AddSubjectModal", () => {
     await user.click(screen.getByRole("button", { name: "ลบ ค21101" }));
     await user.click(screen.getByRole("button", { name: "ยืนยัน" }));
     expect(onConfirm).toHaveBeenCalledTimes(1);
-    const confirmed = onConfirm.mock.calls[0][0] as SubjectOption[];
+    const confirmed = onConfirm.mock.calls[0]![0] as SubjectOption[];
     expect(confirmed.map((s) => s.SubjectCode)).toEqual(["ว21101"]);
   });
 
@@ -63,7 +63,7 @@ describe("AddSubjectModal", () => {
     await user.click(screen.getByRole("option", { name: /ค21101/ }));
     await user.click(screen.getByRole("button", { name: "ยืนยัน" }));
     expect(onConfirm).toHaveBeenCalledTimes(1);
-    const confirmed = onConfirm.mock.calls[0][0] as SubjectOption[];
+    const confirmed = onConfirm.mock.calls[0]![0] as SubjectOption[];
     expect(confirmed.map((s) => s.SubjectCode)).toEqual(["ค21101"]);
   });
 });

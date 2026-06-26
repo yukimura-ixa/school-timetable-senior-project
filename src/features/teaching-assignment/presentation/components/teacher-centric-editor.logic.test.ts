@@ -55,7 +55,10 @@ describe("teacher-centric-editor.logic", () => {
       }),
     ]);
     expect(Object.keys(state).sort()).toEqual(["101", "201"]);
-    expect(state["101"].map((s) => s.SubjectCode)).toEqual(["ค21101", "ว21101"]);
+    expect(state["101"]!.map((s) => s.SubjectCode)).toEqual([
+      "ค21101",
+      "ว21101",
+    ]);
   });
 
   it("builds sync payload converting the credit enum to the schema's numeric string", () => {
