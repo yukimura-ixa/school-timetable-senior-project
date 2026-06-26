@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -27,6 +27,7 @@ import { useGradeLevels } from "@/hooks/use-grade-levels";
 import { getSubjectsByGradeAction } from "@/features/subject/application/actions/subject.actions";
 import { syncAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
 import { subjectCreditToNumber } from "../../domain/utils/subject-credit";
+import { formatGradeIdDisplay } from "@/utils/grade-display";
 import { SelectClassRoomModal } from "./SelectClassRoomModal";
 import { AddSubjectModal, type SubjectOption } from "./AddSubjectModal";
 import {
@@ -55,14 +56,8 @@ export interface TeacherCentricEditorProps {
 
 const YEARS = [1, 2, 3, 4, 5, 6] as const;
 
-function roomNumber(gradeId: string): string {
-  return gradeId.substring(2);
-}
 function teachHours(credit: string): number {
   return subjectCreditToNumber(credit) * 2;
-}
-function yearOf(gradeId: string): number {
-  return Number(gradeId[0]);
 }
 
 export function TeacherCentricEditor({
@@ -86,6 +81,16 @@ export function TeacherCentricEditor({
   }
 
   const gradeLevels = useGradeLevels();
+
+  // GradeID is an opaque id ("M1-1"); resolve year and labels from the
+  // gradelevel records rather than parsing the id string.
+  const gradeYearById = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of assignments) map.set(a.GradeID, a.gradelevel.Year);
+    for (const g of gradeLevels.data) map.set(g.GradeID, g.Year);
+    return map;
+  }, [assignments, gradeLevels.data]);
+  const yearOf = (gradeId: string): number => gradeYearById.get(gradeId) ?? 0;
 
   const [roomModalYear, setRoomModalYear] = useState<number | null>(null);
   const [subjectModalRoom, setSubjectModalRoom] = useState<string | null>(null);
@@ -213,7 +218,7 @@ export function TeacherCentricEditor({
                   rooms.map((gradeId) => (
                     <Box key={gradeId}>
                       <Chip
-                        label={`ม.${year}/${roomNumber(gradeId)}`}
+                        label={formatGradeIdDisplay(gradeId)}
                         size="small"
                         color="primary"
                         variant="outlined"
@@ -285,7 +290,7 @@ export function TeacherCentricEditor({
       {subjectModalRoom !== null && (
         <AddSubjectModal
           open
-          roomLabel={`ม.${yearOf(subjectModalRoom)}/${roomNumber(subjectModalRoom)}`}
+          roomLabel={formatGradeIdDisplay(subjectModalRoom)}
           availableSubjects={availableSubjects}
           existingSubjects={editState[subjectModalRoom] ?? []}
           onConfirm={confirmSubjects}

@@ -11,6 +11,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import { formatGradeIdDisplay } from "@/utils/grade-display";
 
 export interface SelectClassRoomModalProps {
   open: boolean;
@@ -19,11 +20,6 @@ export interface SelectClassRoomModalProps {
   selected: string[];
   onConfirm: (gradeIds: string[], year: number) => void;
   onClose: () => void;
-}
-
-// GradeID "101" → "ม.1/1" (strip the two-digit year prefix for the room number).
-function roomLabel(year: number, gradeId: string): string {
-  return `ม.${year}/${gradeId.substring(2)}`;
 }
 
 export function SelectClassRoomModal({
@@ -51,7 +47,7 @@ export function SelectClassRoomModal({
         >
           {availableRooms.map((gradeId) => (
             <ToggleButton key={gradeId} value={gradeId} size="small">
-              {roomLabel(year, gradeId)}
+              {formatGradeIdDisplay(gradeId)}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>

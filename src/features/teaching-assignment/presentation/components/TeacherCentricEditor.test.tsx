@@ -69,6 +69,20 @@ describe("TeacherCentricEditor", () => {
     }
   });
 
+  it("groups rooms by gradelevel year for canonical M-format GradeIDs", () => {
+    const assignments = [
+      makeAssignment({
+        GradeID: "M1-1",
+        Year: 1,
+        SubjectCode: "ค21101",
+        SubjectName: "คณิตศาสตร์",
+        Credit: "CREDIT_10",
+      }),
+    ];
+    render(<TeacherCentricEditor {...baseProps} assignments={assignments} />);
+    expect(screen.getByText("ม.1/1")).toBeInTheDocument();
+  });
+
   it("shows the assigned classroom and its subject under the right year", () => {
     const assignments = [
       makeAssignment({
