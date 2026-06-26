@@ -83,7 +83,7 @@ export default async function ArrangeLayout({
               เพื่อให้ระบบรู้ว่ามีรายวิชาใดต้องวางลงในตาราง
             </Typography>
             <Button
-              href={`/schedule/${yearStr}/${semStr}/assign`}
+              href={`/management/teacher-assignment?mode=by-grade&year=${yearStr}&semester=${semStr}`}
               variant="contained"
               size="large"
               startIcon={<AssignmentIndIcon />}

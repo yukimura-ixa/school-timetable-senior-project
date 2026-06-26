@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { resolveAssignmentMode } from "../../application/mode";
 import { resolveTeacherIdFromParams } from "../../application/teacher-id-param";
+import { resolveTermFromParams } from "../../application/term-params";
 import { useTeachers } from "@/hooks/use-teachers";
 import { TeacherPicker, type TeacherPickerOption } from "./TeacherPicker";
 import { LockedScheduleList } from "./LockedScheduleList";
@@ -43,16 +44,21 @@ import {
  * Main container component for managing teacher-subject assignments
  */
 export function TeacherAssignmentPage() {
-  const [gradeId, setGradeId] = useState<string>("");
-  const [semester, setSemester] = useState<semester>("SEMESTER_1");
-  const [academicYear, setAcademicYear] = useState<number>(2567);
+  const searchParams = useSearchParams();
+  const seededTerm = resolveTermFromParams(searchParams);
+  const [gradeId, setGradeId] = useState<string>(seededTerm.gradeId ?? "");
+  const [semester, setSemester] = useState<semester>(
+    seededTerm.semester ?? "SEMESTER_1",
+  );
+  const [academicYear, setAcademicYear] = useState<number>(
+    seededTerm.academicYear ?? 2567,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const { confirm, dialog } = useConfirmDialog();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const mode = resolveAssignmentMode(searchParams);
   const teachersData = useTeachers();
   const teacherOptions = useMemo<TeacherPickerOption[]>(
