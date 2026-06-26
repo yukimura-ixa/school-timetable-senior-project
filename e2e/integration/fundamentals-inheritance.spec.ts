@@ -23,21 +23,25 @@ import { test, expect } from "../fixtures/admin.fixture";
 import type { Page, Locator } from "@playwright/test";
 
 const CORE = "ท31101"; // Thai ม.4, seeded year-4 template member at 1.0 credit
-const SCI = /วิทย์-คณิต ม\.4/; // M4-SCI program name
-const LANG_MATH = /ศิลป์-คำนวณ ม\.4/; // M4-LANG-MATH sibling
+const SCI = "M4-SCI"; // Science-Math program (grade ม.4)
+const LANG_MATH = "M4-LANG-MATH"; // sibling program, same grade
 
 async function num(loc: Locator): Promise<number> {
   const text = (await loc.textContent()) ?? "";
   return parseFloat(text.replace(/[^\d.]/g, ""));
 }
 
-/** Reach a program's assignment editor by name (programId is unstable). */
-async function openProgramEditor(page: Page, name: RegExp): Promise<void> {
+/**
+ * Reach a program's assignment editor by ProgramCode. programId is an unstable
+ * auto-increment, so we navigate the year-4 grid and click the manage action
+ * (keyed by ProgramCode test id) rather than a hardcoded id.
+ */
+async function openProgramEditor(page: Page, code: string): Promise<void> {
   await page.goto("/management/program/year/4");
   await page.waitForLoadState("networkidle");
-  const row = page.getByRole("row", { name }).first();
-  await expect(row).toBeVisible({ timeout: 20000 });
-  await row.getByRole("button", { name: "จัดการหลักสูตร" }).click();
+  const manage = page.getByTestId(`manage-program-${code}`);
+  await expect(manage).toBeVisible({ timeout: 20000 });
+  await manage.click();
   await page.waitForLoadState("networkidle");
   await expect(page.getByTestId(`inherited-row-${CORE}`)).toBeVisible({
     timeout: 20000,

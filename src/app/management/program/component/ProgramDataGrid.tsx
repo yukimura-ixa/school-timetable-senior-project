@@ -292,7 +292,7 @@ export function ProgramDataGrid({
       headerName: "จัดการ",
       width: 120,
       cellClassName: "actions",
-      getActions: ({ id }) => {
+      getActions: ({ id, row }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
         if (isInEditMode) {
@@ -318,6 +318,7 @@ export function ProgramDataGrid({
             key="manage"
             icon={<MenuBookIcon />}
             label="จัดการหลักสูตร"
+            data-testid={`manage-program-${row.ProgramCode}`}
             onClick={() => router.push(`/management/program/${id}`)}
             color="inherit"
           />,
