@@ -9,6 +9,7 @@ import { TeacherPicker, type TeacherPickerOption } from "./TeacherPicker";
 import { LockedScheduleList } from "./LockedScheduleList";
 import { useTeacherLockedSchedules } from "../../application/hooks/useTeacherLockedSchedules";
 import { TeacherWorkloadCard } from "./TeacherWorkloadCard";
+import { TeacherCentricEditor } from "./TeacherCentricEditor";
 import {
   computeTeacherStats,
   type TeacherStatsRow,
@@ -280,6 +281,14 @@ export function TeacherAssignmentPage() {
                   <LockedScheduleList items={lockedSchedules} />
                 )}
               </Paper>
+              <TeacherCentricEditor
+                teacherId={selectedTeacher.id}
+                teacherName={`${selectedTeacher.prefix}${selectedTeacher.firstname} ${selectedTeacher.lastname}`}
+                academicYear={academicYear}
+                semester={semester}
+                assignments={teacherAssignmentsSWR.data ?? []}
+                onSaved={() => void teacherAssignmentsSWR.mutate()}
+              />
             </>
           ) : (
             <Paper sx={{ p: 4, textAlign: "center" }}>
