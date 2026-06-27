@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import useSWR from "swr";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -23,6 +25,10 @@ import {
   type GradeMatrixData,
   type MatrixAssignment,
 } from "./grade-matrix.logic";
+import {
+  computeCoverage,
+  type CoverageSection,
+} from "@/features/teaching-assignment/domain/utils/coverage";
 import { CoverageHeader } from "./CoverageHeader";
 import { TeacherBrush } from "./TeacherBrush";
 import { CarryOverDialog } from "./CarryOverDialog";
@@ -51,6 +57,8 @@ export function GradeCoverageMatrix({
   );
   const [carryOverOpen, setCarryOverOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const { data: matrix, mutate } = useSWR(
     ["grade-matrix", gradeYear, academicYear, semester],
@@ -59,6 +67,7 @@ export function GradeCoverageMatrix({
       if (!result.success || !result.data) return null;
       return result.data as GradeMatrixData;
     },
+    { revalidateOnFocus: false },
   );
 
   // Adjust cells during render whenever the fetched matrix changes.
@@ -73,26 +82,24 @@ export function GradeCoverageMatrix({
     : {};
 
   // Coverage: per section tally assigned vs required codes.
-  let filled = 0;
-  let required = 0;
-  if (matrix && cells) {
-    for (const sec of matrix.sections) {
-      required += sec.subjectCodes.length;
-      for (const code of sec.subjectCodes) {
-        for (const row of cells) {
-          for (const c of row) {
-            if (
-              c.gradeId === sec.GradeID &&
-              c.subjectCode === code &&
-              (c.status === "assigned" || c.status === "suggested")
-            ) {
-              filled++;
-            }
-          }
-        }
-      }
-    }
-  }
+  const coverageSections: CoverageSection[] =
+    matrix && cells
+      ? matrix.sections.map((sec) => ({
+          requiredCodes: sec.subjectCodes,
+          assignedCodes: sec.subjectCodes.filter((code) =>
+            cells.some(
+              (row) =>
+                row.some(
+                  (c) =>
+                    c.gradeId === sec.GradeID &&
+                    c.subjectCode === code &&
+                    (c.status === "assigned" || c.status === "suggested"),
+                ),
+            ),
+          ),
+        }))
+      : [];
+  const { filled, required } = computeCoverage(coverageSections);
 
   // Subject rows grouped by LearningArea (insertion order).
   const subjectsByArea: [string, GradeMatrixData["subjects"]][] = [];
@@ -132,14 +139,24 @@ export function GradeCoverageMatrix({
   const handleSave = async () => {
     if (!cells || !matrix) return;
     setSaving(true);
-    const existing: MatrixAssignment[] = matrix.assignments;
-    const desired = cellsToDesired(cells, creditMap);
-    // .catch swallows network errors; error surfacing can be added later.
-    await syncGradeMatrixAction({ academicYear, semester, existing, desired }).catch(
-      () => undefined,
-    );
-    await mutate().catch(() => undefined);
-    setSaving(false);
+    setError(null);
+    setSuccess(null);
+    try {
+      const existing: MatrixAssignment[] = matrix.assignments;
+      const desired = cellsToDesired(cells, creditMap);
+      const res = await syncGradeMatrixAction({ academicYear, semester, existing, desired });
+      if (!res.success) {
+        setError(res.error?.message ?? "บันทึกไม่สำเร็จ");
+        setSaving(false);
+        return;
+      }
+      setSuccess("บันทึกข้อมูลสำเร็จ");
+      await mutate().catch(() => undefined);
+      setSaving(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาดในการบันทึก");
+      setSaving(false);
+    }
   };
 
   const handleDiscard = () => {
@@ -154,6 +171,16 @@ export function GradeCoverageMatrix({
 
   return (
     <Box>
+      {error && (
+        <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 1 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" onClose={() => setSuccess(null)} sx={{ mb: 1 }}>
+          {success}
+        </Alert>
+      )}
       <CoverageHeader filled={filled} required={required} />
 
       <TeacherBrush
@@ -184,8 +211,8 @@ export function GradeCoverageMatrix({
         </TableHead>
         <TableBody>
           {subjectsByArea.map(([area, subjects]) => (
-            <>
-              <TableRow key={`area-${area}`}>
+            <Fragment key={area}>
+              <TableRow>
                 <TableCell
                   colSpan={sections.length + 1}
                   sx={{ bgcolor: "action.hover", fontWeight: "bold" }}
@@ -216,20 +243,34 @@ export function GradeCoverageMatrix({
                           <Button
                             aria-label={`${subj.SubjectCode} ${cell.gradeId}`}
                             size="small"
-                            variant={
-                              cell.status === "suggested" ? "outlined" : "text"
-                            }
+                            variant="text"
                             sx={{
                               minWidth: 0,
-                              borderStyle:
-                                cell.status === "suggested" ? "dashed" : undefined,
                               opacity: cell.status === "gap" ? 0.6 : 1,
+                              p: 0.5,
                             }}
                             onClick={() => handleCellClick(rowIdx, colIdx)}
                           >
-                            {cell.status === "gap"
-                              ? "[+]"
-                              : String(cell.teacherId ?? "")}
+                            {cell.status === "gap" ? (
+                              "[+]"
+                            ) : (() => {
+                              const t = teachers.find((x) => x.id === cell.teacherId);
+                              const label = t
+                                ? `${t.prefix}${t.firstname} ${t.lastname}`.trim()
+                                : String(cell.teacherId ?? "");
+                              return (
+                                <Chip
+                                  size="small"
+                                  label={label}
+                                  variant={cell.status === "suggested" ? "outlined" : "filled"}
+                                  sx={
+                                    cell.status === "suggested"
+                                      ? { borderStyle: "dashed" }
+                                      : undefined
+                                  }
+                                />
+                              );
+                            })()}
                           </Button>
                         )}
                       </TableCell>
@@ -237,7 +278,7 @@ export function GradeCoverageMatrix({
                   </TableRow>
                 );
               })}
-            </>
+            </Fragment>
           ))}
         </TableBody>
       </Table>
