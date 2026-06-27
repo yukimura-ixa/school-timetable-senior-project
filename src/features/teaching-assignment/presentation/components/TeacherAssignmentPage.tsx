@@ -116,6 +116,8 @@ export function TeacherAssignmentPage() {
       ),
     [teacherAssignmentsSWR.data],
   );
+  const teacherAssignments = (teacherAssignmentsSWR.data ??
+    []) as AssignmentWithRelations[];
 
   // Derive grade year (1–6) from gradeId format "M{Year}-{Number}" (e.g. "M1-1" → 1)
   const gradeYear = gradeId ? parseInt(gradeId.slice(1)) : null;
@@ -195,14 +197,13 @@ export function TeacherAssignmentPage() {
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   รายวิชาที่รับผิดชอบ (ดูได้อย่างเดียว)
                 </Typography>
-                {((teacherAssignmentsSWR.data ?? []) as AssignmentWithRelations[])
-                  .length === 0 ? (
+                {teacherAssignments.length === 0 ? (
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     ยังไม่มีการมอบหมายรายวิชา
                   </Typography>
                 ) : (
                   <List dense>
-                    {((teacherAssignmentsSWR.data ?? []) as AssignmentWithRelations[]).map(
+                    {teacherAssignments.map(
                       (a, i) => (
                         <ListItem key={a.RespID ?? i}>
                           <ListItemText

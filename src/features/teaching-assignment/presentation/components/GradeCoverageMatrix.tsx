@@ -19,6 +19,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 import {
   getGradeMatrixAction,
@@ -358,6 +359,9 @@ export function GradeCoverageMatrix({
                             size="small"
                             color="warning"
                             variant="outlined"
+                            startIcon={
+                              <WarningAmberRoundedIcon sx={{ fontSize: 16 }} />
+                            }
                             sx={{ minWidth: 64, borderStyle: "dashed" }}
                             onClick={(e) =>
                               openCellMenu(
@@ -368,7 +372,7 @@ export function GradeCoverageMatrix({
                               )
                             }
                           >
-                            + เพิ่มครู
+                            เพิ่มครู
                           </Button>
                         ) : (
                           <Chip

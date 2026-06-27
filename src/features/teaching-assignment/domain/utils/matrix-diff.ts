@@ -40,7 +40,7 @@ export function groupMatrixDiffByTeacher(
     );
     diffs.push({
       TeacherID,
-      toCreate: toCreate.map((c) => ({ GradeID: c.GradeID, SubjectCode: c.SubjectCode, Credit: String(c.Credit) })),
+      toCreate: toCreate.map((c) => ({ GradeID: c.GradeID, SubjectCode: c.SubjectCode, Credit: c.Credit })),
       toDeleteRespIds: toDelete.map((d) => d.RespID),
     });
   }

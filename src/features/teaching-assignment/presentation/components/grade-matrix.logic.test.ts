@@ -73,3 +73,33 @@ describe("grade-matrix cell mutations", () => {
     expect(countChanges(base, fillSubjectRow(base, "ค21101", 7))).toBe(2);
   });
 });
+
+describe("grade-matrix ragged programs (na cells)", () => {
+  // Senior sections of the same year can run different programs, so a subject may
+  // not exist in every section's program — those cells are "na", never assignable.
+  const ragged = {
+    sections: [
+      { GradeID: "M5-1", number: 1, programId: 1, subjectCodes: ["ค32101", "ว32201"] },
+      { GradeID: "M5-4", number: 4, programId: 2, subjectCodes: ["ค32101"] }, // no ว32201
+    ],
+    subjects: [
+      { SubjectCode: "ค32101", SubjectName: "คณิต", Credit: "1.0", LearningArea: "MATH" },
+      { SubjectCode: "ว32201", SubjectName: "วิทย์เพิ่มเติม", Credit: "1.0", LearningArea: "SCIENCE" },
+    ],
+    assignments: [],
+  };
+
+  it("marks a cell 'na' where the subject is not in that section's program", () => {
+    const sciRow = buildCells(ragged)[1]!; // ว32201 row
+    expect(sciRow[0]).toMatchObject({ gradeId: "M5-1", status: "gap" }); // in program
+    expect(sciRow[1]).toMatchObject({ gradeId: "M5-4", status: "na", teacherId: null });
+  });
+
+  it("never serializes na cells even after assigning the in-program one", () => {
+    const cells = setCellTeacher(buildCells(ragged), "M5-1", "ว32201", 3);
+    const desired = cellsToDesired(cells, { "ค32101": "1.0", "ว32201": "1.0" });
+    expect(desired).toEqual([
+      { TeacherID: 3, GradeID: "M5-1", SubjectCode: "ว32201", Credit: "1.0" },
+    ]);
+  });
+});
