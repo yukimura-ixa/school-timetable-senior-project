@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import useSWR from "swr";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";
@@ -14,7 +14,10 @@ import Typography from "@mui/material/Typography";
 
 import { previewCarryOverAction } from "@/features/teaching-assignment/application/actions/teaching-assignment.actions";
 import { applySuggestions, type Cell } from "./grade-matrix.logic";
-import type { CarryOverSuggestion } from "@/features/teaching-assignment/domain/utils/carry-over";
+import type {
+  CarryOverSuggestion,
+  CarryOverException,
+} from "@/features/teaching-assignment/domain/utils/carry-over";
 
 interface CarryOverDialogProps {
   open: boolean;
@@ -35,23 +38,20 @@ export function CarryOverDialog({
   onApply,
   onClose,
 }: CarryOverDialogProps) {
-  const [loading, setLoading] = useState(false);
-  const [mapped, setMapped] = useState<CarryOverSuggestion[]>([]);
-  const [exceptions, setExceptions] = useState<{ SubjectCode: string | null | undefined; reason: string }[]>([]);
+  const { data, isLoading } = useSWR(
+    open ? ["carryover-preview", gradeYear, academicYear, semester] : null,
+    async () => {
+      const result = await previewCarryOverAction({ gradeYear, academicYear, semester });
+      if (!result.success || !result.data) {
+        return { mapped: [] as CarryOverSuggestion[], exceptions: [] as CarryOverException[] };
+      }
+      return result.data as { mapped: CarryOverSuggestion[]; exceptions: CarryOverException[] };
+    },
+    { revalidateOnFocus: false },
+  );
 
-  useEffect(() => {
-    if (!open) return;
-    setLoading(true);
-    previewCarryOverAction({ gradeYear, academicYear, semester })
-      .then((result) => {
-        if (result.success && result.data) {
-          const data = result.data as { mapped: CarryOverSuggestion[]; exceptions: { SubjectCode: string | null | undefined; reason: string }[] };
-          setMapped(data.mapped);
-          setExceptions(data.exceptions);
-        }
-      })
-      .finally(() => setLoading(false));
-  }, [open, gradeYear, academicYear, semester]);
+  const mapped = data?.mapped ?? [];
+  const exceptions = data?.exceptions ?? [];
 
   const handleApply = () => {
     onApply(applySuggestions(cells, mapped));
@@ -62,7 +62,7 @@ export function CarryOverDialog({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>นำเข้าจากภาคเรียนก่อน</DialogTitle>
       <DialogContent>
-        {loading ? (
+        {isLoading ? (
           <CircularProgress size={24} />
         ) : (
           <>
@@ -75,10 +75,10 @@ export function CarryOverDialog({
                   รายการที่นำเข้าไม่ได้ ({exceptions.length}):
                 </Typography>
                 <List dense>
-                  {exceptions.map((e, i) => (
-                    <ListItem key={i}>
+                  {exceptions.map((e) => (
+                    <ListItem key={`${e.GradeID}-${e.SubjectCode}-${e.reason}`}>
                       <ListItemText
-                        primary={e.SubjectCode ?? ""}
+                        primary={e.SubjectCode}
                         secondary={e.reason}
                       />
                     </ListItem>
@@ -94,7 +94,7 @@ export function CarryOverDialog({
         <Button
           variant="contained"
           onClick={handleApply}
-          disabled={loading || mapped.length === 0}
+          disabled={isLoading || mapped.length === 0}
         >
           Apply
         </Button>
