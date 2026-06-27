@@ -104,7 +104,7 @@ export function PaletteClient({ subjects }: Props) {
           mb: 1,
         }}
       >
-        <Typography variant="h6">รายวิชาที่สอน</Typography>
+        <Typography variant="h6">ยังไม่วาง</Typography>
         <Chip
           label={`${subjects.length} วิชา`}
           size="small"
@@ -126,7 +126,7 @@ export function PaletteClient({ subjects }: Props) {
       />
       {/* Subject List */}
       <Box
-        sx={{ maxHeight: "calc(72vh - 150px)", overflow: "auto" }}
+        sx={{ maxHeight: "calc(100vh - 220px)", overflow: "auto" }}
         aria-live="polite"
       >
         {filteredSubjects.length === 0 ? (

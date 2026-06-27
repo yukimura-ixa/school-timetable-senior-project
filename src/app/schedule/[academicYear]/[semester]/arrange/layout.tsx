@@ -100,46 +100,44 @@ export default async function ArrangeLayout({
   return (
     <Container
       maxWidth={false}
-      sx={{ py: 4, px: { xs: 2, sm: 3 }, pb: { xs: 12, sm: 14 } }}
+      sx={{ py: 4, px: { xs: 2, sm: 3 } }}
     >
       {/* Header Slot: Teacher selector + actions */}
       <Box sx={{ mb: 3 }} data-slot="header">
         {header}
       </Box>
 
-      {/* Timetable + inspector span the full width. The subject palette floats
-          as a card pinned to the bottom-center; it stays collapsed (header
-          strip only) and expands on hover/focus so it keeps out of the way
-          while the grid uses all available width. DndContext wraps the whole
-          arrangement so DnD flows from palette → grid. */}
+      {/* Side-rail layout: palette left (240px sticky), grid right (flex-1). */}
       <ArrangeDndProvider>
-        <Box data-slot="grid">{grid}</Box>
-        <Box data-slot="inspector" sx={{ mt: 2 }}>
-          {inspector}
-        </Box>
-
         <Box
-          data-slot="palette"
           sx={{
-            position: "fixed",
-            bottom: 16,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 1200,
-            width: { xs: "94vw", sm: 480 },
-            maxWidth: "94vw",
-            maxHeight: 60,
-            overflow: "hidden",
-            borderRadius: 2,
-            boxShadow: 8,
-            transition: "max-height 240ms ease, box-shadow 240ms ease",
-            "&:hover, &:focus-within": {
-              maxHeight: "72vh",
-              boxShadow: 16,
-            },
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 2,
+            alignItems: "flex-start",
           }}
         >
-          {palette}
+          <Box
+            data-slot="palette"
+            sx={{
+              flex: { md: "0 0 240px" },
+              width: { xs: "100%", md: 240 },
+              position: "sticky",
+              top: 16,
+              alignSelf: "stretch",
+            }}
+          >
+            {palette}
+          </Box>
+          <Box
+            data-slot="grid"
+            sx={{ flex: 1, minWidth: 0, width: "100%" }}
+          >
+            {grid}
+            <Box data-slot="inspector" sx={{ mt: 2 }}>
+              {inspector}
+            </Box>
+          </Box>
         </Box>
       </ArrangeDndProvider>
 
