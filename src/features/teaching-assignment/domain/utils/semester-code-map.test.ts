@@ -17,4 +17,8 @@ describe("mapSemesterCode", () => {
     expect(mapSemesterCode("ACT-GUIDE")).toBeNull();
     expect(mapSemesterCode("20001-1005")).toBeNull();
   });
+
+  it("returns null for cross-year ว30xxx electives even when ending in 1", () => {
+    expect(mapSemesterCode("ว30291")).toBeNull();
+  });
 });
