@@ -138,3 +138,18 @@ export type GradeMatrixInput = v.InferOutput<typeof gradeMatrixSchema>;
 
 export const previewCarryOverSchema = gradeMatrixSchema;
 export type PreviewCarryOverInput = GradeMatrixInput;
+
+const matrixAssignmentSchema = v.object({
+  RespID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  TeacherID: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  GradeID: v.pipe(v.string(), v.minLength(1)),
+  SubjectCode: v.pipe(v.string(), v.minLength(1), v.maxLength(20)),
+  Credit: v.string(),
+});
+export const syncGradeMatrixSchema = v.object({
+  academicYear: v.pipe(v.number(), v.integer()),
+  semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+  existing: v.array(matrixAssignmentSchema),
+  desired: v.array(matrixAssignmentSchema),
+});
+export type SyncGradeMatrixInput = v.InferOutput<typeof syncGradeMatrixSchema>;

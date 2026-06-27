@@ -37,8 +37,13 @@ import {
   type ClearAssignmentsInput,
   type GradeMatrixInput,
   type PreviewCarryOverInput,
+  syncGradeMatrixSchema,
+  type SyncGradeMatrixInput,
 } from "../schemas/teaching-assignment.schemas";
 import { computeCarryOver } from "../../domain/utils/carry-over";
+import { groupMatrixDiffByTeacher } from "../../domain/utils/matrix-diff";
+import { calculateTeachHour } from "@/features/assign/domain/services/assign-validation.service";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
@@ -390,6 +395,41 @@ export const previewCarryOverAction = createAction(
       prev.map((r) => ({ GradeID: r.GradeID, SubjectCode: r.SubjectCode, TeacherID: r.TeacherID })),
       sectionSubjects,
     );
+  },
+);
+
+export const syncGradeMatrixAction = createAction(
+  syncGradeMatrixSchema,
+  async (input: SyncGradeMatrixInput) => {
+    const sem = semester[input.semester];
+    const diffs = groupMatrixDiffByTeacher(input.existing, input.desired);
+
+    return withPrismaTransaction(async (tx) => {
+      let created = 0;
+      let deleted = 0;
+
+      for (const diff of diffs) {
+        for (const respId of diff.toDeleteRespIds) {
+          await tx.teachers_responsibility.delete({ where: { RespID: respId } });
+          deleted++;
+        }
+        for (const c of diff.toCreate) {
+          await tx.teachers_responsibility.create({
+            data: {
+              TeacherID: diff.TeacherID,
+              AcademicYear: input.academicYear,
+              Semester: sem,
+              SubjectCode: c.SubjectCode,
+              GradeID: c.GradeID,
+              TeachHour: calculateTeachHour(c.Credit),
+            },
+          });
+          created++;
+        }
+      }
+
+      return { created, deleted };
+    });
   },
 );
 
