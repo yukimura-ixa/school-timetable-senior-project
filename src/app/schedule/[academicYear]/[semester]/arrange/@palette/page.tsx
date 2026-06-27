@@ -8,7 +8,6 @@
 import { prisma } from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 import { PaletteClient } from "./_components/PaletteClient";
-import { Alert, AlertTitle } from "@mui/material";
 
 export default async function PaletteSlot({
   params,
@@ -20,14 +19,10 @@ export default async function PaletteSlot({
   const { academicYear, semester: semesterNum } = await params;
   const { teacher } = await searchParams;
 
-  // No teacher selected - show empty state
+  // No teacher selected - the grid owns the single empty-state prompt, so the
+  // rail stays silent (avoids a second prompt beside the grid's).
   if (!teacher) {
-    return (
-      <Alert severity="info">
-        <AlertTitle>เลือกครู</AlertTitle>
-        กรุณาเลือกครูเพื่อดูรายวิชาที่สอน
-      </Alert>
-    );
+    return null;
   }
 
   const teacherId = parseInt(teacher);
