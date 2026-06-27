@@ -124,16 +124,31 @@ export function GradeCoverageMatrix({
         return prev.map((row, r) =>
           row.map((c, ci) => {
             if (r !== rowIdx || ci !== colIdx) return c;
+            // If the brush teacher is already assigned here, nothing changes.
+            if (c.teacherId === brushTeacher.id) return c;
+            // Different teacher: drop RespID so the old row deletes and a new one creates.
             return {
               ...c,
               teacherId: brushTeacher.id,
+              respId: undefined,
               status: "assigned" as const,
             };
           }),
         );
       });
+    } else if (cell.status === "assigned" || cell.status === "suggested") {
+      // Brush off: clear back to gap (the existing row will be deleted on save).
+      setCells((prev) => {
+        if (!prev) return prev;
+        return prev.map((row, r) =>
+          row.map((c, ci) => {
+            if (r !== rowIdx || ci !== colIdx) return c;
+            return { ...c, teacherId: null, respId: undefined, status: "gap" as const };
+          }),
+        );
+      });
     }
-    // When brush is inactive, a per-cell picker popover would open here (YAGNI).
+    // brush-off click on gap/na: no-op.
   };
 
   const handleSave = async () => {
@@ -205,7 +220,7 @@ export function GradeCoverageMatrix({
           <TableRow>
             <TableCell>วิชา</TableCell>
             {sections.map((sec) => (
-              <TableCell key={sec.GradeID}>{sec.GradeID}</TableCell>
+              <TableCell key={sec.GradeID}>{`ม.${gradeYear}/${sec.number}`}</TableCell>
             ))}
           </TableRow>
         </TableHead>
@@ -228,7 +243,8 @@ export function GradeCoverageMatrix({
                 return (
                   <TableRow key={subj.SubjectCode}>
                     <TableCell>
-                      <Typography variant="body2">{subj.SubjectCode}</Typography>
+                      <Typography variant="body2">{subj.SubjectName}</Typography>
+                      <Typography variant="caption" color="text.secondary">{subj.SubjectCode}</Typography>
                     </TableCell>
                     {row.map((cell, colIdx) => (
                       <TableCell key={cell.gradeId} sx={{ p: 0.5 }}>

@@ -405,7 +405,7 @@ export const syncGradeMatrixAction = createAction(
     const sem = semester[input.semester];
     const diffs = groupMatrixDiffByTeacher(input.existing, input.desired);
 
-    return withPrismaTransaction(async (tx) => {
+    const result = await withPrismaTransaction(async (tx) => {
       let created = 0;
       let deleted = 0;
 
@@ -431,6 +431,10 @@ export const syncGradeMatrixAction = createAction(
 
       return { created, deleted };
     });
+
+    revalidatePath("/management/teacher-assignment");
+    await invalidatePublicCache(["teachers", "stats"]);
+    return result;
   },
 );
 
