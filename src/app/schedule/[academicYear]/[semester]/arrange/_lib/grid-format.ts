@@ -8,16 +8,17 @@ export const DAY_FULL_LABEL: Record<string, string> = {
   FRI: "ศุกร์",
 };
 
-export type CellKind = "break" | "drop-target" | "placed" | "empty";
+export type CellKind = "locked" | "drop-target" | "placed" | "empty";
 
 export type CellState = {
   kind: CellKind;
   /** non-color cue text for empty/break/drop-target */
   label: string;
+  lockReason?: "break" | "locked-class";
 };
 
 const LABELS: Record<CellKind, string> = {
-  break: "พัก",
+  locked: "", // label comes from lockReason at render time
   "drop-target": "วางที่นี่",
   placed: "",
   empty: "คาบว่าง",
@@ -28,12 +29,15 @@ export function getCellState(
   entry: ScheduleEntry | undefined,
   isOver: boolean,
 ): CellState {
-  let kind: CellKind;
-  if (timeslot.Breaktime !== "NOT_BREAK") kind = "break";
-  else if (isOver) kind = "drop-target";
-  else if (entry) kind = "placed";
-  else kind = "empty";
-  return { kind, label: LABELS[kind] };
+  if (timeslot.Breaktime !== "NOT_BREAK") {
+    return { kind: "locked", label: "พัก", lockReason: "break" };
+  }
+  if (entry?.IsLocked) {
+    return { kind: "locked", label: "", lockReason: "locked-class" };
+  }
+  if (isOver) return { kind: "drop-target", label: LABELS["drop-target"] };
+  if (entry) return { kind: "placed", label: LABELS.placed };
+  return { kind: "empty", label: LABELS.empty };
 }
 
 // Timeslots are seeded with `new Date("YYYY-MM-DDTHH:MM:00")` (no Z), i.e.

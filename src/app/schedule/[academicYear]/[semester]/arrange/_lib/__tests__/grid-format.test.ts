@@ -13,8 +13,8 @@ const slot = (over: Partial<Timeslot> = {}): Timeslot => ({
 });
 
 describe("getCellState", () => {
-  it("returns break when timeslot is a break", () => {
-    expect(getCellState(slot({ Breaktime: "BREAK_JUNIOR" }), undefined, false).kind).toBe("break");
+  it("returns locked when timeslot is a break", () => {
+    expect(getCellState(slot({ Breaktime: "BREAK_JUNIOR" }), undefined, false).kind).toBe("locked");
   });
   it("returns drop-target when isOver and not a break", () => {
     expect(getCellState(slot(), undefined, true).kind).toBe("drop-target");
@@ -27,7 +27,7 @@ describe("getCellState", () => {
     expect(getCellState(slot(), undefined, false).kind).toBe("empty");
   });
   it("break takes precedence over isOver", () => {
-    expect(getCellState(slot({ Breaktime: "BREAK_JUNIOR" }), undefined, true).kind).toBe("break");
+    expect(getCellState(slot({ Breaktime: "BREAK_JUNIOR" }), undefined, true).kind).toBe("locked");
   });
 });
 
@@ -43,5 +43,31 @@ describe("formatPeriodTime", () => {
 describe("DAY_FULL_LABEL", () => {
   it("maps MON to จันทร์", () => {
     expect(DAY_FULL_LABEL.MON).toBe("จันทร์");
+  });
+});
+
+const entry = (over: Partial<ScheduleEntry> = {}): ScheduleEntry => ({
+  ClassID: 1, TimeslotID: "1-2568-MON1", SubjectCode: "ค21101", GradeID: "M1-1",
+  RoomID: 1, subject: { SubjectName: "คณิต" }, gradelevel: { GradeName: "ม.1/1" },
+  room: null, ...over,
+});
+
+describe("getCellState — unified locked model", () => {
+  it("marks a break timeslot as locked (reason break)", () => {
+    expect(getCellState(slot({ Breaktime: "BREAK" }), undefined, false))
+      .toMatchObject({ kind: "locked", lockReason: "break" });
+  });
+  it("marks a locked entry as locked (reason locked-class)", () => {
+    expect(getCellState(slot(), entry({ IsLocked: true }), false))
+      .toMatchObject({ kind: "locked", lockReason: "locked-class" });
+  });
+  it("break takes precedence over an entry", () => {
+    expect(getCellState(slot({ Breaktime: "BREAK" }), entry({ IsLocked: true }), false))
+      .toMatchObject({ kind: "locked", lockReason: "break" });
+  });
+  it("unlocked entry is placed; empty is empty; isOver is drop-target", () => {
+    expect(getCellState(slot(), entry(), false)).toMatchObject({ kind: "placed" });
+    expect(getCellState(slot(), undefined, false)).toMatchObject({ kind: "empty" });
+    expect(getCellState(slot(), undefined, true)).toMatchObject({ kind: "drop-target" });
   });
 });

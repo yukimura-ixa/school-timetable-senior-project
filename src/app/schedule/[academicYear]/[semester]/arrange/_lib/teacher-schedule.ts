@@ -13,6 +13,7 @@ export type ScheduleEntry = {
   SubjectCode: string;
   GradeID: string;
   RoomID: number;
+  IsLocked?: boolean;
   subject: { SubjectName: string };
   gradelevel: { GradeName: string };
   room: { RoomName: string } | null;
