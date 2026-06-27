@@ -7,6 +7,7 @@ import {
   clearCell,
   fillSubjectRow,
   countChanges,
+  computeOverloadedTeachers,
 } from "./grade-matrix.logic";
 
 const matrix = {
@@ -101,5 +102,32 @@ describe("grade-matrix ragged programs (na cells)", () => {
     expect(desired).toEqual([
       { TeacherID: 3, GradeID: "M5-1", SubjectCode: "ว32201", Credit: "1.0" },
     ]);
+  });
+});
+
+describe("computeOverloadedTeachers", () => {
+  it("adds term hours outside the edited grade to the grade's live hours, flagging > cap", () => {
+    const termRows = [
+      { TeacherID: 4, GradeID: "M2-1", TeachHour: 20 }, // base (other grade)
+      { TeacherID: 4, GradeID: "M1-1", TeachHour: 4 }, // edited grade → ignored (live replaces)
+      { TeacherID: 9, GradeID: "M3-1", TeachHour: 10 }, // under cap
+    ];
+    const result = computeOverloadedTeachers(
+      termRows,
+      ["M1-1", "M1-2"],
+      { 4: 4, 9: 2 },
+      22,
+    );
+    expect(result).toEqual([{ teacherId: 4, hours: 24 }]); // 20 base + 4 live
+  });
+
+  it("returns empty when nobody exceeds the cap", () => {
+    expect(
+      computeOverloadedTeachers(
+        [{ TeacherID: 4, GradeID: "M2-1", TeachHour: 10 }],
+        ["M1-1"],
+        { 4: 5 },
+      ),
+    ).toEqual([]);
   });
 });

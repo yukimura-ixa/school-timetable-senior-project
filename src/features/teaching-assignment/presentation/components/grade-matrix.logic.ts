@@ -106,3 +106,31 @@ export function countChanges(original: Cell[][], current: Cell[][]): number {
   }
   return n;
 }
+
+
+// Term-wide overload: a teacher's 22h cap spans every grade. Their base load is
+// all term hours OUTSIDE the grade being edited; the grade under edit contributes
+// its LIVE matrix hours instead (so unsaved changes are reflected immediately).
+export function computeOverloadedTeachers(
+  termRows: { TeacherID: number; GradeID: string; TeachHour: number }[],
+  currentGradeIds: string[],
+  liveHoursByTeacher: Record<number, number>,
+  cap = 22,
+): { teacherId: number; hours: number }[] {
+  const current = new Set(currentGradeIds);
+  const base = new Map<number, number>();
+  for (const r of termRows) {
+    if (current.has(r.GradeID)) continue;
+    base.set(r.TeacherID, (base.get(r.TeacherID) ?? 0) + r.TeachHour);
+  }
+  const teacherIds = new Set<number>([
+    ...base.keys(),
+    ...Object.keys(liveHoursByTeacher).map(Number),
+  ]);
+  const out: { teacherId: number; hours: number }[] = [];
+  for (const t of teacherIds) {
+    const hours = (base.get(t) ?? 0) + (liveHoursByTeacher[t] ?? 0);
+    if (hours > cap) out.push({ teacherId: t, hours });
+  }
+  return out.sort((a, b) => b.hours - a.hours);
+}

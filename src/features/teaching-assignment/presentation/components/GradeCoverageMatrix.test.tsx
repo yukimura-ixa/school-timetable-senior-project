@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { SWRConfig } from "swr";
 
 const getGradeMatrixAction = vi.fn();
 const syncGradeMatrixAction = vi.fn();
@@ -15,6 +16,13 @@ vi.mock(
   }),
 );
 
+// Term-wide workload feed (overload warning).
+const getAssignmentsByTermAction = vi.fn();
+vi.mock("@/features/assign/application/actions/assign.actions", () => ({
+  getAssignmentsByTermAction: (...a: unknown[]) =>
+    getAssignmentsByTermAction(...a),
+}));
+
 import { GradeCoverageMatrix } from "./GradeCoverageMatrix";
 
 const TWO_TEACHERS = [
@@ -23,13 +31,16 @@ const TWO_TEACHERS = [
 ];
 
 function renderMatrix(teachers = TWO_TEACHERS) {
+  // Fresh SWR cache per render so term-workload data doesn't leak between tests.
   return render(
-    <GradeCoverageMatrix
-      gradeYear={1}
-      academicYear={2568}
-      semester="SEMESTER_1"
-      teachers={teachers}
-    />,
+    <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
+      <GradeCoverageMatrix
+        gradeYear={1}
+        academicYear={2568}
+        semester="SEMESTER_1"
+        teachers={teachers}
+      />
+    </SWRConfig>,
   );
 }
 
@@ -65,6 +76,7 @@ beforeEach(() => {
     success: true,
     data: { created: 1, deleted: 0 },
   });
+  getAssignmentsByTermAction.mockResolvedValue({ success: true, data: [] });
 });
 
 async function pickTeacherInPopover(user: ReturnType<typeof userEvent.setup>, filter: string) {
@@ -138,5 +150,21 @@ describe("GradeCoverageMatrix", () => {
       expect.objectContaining({ GradeID: "M1-1", SubjectCode: "ค21101" }),
     );
     expect(arg.existing).toContainEqual(expect.objectContaining({ RespID: 5 }));
+  });
+
+  it("warns about a teacher who would exceed 22 h/week across the term", async () => {
+    // Teacher id:4 already carries 24h in another grade (M2-1); this grade adds more.
+    getAssignmentsByTermAction.mockResolvedValue({
+      success: true,
+      data: [{ TeacherID: 4, GradeID: "M2-1", TeachHour: 24 }],
+    });
+    renderMatrix();
+    await screen.findByText(/^1\s*\/\s*2$/);
+    // Two SWR fetches feed the warning (matrix + term workload); allow for both
+    // under parallel-test load.
+    await waitFor(
+      () => expect(screen.getByText(/เกินเกณฑ์ 22/)).toBeInTheDocument(),
+      { timeout: 4000 },
+    );
   });
 });

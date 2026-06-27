@@ -32,10 +32,13 @@ import {
   clearCell,
   fillSubjectRow,
   countChanges,
+  computeOverloadedTeachers,
   type Cell,
   type GradeMatrixData,
   type MatrixAssignment,
 } from "./grade-matrix.logic";
+import { getAssignmentsByTermAction } from "@/features/assign/application/actions/assign.actions";
+import { calculateTeachHour } from "@/features/assign/domain/services/assign-validation.service";
 import { computeCoverage } from "@/features/teaching-assignment/domain/utils/coverage";
 import { CoverageHeader } from "./CoverageHeader";
 import { CarryOverDialog } from "./CarryOverDialog";
@@ -88,6 +91,19 @@ export function GradeCoverageMatrix({
     { revalidateOnFocus: false },
   );
 
+  // Term-wide workload — a teacher's 22h cap spans all grades, so fetch the whole term.
+  const { data: termWorkload } = useSWR(
+    ["term-workload", academicYear, semester],
+    async () => {
+      const res = await getAssignmentsByTermAction({
+        AcademicYear: academicYear,
+        Semester: semester,
+      });
+      return res.success && Array.isArray(res.data) ? res.data : [];
+    },
+    { revalidateOnFocus: false },
+  );
+
   // Adjust cells during render whenever the fetched matrix changes (snapshot pattern).
   if (matrixSnapshot !== matrix) {
     setMatrixSnapshot(matrix);
@@ -98,47 +114,63 @@ export function GradeCoverageMatrix({
     ? Object.fromEntries(matrix.subjects.map((s) => [s.SubjectCode, s.Credit]))
     : {};
 
-  // Per-section coverage (for column meters) + overall totals.
-  const sectionCoverage: Record<string, { filled: number; required: number }> =
-    {};
-  if (matrix && cells) {
+  // Coverage reflects PERSISTED state only — saved assignments, not unsaved cell
+  // edits or carry-over suggestions. The save bar's dirty count signals pending work.
+  const persisted = new Set(
+    (matrix?.assignments ?? []).map((a) => `${a.GradeID}|${a.SubjectCode}`),
+  );
+  const sectionCoverage: Record<string, { filled: number; required: number }> = {};
+  if (matrix) {
     for (const sec of matrix.sections) {
-      const required = sec.subjectCodes.length;
-      const filled = sec.subjectCodes.filter((code) =>
-        cells.some((row) =>
-          row.some(
-            (c) =>
-              c.gradeId === sec.GradeID &&
-              c.subjectCode === code &&
-              (c.status === "assigned" || c.status === "suggested"),
-          ),
-        ),
-      ).length;
-      sectionCoverage[sec.GradeID] = { filled, required };
+      sectionCoverage[sec.GradeID] = {
+        required: sec.subjectCodes.length,
+        filled: sec.subjectCodes.filter((code) =>
+          persisted.has(`${sec.GradeID}|${code}`),
+        ).length,
+      };
     }
   }
-  const { filled, required } =
-    matrix && cells
-      ? computeCoverage(
-          matrix.sections.map((sec) => ({
-            requiredCodes: sec.subjectCodes,
-            assignedCodes: sec.subjectCodes.filter(
-              (code) => (sectionCoverage[sec.GradeID]?.filled ?? 0) > 0
-                ? cells.some((row) =>
-                    row.some(
-                      (c) =>
-                        c.gradeId === sec.GradeID &&
-                        c.subjectCode === code &&
-                        (c.status === "assigned" || c.status === "suggested"),
-                    ),
-                  )
-                : false,
-            ),
-          })),
-        )
-      : { filled: 0, required: 0 };
+  const { filled, required } = matrix
+    ? computeCoverage(
+        matrix.sections.map((sec) => ({
+          requiredCodes: sec.subjectCodes,
+          assignedCodes: sec.subjectCodes.filter((code) =>
+            persisted.has(`${sec.GradeID}|${code}`),
+          ),
+        })),
+      )
+    : { filled: 0, required: 0 };
 
   const dirty = matrix && cells ? countChanges(buildCells(matrix), cells) : 0;
+
+  // Live per-teacher hours from this grade's matrix (assigned + suggested = intended
+  // load); combined with term-wide hours from other grades to flag the 22h cap.
+  const liveHoursByTeacher: Record<number, number> = {};
+  if (cells) {
+    for (const row of cells) {
+      for (const c of row) {
+        if (
+          (c.status === "assigned" || c.status === "suggested") &&
+          c.teacherId != null
+        ) {
+          liveHoursByTeacher[c.teacherId] =
+            (liveHoursByTeacher[c.teacherId] ?? 0) +
+            calculateTeachHour(creditMap[c.subjectCode] ?? "1.0");
+        }
+      }
+    }
+  }
+  const overloaded = matrix
+    ? computeOverloadedTeachers(
+        (termWorkload ?? []) as {
+          TeacherID: number;
+          GradeID: string;
+          TeachHour: number;
+        }[],
+        matrix.sections.map((s) => s.GradeID),
+        liveHoursByTeacher,
+      )
+    : [];
 
   // Subject rows grouped by LearningArea (insertion order).
   const subjectsByArea: [string, GradeMatrixData["subjects"]][] = [];
@@ -249,6 +281,19 @@ export function GradeCoverageMatrix({
       )}
 
       <CoverageHeader filled={filled} required={required} />
+
+      {overloaded.length > 0 && (
+        <Alert severity="warning" sx={{ mb: 1.5 }}>
+          ครูที่จะเกินเกณฑ์ 22 ชม./สัปดาห์:{" "}
+          {overloaded
+            .map((o) => {
+              const t = teachers.find((x) => x.id === o.teacherId);
+              const name = t ? teacherLabel(t) : `#${o.teacherId}`;
+              return `${name} (${o.hours} ชม.)`;
+            })
+            .join(", ")}
+        </Alert>
+      )}
 
       {/* Legend + carry-over */}
       <Box
