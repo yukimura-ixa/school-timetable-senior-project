@@ -53,4 +53,17 @@ describe("previewCarryOverAction", () => {
     expect(res.data!.mapped).toEqual([{ GradeID: "M1-1", SubjectCode: "ค21102", TeacherID: 4 }]);
     expect(res.data!.exceptions).toHaveLength(0);
   });
+
+  it("for a SEMESTER_1 target, reads the previous YEAR's SEMESTER_2 and maps into S1 codes", async () => {
+    (gradeLevelRepository.findAll as any).mockResolvedValue([{ GradeID: "M1-1", Year: 1, Number: 1, ProgramID: 10 }]);
+    (subjectRepository.findByGrade as any).mockResolvedValue([{ SubjectCode: "ค21102" }]);
+    (assignRepository.findByTermGrades as any).mockResolvedValue([
+      { GradeID: "M1-1", SubjectCode: "ค21101", TeacherID: 4, subject: { Credit: "CREDIT_10" } },
+    ]);
+    const res = await previewCarryOverAction({ gradeYear: 1, academicYear: 2568, semester: "SEMESTER_1" });
+    expect(res.data!.mapped).toEqual([{ GradeID: "M1-1", SubjectCode: "ค21102", TeacherID: 4 }]);
+    // prev term must be the PREVIOUS year's SEMESTER_2
+    const call = (assignRepository.findByTermGrades as any).mock.calls.at(-1);
+    expect(call![1]).toBe(2567); // academicYear - 1
+  });
 });
