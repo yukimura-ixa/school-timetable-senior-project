@@ -1,4 +1,5 @@
 import { computeResponsibilitiesDiff } from "@/features/assign/domain/services/assign-validation.service";
+import type { ResponsibilityOutput } from "@/features/assign/application/schemas/assign.schemas";
 import type { teachers_responsibility } from "@/prisma/generated/client";
 
 export interface MatrixAssignment {
@@ -35,7 +36,7 @@ export function groupMatrixDiffByTeacher(
       }));
     const { toCreate, toDelete } = computeResponsibilitiesDiff(
       ex as unknown as teachers_responsibility[],
-      incoming,
+      incoming as unknown as ResponsibilityOutput[],
     );
     diffs.push({
       TeacherID,

@@ -23,4 +23,14 @@ describe("groupMatrixDiffByTeacher", () => {
     const diffs = groupMatrixDiffByTeacher(existing, []);
     expect(diffs[0]).toMatchObject({ TeacherID: 7, toCreate: [], toDeleteRespIds: [9] });
   });
+
+  it("creates rows for a net-new teacher with no existing assignments", () => {
+    const desired = [
+      { TeacherID: 12, GradeID: "M2-1", SubjectCode: "ท22101", Credit: "1.0" },
+    ];
+    const diffs = groupMatrixDiffByTeacher([], desired);
+    expect(diffs).toHaveLength(1);
+    expect(diffs[0]).toMatchObject({ TeacherID: 12, toDeleteRespIds: [] });
+    expect(diffs[0]!.toCreate).toEqual([{ GradeID: "M2-1", SubjectCode: "ท22101", Credit: "1.0" }]);
+  });
 });
