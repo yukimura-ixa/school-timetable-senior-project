@@ -26,6 +26,7 @@ vi.mock("@/lib/cache-invalidation", () => ({
   invalidatePublicCache: vi.fn(),
 }));
 
+// not used by this action (syncGradeMatrixAction uses withPrismaTransaction directly)
 vi.mock(
   "@/features/assign/infrastructure/repositories/assign.repository",
   () => ({
@@ -73,5 +74,8 @@ describe("syncGradeMatrixAction", () => {
     expect(res.data).toEqual({ created: 1, deleted: 1 });
     expect(txDelete).toHaveBeenCalledWith({ where: { RespID: 6 } });
     expect(txCreate).toHaveBeenCalledTimes(1);
+    expect(txCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({ TeacherID: 7, GradeID: "M1-3", SubjectCode: "ว21101" }),
+    });
   });
 });

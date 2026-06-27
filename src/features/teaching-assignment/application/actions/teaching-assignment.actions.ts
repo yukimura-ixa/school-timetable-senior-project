@@ -41,6 +41,7 @@ import {
   type SyncGradeMatrixInput,
 } from "../schemas/teaching-assignment.schemas";
 import { computeCarryOver } from "../../domain/utils/carry-over";
+import { subjectCreditToNumber } from "../../domain/utils/subject-credit";
 import { groupMatrixDiffByTeacher } from "../../domain/utils/matrix-diff";
 import { calculateTeachHour } from "@/features/assign/domain/services/assign-validation.service";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
@@ -334,7 +335,7 @@ export const getGradeMatrixAction = createAction(
         subjects.push({
           SubjectCode: s.SubjectCode,
           SubjectName: s.SubjectName,
-          Credit: String(s.Credit),
+          Credit: subjectCreditToNumber(s.Credit).toFixed(1),
           LearningArea: s.LearningArea ?? null,
         });
       }
@@ -359,7 +360,7 @@ export const getGradeMatrixAction = createAction(
         TeacherID: r.TeacherID,
         GradeID: r.GradeID ?? "",
         SubjectCode: r.SubjectCode ?? "",
-        Credit: String(r.subject.Credit),
+        Credit: subjectCreditToNumber(r.subject.Credit).toFixed(1),
       });
     }
 

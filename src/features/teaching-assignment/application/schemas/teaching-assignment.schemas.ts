@@ -144,7 +144,7 @@ const matrixAssignmentSchema = v.object({
   TeacherID: v.pipe(v.number(), v.integer(), v.minValue(1)),
   GradeID: v.pipe(v.string(), v.minLength(1)),
   SubjectCode: v.pipe(v.string(), v.minLength(1), v.maxLength(20)),
-  Credit: v.string(),
+  Credit: v.pipe(v.string(), v.minLength(1)),
 });
 export const syncGradeMatrixSchema = v.object({
   academicYear: v.pipe(v.number(), v.integer()),

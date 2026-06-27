@@ -87,7 +87,7 @@ describe("getGradeMatrixAction", () => {
       {
         SubjectCode: "ค21101",
         SubjectName: "คณิต",
-        Credit: "CREDIT_10",
+        Credit: "1.0",
         LearningArea: "MATH",
       },
     ]);
