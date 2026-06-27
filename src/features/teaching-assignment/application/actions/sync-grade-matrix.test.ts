@@ -38,6 +38,11 @@ vi.mock(
   }),
 );
 
+// Program subjects per grade — used for server-side defense-in-depth validation.
+vi.mock("@/features/subject/infrastructure/repositories/subject.repository", () => ({
+  subjectRepository: { findByGrade: vi.fn() },
+}));
+
 const txCreate = vi.fn();
 const txDelete = vi.fn();
 vi.mock("@/lib/prisma-transaction", () => ({
@@ -51,10 +56,16 @@ vi.mock("@/lib/prisma-transaction", () => ({
 }));
 
 import { syncGradeMatrixAction } from "./teaching-assignment.actions";
+import { subjectRepository } from "@/features/subject/infrastructure/repositories/subject.repository";
 
 describe("syncGradeMatrixAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: every queried grade's program contains the codes used by the happy path.
+    (subjectRepository.findByGrade as any).mockResolvedValue([
+      { SubjectCode: "ค21101" },
+      { SubjectCode: "ว21101" },
+    ]);
   });
 
   it("creates new cells and deletes removed ones, preserving untouched RespIDs", async () => {
@@ -77,5 +88,23 @@ describe("syncGradeMatrixAction", () => {
     expect(txCreate).toHaveBeenCalledWith({
       data: expect.objectContaining({ TeacherID: 7, GradeID: "M1-3", SubjectCode: "ว21101" }),
     });
+  });
+
+  it("rejects a created cell whose subject is not in the grade's program and writes nothing", async () => {
+    (subjectRepository.findByGrade as any).mockResolvedValue([
+      { SubjectCode: "ค21101" }, // M1-1's program does NOT contain ว99999
+    ]);
+    const res = await syncGradeMatrixAction({
+      academicYear: 2568,
+      semester: "SEMESTER_1",
+      existing: [],
+      desired: [
+        { TeacherID: 9, GradeID: "M1-1", SubjectCode: "ว99999", Credit: "1.0" },
+      ],
+    });
+    expect(res.success).toBe(false);
+    expect(res.error?.code).toBe("VALIDATION_ERROR");
+    expect(txCreate).not.toHaveBeenCalled();
+    expect(txDelete).not.toHaveBeenCalled();
   });
 });

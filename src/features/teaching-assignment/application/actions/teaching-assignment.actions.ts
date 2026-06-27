@@ -17,6 +17,7 @@ import * as teachingAssignmentRepository from "../../infrastructure/repositories
 import { gradeLevelRepository } from "@/features/gradelevel/infrastructure/repositories/gradelevel.repository";
 import { subjectRepository } from "@/features/subject/infrastructure/repositories/subject.repository";
 import { assignRepository } from "@/features/assign/infrastructure/repositories/assign.repository";
+import { createValidationError } from "@/types/errors";
 import { semester } from "@/prisma/generated/client";
 import {
   validateAssignment,
@@ -404,6 +405,27 @@ export const syncGradeMatrixAction = createAction(
   async (input: SyncGradeMatrixInput) => {
     const sem = semester[input.semester];
     const diffs = groupMatrixDiffByTeacher(input.existing, input.desired);
+
+    // Defense-in-depth: every created cell's subject must belong to its grade's
+    // program. The client greys out-of-program cells, but a write action must
+    // not trust the payload — reject before opening the transaction.
+    const toCreate = diffs.flatMap((d) => d.toCreate);
+    const programByGrade = new Map<string, Set<string>>();
+    await Promise.all(
+      [...new Set(toCreate.map((c) => c.GradeID))].map(async (gid) => {
+        const subjects = await subjectRepository.findByGrade(gid);
+        programByGrade.set(gid, new Set(subjects.map((s) => s.SubjectCode)));
+      }),
+    );
+    for (const c of toCreate) {
+      if (!programByGrade.get(c.GradeID)?.has(c.SubjectCode)) {
+        throw createValidationError(
+          `วิชา ${c.SubjectCode} ไม่อยู่ในหลักสูตรของ ${c.GradeID}`,
+          "SubjectCode",
+          c.SubjectCode,
+        );
+      }
+    }
 
     const result = await withPrismaTransaction(async (tx) => {
       let created = 0;
