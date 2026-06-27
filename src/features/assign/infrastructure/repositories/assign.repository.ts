@@ -220,3 +220,35 @@ export async function transaction<T>(
 ) {
   return withPrismaTransaction(callback);
 }
+
+/**
+ * Find responsibilities for multiple grades in a specific term.
+ * Used by the grade-coverage matrix to load existing assignments in bulk.
+ */
+export async function findByTermGrades(
+  gradeIds: string[],
+  academicYear: number,
+  sem: semester,
+) {
+  return prisma.teachers_responsibility.findMany({
+    where: { GradeID: { in: gradeIds }, AcademicYear: academicYear, Semester: sem },
+    include: { subject: true },
+  });
+}
+
+/**
+ * Named object export for import-by-name consumers (e.g. teaching-assignment feature).
+ * Standalone function exports above are kept for `import * as assignRepository` consumers.
+ */
+export const assignRepository = {
+  findByTeacherAndTerm,
+  findAvailableByTeacherAndTerm,
+  findLockedSubjectsByTerm,
+  findMany,
+  create,
+  deleteById,
+  count,
+  findByRespId,
+  transaction,
+  findByTermGrades,
+};

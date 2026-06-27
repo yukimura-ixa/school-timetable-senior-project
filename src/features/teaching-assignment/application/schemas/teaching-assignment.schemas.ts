@@ -125,3 +125,13 @@ export type ClearAssignmentsInput = v.InferInput<typeof clearAssignmentsSchema>;
 export type ClearAssignmentsOutput = v.InferOutput<
   typeof clearAssignmentsSchema
 >;
+
+/**
+ * Schema for grade coverage matrix query
+ */
+export const gradeMatrixSchema = v.object({
+  gradeYear: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(6)),
+  academicYear: v.pipe(v.number(), v.integer()),
+  semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+});
+export type GradeMatrixInput = v.InferOutput<typeof gradeMatrixSchema>;

@@ -14,6 +14,10 @@ import { revalidatePath } from "next/cache";
 import { createAction } from "@/shared/lib/action-wrapper";
 import prisma from "@/lib/prisma";
 import * as teachingAssignmentRepository from "../../infrastructure/repositories/teaching-assignment.repository";
+import { gradeLevelRepository } from "@/features/gradelevel/infrastructure/repositories/gradelevel.repository";
+import { subjectRepository } from "@/features/subject/infrastructure/repositories/subject.repository";
+import { assignRepository } from "@/features/assign/infrastructure/repositories/assign.repository";
+import { semester } from "@/prisma/generated/client";
 import {
   validateAssignment,
   validateBulkAssignments,
@@ -24,11 +28,13 @@ import {
   bulkAssignSchema,
   copyAssignmentsSchema,
   clearAssignmentsSchema,
+  gradeMatrixSchema,
   type AssignTeacherInput,
   type UnassignTeacherInput,
   type BulkAssignInput,
   type CopyAssignmentsInput,
   type ClearAssignmentsInput,
+  type GradeMatrixInput,
 } from "../schemas/teaching-assignment.schemas";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
@@ -275,6 +281,84 @@ export const clearAllAssignmentsAction = createAction(
     await invalidatePublicCache(["teachers", "stats"]);
     return {
       count: deletedCount,
+    };
+  },
+);
+
+/**
+ * Aggregate grade-coverage matrix data for a given grade year and term.
+ * Returns the filtered sections, a deduped union of their subjects,
+ * and any existing assignment records.
+ */
+export const getGradeMatrixAction = createAction(
+  gradeMatrixSchema,
+  async (input: GradeMatrixInput) => {
+    const sem = semester[input.semester];
+    const grades = (await gradeLevelRepository.findAll()).filter(
+      (g) => g.Year === input.gradeYear,
+    );
+
+    const sections = await Promise.all(
+      grades.map(async (g) => {
+        const subjects = await subjectRepository.findByGrade(g.GradeID);
+        return {
+          GradeID: g.GradeID,
+          number: g.Number,
+          programId: g.ProgramID,
+          subjectCodes: subjects.map((s) => s.SubjectCode),
+          _subjects: subjects,
+        };
+      }),
+    );
+
+    // Deduped union of subjects across sections (order: first-seen).
+    const seen = new Set<string>();
+    const subjects: {
+      SubjectCode: string;
+      SubjectName: string;
+      Credit: string;
+      LearningArea: string | null;
+    }[] = [];
+    for (const sec of sections) {
+      for (const s of sec._subjects) {
+        if (seen.has(s.SubjectCode)) continue;
+        seen.add(s.SubjectCode);
+        subjects.push({
+          SubjectCode: s.SubjectCode,
+          SubjectName: s.SubjectName,
+          Credit: String(s.Credit),
+          LearningArea: s.LearningArea ?? null,
+        });
+      }
+    }
+
+    // Existing assignments for these sections in the term.
+    const assignments: {
+      RespID: number;
+      TeacherID: number;
+      GradeID: string;
+      SubjectCode: string;
+      Credit: string;
+    }[] = [];
+    const termResps = await assignRepository.findByTermGrades(
+      grades.map((g) => g.GradeID),
+      input.academicYear,
+      sem,
+    );
+    for (const r of termResps) {
+      assignments.push({
+        RespID: r.RespID,
+        TeacherID: r.TeacherID,
+        GradeID: r.GradeID ?? "",
+        SubjectCode: r.SubjectCode ?? "",
+        Credit: String(r.subject.Credit),
+      });
+    }
+
+    return {
+      sections: sections.map(({ _subjects, ...rest }) => rest),
+      subjects,
+      assignments,
     };
   },
 );
