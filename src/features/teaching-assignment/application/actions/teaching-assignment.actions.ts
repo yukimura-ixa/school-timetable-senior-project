@@ -29,13 +29,16 @@ import {
   copyAssignmentsSchema,
   clearAssignmentsSchema,
   gradeMatrixSchema,
+  previewCarryOverSchema,
   type AssignTeacherInput,
   type UnassignTeacherInput,
   type BulkAssignInput,
   type CopyAssignmentsInput,
   type ClearAssignmentsInput,
   type GradeMatrixInput,
+  type PreviewCarryOverInput,
 } from "../schemas/teaching-assignment.schemas";
+import { computeCarryOver } from "../../domain/utils/carry-over";
 import { createLogger } from "@/lib/logger";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
@@ -360,6 +363,33 @@ export const getGradeMatrixAction = createAction(
       subjects,
       assignments,
     };
+  },
+);
+
+export const previewCarryOverAction = createAction(
+  previewCarryOverSchema,
+  async (input: PreviewCarryOverInput) => {
+    const prevSemester = input.semester === "SEMESTER_1" ? "SEMESTER_2" : "SEMESTER_1";
+    const prevYear = input.semester === "SEMESTER_1" ? input.academicYear - 1 : input.academicYear;
+
+    const grades = (await gradeLevelRepository.findAll()).filter((g) => g.Year === input.gradeYear);
+    const sectionSubjects: Record<string, string[]> = {};
+    await Promise.all(
+      grades.map(async (g) => {
+        const subjects = await subjectRepository.findByGrade(g.GradeID);
+        sectionSubjects[g.GradeID] = subjects.map((s) => s.SubjectCode);
+      }),
+    );
+
+    const prev = await assignRepository.findByTermGrades(
+      grades.map((g) => g.GradeID),
+      prevYear,
+      semester[prevSemester],
+    );
+    return computeCarryOver(
+      prev.map((r) => ({ GradeID: r.GradeID, SubjectCode: r.SubjectCode, TeacherID: r.TeacherID })),
+      sectionSubjects,
+    );
   },
 );
 

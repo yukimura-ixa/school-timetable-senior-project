@@ -135,3 +135,6 @@ export const gradeMatrixSchema = v.object({
   semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
 });
 export type GradeMatrixInput = v.InferOutput<typeof gradeMatrixSchema>;
+
+export const previewCarryOverSchema = gradeMatrixSchema;
+export type PreviewCarryOverInput = GradeMatrixInput;
