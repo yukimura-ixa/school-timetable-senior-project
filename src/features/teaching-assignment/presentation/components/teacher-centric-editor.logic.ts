@@ -6,6 +6,7 @@ import type { AssignmentWithRelations } from "./TeacherCentricEditor";
 export type EditState = Record<string, SubjectOption[]>;
 
 export interface RespInput {
+  RespID?: number;
   GradeID: string;
   SubjectCode: string;
   Credit: string;
@@ -17,6 +18,7 @@ export function assignmentsToEditState(
   const state: EditState = {};
   for (const a of assignments) {
     (state[a.GradeID] ??= []).push({
+      RespID: a.RespID,
       SubjectCode: a.SubjectCode,
       SubjectName: a.SubjectName,
       Credit: a.Credit,
@@ -33,6 +35,7 @@ export function toNumericCredit(credit: string): string {
 export function buildSyncResp(state: EditState): RespInput[] {
   return Object.entries(state).flatMap(([gradeId, subjects]) =>
     subjects.map((s) => ({
+      ...(s.RespID !== undefined ? { RespID: s.RespID } : {}),
       GradeID: gradeId,
       SubjectCode: s.SubjectCode,
       Credit: toNumericCredit(s.Credit),

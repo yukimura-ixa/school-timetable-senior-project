@@ -18,6 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { subjectCreditToNumber } from "../../domain/utils/subject-credit";
 
 export interface SubjectOption {
+  RespID?: number;
   SubjectCode: string;
   SubjectName: string;
   Credit: string;

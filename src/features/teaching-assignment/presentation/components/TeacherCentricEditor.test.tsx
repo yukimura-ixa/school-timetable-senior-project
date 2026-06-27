@@ -125,7 +125,7 @@ describe("TeacherCentricEditor", () => {
       TeacherID: 7,
       AcademicYear: 2567,
       Semester: "SEMESTER_1",
-      Resp: [{ GradeID: "101", SubjectCode: "ค21101", Credit: "1.0" }],
+      Resp: [{ RespID: 1, GradeID: "101", SubjectCode: "ค21101", Credit: "1.0" }],
     });
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
   });
