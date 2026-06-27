@@ -149,7 +149,7 @@ describe("teacher-centric-editor.logic RespID round-trip", () => {
     ];
     const { toCreate, toDelete } = computeResponsibilitiesDiff(
       existing,
-      buildSyncResp(state),
+      buildSyncResp(state) as Parameters<typeof computeResponsibilitiesDiff>[1],
     );
     expect(toCreate.map((r) => r.SubjectCode)).toEqual(["พ32101"]);
     expect(toDelete).toHaveLength(0);

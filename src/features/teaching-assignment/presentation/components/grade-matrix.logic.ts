@@ -52,3 +52,57 @@ export function cellsToDesired(cells: Cell[][], credit: Record<string, string>):
   }
   return out;
 }
+
+
+// Set a single cell (by gradeId+subjectCode) to a teacher. Dropping respId when the
+// teacher changes makes the old saved row delete and the new one create (no "update").
+export function setCellTeacher(
+  cells: Cell[][],
+  gradeId: string,
+  subjectCode: string,
+  teacherId: number,
+): Cell[][] {
+  return cells.map((row) =>
+    row.map((c) => {
+      if (c.gradeId !== gradeId || c.subjectCode !== subjectCode || c.status === "na") return c;
+      if (c.teacherId === teacherId) return c;
+      return { ...c, teacherId, respId: undefined, status: "assigned" as const };
+    }),
+  );
+}
+
+// Clear a single cell back to a gap (the previously-saved row deletes on save).
+export function clearCell(cells: Cell[][], gradeId: string, subjectCode: string): Cell[][] {
+  return cells.map((row) =>
+    row.map((c) => {
+      if (c.gradeId !== gradeId || c.subjectCode !== subjectCode) return c;
+      if (c.status === "na" || c.status === "gap") return c;
+      return { ...c, teacherId: null, respId: undefined, status: "gap" as const };
+    }),
+  );
+}
+
+// Assign one teacher to every editable (non-na) section of a subject row.
+export function fillSubjectRow(cells: Cell[][], subjectCode: string, teacherId: number): Cell[][] {
+  return cells.map((row) =>
+    row.map((c) => {
+      if (c.subjectCode !== subjectCode || c.status === "na") return c;
+      if (c.teacherId === teacherId) return c;
+      return { ...c, teacherId, respId: undefined, status: "assigned" as const };
+    }),
+  );
+}
+
+// Count cells whose teacher differs from the baseline — the unsaved-change tally.
+export function countChanges(original: Cell[][], current: Cell[][]): number {
+  let n = 0;
+  for (let r = 0; r < current.length; r++) {
+    const row = current[r]!;
+    for (let c = 0; c < row.length; c++) {
+      const before = original[r]?.[c];
+      if (!before) continue;
+      if (before.teacherId !== row[c]!.teacherId) n++;
+    }
+  }
+  return n;
+}

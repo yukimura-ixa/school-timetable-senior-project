@@ -16,12 +16,12 @@ const defaultProps = {
 describe("AssignmentFilters — hideGradeSelector", () => {
   it("renders grade selector by default", () => {
     render(<AssignmentFilters {...defaultProps} />);
-    expect(screen.getByLabelText("ระดับชั้น")).toBeInTheDocument();
+    expect(screen.getByLabelText("ชั้นปี")).toBeInTheDocument();
   });
 
   it("hides grade selector when hideGradeSelector=true", () => {
     render(<AssignmentFilters {...defaultProps} hideGradeSelector />);
-    expect(screen.queryByLabelText("ระดับชั้น")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("ชั้นปี")).not.toBeInTheDocument();
   });
 
   it("keeps semester and year selectors visible when hideGradeSelector=true", () => {

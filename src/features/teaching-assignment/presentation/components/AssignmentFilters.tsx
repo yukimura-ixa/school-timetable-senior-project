@@ -123,21 +123,21 @@ export function AssignmentFilters({
         {!hideGradeSelector && (
           <Grid size={{ xs: 12, sm: 4 }}>
             <FormControl fullWidth>
-              <InputLabel id="grade-select-label">ระดับชั้น</InputLabel>
+              <InputLabel id="grade-select-label">ชั้นปี</InputLabel>
               <Select
                 labelId="grade-select-label"
                 id="grade-select"
                 value={gradeId}
-                label="ระดับชั้น"
+                label="ชั้นปี"
                 onChange={handleGradeChange}
                 disabled={isLoading}
               >
                 <MenuItem value="">
-                  <em>เลือกระดับชั้น</em>
+                  <em>เลือกชั้นปี</em>
                 </MenuItem>
                 {gradeLevels.map((grade) => (
                   <MenuItem key={grade.GradeID} value={grade.GradeID}>
-                    ม.{grade.Year}/{grade.Number}
+                    ม.{grade.Year}
                   </MenuItem>
                 ))}
               </Select>

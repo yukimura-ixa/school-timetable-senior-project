@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { resolveAssignmentMode } from "../../application/mode";
 import { resolveTeacherIdFromParams } from "../../application/teacher-id-param";
@@ -26,6 +26,8 @@ import {
   List,
   ListItem,
   ListItemText,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import type { semester } from "@/prisma/generated/client";
 import { AssignmentFilters } from "./AssignmentFilters";
@@ -48,6 +50,15 @@ export function TeacherAssignmentPage() {
   const router = useRouter();
   const pathname = usePathname();
   const mode = resolveAssignmentMode(searchParams);
+  const handleModeChange = (
+    _e: React.MouseEvent<HTMLElement>,
+    newMode: string | null,
+  ) => {
+    if (!newMode) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    params.set("mode", newMode);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
   const teachersData = useTeachers();
   const teacherOptions = useMemo<TeacherPickerOption[]>(
     () =>
@@ -60,12 +71,8 @@ export function TeacherAssignmentPage() {
       })),
     [teachersData.data],
   );
-  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
-    null,
-  );
-  useEffect(() => {
-    setSelectedTeacherId(resolveTeacherIdFromParams(searchParams));
-  }, [searchParams]);
+  // Derived straight from the URL — no state/effect needed (avoids cascading renders).
+  const selectedTeacherId = resolveTeacherIdFromParams(searchParams);
   const selectedTeacher = useMemo(
     () =>
       selectedTeacherId
@@ -74,7 +81,6 @@ export function TeacherAssignmentPage() {
     [selectedTeacherId, teacherOptions],
   );
   const handleTeacherChange = (teacher: TeacherPickerOption | null) => {
-    setSelectedTeacherId(teacher?.id ?? null);
     const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (teacher) {
       params.set("teacherId", String(teacher.id));
@@ -130,6 +136,18 @@ export function TeacherAssignmentPage() {
           เลือกระดับชั้น ภาคเรียน และปีการศึกษา เพื่อมอบหมายครูสอนแต่ละรายวิชา
         </Typography>
       </Box>
+      {/* View mode */}
+      <ToggleButtonGroup
+        value={mode}
+        exclusive
+        onChange={handleModeChange}
+        size="small"
+        aria-label="มุมมอง"
+        sx={{ mb: 2 }}
+      >
+        <ToggleButton value="by-grade">มุมมองชั้นเรียน</ToggleButton>
+        <ToggleButton value="by-teacher">มุมมองครู</ToggleButton>
+      </ToggleButtonGroup>
       {/* Filters */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <AssignmentFilters
