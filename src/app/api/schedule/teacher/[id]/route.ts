@@ -89,6 +89,7 @@ export async function GET(
         SubjectCode: true,
         GradeID: true,
         RoomID: true,
+        IsLocked: true,
         subject: { select: { SubjectName: true } },
         gradelevel: { select: { Year: true, Number: true } },
         room: { select: { RoomName: true } },

@@ -81,6 +81,7 @@ export async function GET(
         SubjectCode: true,
         GradeID: true,
         RoomID: true,
+        IsLocked: true,
         subject: { select: { SubjectName: true } },
         gradelevel: { select: { Year: true, Number: true } },
         room: { select: { RoomName: true } },
@@ -114,6 +115,7 @@ export async function GET(
             GradeName: `M.${entry.gradelevel.Year}/${entry.gradelevel.Number}`,
           },
           room: entry.room,
+          IsLocked: entry.IsLocked,
           teacherName: t
             ? `${t.Prefix}${t.Firstname} ${t.Lastname}`
             : undefined,
