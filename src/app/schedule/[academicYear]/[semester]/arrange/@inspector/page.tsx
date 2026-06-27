@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { semester as semesterEnum } from "@/prisma/generated/client";
-import { Alert } from "@mui/material";
 import InspectorClient from "./_components/InspectorClient";
 import type { RequiredSubject } from "../_lib/arrange-progress";
 
@@ -14,11 +13,7 @@ export default async function InspectorSlot({
   const [{ academicYear, semester }, { teacher }] = await Promise.all([params, searchParams]);
 
   if (!teacher || !/^\d+$/.test(teacher)) {
-    return (
-      <Alert severity="info" variant="outlined" sx={{ m: 2 }}>
-        เลือกครูเพื่อดูข้อมูล
-      </Alert>
-    );
+    return null;
   }
 
   const sem = semester === "2" ? semesterEnum.SEMESTER_2 : semesterEnum.SEMESTER_1;

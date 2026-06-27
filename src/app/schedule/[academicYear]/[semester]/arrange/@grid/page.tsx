@@ -14,9 +14,11 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import LockIcon from "@mui/icons-material/Lock";
+import FreeBreakfastIcon from "@mui/icons-material/FreeBreakfast";
 import {
   getCellState,
-  formatPeriodTime,
+  formatPeriodRange,
   DAY_FULL_LABEL,
 } from "../_lib/grid-format";
 import { useDroppable } from "@dnd-kit/core";
@@ -44,23 +46,27 @@ function DroppableCell({
   onRemove?: (classId: number) => void;
   readOnly?: boolean;
 }) {
+  // Pre-compute locked so we can disable the droppable hook before getCellState
+  const isLocked =
+    timeslot.Breaktime !== "NOT_BREAK" || Boolean(entry?.IsLocked);
+
   const { isOver, setNodeRef } = useDroppable({
     id: timeslot.TimeslotID,
     data: timeslot,
-    disabled: readOnly,
+    disabled: readOnly || isLocked,
   });
 
   const state = getCellState(timeslot, entry, isOver);
 
   const bg = {
-    break: "action.disabledBackground",
+    locked: "action.disabledBackground",
     "drop-target": "primary.lighter",
     placed: "success.lighter",
     empty: "background.paper",
   }[state.kind];
 
   const borderColor = {
-    break: "divider",
+    locked: "divider",
     "drop-target": "primary.main",
     placed: "success.main",
     empty: "divider",
@@ -71,7 +77,9 @@ function DroppableCell({
       ref={setNodeRef}
       data-testid="timeslot-card"
       data-timeslot-id={timeslot.TimeslotID}
-      data-is-break={state.kind === "break"}
+      data-is-break={
+        state.kind === "locked" && state.lockReason === "break"
+      }
       data-subject-code={entry?.SubjectCode}
       sx={{
         border: state.kind === "empty" ? "1px dashed" : "1px solid",
@@ -84,7 +92,30 @@ function DroppableCell({
         transition: "all 0.2s",
       }}
     >
-      {state.kind === "placed" && entry ? (
+      {state.kind === "locked" ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 90,
+            gap: 0.5,
+            color: "text.disabled",
+          }}
+        >
+          {state.lockReason === "break" ? (
+            <FreeBreakfastIcon sx={{ fontSize: 24 }} />
+          ) : (
+            <LockIcon sx={{ fontSize: 24 }} />
+          )}
+          <Typography variant="caption" align="center">
+            {state.lockReason === "break"
+              ? state.label
+              : (entry?.subject.SubjectName ?? "")}
+          </Typography>
+        </Box>
+      ) : state.kind === "placed" && entry ? (
         <Box>
           <Box
             sx={{
@@ -260,6 +291,26 @@ export default function GridSlot() {
     return <Alert severity="error">เกิดข้อผิดพลาดในการโหลดข้อมูล</Alert>;
   }
 
+  if (!hasSelection) {
+    return (
+      <Paper
+        sx={{
+          p: 4,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 200,
+        }}
+      >
+        <Alert severity="info" variant="outlined">
+          {isClassView
+            ? "เลือกชั้นเรียนเพื่อดูตารางสอน"
+            : "เลือกครูเพื่อดูตารางสอน"}
+        </Alert>
+      </Paper>
+    );
+  }
+
   const timeslots: Timeslot[] = timeslotsData?.data || [];
   const scheduleEntries: ScheduleEntry[] = scheduleData?.data || [];
 
@@ -287,14 +338,7 @@ export default function GridSlot() {
       </Typography>
 
       <div aria-live="polite">
-        {!hasSelection && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            {isClassView
-              ? "เลือกชั้นเรียนเพื่อดูตารางสอน"
-              : "เลือกครูเพื่อดูตารางสอน"}
-          </Alert>
-        )}
-        {hasSelection && scheduleEntries.length > 0 && (
+        {scheduleEntries.length > 0 && (
           <Alert severity="success" sx={{ mb: 2 }}>
             จัดแล้ว {scheduleEntries.length} คาบ
           </Alert>
@@ -330,7 +374,9 @@ export default function GridSlot() {
                         color: "text.secondary",
                       }}
                     >
-                      {anySlot ? formatPeriodTime(anySlot.StartTime) : ""}
+                      {anySlot
+                        ? formatPeriodRange(anySlot.StartTime, anySlot.EndTime)
+                        : ""}
                     </Box>
                   </th>
                 );
