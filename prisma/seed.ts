@@ -89,12 +89,13 @@ const SLOTS_2568: SlotConfig[] = [
   { duration: 10, breakGroups: ["*"] },       // slot 3  พักสาย (universal, after คาบ2)
   { duration: 50 },                           // slot 4  คาบ3
   { duration: 50, breakGroups: ["junior"] },  // slot 5  พักกลางวัน ม.ต้น (junior lunch, after คาบ3)
-  { duration: 50, breakGroups: ["senior"] },  // slot 6  พักกลางวัน ม.ปลาย (senior lunch, after คาบ4)
-  { duration: 50 },                           // slot 7  (teaching for both)
-  { duration: 50 },                           // slot 8  (old period 5)
-  { duration: 50 },                           // slot 9  (old period 6)
-  { duration: 50 },                           // slot 10 (old period 7)
-  { duration: 50 },                           // slot 11 (old period 8)
+  { duration: 50, breakGroups: ["*"] },       // slot 6  พักกลางวัน (universal lunch break, 12:00–12:50 Bangkok)
+  { duration: 50, breakGroups: ["senior"] },  // slot 7  พักกลางวัน ม.ปลาย (senior lunch, after universal lunch)
+  { duration: 50 },                           // slot 8  (teaching for both)
+  { duration: 50 },                           // slot 9  (old period 5)
+  { duration: 50 },                           // slot 10 (old period 6)
+  { duration: 50 },                           // slot 11 (old period 7)
+  { duration: 50 },                           // slot 12 (old period 8)
 ];
 
 // 1-based slot numbers that are not a break for ANY grade (teaching slots).
