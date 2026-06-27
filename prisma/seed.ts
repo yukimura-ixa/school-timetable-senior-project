@@ -915,21 +915,23 @@ async function seedDemoData() {
     ];
 
     if (track === "SCIENCE_MATH") {
-      // Advanced Math (4 periods) + Physics/Chem/Bio (3 periods each)
+      // Advanced Math (4 periods) + Physics/Chem/Bio (3 periods each).
+      // Real MOE science-elective codes: phys/chem/bio bases 201/221/241, +2 per
+      // senior year (x = M4→1, M5→2, M6→3) — must match M{4,5,6}-SCI program plans.
       slots.push(
         { day: d(0), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
         { day: d(1), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
         { day: d(2), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
         { day: d(3), period: p(3), subjectCode: `ค${yr}201`, teacherEmail: te("adv_ค"), teachHour: 4 },
-        { day: d(0), period: p(4), subjectCode: `ว${yr}201`, teacherEmail: te("adv_ว1"), teachHour: 3 },
-        { day: d(1), period: p(4), subjectCode: `ว${yr}201`, teacherEmail: te("adv_ว1"), teachHour: 3 },
-        { day: d(2), period: p(4), subjectCode: `ว${yr}201`, teacherEmail: te("adv_ว1"), teachHour: 3 },
-        { day: d(0), period: p(5), subjectCode: `ว${yr}202`, teacherEmail: te("adv_ว2"), teachHour: 3 },
-        { day: d(1), period: p(5), subjectCode: `ว${yr}202`, teacherEmail: te("adv_ว2"), teachHour: 3 },
-        { day: d(2), period: p(5), subjectCode: `ว${yr}202`, teacherEmail: te("adv_ว2"), teachHour: 3 },
-        { day: d(3), period: p(4), subjectCode: `ว${yr}203`, teacherEmail: te("adv_ว3"), teachHour: 3 },
-        { day: d(4), period: p(4), subjectCode: `ว${yr}203`, teacherEmail: te("adv_ว3"), teachHour: 3 },
-        { day: d(3), period: p(5), subjectCode: `ว${yr}203`, teacherEmail: te("adv_ว3"), teachHour: 3 },
+        { day: d(0), period: p(4), subjectCode: `ว${yr}${201 + 2 * (x - 1)}`, teacherEmail: te("adv_ว1"), teachHour: 3 },
+        { day: d(1), period: p(4), subjectCode: `ว${yr}${201 + 2 * (x - 1)}`, teacherEmail: te("adv_ว1"), teachHour: 3 },
+        { day: d(2), period: p(4), subjectCode: `ว${yr}${201 + 2 * (x - 1)}`, teacherEmail: te("adv_ว1"), teachHour: 3 },
+        { day: d(0), period: p(5), subjectCode: `ว${yr}${221 + 2 * (x - 1)}`, teacherEmail: te("adv_ว2"), teachHour: 3 },
+        { day: d(1), period: p(5), subjectCode: `ว${yr}${221 + 2 * (x - 1)}`, teacherEmail: te("adv_ว2"), teachHour: 3 },
+        { day: d(2), period: p(5), subjectCode: `ว${yr}${221 + 2 * (x - 1)}`, teacherEmail: te("adv_ว2"), teachHour: 3 },
+        { day: d(3), period: p(4), subjectCode: `ว${yr}${241 + 2 * (x - 1)}`, teacherEmail: te("adv_ว3"), teachHour: 3 },
+        { day: d(4), period: p(4), subjectCode: `ว${yr}${241 + 2 * (x - 1)}`, teacherEmail: te("adv_ว3"), teachHour: 3 },
+        { day: d(3), period: p(5), subjectCode: `ว${yr}${241 + 2 * (x - 1)}`, teacherEmail: te("adv_ว3"), teachHour: 3 },
       );
     } else if (track === "LANGUAGE_MATH") {
       slots.push(
