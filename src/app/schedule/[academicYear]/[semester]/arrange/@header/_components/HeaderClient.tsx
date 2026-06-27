@@ -104,6 +104,7 @@ export function HeaderClient({
           severity: "error",
         });
         setAutoArrangeResult(result.failures ?? []);
+        setAutoArrangeLoading(false);
         return;
       }
 
@@ -118,13 +119,13 @@ export function HeaderClient({
       // Refresh server components (palette unplaced count) + bust SWR cache in grid
       router.refresh();
       window.dispatchEvent(new Event("schedule-updated"));
+      setAutoArrangeLoading(false);
     } catch (err) {
       setSnackbar({
         open: true,
         message: `เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : "Unknown"}`,
         severity: "error",
       });
-    } finally {
       setAutoArrangeLoading(false);
     }
   }
@@ -189,7 +190,8 @@ export function HeaderClient({
             value={gradeObj}
             onChange={handleGradeChange}
             options={grades}
-            getOptionLabel={(g) => g.GradeLabel}
+            getOptionLabel={(g) => g?.GradeLabel ?? ""}
+            isOptionEqualToValue={(o, v) => o.GradeID === v.GradeID}
             renderOption={(props, g) => {
               const { key, ...optionProps } = props;
               return (
@@ -217,8 +219,11 @@ export function HeaderClient({
             onChange={handleTeacherChange}
             options={teachers}
             getOptionLabel={(teacher) =>
-              `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`
+              teacher?.Prefix !== undefined
+                ? `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`
+                : ""
             }
+            isOptionEqualToValue={(o, v) => o.TeacherID === v.TeacherID}
             renderOption={(props, teacher) => {
               const { key, ...optionProps } = props;
               return (
