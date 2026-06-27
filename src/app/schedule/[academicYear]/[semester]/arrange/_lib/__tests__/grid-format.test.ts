@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getCellState, formatPeriodTime, DAY_FULL_LABEL } from "../grid-format";
+import { getCellState, formatPeriodTime, formatPeriodRange, DAY_FULL_LABEL } from "../grid-format";
 import type { Timeslot, ScheduleEntry } from "../teacher-schedule";
 
 const slot = (over: Partial<Timeslot> = {}): Timeslot => ({
@@ -37,6 +37,18 @@ describe("formatPeriodTime", () => {
   });
   it("returns empty string for missing input", () => {
     expect(formatPeriodTime(undefined)).toBe("");
+  });
+});
+
+describe("formatPeriodRange", () => {
+  it("joins start and end with an en dash", () => {
+    expect(formatPeriodRange("2568-01-01T08:30:00", "2568-01-01T09:20:00")).toBe("08:30–09:20");
+  });
+  it("returns start alone if end is missing", () => {
+    expect(formatPeriodRange("2568-01-01T08:30:00", undefined)).toBe("08:30");
+  });
+  it("returns empty string when both missing", () => {
+    expect(formatPeriodRange(undefined, undefined)).toBe("");
   });
 });
 

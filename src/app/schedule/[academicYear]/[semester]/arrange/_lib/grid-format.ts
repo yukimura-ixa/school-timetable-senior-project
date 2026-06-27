@@ -52,3 +52,13 @@ export function formatPeriodTime(time: string | Date | undefined): string {
   const mm = String(d.getMinutes()).padStart(2, "0");
   return `${hh}:${mm}`;
 }
+
+export function formatPeriodRange(
+  start: string | Date | undefined,
+  end: string | Date | undefined,
+): string {
+  const s = formatPeriodTime(start);
+  const e = formatPeriodTime(end);
+  if (s && e) return `${s}–${e}`;
+  return s || e || "";
+}
