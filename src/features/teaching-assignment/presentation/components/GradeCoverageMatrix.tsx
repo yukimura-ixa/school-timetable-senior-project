@@ -132,16 +132,14 @@ export function GradeCoverageMatrix({
   const handleSave = async () => {
     if (!cells || !matrix) return;
     setSaving(true);
-    try {
-      const existing: MatrixAssignment[] = matrix.assignments;
-      const desired = cellsToDesired(cells, creditMap);
-      await syncGradeMatrixAction({ academicYear, semester, existing, desired });
-      await mutate();
-    } catch {
-      // error surfacing can be added in a follow-up
-    } finally {
-      setSaving(false);
-    }
+    const existing: MatrixAssignment[] = matrix.assignments;
+    const desired = cellsToDesired(cells, creditMap);
+    // .catch swallows network errors; error surfacing can be added later.
+    await syncGradeMatrixAction({ academicYear, semester, existing, desired }).catch(
+      () => undefined,
+    );
+    await mutate().catch(() => undefined);
+    setSaving(false);
   };
 
   const handleDiscard = () => {
