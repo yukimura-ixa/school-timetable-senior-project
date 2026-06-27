@@ -10,7 +10,7 @@ import { TeacherPicker, type TeacherPickerOption } from "./TeacherPicker";
 import { LockedScheduleList } from "./LockedScheduleList";
 import { useTeacherLockedSchedules } from "../../application/hooks/useTeacherLockedSchedules";
 import { TeacherWorkloadCard } from "./TeacherWorkloadCard";
-import { TeacherCentricEditor } from "./TeacherCentricEditor";
+import type { AssignmentWithRelations } from "./TeacherCentricEditor";
 import {
   computeTeacherStats,
   type TeacherStatsRow,
@@ -22,22 +22,14 @@ import {
   Container,
   Typography,
   Paper,
-  Button,
-  Alert,
   CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
-import {
-  ContentCopy as CopyIcon,
-  DeleteSweep as ClearIcon,
-} from "@mui/icons-material";
 import type { semester } from "@/prisma/generated/client";
 import { AssignmentFilters } from "./AssignmentFilters";
-import { SubjectAssignmentTable } from "./SubjectAssignmentTable";
-import { useConfirmDialog } from "@/components/dialogs/ConfirmDialog";
-import {
-  copyAssignmentsAction,
-  clearAllAssignmentsAction,
-} from "../../application/actions/teaching-assignment.actions";
+import { GradeCoverageMatrix } from "./GradeCoverageMatrix";
 
 /**
  * Teacher Assignment Management Page
@@ -53,10 +45,6 @@ export function TeacherAssignmentPage() {
   const [academicYear, setAcademicYear] = useState<number>(
     seededTerm.academicYear ?? 2567,
   );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const { confirm, dialog } = useConfirmDialog();
   const router = useRouter();
   const pathname = usePathname();
   const mode = resolveAssignmentMode(searchParams);
@@ -123,96 +111,8 @@ export function TeacherAssignmentPage() {
     [teacherAssignmentsSWR.data],
   );
 
-  const handleCopyFromPrevious = async () => {
-    if (!gradeId) {
-      setError("กรุณาเลือกระดับชั้นก่อน");
-      return;
-    }
-
-    const confirmed = await confirm({
-      title: "คัดลอกการมอบหมายครู",
-      message: `คัดลอกการมอบหมายครูจากภาคเรียนก่อนหน้าไปยัง ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้จะเพิ่มการมอบหมายใหม่โดยไม่ลบข้อมูลเดิม`,
-      variant: "info",
-    });
-
-    if (!confirmed) return;
-
-    setIsLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      // Calculate previous semester
-      const prevSemester: semester =
-        semester === "SEMESTER_1" ? "SEMESTER_2" : "SEMESTER_1";
-      const prevYear =
-        semester === "SEMESTER_1" ? academicYear - 1 : academicYear;
-
-      const result = await copyAssignmentsAction({
-        sourceGradeID: gradeId,
-        sourceSemester: prevSemester,
-        sourceYear: prevYear,
-        targetGradeID: gradeId,
-        targetSemester: semester,
-        targetYear: academicYear,
-      });
-
-      if (result.success) {
-        setSuccess(
-          `คัดลอกสำเร็จ ${result.data?.count || 0} รายการ จากภาคเรียนก่อนหน้า`,
-        );
-        // Force refresh table
-        router.refresh();
-      } else {
-        setError(result.error?.message || "เกิดข้อผิดพลาดในการคัดลอก");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleClearAll = async () => {
-    if (!gradeId) {
-      setError("กรุณาเลือกระดับชั้นก่อน");
-      return;
-    }
-
-    const confirmed = await confirm({
-      title: "ลบการมอบหมายครูทั้งหมด",
-      message: `ต้องการลบการมอบหมายครูทั้งหมดใน ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้!`,
-      variant: "danger",
-    });
-
-    if (!confirmed) return;
-
-    setIsLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const result = await clearAllAssignmentsAction({
-        GradeID: gradeId,
-        Semester: semester,
-        AcademicYear: academicYear,
-      });
-
-      if (result.success && result.data) {
-        const count =
-          typeof result.data.count === "number" ? result.data.count : 0;
-        setSuccess(`ลบสำเร็จ ${count} รายการ`);
-        // Force refresh table
-        router.refresh();
-      } else {
-        setError(result.error?.message || "เกิดข้อผิดพลาดในการลบ");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Derive grade year (1–6) from gradeId format "M{Year}-{Number}" (e.g. "M1-1" → 1)
+  const gradeYear = gradeId ? parseInt(gradeId.slice(1)) : null;
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -242,21 +142,6 @@ export function TeacherAssignmentPage() {
           hideGradeSelector={mode === "by-teacher"}
         />
       </Paper>
-      {/* Success/Error Messages */}
-      {error && (
-        <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert
-          severity="success"
-          onClose={() => setSuccess(null)}
-          sx={{ mb: 2 }}
-        >
-          {success}
-        </Alert>
-      )}
       {mode === "by-teacher" && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Paper sx={{ p: 3 }}>
@@ -287,14 +172,31 @@ export function TeacherAssignmentPage() {
                   <LockedScheduleList items={lockedSchedules} />
                 )}
               </Paper>
-              <TeacherCentricEditor
-                teacherId={selectedTeacher.id}
-                teacherName={`${selectedTeacher.prefix}${selectedTeacher.firstname} ${selectedTeacher.lastname}`}
-                academicYear={academicYear}
-                semester={semester}
-                assignments={teacherAssignmentsSWR.data ?? []}
-                onSaved={() => void teacherAssignmentsSWR.mutate()}
-              />
+              {/* Read-only assignment summary; matrix is the editing surface */}
+              <Paper sx={{ p: 3 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  รายวิชาที่รับผิดชอบ (ดูได้อย่างเดียว)
+                </Typography>
+                {((teacherAssignmentsSWR.data ?? []) as AssignmentWithRelations[])
+                  .length === 0 ? (
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    ยังไม่มีการมอบหมายรายวิชา
+                  </Typography>
+                ) : (
+                  <List dense>
+                    {((teacherAssignmentsSWR.data ?? []) as AssignmentWithRelations[]).map(
+                      (a, i) => (
+                        <ListItem key={a.RespID ?? i}>
+                          <ListItemText
+                            primary={a.SubjectName}
+                            secondary={`ชั้น ${a.gradelevel?.GradeID ?? a.GradeID}`}
+                          />
+                        </ListItem>
+                      ),
+                    )}
+                  </List>
+                )}
+              </Paper>
             </>
           ) : (
             <Paper sx={{ p: 4, textAlign: "center" }}>
@@ -310,39 +212,14 @@ export function TeacherAssignmentPage() {
           )}
         </Box>
       )}
-      {/* Actions */}
-      {mode === "by-grade" && gradeId && (
-        <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={
-              isLoading ? <CircularProgress size={20} /> : <CopyIcon />
-            }
-            onClick={() => void handleCopyFromPrevious()}
-            disabled={isLoading}
-          >
-            คัดลอกจากภาคเรียนก่อนหน้า
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={
-              isLoading ? <CircularProgress size={20} /> : <ClearIcon />
-            }
-            onClick={() => void handleClearAll()}
-            disabled={isLoading}
-          >
-            ลบการมอบหมายทั้งหมด
-          </Button>
-        </Box>
-      )}
-      {/* Assignment Table */}
+      {/* Coverage Matrix */}
       {mode === "by-grade" &&
-        (gradeId ? (
-          <SubjectAssignmentTable
-            gradeId={gradeId}
-            semester={semester}
+        (gradeYear ? (
+          <GradeCoverageMatrix
+            gradeYear={gradeYear}
             academicYear={academicYear}
+            semester={semester}
+            teachers={teacherOptions}
           />
         ) : (
           <Paper sx={{ p: 4, textAlign: "center" }}>
@@ -356,7 +233,6 @@ export function TeacherAssignmentPage() {
             </Typography>
           </Paper>
         ))}
-      {dialog}
     </Container>
   );
 }
