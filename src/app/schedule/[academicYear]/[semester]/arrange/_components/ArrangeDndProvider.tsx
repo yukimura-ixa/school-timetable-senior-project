@@ -176,13 +176,17 @@ export function ArrangeDndProvider({
         }
 
         if (plan === "move-keep-room") {
-          await updateClassScheduleAction({
+          const result = await updateClassScheduleAction({
             ClassID: dragData.ClassID,
             TimeslotID: timeslotId,
           });
-          enqueueSnackbar("ย้ายรายวิชาสำเร็จ", { variant: "success" });
-          window.dispatchEvent(new Event("schedule-updated"));
-          router.refresh();
+          if (result?.success) {
+            enqueueSnackbar("ย้ายรายวิชาสำเร็จ", { variant: "success" });
+            window.dispatchEvent(new Event("schedule-updated"));
+            router.refresh();
+          } else {
+            enqueueSnackbar("ไม่สามารถย้ายรายวิชาได้", { variant: "error" });
+          }
           return;
         }
 
