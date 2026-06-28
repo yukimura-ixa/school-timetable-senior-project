@@ -35,7 +35,7 @@ export function buildActionItems(inputs: ActionItemInputs): ActionItem[] {
       severity: "error",
       title: "ยังเผยแพร่ไม่ได้",
       detail: readiness.issues[0] ?? `${readiness.issues.length} ประเด็นที่ต้องแก้`,
-      href: `/schedule/${year}/${semester}/lock`,
+      href: `/schedule/${year}/${semester}/publish`,
     });
   }
 

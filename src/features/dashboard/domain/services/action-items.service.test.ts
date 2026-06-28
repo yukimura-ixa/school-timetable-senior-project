@@ -30,7 +30,7 @@ describe("buildActionItems", () => {
       id: "publish",
       severity: "error",
       detail: "ขาดข้อมูลครูประจำชั้น 2 ห้อง",
-      href: "/schedule/2568/1/lock",
+      href: "/schedule/2568/1/publish",
     });
   });
 
