@@ -21,7 +21,7 @@ import {
   formatPeriodRange,
   DAY_FULL_LABEL,
 } from "../_lib/grid-format";
-import { useDroppable } from "@dnd-kit/core";
+import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { useSnackbar } from "notistack";
 import { deleteScheduleAction } from "@/features/schedule-arrangement/application/actions/schedule-arrangement.actions";
 import {
@@ -57,6 +57,23 @@ function DroppableCell({
   });
 
   const state = getCellState(timeslot, entry, isOver);
+
+  const draggable = useDraggable({
+    id: `placement-${entry?.ClassID ?? "none"}-${timeslot.TimeslotID}`,
+    data: entry
+      ? {
+          kind: "placement" as const,
+          ClassID: entry.ClassID,
+          SubjectCode: entry.SubjectCode,
+          GradeID: entry.GradeID,
+          RoomID: entry.RoomID,
+          FromTimeslotID: timeslot.TimeslotID,
+          SubjectName: entry.subject.SubjectName,
+          GradeName: entry.gradelevel.GradeName,
+        }
+      : undefined,
+    disabled: readOnly || state.kind !== "placed" || !entry,
+  });
 
   const bg = {
     locked: "action.disabledBackground",
@@ -116,7 +133,15 @@ function DroppableCell({
           </Typography>
         </Box>
       ) : state.kind === "placed" && entry ? (
-        <Box>
+        <Box
+          ref={draggable.setNodeRef}
+          {...draggable.attributes}
+          {...draggable.listeners}
+          sx={{
+            cursor: readOnly ? "default" : draggable.isDragging ? "grabbing" : "grab",
+            opacity: draggable.isDragging ? 0.5 : 1,
+          }}
+        >
           <Box
             sx={{
               display: "flex",
