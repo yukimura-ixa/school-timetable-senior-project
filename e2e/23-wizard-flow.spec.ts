@@ -3,7 +3,7 @@
  *
  * Walks the forward-gated wizard that replaced the old free-navigation tab hub
  * at /schedule/[academicYear]/[semester]:
- *   config → curriculum (MOE) → assign → generate → review → lock/publish.
+ *   config → curriculum (MOE) → assign → lock → generate → review → publish.
  *
  * Assertions favour resilience over a brittle mutate-everything happy path:
  * later steps are gated on term completeness (grid/responsibilities/placements),
@@ -25,9 +25,10 @@ const STEP_LABELS = [
   "ตั้งค่าคาบเรียน",
   "ตรวจหลักสูตร",
   "มอบหมายครู",
+  "ล็อก",
   "สร้างตารางอัตโนมัติ",
   "ตรวจและปรับ",
-  "ล็อกและเผยแพร่",
+  "เผยแพร่",
 ];
 
 // Wizard steps mutate shared term state, so run sequentially.
@@ -44,11 +45,11 @@ test.describe("Scheduling Wizard", () => {
 
     // page.tsx resolves the furthest reachable step and redirects to its segment.
     await expect(page).toHaveURL(
-      /\/schedule\/2568\/1\/(config|curriculum|assign|generate|arrange|lock)(\?|$|\/)/,
+      /\/schedule\/2568\/1\/(config|curriculum|assign|lock|generate|arrange|publish)(\?|$|\/)/,
     );
   });
 
-  test("stepper renders all six steps", async ({ authenticatedAdmin }) => {
+  test("stepper renders all seven steps", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
     // Config step now renders the in-wizard summary grid (not a redirect).
@@ -94,7 +95,7 @@ test.describe("Scheduling Wizard", () => {
     ).toBeVisible({ timeout: 15000 });
   });
 
-  test("step 4 headline generate runs the whole-school solver", async ({
+  test("step 5 headline generate runs the whole-school solver", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
@@ -131,15 +132,15 @@ test.describe("Scheduling Wizard", () => {
     });
   });
 
-  test("step 6 shows the publish readiness gate", async ({
+  test("step 7 shows the publish readiness gate", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`${BASE}/lock`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/publish`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
-    if (!page.url().includes("/lock")) {
+    if (!page.url().includes("/publish")) {
       test.skip(
         true,
         "Publish step not reachable on seed term (no placements yet)",
@@ -162,13 +163,13 @@ test.describe("Scheduling Wizard", () => {
 
     // Deep-link straight to the last step. If the term isn't fully complete the
     // stepper's client guard replaces the URL with the furthest reachable step.
-    await page.goto(`${BASE}/lock`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/publish`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
-    // Either we legitimately reached lock (term complete) or got bounced to an
+    // Either we legitimately reached publish (term complete) or got bounced to an
     // earlier reachable segment — never stranded off the wizard.
     await expect(page).toHaveURL(
-      /\/schedule\/2568\/1\/(config|curriculum|assign|generate|arrange|lock)(\?|$|\/)/,
+      /\/schedule\/2568\/1\/(config|curriculum|assign|lock|generate|arrange|publish)(\?|$|\/)/,
     );
   });
 });
