@@ -170,8 +170,10 @@ export function ArrangeDndProvider({
               (!validate.allowed && validate.message) ||
               "ไม่สามารถจัดตารางได้",
           };
+          // No apply-able suggestions for a move: applying one would route to
+          // the create path (no moveClassId) and duplicate the class. Show the
+          // conflict message only.
           setConflictModal({ conflict, attempt });
-          void fetchFor(attempt);
           return;
         }
 
