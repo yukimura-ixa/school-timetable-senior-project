@@ -38,7 +38,7 @@ type Props = {
 function DraggableSubject({ subject }: { subject: Subject }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `subject-${subject.RespID}`,
-    data: subject,
+    data: { kind: "subject", ...subject },
   });
 
   return (

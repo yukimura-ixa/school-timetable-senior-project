@@ -33,7 +33,10 @@ import {
   ExpandMore as ExpandIcon,
   EventBusy as BusyIcon,
 } from "@mui/icons-material";
-import { createClassScheduleAction } from "@/features/class/application/actions/class.actions";
+import {
+  createClassScheduleAction,
+  updateClassScheduleAction,
+} from "@/features/class/application/actions/class.actions";
 
 type Room = {
   RoomID: number;
@@ -51,6 +54,7 @@ type Props = {
   resp: string;
   /** When rendered as an in-page modal, close via state instead of router.back(). */
   onClose?: () => void;
+  moveClassId?: number;
 };
 
 const DAY_LABEL: Record<string, string> = {
@@ -89,6 +93,7 @@ export function RoomSelectionContent({
   teacher: _teacher,
   resp,
   onClose,
+  moveClassId,
 }: Props) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
@@ -114,15 +119,21 @@ export function RoomSelectionContent({
     setIsCreating(true);
 
     try {
-      const result = await createClassScheduleAction({
-        TimeslotID: timeslot,
-        SubjectCode: subject,
-        GradeID: grade,
-        RoomID: selectedRoom.RoomID,
-        IsLocked: false,
-        ResponsibilityIDs: resp ? [parseInt(resp, 10)] : [],
-        SetAsDefaultRoom: setAsDefault,
-      });
+      const result = moveClassId
+        ? await updateClassScheduleAction({
+            ClassID: moveClassId,
+            TimeslotID: timeslot,
+            RoomID: selectedRoom.RoomID,
+          })
+        : await createClassScheduleAction({
+            TimeslotID: timeslot,
+            SubjectCode: subject,
+            GradeID: grade,
+            RoomID: selectedRoom.RoomID,
+            IsLocked: false,
+            ResponsibilityIDs: resp ? [parseInt(resp, 10)] : [],
+            SetAsDefaultRoom: setAsDefault,
+          });
 
       if (
         result &&

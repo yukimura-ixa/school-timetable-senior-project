@@ -26,7 +26,8 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { RoomSelectionContent } from "./RoomSelectionContent";
 import { useSnackbar } from "notistack";
 import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
-import { createClassScheduleAction } from "@/features/class/application/actions/class.actions";
+import { createClassScheduleAction, updateClassScheduleAction } from "@/features/class/application/actions/class.actions";
+import { planPlacementMove } from "../_lib/move-plan";
 import ConflictDetailsModal from "@/features/schedule-arrangement/presentation/components/ConflictDetailsModal";
 import { useConflictResolution } from "@/features/schedule-arrangement/presentation/hooks";
 import {
@@ -49,6 +50,7 @@ type RoomModalState = {
   grade: string;
   teacher: string;
   resp?: string;
+  moveClassId?: number;
 };
 
 export function ArrangeDndProvider({
@@ -110,6 +112,94 @@ export function ArrangeDndProvider({
     if (!over || !teacher) return;
 
     const timeslotId = over.id as string;
+    const dragData = active.data.current as
+      | (SubjectDragData & { kind?: "subject" })
+      | {
+          kind: "placement";
+          ClassID: number;
+          SubjectCode: string;
+          GradeID: string;
+          RoomID: number;
+          FromTimeslotID: string;
+        }
+      | undefined;
+
+    if (dragData?.kind === "placement") {
+      try {
+        const validate = await validateDropAction({
+          timeslot: timeslotId,
+          subject: dragData.SubjectCode,
+          grade: dragData.GradeID,
+          teacher,
+        });
+        const plan = planPlacementMove({
+          fromTimeslot: dragData.FromTimeslotID,
+          targetTimeslot: timeslotId,
+          allowed: validate.allowed,
+          currentRoomId: dragData.RoomID,
+          availableRoomIds: validate.allowed
+            ? validate.rooms.available.map((r) => r.RoomID)
+            : [],
+        });
+
+        if (plan === "noop") return;
+
+        if (plan === "conflict") {
+          const attempt: ScheduleArrangementInput = {
+            timeslotId,
+            subjectCode: dragData.SubjectCode,
+            gradeId: dragData.GradeID,
+            teacherId: parseInt(teacher, 10) || undefined,
+            roomId: null,
+            academicYear: yearInt,
+            semester: semInt === 1 ? "SEMESTER_1" : "SEMESTER_2",
+          };
+          const reasonToConflictType: Record<string, ConflictType> = {
+            teacher_conflict: ConflictType.TEACHER_CONFLICT,
+            grade_conflict: ConflictType.CLASS_CONFLICT,
+            break_timeslot: ConflictType.LOCKED_TIMESLOT,
+            locked_timeslot: ConflictType.LOCKED_TIMESLOT,
+          };
+          const conflict: ConflictResult = {
+            hasConflict: true,
+            conflictType:
+              (!validate.allowed &&
+                reasonToConflictType[validate.reason]) ||
+              ConflictType.TEACHER_CONFLICT,
+            message:
+              (!validate.allowed && validate.message) ||
+              "ไม่สามารถจัดตารางได้",
+          };
+          setConflictModal({ conflict, attempt });
+          void fetchFor(attempt);
+          return;
+        }
+
+        if (plan === "move-keep-room") {
+          await updateClassScheduleAction({
+            ClassID: dragData.ClassID,
+            TimeslotID: timeslotId,
+          });
+          enqueueSnackbar("ย้ายรายวิชาสำเร็จ", { variant: "success" });
+          window.dispatchEvent(new Event("schedule-updated"));
+          router.refresh();
+          return;
+        }
+
+        // plan === "move-pick-room": current room taken at target → pick a new one
+        setRoomModal({
+          timeslot: timeslotId,
+          subject: dragData.SubjectCode,
+          grade: dragData.GradeID,
+          teacher,
+          moveClassId: dragData.ClassID,
+        });
+      } catch {
+        enqueueSnackbar("เกิดข้อผิดพลาดในการย้ายรายวิชา", { variant: "error" });
+      }
+      return;
+    }
+
     const subjectData = active.data.current as SubjectDragData | undefined;
 
     if (!subjectData?.SubjectCode || !subjectData.GradeID) {
@@ -310,6 +400,7 @@ export function ArrangeDndProvider({
               grade={roomModal.grade}
               teacher={roomModal.teacher}
               resp={roomModal.resp ?? ""}
+              moveClassId={roomModal.moveClassId}
               onClose={() => setRoomModal(null)}
             />
           </DialogContent>
