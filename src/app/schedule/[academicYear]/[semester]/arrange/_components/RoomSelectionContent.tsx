@@ -141,7 +141,10 @@ export function RoomSelectionContent({
         "success" in result &&
         result.success
       ) {
-        enqueueSnackbar("✅ จัดตารางสอนสำเร็จ", { variant: "success" });
+        enqueueSnackbar(
+          moveClassId ? "ย้ายรายวิชาสำเร็จ" : "✅ จัดตารางสอนสำเร็จ",
+          { variant: "success" },
+        );
         // Notify GridSlot to revalidate SWR before closing modal.
         // router.refresh() only refreshes RSC; client SWR caches stay stale.
         window.dispatchEvent(new CustomEvent("schedule-updated"));
@@ -360,7 +363,7 @@ export function RoomSelectionContent({
         </Box>
       )}
       {/* Remember this room as the teacher+subject default for future drops */}
-      {resp && selectedRoom && (
+      {!moveClassId && resp && selectedRoom && (
         <FormControlLabel
           sx={{ mt: 2, display: "block" }}
           control={

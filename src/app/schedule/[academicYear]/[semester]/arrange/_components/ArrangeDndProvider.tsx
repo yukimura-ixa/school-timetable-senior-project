@@ -74,6 +74,7 @@ export function ArrangeDndProvider({
     conflict: ConflictResult;
     attempt: ScheduleArrangementInput;
     respId?: number;
+    moveClassId?: number;
   } | null>(null);
 
   const [activeSubject, setActiveSubject] = useState<{
@@ -126,6 +127,7 @@ export function ArrangeDndProvider({
 
     if (dragData?.kind === "placement") {
       try {
+        if (timeslotId === dragData.FromTimeslotID) return; // self-drop: nothing to do
         const validate = await validateDropAction({
           timeslot: timeslotId,
           subject: dragData.SubjectCode,
@@ -170,10 +172,12 @@ export function ArrangeDndProvider({
               (!validate.allowed && validate.message) ||
               "ไม่สามารถจัดตารางได้",
           };
-          // No apply-able suggestions for a move: applying one would route to
-          // the create path (no moveClassId) and duplicate the class. Show the
-          // conflict message only.
-          setConflictModal({ conflict, attempt });
+          setConflictModal({
+            conflict,
+            attempt,
+            moveClassId: dragData.ClassID,
+          });
+          void fetchFor(attempt);
           return;
         }
 
@@ -302,7 +306,7 @@ export function ArrangeDndProvider({
 
   const handleApplySuggestion = (s: ResolutionSuggestion) => {
     if (!conflictModal || !teacher) return;
-    const { attempt, respId } = conflictModal;
+    const { attempt, respId, moveClassId } = conflictModal;
 
     if (s.kind === "MOVE") {
       setRoomModal({
@@ -310,7 +314,11 @@ export function ArrangeDndProvider({
         subject: attempt.subjectCode,
         grade: attempt.gradeId,
         teacher,
-        ...(respId ? { resp: String(respId) } : {}),
+        ...(moveClassId
+          ? { moveClassId }
+          : respId
+            ? { resp: String(respId) }
+            : {}),
       });
       closeConflictModal();
       return;
@@ -322,7 +330,11 @@ export function ArrangeDndProvider({
         subject: attempt.subjectCode,
         grade: attempt.gradeId,
         teacher,
-        ...(respId ? { resp: String(respId) } : {}),
+        ...(moveClassId
+          ? { moveClassId }
+          : respId
+            ? { resp: String(respId) }
+            : {}),
       });
       closeConflictModal();
       return;
