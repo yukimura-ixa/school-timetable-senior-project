@@ -25,6 +25,7 @@ export async function getWizardState(
       }),
       prisma.class_schedule.count({
         where: {
+          IsLocked: false,
           timeslot: { AcademicYear: academicYear, Semester: semesterEnum },
         },
       }),

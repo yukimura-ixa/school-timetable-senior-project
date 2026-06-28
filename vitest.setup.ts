@@ -39,6 +39,9 @@ vi.mock("next/font/google", () => ({
   Sarabun: () => ({ style: { fontFamily: "Sarabun, sans-serif" } }),
 }));
 
+// Mock server-only to avoid import errors in tests
+vi.mock("server-only", () => ({}));
+
 // Mock Prisma client globally for all tests
 // This prevents real database connections during unit tests
 vi.mock("@/lib/prisma", () => {
