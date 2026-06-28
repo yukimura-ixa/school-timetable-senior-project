@@ -25,15 +25,21 @@ function makeState(overrides: Partial<WizardState> = {}): WizardState {
 }
 
 describe("WIZARD_STEPS", () => {
-  it("defines the six ordered steps", () => {
+  it("defines the seven ordered steps", () => {
     expect(WIZARD_STEPS.map((s) => s.key)).toEqual([
-      "config",
-      "curriculum",
-      "assign",
-      "generate",
-      "review",
-      "publish",
+      "config", "curriculum", "assign", "lock", "generate", "review", "publish",
     ]);
+  });
+
+  it("lock comes before generate and review", () => {
+    const keys = WIZARD_STEPS.map((s) => s.key);
+    expect(keys.indexOf("lock")).toBeLessThan(keys.indexOf("generate"));
+    expect(keys.indexOf("lock")).toBeLessThan(keys.indexOf("review"));
+  });
+
+  it("lock uses the lock segment, publish uses the publish segment", () => {
+    expect(WIZARD_STEPS.find((s) => s.key === "lock")?.segment).toBe("lock");
+    expect(WIZARD_STEPS.find((s) => s.key === "publish")?.segment).toBe("publish");
   });
 });
 
@@ -47,7 +53,7 @@ describe("resolveStepAccess", () => {
   it("a grid unlocks curriculum and assign but not generate", () => {
     const access = resolveStepAccess(makeState({ hasGrid: true }));
     const reachable = access.filter((a) => a.reachable).map((a) => a.key);
-    expect(reachable).toEqual(["config", "curriculum", "assign"]);
+    expect(reachable).toEqual(["config", "curriculum", "assign", "lock"]);
   });
 
   it("grid + responsibilities unlock generate and review", () => {
@@ -59,6 +65,7 @@ describe("resolveStepAccess", () => {
       "config",
       "curriculum",
       "assign",
+      "lock",
       "generate",
       "review",
     ]);
@@ -105,8 +112,8 @@ describe("furthestReachableStep", () => {
     expect(furthestReachableStep(makeState())).toBe("config");
   });
 
-  it("is assign once a grid exists", () => {
-    expect(furthestReachableStep(makeState({ hasGrid: true }))).toBe("assign");
+  it("is lock once a grid exists", () => {
+    expect(furthestReachableStep(makeState({ hasGrid: true }))).toBe("lock");
   });
 
   it("is publish when everything is in place", () => {

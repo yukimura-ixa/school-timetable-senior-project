@@ -14,6 +14,7 @@ export type WizardStepKey =
   | "config"
   | "curriculum"
   | "assign"
+  | "lock"
   | "generate"
   | "review"
   | "publish";
@@ -39,42 +40,13 @@ export interface WizardStepDef {
 }
 
 export const WIZARD_STEPS: readonly WizardStepDef[] = [
-  {
-    key: "config",
-    label: "ตั้งค่าคาบเรียน",
-    segment: "config",
-    requires: () => true,
-  },
-  {
-    key: "curriculum",
-    label: "ตรวจหลักสูตร",
-    segment: "curriculum",
-    requires: (s) => s.hasGrid,
-  },
-  {
-    key: "assign",
-    label: "มอบหมายครู",
-    segment: "assign",
-    requires: (s) => s.hasGrid,
-  },
-  {
-    key: "generate",
-    label: "สร้างตารางอัตโนมัติ",
-    segment: "generate",
-    requires: (s) => s.hasGrid && s.hasResponsibilities,
-  },
-  {
-    key: "review",
-    label: "ตรวจและปรับ",
-    segment: "arrange",
-    requires: (s) => s.hasGrid && s.hasResponsibilities,
-  },
-  {
-    key: "publish",
-    label: "ล็อกและเผยแพร่",
-    segment: "lock",
-    requires: (s) => s.hasGrid && s.hasResponsibilities && s.hasPlacements,
-  },
+  { key: "config",     label: "ตั้งค่าคาบเรียน",      segment: "config",     requires: () => true },
+  { key: "curriculum", label: "ตรวจหลักสูตร",        segment: "curriculum", requires: (s) => s.hasGrid },
+  { key: "assign",     label: "มอบหมายครู",          segment: "assign",     requires: (s) => s.hasGrid },
+  { key: "lock",       label: "ล็อก",                segment: "lock",       requires: (s) => s.hasGrid },
+  { key: "generate",   label: "สร้างตารางอัตโนมัติ",  segment: "generate",   requires: (s) => s.hasGrid && s.hasResponsibilities },
+  { key: "review",     label: "ตรวจและปรับ",         segment: "arrange",    requires: (s) => s.hasGrid && s.hasResponsibilities },
+  { key: "publish",    label: "เผยแพร่",             segment: "publish",    requires: (s) => s.hasGrid && s.hasResponsibilities && s.hasPlacements },
 ] as const;
 
 export interface StepAccess {
