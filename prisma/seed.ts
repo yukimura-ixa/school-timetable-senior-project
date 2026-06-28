@@ -79,27 +79,26 @@ import { buildGradeGroupIndex, isBreakForGrade } from "../src/utils/break-utils"
 import type { SlotConfig } from "../src/features/timeslot/domain/models/break.types";
 import { FUNDAMENTALS } from "./data/fundamentals";
 
-// ── Phase 2A canonical slot layout (single source of truth) ──────────────────
-// One real timeslot per slot. Breaks are real, occupying slots (universal recess
-// + staggered junior/senior lunches). Generation + placement both derive from
-// this so timeslot ROWS always match the slots[] config.
+// ── Canonical slot layout (single source of truth) ───────────────────────────
+// One real timeslot per slot. Breaks are real, occupying slots: a universal
+// morning recess + a single universal lunch (all grades eat together).
+// Generation + placement both derive from this so timeslot ROWS always match
+// the slots[] config.
 const SLOTS_2568: SlotConfig[] = [
-  { duration: 50 },                          // slot 1  คาบ1
-  { duration: 50 },                           // slot 2  คาบ2
-  { duration: 10, breakGroups: ["*"] },       // slot 3  พักสาย (universal, after คาบ2)
-  { duration: 50 },                           // slot 4  คาบ3
-  { duration: 50, breakGroups: ["junior"] },  // slot 5  พักกลางวัน ม.ต้น (junior lunch, after คาบ3)
-  { duration: 50, breakGroups: ["*"] },       // slot 6  พักกลางวัน (universal lunch break, 12:00–12:50 Bangkok)
-  { duration: 50, breakGroups: ["senior"] },  // slot 7  พักกลางวัน ม.ปลาย (senior lunch, after universal lunch)
-  { duration: 50 },                           // slot 8  (teaching for both)
-  { duration: 50 },                           // slot 9  (old period 5)
-  { duration: 50 },                           // slot 10 (old period 6)
-  { duration: 50 },                           // slot 11 (old period 7)
-  { duration: 50 },                           // slot 12 (old period 8)
+  { duration: 50 },                          // slot 1  คาบ1  08:30–09:20
+  { duration: 50 },                           // slot 2  คาบ2  09:20–10:10
+  { duration: 10, breakGroups: ["*"] },       // slot 3  พักสาย (universal recess, 10:10–10:20)
+  { duration: 50 },                           // slot 4  คาบ3  10:20–11:10
+  { duration: 50 },                           // slot 5  คาบ4  11:10–12:00
+  { duration: 50, breakGroups: ["*"] },       // slot 6  พักกลางวัน (universal lunch, 12:00–12:50 Bangkok)
+  { duration: 50 },                           // slot 7  คาบ5  12:50–13:40
+  { duration: 50 },                           // slot 8  คาบ6  13:40–14:30
+  { duration: 50 },                           // slot 9  คาบ7  14:30–15:20
+  { duration: 50 },                           // slot 10 คาบ8  15:20–16:10
 ];
 
 // 1-based slot numbers that are not a break for ANY grade (teaching slots).
-// = [1, 2, 4, 7, 8, 9, 10, 11]. Legacy seed coordinates use period 1..8;
+// = [1, 2, 4, 5, 7, 8, 9, 10]. Legacy seed coordinates use period 1..8;
 // old period k maps to the k-th absolute teaching slot.
 const TEACHING_SLOTS_2568: number[] = SLOTS_2568.reduce<number[]>(
   (acc, slot, i) => {
@@ -559,15 +558,16 @@ async function seedDemoData() {
   // ── Period schedule ─────────────────────────────────────────────────────────
   // Timeslot rows are generated from SLOTS_2568 (real break slots). Legacy
   // (day, period) coordinates below map through oldPeriodToSlot onto teaching
-  // slots; juniors skip slot 5 (their lunch), seniors skip slot 7 (theirs).
+  // slots. All grades share one lunch (slot 6), so junior and senior use the
+  // same 8 teaching periods.
   const DAYS: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
-  // Available period indices for each school level (no lunch break for their group)
-  const JUNIOR_PERIODS = [1, 2, 3, 5, 6, 7, 8]; // skip P4
-  const SENIOR_PERIODS = [1, 2, 3, 4, 6, 7, 8]; // skip P5
+  // Available period indices (1..8) — identical for both levels (shared lunch).
+  const JUNIOR_PERIODS = [1, 2, 3, 4, 5, 6, 7, 8];
+  const SENIOR_PERIODS = [1, 2, 3, 4, 5, 6, 7, 8];
 
-  // Map a group's legacy periods onto its real teaching slots (rank order), so
-  // juniors land in the senior-lunch slot and seniors in the junior-lunch slot
-  // — the Phase 2A staggered-teaching win, surfaced in demo data.
+  // Map a group's legacy periods onto its real teaching slots (rank order).
+  // With a single shared lunch the two maps are identical, but the per-group
+  // plumbing is kept so a staggered layout can be reintroduced via SLOTS_2568.
   const sortUniq = (a: number[]) => [...new Set(a)].sort((x, y) => x - y);
   const juniorSlotByPeriod = new Map(
     sortUniq(JUNIOR_PERIODS).map((p, i) => [p, JUNIOR_TEACHING_SLOTS[i]] as const),
