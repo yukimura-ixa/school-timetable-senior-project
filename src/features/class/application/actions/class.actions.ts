@@ -249,7 +249,7 @@ export const updateClassScheduleAction = createAction(
     const updateData: Record<string, unknown> = {};
 
     if (input.TimeslotID !== undefined) {
-      updateData.TimeslotID = input.TimeslotID;
+      updateData.timeslot = { connect: { TimeslotID: input.TimeslotID } };
     }
 
     if (input.SubjectCode !== undefined) {
