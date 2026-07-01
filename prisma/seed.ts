@@ -1030,7 +1030,9 @@ async function seedDemoData() {
     () =>
       prisma.table_config.upsert({
         where: { ConfigID: "1-2568" },
-        update: {},
+        // Refresh Config on reseed — demo path never deletes table_config, so an
+        // empty update would freeze stale slots after SLOTS_2568 changes.
+        update: { Config: configTemplate, status: "PUBLISHED" },
         create: { ConfigID: "1-2568", AcademicYear: 2568, Semester: "SEMESTER_1", Config: configTemplate, status: "PUBLISHED" },
       }),
     "Upsert table config 1-2568",
@@ -1187,7 +1189,7 @@ async function seedDemoData() {
     () =>
       prisma.table_config.upsert({
         where: { ConfigID: "2-2568" },
-        update: {},
+        update: { Config: configTemplate, status: "DRAFT" },
         create: { ConfigID: "2-2568", AcademicYear: 2568, Semester: "SEMESTER_2", Config: configTemplate, status: "DRAFT" },
       }),
     "Upsert table config 2-2568",
@@ -2960,7 +2962,7 @@ async function main() {
     sem === "SEMESTER_1" ? 1 : sem === "SEMESTER_2" ? 2 : 3;
   const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
 
-  // One real timeslot per slot (11/day) — breaks are occupying slots.
+  // One real timeslot per slot (10/day) — breaks occupy slots (recess + single lunch).
   const timeslots = generateTimeslots({
     AcademicYear: academicYear,
     Semester: sem,
