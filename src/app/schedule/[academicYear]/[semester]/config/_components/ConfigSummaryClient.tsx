@@ -24,6 +24,12 @@ import AddIcon from "@mui/icons-material/Add";
 import { ConfigureTimeslotsDialog } from "@/app/dashboard/_components/ConfigureTimeslotsDialog";
 import { parseConfigData } from "@/features/config/domain/types/config-data.types";
 import type { ConfigData } from "@/features/config/domain/types/config-data.types";
+import { deriveTimeslotSummary } from "../_lib/derive-timeslot-summary";
+import {
+  jsonFetcher,
+  timeslotsKey,
+  type Timeslot,
+} from "../../arrange/_lib/teacher-schedule";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -104,6 +110,17 @@ export function ConfigSummaryClient({
   const breakGroupCount = breakGroupsData?.success
     ? (breakGroupsData.data?.length ?? 0)
     : 0;
+
+  // Derive the period display from the canonical timeslot table — the same
+  // /api/timeslots endpoint the arrange grid reads — so the summary can never
+  // disagree with the grid (Config.slots stays only as the edit-form seed).
+  const { data: timeslotsData } = useSWR<{ success: boolean; data: Timeslot[] }>(
+    timeslotsKey(String(academicYear), String(semester)),
+    jsonFetcher,
+  );
+  const timeslotSummary = deriveTimeslotSummary(
+    timeslotsData?.success ? timeslotsData.data : [],
+  );
 
   if (isLoading) {
     return (
@@ -200,24 +217,31 @@ export function ConfigSummaryClient({
                 <TableCell sx={{ fontWeight: 600, width: "40%" }}>
                   คาบเรียนต่อวัน
                 </TableCell>
-                <TableCell>{parsed.slots?.length ?? 0} คาบ</TableCell>
+                <TableCell>
+                  {timeslotSummary?.periodCount ?? parsed.slots?.length ?? 0} คาบ
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontWeight: 600 }}>
                   ความยาวคาบ (นาที)
                 </TableCell>
                 <TableCell>
-                  {parsed.slots?.map((s) => s.duration).join(" / ") ?? "-"}
+                  {(timeslotSummary?.durations ??
+                    parsed.slots?.map((s) => s.duration))?.join(" / ") ?? "-"}
                 </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontWeight: 600 }}>เวลาเริ่ม</TableCell>
-                <TableCell>{parsed.StartTime} น.</TableCell>
+                <TableCell>
+                  {timeslotSummary?.startTime ?? parsed.StartTime} น.
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontWeight: 600 }}>วันเรียน</TableCell>
                 <TableCell>
-                  {parsed.Days.map((d) => DAY_TH[d] ?? d).join(", ")}
+                  {(timeslotSummary?.days ?? parsed.Days)
+                    .map((d) => DAY_TH[d] ?? d)
+                    .join(", ")}
                 </TableCell>
               </TableRow>
               {breakGroupCount > 0 && (
