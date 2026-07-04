@@ -7,7 +7,7 @@
 
 "use server";
 
-import { semester } from "@/prisma/generated/client";
+import { Prisma, semester } from "@/prisma/generated/client";
 import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
 import { createLogger } from "@/lib/logger";
@@ -246,18 +246,18 @@ export const createClassScheduleAction = createAction(
 export const updateClassScheduleAction = createAction(
   updateClassScheduleSchema,
   async (input: UpdateClassScheduleInput) => {
-    const updateData: Record<string, unknown> = {};
+    const updateData: Prisma.class_scheduleUpdateInput = {};
 
     if (input.TimeslotID !== undefined) {
       updateData.timeslot = { connect: { TimeslotID: input.TimeslotID } };
     }
 
     if (input.SubjectCode !== undefined) {
-      updateData.SubjectCode = input.SubjectCode;
+      updateData.subject = { connect: { SubjectCode: input.SubjectCode } };
     }
 
     if (input.GradeID !== undefined) {
-      updateData.GradeID = input.GradeID;
+      updateData.gradelevel = { connect: { GradeID: input.GradeID } };
     }
 
     if (input.IsLocked !== undefined) {
