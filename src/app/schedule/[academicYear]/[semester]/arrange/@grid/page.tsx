@@ -58,7 +58,12 @@ function DroppableCell({
 
   const state = getCellState(timeslot, entry, isOver);
 
-  const draggable = useDraggable({
+  const {
+    setNodeRef: setDragNodeRef,
+    attributes: dragAttributes,
+    listeners: dragListeners,
+    isDragging,
+  } = useDraggable({
     id: `placement-${entry?.ClassID ?? "none"}-${timeslot.TimeslotID}`,
     data: entry
       ? {
@@ -134,12 +139,12 @@ function DroppableCell({
         </Box>
       ) : state.kind === "placed" && entry ? (
         <Box
-          ref={draggable.setNodeRef}
-          {...draggable.attributes}
-          {...draggable.listeners}
+          ref={setDragNodeRef}
+          {...dragAttributes}
+          {...dragListeners}
           sx={{
-            cursor: readOnly ? "default" : draggable.isDragging ? "grabbing" : "grab",
-            opacity: draggable.isDragging ? 0.5 : 1,
+            cursor: readOnly ? "default" : isDragging ? "grabbing" : "grab",
+            opacity: isDragging ? 0.5 : 1,
           }}
         >
           <Box

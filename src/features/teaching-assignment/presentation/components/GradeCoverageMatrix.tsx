@@ -86,7 +86,7 @@ export function GradeCoverageMatrix({
         semester,
       });
       if (!result.success || !result.data) return null;
-      return result.data as GradeMatrixData;
+      return result.data;
     },
     { revalidateOnFocus: false },
   );
@@ -162,11 +162,7 @@ export function GradeCoverageMatrix({
   }
   const overloaded = matrix
     ? computeOverloadedTeachers(
-        (termWorkload ?? []) as {
-          TeacherID: number;
-          GradeID: string;
-          TeachHour: number;
-        }[],
+        (termWorkload ?? []),
         matrix.sections.map((s) => s.GradeID),
         liveHoursByTeacher,
       )

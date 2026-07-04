@@ -45,7 +45,7 @@ export function CarryOverDialog({
       if (!result.success || !result.data) {
         return { mapped: [] as CarryOverSuggestion[], exceptions: [] as CarryOverException[] };
       }
-      return result.data as { mapped: CarryOverSuggestion[]; exceptions: CarryOverException[] };
+      return result.data;
     },
     { revalidateOnFocus: false },
   );
