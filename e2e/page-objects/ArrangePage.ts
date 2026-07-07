@@ -180,8 +180,15 @@ export class ArrangePage extends BasePage {
       await skeleton.waitFor({ state: "hidden", timeout: 30000 });
     }
 
-    // Wait for the timetable grid to be visible and stable (event-driven)
-    await expect(this.timetableGrid).toBeVisible({ timeout: 15000 });
+    // Grid renders only after a teacher/class is selected — bare navigation
+    // shows the no-selection alert instead (b4f2804d single empty state).
+    await expect(
+      this.timetableGrid.or(
+        this.page.getByText(
+          /เลือกครูเพื่อดูตารางสอน|เลือกชั้นเรียนเพื่อดูตารางสอน/,
+        ),
+      ),
+    ).toBeVisible({ timeout: 15000 });
   }
 
   /**

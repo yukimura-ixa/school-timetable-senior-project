@@ -366,7 +366,8 @@ test.describe.serial("Full user journey (deep behavioral)", () => {
       authenticatedAdmin,
     }) => {
       const { page } = authenticatedAdmin;
-      await page.goto(`/schedule/${SEMESTER}/lock`);
+      // Publish UI moved from /lock to its own /publish route (d3d86c1a).
+      await page.goto(`/schedule/${SEMESTER}/publish`);
       await waitForAppReady(page);
 
       // The publish CTA lives inside the readiness accordion (collapsed by
