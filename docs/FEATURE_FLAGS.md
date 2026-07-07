@@ -1,5 +1,10 @@
 # Feature Flags with Vercel Edge Config
 
+> **⚠️ DESIGN DOC — NOT IMPLEMENTED (verified 2026-07-07, bd 0fha).** Nothing below exists
+> in the codebase: there is no `src/lib/feature-flags.ts`, no `useFeatureFlag` hook, no
+> `feature-flags` API route, and zero call sites. The app ships without feature flags.
+> Treat this as a proposal to consult only if flags become real work.
+
 Complete guide for implementing feature flags using Vercel Edge Config for ultra-fast reads (<1ms latency).
 
 ## 📋 Table of Contents

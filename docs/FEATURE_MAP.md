@@ -24,7 +24,7 @@ Entry: `/schedule/[academicYear]/[semester]/config` (redirects to `/dashboard/[a
 | Revalidation     | `revalidatePath('/dashboard/[academicYear]/[semester]')` + `invalidatePublicCache(["config"])`     | Refreshes dashboard cards                                                |
 | Outcome          | Updated `table_config` row; downstream timeslots regenerated on first save                         | —                                                                        |
 
-**Verified risks** — `updateConfigStatusAction` has no admin role gate (CODE_REVIEW finding `C-3`).
+**Verified risks** — ~~`updateConfigStatusAction` has no admin role gate (CODE_REVIEW finding `C-3`)~~ **fixed** (re-verified 2026-07-07: `createAction` wrapper enforces session + admin RBAC by default, `src/shared/lib/action-wrapper.ts`).
 
 ---
 
@@ -48,7 +48,7 @@ Entry: `/management/teacher-assignment?mode=by-teacher`
 | Revalidation      | `revalidatePath('/management/teacher-assignment')`                                                                       | Updates the page; SWR re-validates on focus too                  |
 | Outcome           | Insert/delete `teachers_responsibility` rows (unique on `TeacherID, GradeID, SubjectCode, AcademicYear, Semester`)       | —                                                                |
 
-**Verified risks** — `unassignTeacherAction:125` issues a raw `prisma.teachers_responsibility.delete()` bypassing the `createAction` wrapper (CODE_REVIEW finding `M-7`).
+**Verified risks** — ~~`unassignTeacherAction:125` bypasses the `createAction` wrapper (CODE_REVIEW finding `M-7`)~~ **stale** (re-verified 2026-07-07: the action IS inside `createAction`, so auth/validation apply; it still calls `prisma.teachers_responsibility.delete()` directly instead of the repository — architecture nit only).
 
 ---
 
@@ -70,7 +70,7 @@ Entry: `/schedule/[academicYear]/[semester]/lock`
 | Revalidation     | `revalidatePath('/schedule/[year]/[sem]/lock')` + `invalidatePublicCache(["class_schedule"])`                              | Public timetables refresh                                     |
 | Outcome          | One or many `class_schedule` rows with `IsLocked=true`                                                                     | —                                                             |
 
-**Verified risks** — `createBulkLocksAction:145-188` writes in a `for` loop without wrapping in `$transaction` / `withPrismaTransaction` (CODE_REVIEW finding `M-9`).
+**Verified risks** — ~~`createBulkLocksAction` writes in a `for` loop without a transaction (CODE_REVIEW finding `M-9`)~~ **fixed** (re-verified 2026-07-07: loop now runs inside `withPrismaTransaction`).
 
 ---
 
@@ -100,8 +100,7 @@ Entry: `/schedule/[academicYear]/[semester]/arrange` — uses **parallel routes*
 | Outcome            | `class_schedule` rows inserted/updated; lock state preserved; conflicts blocked at validate step                                                             | —                                                                |
 
 **Verified risks**:
-- `conflict-resolution.actions.ts:35-112` `suggestResolutionAction` — **no auth check** (CODE_REVIEW finding `C-2`).
-- `conflict-resolution.actions.ts:120-275` `applySwapAction` — **no auth check** on a mutating action (CODE_REVIEW finding `C-2`).
+- ~~`suggestResolutionAction` / `applySwapAction` — no auth check (CODE_REVIEW finding `C-2`)~~ **fixed** (re-verified 2026-07-07: both wrapped in `createAction`, which enforces session + admin RBAC).
 - `arrangeScheduleAction:163-168` returns raw `{ classId, created }` DB row instead of a DTO (CODE_REVIEW finding `M-6`).
 - `@palette/page.tsx:38` makes a direct Prisma call from a page-level RSC instead of going through the repository pattern (CODE_REVIEW finding `M-3`).
 
