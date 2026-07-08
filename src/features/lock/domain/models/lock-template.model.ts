@@ -29,7 +29,10 @@ export interface LockTemplate {
     // Target timeslots
     timeslotFilter: {
       days: string[]; // ['MON', 'TUE', 'WED', 'THU', 'FRI']
-      startTimes: string[]; // Time strings ['10:40:00', '10:55:00'] in HH:mm:ss format
+      // 1-based period indices (e.g. [8, 9] = คาบ 8-9). Matched against the
+      // period embedded in TimeslotID, so templates work regardless of the
+      // school's actual period start times. Empty when allDay is set.
+      periods: number[];
       allDay?: boolean; // Lock all periods for selected days
     };
   };
@@ -59,7 +62,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["MON", "TUE", "WED", "THU", "FRI"],
-        startTimes: ["10:40:00"],
+        periods: [4],
       },
     },
   },
@@ -82,7 +85,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["MON", "TUE", "WED", "THU", "FRI"],
-        startTimes: ["10:55:00"],
+        periods: [5],
       },
     },
   },
@@ -105,7 +108,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["MON"],
-        startTimes: ["08:00:00"],
+        periods: [1],
       },
     },
   },
@@ -126,7 +129,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["FRI"],
-        startTimes: ["12:50:00", "13:40:00"],
+        periods: [8, 9],
       },
     },
   },
@@ -147,7 +150,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["WED"],
-        startTimes: ["12:00:00", "12:50:00"],
+        periods: [7, 8],
       },
     },
   },
@@ -170,7 +173,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["FRI"],
-        startTimes: ["08:00:00"],
+        periods: [1],
       },
     },
   },
@@ -192,7 +195,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["SAT"],
-        startTimes: ["08:00:00", "08:50:00", "09:50:00", "10:40:00", "10:55:00", "11:10:00", "12:00:00", "12:50:00"],
+        periods: [],
         allDay: true,
       },
     },
@@ -216,7 +219,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["MON", "TUE", "WED", "THU", "FRI"],
-        startTimes: ["08:00:00", "08:50:00", "09:50:00", "10:40:00", "10:55:00", "11:10:00", "12:00:00", "12:50:00", "13:40:00", "14:30:00"],
+        periods: [],
         allDay: true,
       },
     },
@@ -238,7 +241,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["MON", "TUE", "WED", "THU", "FRI"],
-        startTimes: ["08:00:00", "08:50:00", "09:50:00", "10:40:00", "10:55:00", "11:10:00", "12:00:00", "12:50:00", "13:40:00", "14:30:00"],
+        periods: [],
         allDay: true,
       },
     },

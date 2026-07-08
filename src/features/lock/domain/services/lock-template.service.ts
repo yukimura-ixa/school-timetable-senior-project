@@ -5,6 +5,7 @@
  */
 
 import type { LockTemplate } from "../models/lock-template.model";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 export interface ApplyTemplateInput {
   template: LockTemplate;
@@ -21,7 +22,7 @@ export interface ApplyTemplateInput {
   availableTimeslots: Array<{
     TimeslotID: string;
     Day: string;
-    StartTime: Date; // DateTime object for time comparison
+    Breaktime?: string; // "NOT_BREAK" | "BREAK" | ... — break slots are never locked
   }>;
   availableRooms: Array<{
     RoomID: number;
@@ -40,7 +41,7 @@ export interface ApplyTemplateInput {
 
 export interface ResolvedLock {
   SubjectCode: string;
-  RoomID: number;
+  RoomID: number | null;
   TimeslotID: string;
   GradeID: string;
   RespID: number;
@@ -99,19 +100,16 @@ export function resolveTemplate(input: ApplyTemplateInput): {
     return { locks, warnings, errors };
   }
 
-  // Step 2: Filter timeslots based on template criteria
+  // Step 2: Filter timeslots based on template criteria.
+  // Match by period index embedded in TimeslotID (e.g. "1-2568-FRI8" → 8)
+  // so templates work regardless of the school's period start times.
   const targetTimeslots = availableTimeslots.filter((t) => {
-    const dayMatch = config.timeslotFilter.days.includes(t.Day);
-    
-    // Match by start time (HH:mm:ss format)
-    const timeMatch = config.timeslotFilter.startTimes.some(timeStr => {
-      const [hours, minutes, seconds] = timeStr.split(':').map(Number);
-      return t.StartTime.getHours() === hours && 
-             t.StartTime.getMinutes() === minutes && 
-             (seconds === undefined || t.StartTime.getSeconds() === seconds);
-    });
-    
-    return dayMatch && timeMatch;
+    if (!config.timeslotFilter.days.includes(t.Day)) return false;
+    if (t.Breaktime && t.Breaktime !== "NOT_BREAK") return false;
+    if (config.timeslotFilter.allDay) return true;
+    return config.timeslotFilter.periods.includes(
+      extractPeriodFromTimeslotId(t.TimeslotID),
+    );
   });
 
   if (targetTimeslots.length === 0) {
@@ -119,27 +117,17 @@ export function resolveTemplate(input: ApplyTemplateInput): {
     return { locks, warnings, errors };
   }
 
-  // Step 3: Resolve room
-  let roomId: number | null = config.roomId;
-
-  if (!roomId) {
-    // Try to find room by name
-    const room = availableRooms.find((r) => r.Name === config.roomName);
-    if (room) {
-      roomId = room.RoomID;
-    } else {
-      // Use first available room as fallback
-      if (availableRooms.length > 0 && availableRooms[0]) {
-        roomId = availableRooms[0].RoomID;
-        warnings.push(
-          `ไม่พบห้อง "${config.roomName}" ใช้ห้อง "${availableRooms[0]?.Name}" แทน`,
-        );
-      } else {
-        errors.push("ไม่พบห้องเรียนในระบบ");
-        return { locks, warnings, errors };
-      }
-    }
-  }
+  // Step 3: Resolve room. Template locks span many grades in the same
+  // timeslot, and class_schedule enforces a unique (TimeslotID, RoomID) —
+  // sharing one room would fail on the second grade. Venue names like
+  // "สนามหน้าเสาธง" are informational, so locks carry no room unless the
+  // template names one that actually exists (and even then only via roomId).
+  const roomId: number | null =
+    config.roomId ??
+    (targetGrades.length === 1
+      ? (availableRooms.find((r) => r.Name === config.roomName)?.RoomID ??
+        null)
+      : null);
 
   // Step 4: Check if subject exists, if not we'll need to create it
   const subjectExists = availableSubjects.some(

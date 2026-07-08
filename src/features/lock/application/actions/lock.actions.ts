@@ -290,7 +290,7 @@ export const applyLockTemplateAction = createAction(
     const transformedTimeslots = timeslots.map((t: any) => ({
       TimeslotID: t.TimeslotID,
       Day: t.DayOfWeek,
-      StartTime: t.StartTime, // Pass DateTime directly for time comparison
+      Breaktime: t.Breaktime,
     }));
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma model shape varies by query
@@ -322,9 +322,39 @@ export const applyLockTemplateAction = createAction(
       throw new Error(`ไม่สามารถนำเทมเพลตไปใช้ได้: ${errors.join(", ")}`);
     }
 
+    // Template subjects (ACT-MORNING, ASSEMBLY, ...) may not exist yet;
+    // create them as ungraded activities so lock creation can proceed.
+    await lockRepo.upsertActivitySubject(
+      template.config.subjectCode,
+      template.config.subjectName,
+    );
+
+    // Skip slots that already have a schedule entry — otherwise the first
+    // conflict aborts the whole application with a unique-constraint error.
+    const occupied = await lockRepo.findOccupiedSlots(
+      locks.map((l) => ({ TimeslotID: l.TimeslotID, GradeID: l.GradeID })),
+    );
+    const occupiedKeys = new Set(
+      occupied.map((o) => `${o.TimeslotID}|${o.GradeID}`),
+    );
+    const freeLocks = locks.filter(
+      (l) => !occupiedKeys.has(`${l.TimeslotID}|${l.GradeID}`),
+    );
+
+    if (freeLocks.length === 0) {
+      throw new Error(
+        "ไม่สามารถนำเทมเพลตไปใช้ได้: ทุกคาบที่ตรงกับเกณฑ์มีตารางเรียนอยู่แล้ว",
+      );
+    }
+    if (freeLocks.length < locks.length) {
+      warnings.push(
+        `ข้าม ${locks.length - freeLocks.length} รายการที่มีตารางเรียนอยู่แล้ว`,
+      );
+    }
+
     // Create locks using bulk action
     const created: class_schedule[] = [];
-    for (const lock of locks) {
+    for (const lock of freeLocks) {
       const schedule: class_schedule = await lockRepository.createLock({
         IsLocked: true,
         SubjectCode: lock.SubjectCode,

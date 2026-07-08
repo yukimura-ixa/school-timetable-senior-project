@@ -102,45 +102,41 @@ export default function LockTemplatesModal({
 
     setIsApplying(true);
 
-    try {
-      const result = await applyLockTemplateAction({
-        templateId: selectedTemplate.id,
-        AcademicYear: academicYear,
-        Semester: `SEMESTER_${semester}`,
-        ConfigID: configId,
-      });
-
-      if ("success" in result && result.success) {
-        const data = result.data;
-        enqueueSnackbar(
-          `นำเทมเพลต "${data?.templateName}" ไปใช้สำเร็จ (${data?.count || 0} รายการ)`,
-          { variant: "success" },
-        );
-
-        if (data?.warnings && data.warnings.length > 0) {
-          data.warnings.forEach((warning: string) => {
-            enqueueSnackbar(warning, { variant: "warning" });
-          });
-        }
-
-        onSuccess();
-        handleClosePreview();
-        onClose();
-      } else {
-        const errorMsg =
-          typeof result.error === "string"
-            ? result.error
-            : result.error?.message || "เกิดข้อผิดพลาด";
-        throw new Error(errorMsg);
-      }
-    } catch (error) {
+    const result = await applyLockTemplateAction({
+      templateId: selectedTemplate.id,
+      AcademicYear: academicYear,
+      Semester: `SEMESTER_${semester}`,
+      ConfigID: configId,
+    }).catch((error: unknown) => {
       console.error(error);
+      return null;
+    });
+
+    setIsApplying(false);
+
+    if (result && "success" in result && result.success) {
+      const data = result.data;
       enqueueSnackbar(
-        `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : "Unknown error"}`,
-        { variant: "error" },
+        `นำเทมเพลต "${data?.templateName}" ไปใช้สำเร็จ (${data?.count || 0} รายการ)`,
+        { variant: "success" },
       );
-    } finally {
-      setIsApplying(false);
+
+      if (data?.warnings && data.warnings.length > 0) {
+        data.warnings.forEach((warning: string) => {
+          enqueueSnackbar(warning, { variant: "warning" });
+        });
+      }
+
+      onSuccess();
+      handleClosePreview();
+      onClose();
+    } else {
+      const errorMsg = !result
+        ? "Unknown error"
+        : typeof result.error === "string"
+          ? result.error
+          : result.error?.message || "เกิดข้อผิดพลาด";
+      enqueueSnackbar(`เกิดข้อผิดพลาด: ${errorMsg}`, { variant: "error" });
     }
   };
 
@@ -359,9 +355,7 @@ export default function LockTemplatesModal({
                   secondary={
                     selectedTemplate.config.timeslotFilter.allDay
                       ? "ทั้งวัน"
-                      : selectedTemplate.config.timeslotFilter.startTimes
-                          .map((time) => time.substring(0, 5))
-                          .join(", ")
+                      : `คาบ ${selectedTemplate.config.timeslotFilter.periods.join(", ")}`
                   }
                 />
               </ListItem>

@@ -93,7 +93,7 @@ export type CreateLockData = {
   IsLocked: boolean;
   SubjectCode: string;
   TimeslotID: string;
-  RoomID: number;
+  RoomID: number | null;
   GradeID: string;
   RespIDs: Array<{ RespID: number }>;
 };
@@ -122,11 +122,13 @@ export async function createLock(
           TimeslotID: data.TimeslotID,
         },
       },
-      room: {
-        connect: {
-          RoomID: data.RoomID,
+      ...(data.RoomID !== null && {
+        room: {
+          connect: {
+            RoomID: data.RoomID,
+          },
         },
-      },
+      }),
       gradelevel: {
         connect: {
           GradeID: data.GradeID,
@@ -213,6 +215,36 @@ export async function findAllSubjects() {
 export async function findSubjectByCode(subjectCode: string) {
   return await prisma.subject.findUnique({
     where: { SubjectCode: subjectCode },
+  });
+}
+
+export async function upsertActivitySubject(
+  subjectCode: string,
+  subjectName: string,
+) {
+  return await prisma.subject.upsert({
+    where: { SubjectCode: subjectCode },
+    update: {},
+    create: {
+      SubjectCode: subjectCode,
+      SubjectName: subjectName,
+      Credit: "CREDIT_10",
+      Category: "ACTIVITY",
+      ActivityType: "OTHER",
+      IsGraded: false,
+    },
+  });
+}
+
+export async function findOccupiedSlots(
+  pairs: Array<{ TimeslotID: string; GradeID: string }>,
+) {
+  if (pairs.length === 0) return [];
+  return await prisma.class_schedule.findMany({
+    where: {
+      OR: pairs.map((p) => ({ TimeslotID: p.TimeslotID, GradeID: p.GradeID })),
+    },
+    select: { TimeslotID: true, GradeID: true },
   });
 }
 
