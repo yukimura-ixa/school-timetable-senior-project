@@ -10,6 +10,7 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import {
   Box,
   Button,
+  Divider,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -19,6 +20,9 @@ import {
   ViewList as ViewListIcon,
   CalendarMonth as CalendarIcon,
   ContentPaste as TemplateIcon,
+  LockClock as LockClockIcon,
+  MeetingRoom as RoomIcon,
+  Person as PersonIcon,
 } from "@mui/icons-material";
 import {
   CardSkeleton,
@@ -28,6 +32,7 @@ import {
 import LockCalendarView from "./LockCalendarView";
 import LockListView from "./LockListView";
 import LockTemplatesModal from "./LockTemplatesModal";
+import { LOCK_TYPE_CONFIG } from "./lockTypeConfig";
 
 type ViewMode = "list" | "calendar";
 
@@ -73,6 +78,65 @@ function handleViewModeChange(
   if (newMode !== null) {
     setViewModePreference(newMode);
   }
+}
+
+function StatItem({
+  icon,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  value: number;
+  label: string;
+}) {
+  return (
+    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+      <Box sx={{ display: "flex", color: "primary.main" }}>{icon}</Box>
+      <Typography
+        variant="body2"
+        component="span"
+        sx={{ fontWeight: 700, color: "text.primary" }}
+      >
+        {value}
+      </Typography>
+      <Typography variant="body2" component="span" sx={{ color: "text.secondary" }}>
+        {label}
+      </Typography>
+    </Stack>
+  );
+}
+
+function Legend() {
+  return (
+    <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap" }}>
+      {Object.entries(LOCK_TYPE_CONFIG).map(([type, config]) => (
+        <Stack key={type} direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
+          <Box
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: "3px",
+              bgcolor: config.bgColor,
+              border: `1.5px solid ${config.borderColor}`,
+            }}
+          />
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            {config.label}
+          </Typography>
+        </Stack>
+      ))}
+    </Stack>
+  );
+}
+
+function computeStats(locks: GroupedLockedSchedule[]) {
+  const grades = new Set<string>();
+  const teachers = new Set<number>();
+  for (const lock of locks) {
+    lock.GradeIDs.forEach((g) => grades.add(g));
+    lock.teachers.forEach((t) => teachers.add(t.TeacherID));
+  }
+  return { locks: locks.length, grades: grades.size, teachers: teachers.size };
 }
 
 type LockScheduleProps = {
@@ -124,8 +188,10 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
     });
 
     try {
-      // Use ClassIDs from grouped schedule
-      await deleteLocksAction({ ClassIDs: item.ClassIDs });
+      const result = await deleteLocksAction(item.ClassIDs);
+      if (!result.success) {
+        throw new Error(result.error?.message ?? "Unknown error");
+      }
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
       await lockData.mutate();
@@ -157,6 +223,7 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
   }
 
   const hasData = !!lockData.data && lockData.data.length > 0;
+  const stats = computeStats(lockData.data ?? []);
 
   return (
     <>
@@ -170,16 +237,26 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
         />
       ) : null}
 
-      {/* Action Buttons and View Toggle (always visible to allow creating first lock) */}
+      {/* Hero header: title + purpose, primary actions */}
       <Box
         sx={{
-          mb: 3,
           display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
-        <Stack direction="row" spacing={2}>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ mb: 0.5 }}>
+            คาบล็อก
+          </Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary", maxWidth: 560 }}>
+            กันช่วงเวลาไว้สำหรับกิจกรรมพิเศษ เช่น ชุมนุม กิจกรรมเช้า หรือการประชุม
+            เพื่อไม่ให้ระบบจัดตารางนำคาบเหล่านี้ไปใช้
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1.5} sx={{ flexShrink: 0 }}>
           <Button
             variant="contained"
             color="primary"
@@ -199,28 +276,73 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
             ใช้เทมเพลต
           </Button>
         </Stack>
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          onChange={handleViewModeChange}
-          aria-label="โหมดมุมมอง"
-          size="small"
-        >
-          <ToggleButton value="calendar" aria-label="มุมมองปฏิทิน">
-            <CalendarIcon sx={{ mr: 1 }} fontSize="small" />
-            <Typography variant="body2">ปฏิทิน</Typography>
-          </ToggleButton>
-          <ToggleButton value="list" aria-label="มุมมองรายการ">
-            <ViewListIcon sx={{ mr: 1 }} fontSize="small" />
-            <Typography variant="body2">รายการ</Typography>
-          </ToggleButton>
-        </ToggleButtonGroup>
       </Box>
 
-      {/* Empty state when no data */}
+      {/* Stat strip + legend + view toggle (only meaningful once locks exist) */}
+      {hasData && (
+        <Box
+          sx={{
+            mt: 1,
+            mb: 1,
+            py: 1.5,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderTop: "1px solid",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={2}
+            divider={<Divider orientation="vertical" flexItem />}
+            sx={{ alignItems: "center", flexWrap: "wrap" }}
+          >
+            <StatItem
+              icon={<LockClockIcon fontSize="small" />}
+              value={stats.locks}
+              label="คาบล็อก"
+            />
+            <StatItem
+              icon={<RoomIcon fontSize="small" />}
+              value={stats.grades}
+              label="ชั้นเรียน"
+            />
+            <StatItem
+              icon={<PersonIcon fontSize="small" />}
+              value={stats.teachers}
+              label="ครูผู้สอน"
+            />
+            <Box sx={{ display: { xs: "none", md: "block" } }}>
+              <Legend />
+            </Box>
+          </Stack>
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={handleViewModeChange}
+            aria-label="โหมดมุมมอง"
+            size="small"
+          >
+            <ToggleButton value="calendar" aria-label="มุมมองปฏิทิน">
+              <CalendarIcon sx={{ mr: 1 }} fontSize="small" />
+              <Typography variant="body2">ปฏิทิน</Typography>
+            </ToggleButton>
+            <ToggleButton value="list" aria-label="มุมมองรายการ">
+              <ViewListIcon sx={{ mr: 1 }} fontSize="small" />
+              <Typography variant="body2">รายการ</Typography>
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+      )}
+
+      {/* Empty state when no data — CTA wired to open the add-lock form */}
       {!hasData && (
         <Box sx={{ mb: 4 }}>
-          <NoLockedSchedulesEmptyState />
+          <NoLockedSchedulesEmptyState onAdd={handleClickAddLockSchedule} />
         </Box>
       )}
 

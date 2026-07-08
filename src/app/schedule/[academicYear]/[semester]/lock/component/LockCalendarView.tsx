@@ -17,19 +17,16 @@ import {
   Divider,
 } from "@mui/material";
 import {
-  Lock as LockIcon,
-  Block as BlockIcon,
-  EmojiEvents as ActivityIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Close as CloseIcon,
-  CalendarMonth as CalendarIcon,
 } from "@mui/icons-material";
 import { useTimeslots } from "@/hooks";
 import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock-validation.service";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { formatGradeIdDisplay } from "@/utils/grade-display";
 import type { timeslot } from "@/prisma/generated/client";
+import { LOCK_TYPE_CONFIG, getLockType, reservedHatch } from "./lockTypeConfig";
 
 interface LockCalendarViewProps {
   lockData: GroupedLockedSchedule[];
@@ -38,42 +35,6 @@ interface LockCalendarViewProps {
   onEditLock?: (lock: GroupedLockedSchedule) => void;
   onDeleteLock?: (lock: GroupedLockedSchedule) => void;
 }
-
-// Lock type classification
-// Note: EXAM type removed - exam scheduling should use dedicated "Exam Arrange Mode" feature
-type LockType = "SUBJECT" | "BLOCK" | "ACTIVITY";
-
-interface LockTypeConfig {
-  color: string;
-  bgColor: string;
-  borderColor: string;
-  icon: React.ReactElement;
-  label: string;
-}
-
-const LOCK_TYPE_CONFIG: Record<LockType, LockTypeConfig> = {
-  SUBJECT: {
-    color: "#d32f2f",
-    bgColor: "rgba(211, 47, 47, 0.1)",
-    borderColor: "#d32f2f",
-    icon: <LockIcon fontSize="small" />,
-    label: "วิชาเรียน",
-  },
-  BLOCK: {
-    color: "#757575",
-    bgColor: "rgba(117, 117, 117, 0.1)",
-    borderColor: "#757575",
-    icon: <BlockIcon fontSize="small" />,
-    label: "บล็อกเวลา",
-  },
-  ACTIVITY: {
-    color: "#7b1fa2",
-    bgColor: "rgba(123, 31, 162, 0.1)",
-    borderColor: "#7b1fa2",
-    icon: <ActivityIcon fontSize="small" />,
-    label: "กิจกรรม",
-  },
-};
 
 function LockCalendarView({
   lockData,
@@ -124,15 +85,6 @@ function LockCalendarView({
     return map;
   })();
 
-  // Get lock type (heuristic-based classification)
-  // Note: Exam periods should use dedicated "Exam Arrange Mode" feature instead
-  const getLockType = (lock: GroupedLockedSchedule): LockType => {
-    if (lock.SubjectName && lock.SubjectName.includes("กิจกรรม"))
-      return "ACTIVITY";
-    if (!lock.SubjectCode || lock.SubjectCode === "-") return "BLOCK";
-    return "SUBJECT";
-  };
-
   const handleLockClick = (lock: GroupedLockedSchedule) => {
     setSelectedLock(lock);
   };
@@ -178,29 +130,6 @@ function LockCalendarView({
   return (
     <>
       <Paper sx={{ p: 3, mb: 3 }}>
-        {/* Header */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-          <CalendarIcon color="primary" />
-          <Typography variant="h6">ปฏิทินคาบล็อก</Typography>
-          <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {Object.entries(LOCK_TYPE_CONFIG).map(([type, config]) => (
-              <Chip
-                key={type}
-                icon={config.icon}
-                label={config.label}
-                size="small"
-                sx={{
-                  bgcolor: config.bgColor,
-                  color: config.color,
-                  borderColor: config.borderColor,
-                  border: `1px solid ${config.borderColor}`,
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
-
         {/* Calendar Grid */}
         <Box
           data-testid="lock-grid"
@@ -288,6 +217,10 @@ function LockCalendarView({
                       minHeight: 80,
                       cursor: lock ? "pointer" : "default",
                       bgcolor: lock ? config?.bgColor : "background.paper",
+                      backgroundImage:
+                        lock && config
+                          ? reservedHatch(config.borderColor)
+                          : "none",
                       border: lock
                         ? `2px solid ${config?.borderColor}`
                         : "1px solid",
