@@ -28,6 +28,7 @@ import {
   type DeleteLocksInput,
 } from "../schemas/lock.schemas";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
+import { createValidationError } from "@/types/errors";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 
 /**
@@ -74,6 +75,17 @@ export const createLockAction = createAction(
 
     if (validationError) {
       throw new Error(validationError);
+    }
+
+    // Only activity subjects may be locked — basic subjects go through
+    // the arrange flow instead.
+    const subject = await lockRepository.findSubjectByCode(input.SubjectCode);
+    if (!subject || subject.Category !== "ACTIVITY") {
+      throw createValidationError(
+        "สามารถล็อกคาบได้เฉพาะรายวิชากิจกรรมเท่านั้น",
+        "SubjectCode",
+        input.SubjectCode,
+      );
     }
 
     const created: class_schedule[] = [];

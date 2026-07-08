@@ -35,6 +35,7 @@ vi.mock("../../infrastructure/repositories/lock.repository", () => ({
   createLock: vi.fn(),
   deleteMany: vi.fn(),
   count: vi.fn(),
+  findSubjectByCode: vi.fn(),
 }));
 
 import {
@@ -53,6 +54,7 @@ const mockFindLockedSchedules = lockRepository.findLockedSchedules as ReturnType
 const mockCreateLock = lockRepository.createLock as ReturnType<typeof vi.fn>;
 const mockDeleteMany = lockRepository.deleteMany as ReturnType<typeof vi.fn>;
 const mockCount = lockRepository.count as ReturnType<typeof vi.fn>;
+const mockFindSubjectByCode = lockRepository.findSubjectByCode as ReturnType<typeof vi.fn>;
 
 const makeRawSchedule = (overrides = {}) => ({
   ClassID: 1,
@@ -93,6 +95,11 @@ const makeRawSchedule = (overrides = {}) => ({
 describe("Lock Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Only ACTIVITY subjects may be locked; default to a lockable subject
+    mockFindSubjectByCode.mockResolvedValue({
+      SubjectCode: "MATH101",
+      Category: "ACTIVITY",
+    });
   });
 
   describe("getLockedSchedulesAction", () => {
@@ -230,6 +237,29 @@ describe("Lock Actions", () => {
 
       expect(result.success).toBe(false);
       expect(result.error?.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("rejects non-activity subjects", async () => {
+      mockFindSubjectByCode.mockResolvedValueOnce({
+        SubjectCode: "MATH101",
+        Category: "CORE",
+      });
+
+      const result = await createLockAction(validInput);
+
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe("VALIDATION_ERROR");
+      expect(mockCreateLock).not.toHaveBeenCalled();
+    });
+
+    it("rejects unknown subjects", async () => {
+      mockFindSubjectByCode.mockResolvedValueOnce(null);
+
+      const result = await createLockAction(validInput);
+
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe("VALIDATION_ERROR");
+      expect(mockCreateLock).not.toHaveBeenCalled();
     });
   });
 

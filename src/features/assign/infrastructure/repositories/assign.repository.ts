@@ -115,12 +115,15 @@ export async function findLockedSubjectsByTerm(
     return [];
   }
 
-  // Then fetch subjects with their responsibilities
+  // Then fetch subjects with their responsibilities.
+  // Only activity subjects may be locked — basic subjects are scheduled
+  // by the arrange flow, never reserved via คาบล็อก.
   const subjects = await prisma.subject.findMany({
     where: {
       SubjectCode: {
         in: subjectCodes,
       },
+      Category: "ACTIVITY",
     },
     include: {
       teachers_responsibility: {

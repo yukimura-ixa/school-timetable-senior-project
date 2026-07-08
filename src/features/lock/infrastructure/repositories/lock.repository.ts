@@ -210,6 +210,12 @@ export async function findAllSubjects() {
   });
 }
 
+export async function findSubjectByCode(subjectCode: string) {
+  return await prisma.subject.findUnique({
+    where: { SubjectCode: subjectCode },
+  });
+}
+
 /**
  * Find teacher responsibilities for a given academic year and semester
  */
