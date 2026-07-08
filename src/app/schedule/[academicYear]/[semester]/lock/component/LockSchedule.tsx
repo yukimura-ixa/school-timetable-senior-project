@@ -189,10 +189,15 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
 
     try {
       const result = await deleteLocksAction(item.ClassIDs);
-      if (!result.success) {
-        throw new Error(result.error?.message ?? "Unknown error");
-      }
       closeSnackbar(loadbar);
+      if (!result.success) {
+        enqueueSnackbar(
+          "ลบข้อมูลคาบล็อกไม่สำเร็จ: " +
+            (result.error?.message ?? "Unknown error"),
+          { variant: "error" },
+        );
+        return;
+      }
       enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
       await lockData.mutate();
     } catch (error: unknown) {
