@@ -1,12 +1,25 @@
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "./generated/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { withAccelerate } from "@prisma/extension-accelerate";
+import "dotenv/config";
 import { FUNDAMENTALS } from "./data/fundamentals";
 import { getEffectiveProgramSubjects } from "../src/features/program/domain/services/effective-subjects.service";
 
 // Lazy singleton — only constructed when the script actually runs (not on import).
+// Prisma 7 requires an explicit driver adapter (direct pg) or accelerateUrl.
 let _prisma: PrismaClient | undefined;
 function getPrisma(): PrismaClient {
-  if (!_prisma) _prisma = new PrismaClient();
+  if (!_prisma) {
+    const connectionString = process.env.DATABASE_URL!;
+    if (connectionString?.startsWith("prisma+")) {
+      _prisma = new PrismaClient({
+        accelerateUrl: connectionString,
+      }).$extends(withAccelerate()) as unknown as PrismaClient;
+    } else {
+      _prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+    }
+  }
   return _prisma;
 }
 
