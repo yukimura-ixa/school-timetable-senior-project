@@ -99,3 +99,26 @@ export type SyncTeacherScheduleInput = v.InferInput<
 export type SyncTeacherScheduleOutput = v.InferOutput<
   typeof syncTeacherScheduleSchema
 >;
+
+// ============================================================================
+// Clear School Schedule Schema
+// ============================================================================
+
+/**
+ * Schema for clearing all unlocked schedule placements for a term
+ */
+export const clearScheduleSchema = v.object({
+  // Buddhist calendar (e.g. 2568), matching semester.schemas.ts's convention
+  // — NOT the Gregorian 2000-2100 bound above, which would reject every
+  // real academic year this app uses.
+  AcademicYear: v.pipe(
+    v.number("AcademicYear must be a number"),
+    v.integer("AcademicYear must be an integer"),
+    v.minValue(2500, "AcademicYear must be 2500 or later"),
+    v.maxValue(2600, "AcademicYear must be 2600 or earlier"),
+  ),
+  Semester: v.picklist(["1", "2"], 'Semester must be "1" or "2"'),
+});
+
+export type ClearScheduleInput = v.InferInput<typeof clearScheduleSchema>;
+export type ClearScheduleOutput = v.InferOutput<typeof clearScheduleSchema>;

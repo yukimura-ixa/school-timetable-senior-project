@@ -26,6 +26,12 @@ import {
 } from "@mui/material";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import { enqueueSnackbar } from "notistack";
+import {
+  getUnlockedScheduleCountAction,
+  clearScheduleAction,
+} from "@/features/arrange/application/actions/arrange.actions";
 
 type Failure = {
   respId: number;
@@ -68,6 +74,54 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [result, setResult] = useState<GenerateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
+  const [clearCount, setClearCount] = useState<number | null>(null);
+  const [clearCountLoading, setClearCountLoading] = useState(false);
+  const [clearing, setClearing] = useState(false);
+
+  const openClearConfirm = async () => {
+    setClearCountLoading(true);
+    try {
+      const res = await getUnlockedScheduleCountAction({
+        AcademicYear: Number(academicYear),
+        Semester: semester as "1" | "2",
+      });
+      if (res.success) {
+        setClearCount(res.data?.count ?? 0);
+        setClearConfirmOpen(true);
+      } else {
+        enqueueSnackbar(res.error?.message ?? "นับข้อมูลไม่สำเร็จ", {
+          variant: "error",
+        });
+      }
+    } finally {
+      setClearCountLoading(false);
+    }
+  };
+
+  const runClear = async () => {
+    setClearing(true);
+    try {
+      const res = await clearScheduleAction({
+        AcademicYear: Number(academicYear),
+        Semester: semester as "1" | "2",
+      });
+      if (res.success) {
+        enqueueSnackbar(`ล้างตารางแล้ว ${res.data?.deletedCount ?? 0} คาบ`, {
+          variant: "success",
+        });
+        setResult(null);
+        setError(null);
+        setClearConfirmOpen(false);
+      } else {
+        enqueueSnackbar(res.error?.message ?? "ล้างตารางไม่สำเร็จ", {
+          variant: "error",
+        });
+      }
+    } finally {
+      setClearing(false);
+    }
+  };
 
   const run = async () => {
     setConfirmOpen(false);
@@ -118,21 +172,43 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
           ระบบจะจัดคาบของครูทุกคนตามภาระงานสอน โดยหลีกเลี่ยงการชนกันของครู ห้อง
           และระดับชั้น
         </Typography>
-        <Button
-          variant="contained"
-          size="large"
-          startIcon={
-            loading ? (
-              <CircularProgress size={20} color="inherit" />
-            ) : (
-              <AutoFixHighIcon />
-            )
-          }
-          disabled={loading}
-          onClick={() => setConfirmOpen(true)}
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: "center", flexWrap: "wrap" }}
         >
-          {loading ? "กำลังสร้าง..." : "สร้างตารางอัตโนมัติทั้งโรงเรียน"}
-        </Button>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={
+              loading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <AutoFixHighIcon />
+              )
+            }
+            disabled={loading}
+            onClick={() => setConfirmOpen(true)}
+          >
+            {loading ? "กำลังสร้าง..." : "สร้างตารางอัตโนมัติทั้งโรงเรียน"}
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            size="large"
+            startIcon={
+              clearCountLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <DeleteSweepIcon />
+              )
+            }
+            disabled={clearCountLoading || loading}
+            onClick={openClearConfirm}
+          >
+            ล้างตารางทั้งหมด
+          </Button>
+        </Stack>
       </Paper>
       {error && (
         <Alert severity="error" sx={{ mt: 3 }}>
@@ -292,6 +368,39 @@ export function GenerateClient({ academicYear, semester, reviewHref }: Props) {
           <Button onClick={() => setConfirmOpen(false)}>ยกเลิก</Button>
           <Button onClick={run} variant="contained" autoFocus>
             สร้างตาราง
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={clearConfirmOpen}
+        onClose={() => (clearing ? undefined : setClearConfirmOpen(false))}
+      >
+        <DialogTitle>ยืนยันการล้างตารางทั้งหมด</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            คาบเรียนที่จัดไว้ {clearCount ?? 0} คาบจะถูกลบทั้งหมด
+            (คาบที่ล็อกไว้ เช่น โฮมรูม จะไม่ถูกลบ) การกระทำนี้ไม่สามารถย้อนกลับได้
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setClearConfirmOpen(false)}
+            disabled={clearing}
+          >
+            ยกเลิก
+          </Button>
+          <Button
+            onClick={runClear}
+            variant="contained"
+            color="error"
+            disabled={clearing}
+            startIcon={
+              clearing ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : undefined
+            }
+          >
+            {clearing ? "กำลังล้าง..." : "ล้างตารางทั้งหมด"}
           </Button>
         </DialogActions>
       </Dialog>

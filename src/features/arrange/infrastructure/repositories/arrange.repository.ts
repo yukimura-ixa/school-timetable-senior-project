@@ -167,6 +167,37 @@ export class ArrangeRepository {
       },
     });
   }
+
+  /**
+   * Count unlocked schedules for a term (used by the clear-all-data confirm dialog)
+   */
+  async countUnlockedForTerm(
+    academicYear: number,
+    semesterValue: semester,
+  ): Promise<number> {
+    return prisma.class_schedule.count({
+      where: {
+        IsLocked: false,
+        timeslot: { AcademicYear: academicYear, Semester: semesterValue },
+      },
+    });
+  }
+
+  /**
+   * Delete all unlocked schedules for a term (locked/fixed activities are kept)
+   */
+  async deleteAllUnlockedForTerm(
+    academicYear: number,
+    semesterValue: semester,
+  ): Promise<number> {
+    const result = await prisma.class_schedule.deleteMany({
+      where: {
+        IsLocked: false,
+        timeslot: { AcademicYear: academicYear, Semester: semesterValue },
+      },
+    });
+    return result.count;
+  }
 }
 
 // ============================================================================

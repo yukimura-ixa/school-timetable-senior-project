@@ -12,8 +12,10 @@ import { createAction } from "@/shared/lib/action-wrapper";
 import {
   getTeacherScheduleSchema,
   syncTeacherScheduleSchema,
+  clearScheduleSchema,
   type GetTeacherScheduleOutput,
   type SyncTeacherScheduleOutput,
+  type ClearScheduleOutput,
 } from "../schemas/arrange.schemas";
 import {
   arrangeRepository,
@@ -52,6 +54,7 @@ export type SyncTeacherScheduleResult =
       };
     }
   | { success: false; error: string };
+
 
 // ============================================================================
 // Server Actions
@@ -221,6 +224,49 @@ export const syncTeacherScheduleAction = createAction<
     };
   }
 });
+
+/**
+ * Count unlocked schedule placements for a term — feeds the clear-all-data
+ * confirm dialog so it can show how many rows will be removed.
+ */
+export const getUnlockedScheduleCountAction = createAction(
+  clearScheduleSchema,
+  async (input: ClearScheduleOutput) => {
+    const semesterValue =
+      input.Semester === "1" ? semester.SEMESTER_1 : semester.SEMESTER_2;
+    const count = await arrangeRepository.countUnlockedForTerm(
+      input.AcademicYear,
+      semesterValue,
+    );
+    return { count };
+  },
+);
+
+/**
+ * Deletes every unlocked schedule placement for a term (auto-arranged and
+ * manually-placed alike). Locked/fixed activities (homeroom, scout, etc.)
+ * are kept — this only resets what auto-arrange controls.
+ */
+export const clearScheduleAction = createAction(
+  clearScheduleSchema,
+  async (input: ClearScheduleOutput) => {
+    const semesterValue =
+      input.Semester === "1" ? semester.SEMESTER_1 : semester.SEMESTER_2;
+    const deletedCount = await arrangeRepository.deleteAllUnlockedForTerm(
+      input.AcademicYear,
+      semesterValue,
+    );
+
+    log.info("Cleared all unlocked schedule placements", {
+      academicYear: input.AcademicYear,
+      semester: input.Semester,
+      deletedCount,
+    });
+
+    await invalidatePublicCache(["stats", "classes", "teachers"]);
+    return { deletedCount };
+  },
+);
 
 /**
  * Get count of schedules for a teacher (utility action)
