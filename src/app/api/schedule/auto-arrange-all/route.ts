@@ -154,7 +154,13 @@ export async function POST(request: NextRequest) {
         timeslotId: t.TimeslotID,
         day,
         period,
-        isBreak: t.Breaktime !== null && t.Breaktime !== "NOT_BREAK",
+        // BREAK_JUNIOR/BREAK_SENIOR are staggered (grade-specific) breaks —
+        // only breakGuard's per-grade check should exclude them, or a working
+        // breakGuard could never reclaim the slot for the non-owning group.
+        // Without breakGuard, fall back to excluding every break conservatively.
+        isBreak: breakGuard
+          ? t.Breaktime === "BREAK_BOTH" || t.Breaktime === "BREAK"
+          : t.Breaktime !== null && t.Breaktime !== "NOT_BREAK",
       };
     });
 

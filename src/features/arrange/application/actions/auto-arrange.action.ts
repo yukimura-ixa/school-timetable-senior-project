@@ -150,6 +150,25 @@ export async function autoArrangeAction(
         breakGroupRepository.findByConfigId(configId),
       ]);
 
+    // ── Build per-grade break guard (Phase 2A) ──
+    // Parse config slots and build grade→group index so the solver can skip
+    // cells where a specific grade has a staggered break (e.g. junior lunch).
+    // Built before the timeslots transform below so isBreak can defer staggered
+    // breaks to this guard instead of excluding them for every grade.
+    let breakGuard: SolverInput["breakGuard"];
+    if (configRow?.Config) {
+      try {
+        const configData = parseConfigData(configRow.Config);
+        breakGuard = {
+          slotConfigs: configData.slots,
+          gradeBreakIndex: buildGradeGroupIndex(toBreakGroups(breakGroupRows)),
+        };
+      } catch {
+        // Malformed config — fall back to isBreak-only guard (safe)
+        log.warn("Could not parse term config for break-guard; falling back to isBreak-only", { configId });
+      }
+    }
+
     // ── Transform to Solver Types ──
 
     // Timeslots
@@ -163,7 +182,13 @@ export async function autoArrangeAction(
         timeslotId: t.TimeslotID,
         day,
         period,
-        isBreak: t.Breaktime !== null && t.Breaktime !== "NOT_BREAK",
+        // BREAK_JUNIOR/BREAK_SENIOR are staggered (grade-specific) breaks —
+        // only breakGuard's per-grade check should exclude them, or a working
+        // breakGuard could never reclaim the slot for the non-owning group.
+        // Without breakGuard, fall back to excluding every break conservatively.
+        isBreak: breakGuard
+          ? t.Breaktime === "BREAK_BOTH" || t.Breaktime === "BREAK"
+          : t.Breaktime !== null && t.Breaktime !== "NOT_BREAK",
       };
     });
 
@@ -234,23 +259,6 @@ export async function autoArrangeAction(
         },
         message: "ไม่มีวิชาที่ต้องจัดเพิ่ม",
       };
-    }
-
-    // ── Build per-grade break guard (Phase 2A) ──
-    // Parse config slots and build grade→group index so the solver can skip
-    // cells where a specific grade has a staggered break (e.g. junior lunch).
-    let breakGuard: SolverInput["breakGuard"];
-    if (configRow?.Config) {
-      try {
-        const configData = parseConfigData(configRow.Config);
-        breakGuard = {
-          slotConfigs: configData.slots,
-          gradeBreakIndex: buildGradeGroupIndex(toBreakGroups(breakGroupRows)),
-        };
-      } catch {
-        // Malformed config — fall back to isBreak-only guard (safe)
-        log.warn("Could not parse term config for break-guard; falling back to isBreak-only", { configId });
-      }
     }
 
     // ── Run Solver ──
