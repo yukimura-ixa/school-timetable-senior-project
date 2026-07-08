@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/prisma/generated/client";
 import { createLogger } from "@/lib/logger";
 import { sanitizeErrorMessage } from "@/shared/lib/error-sanitizer";
 import {
@@ -261,23 +262,36 @@ export async function POST(request: NextRequest) {
     });
 
     // ── Apply Placements Atomically ──
+    // Bulk insert (2 statements) instead of one create() per placement: a
+    // whole-school run can emit 100+ rows and per-row creates blow past the
+    // 5s Accelerate transaction timeout, rolling back everything.
     if (result.placements.length > 0) {
-      await prisma.$transaction(
-        result.placements.map((p) =>
-          prisma.class_schedule.create({
-            data: {
-              TimeslotID: p.timeslotId,
-              SubjectCode: p.subjectCode,
-              GradeID: p.gradeId,
-              RoomID: p.roomId,
-              IsLocked: false,
-              teachers_responsibility: {
-                connect: { RespID: p.respId },
-              },
-            },
-          }),
-        ),
-      );
+      await prisma.$transaction(async (tx) => {
+        const created = await tx.class_schedule.createManyAndReturn({
+          data: result.placements.map((p) => ({
+            TimeslotID: p.timeslotId,
+            SubjectCode: p.subjectCode,
+            GradeID: p.gradeId,
+            RoomID: p.roomId,
+            IsLocked: false,
+          })),
+          select: { ClassID: true, TimeslotID: true, GradeID: true },
+        });
+        // (TimeslotID, GradeID) is unique on class_schedule, so it maps each
+        // created row back to its placement's responsibility.
+        const respByKey = new Map(
+          result.placements.map((p) => [
+            `${p.timeslotId}|${p.gradeId}`,
+            p.respId,
+          ]),
+        );
+        const joinRows = created.map((c) =>
+          Prisma.sql`(${c.ClassID}, ${respByKey.get(`${c.TimeslotID}|${c.GradeID}`)!})`,
+        );
+        await tx.$executeRaw`
+          INSERT INTO "_class_scheduleToteachers_responsibility" ("A", "B")
+          VALUES ${Prisma.join(joinRows)}`;
+      });
 
       log.info("Whole-school placements saved", {
         count: result.placements.length,
