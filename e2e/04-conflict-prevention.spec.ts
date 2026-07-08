@@ -1,5 +1,27 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
+import type { Page } from "@playwright/test";
+
+// The arrange grid renders only after a teacher/class is selected (b4f2804d);
+// bare navigation shows a no-selection alert instead of a table.
+async function selectFirstTeacher(page: Page) {
+  const combo = page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first();
+  await expect(combo).toBeVisible({ timeout: 15000 });
+  await combo.click();
+  const option = page.getByRole("option").first();
+  await expect(option).toBeVisible({ timeout: 15000 });
+  await option.click();
+}
+
+async function selectFirstClass(page: Page) {
+  await page.getByTestId("view-toggle-class").click();
+  const combo = page.getByRole("combobox", { name: /เลือกชั้นเรียน/ }).first();
+  await expect(combo).toBeVisible({ timeout: 15000 });
+  await combo.click();
+  const option = page.getByRole("option").first();
+  await expect(option).toBeVisible({ timeout: 15000 });
+  await option.click();
+}
 
 // Conflict prevention tests mutate state - must run serially
 test.describe.configure({ mode: "serial", timeout: 90_000 });
@@ -121,9 +143,12 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
+    // Grid appears only after picking a teacher.
+    await selectFirstTeacher(page);
+
     // Wait for grid to be visible before checking conflict markers
     const timetableGrid = page.locator('table, [role="grid"]').first();
-    await expect(timetableGrid).toBeVisible({ timeout: 10000 });
+    await expect(timetableGrid).toBeVisible({ timeout: 20000 });
 
     // Check for any visual conflict indicators
     // These might be CSS classes or styles indicating conflicts
@@ -175,9 +200,12 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
+    // Grid appears only after picking a class in class view.
+    await selectFirstClass(page);
+
     // Look for the class timetable grid
     const timetableGrid = page.locator('table, [role="grid"]');
-    await expect(timetableGrid.first()).toBeVisible({ timeout: 10000 });
+    await expect(timetableGrid.first()).toBeVisible({ timeout: 20000 });
     if (await timetableGrid.first().isVisible()) {
       console.log("Class timetable grid available");
 
@@ -219,8 +247,11 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
+    // Grid appears only after picking a class in class view.
+    await selectFirstClass(page);
+
     // Wait for grid to load before checking slots
-    await expect(page.locator('table, [role="grid"]').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('table, [role="grid"]').first()).toBeVisible({ timeout: 20000 });
 
     // Look for occupied timeslots (they should be visually distinct)
     const occupiedSlots = page.locator(

@@ -42,14 +42,24 @@ test.beforeAll(async () => {
 
   // Idempotent: clear any leftover from a crashed run, then insert fresh.
   await prisma.program.deleteMany({ where: { ProgramCode: FIXTURE_PROGRAM_CODE } });
-  await prisma.program.create({
+  const fixture = await prisma.program.create({
     data: {
       ProgramCode: FIXTURE_PROGRAM_CODE,
       ProgramName: FIXTURE_PROGRAM_NAME,
       Year: 4,
       Track: "GENERAL",
       IsActive: true,
-      // No program_subject rows → 0 credits in every learning area → fails MOE.
+    },
+  });
+  // Programs inherit the full Year-4 CORE template (grade_fundamental), which
+  // now satisfies every learning-area minimum on its own — so exclude Thai to
+  // make this program genuinely under-credited. Cascade-deleted with the
+  // program in teardown.
+  await prisma.program_fundamental_override.create({
+    data: {
+      ProgramID: fixture.ProgramID,
+      SubjectCode: "ท31101",
+      Excluded: true,
     },
   });
 });
@@ -92,11 +102,12 @@ test.describe("Publish gate — under-credited program", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`${BASE}/lock`, { waitUntil: "domcontentloaded" });
+    // d3d86c1a moved the publish readiness UI from /lock to its own /publish step.
+    await page.goto(`${BASE}/publish`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     // Wizard client guard may bounce a deep link if the term isn't far enough.
-    if (!page.url().includes("/lock")) {
+    if (!page.url().includes("/publish")) {
       test.skip(true, "Publish step not reachable on seed term");
       return;
     }

@@ -5,12 +5,14 @@
  * Exercises /management/teacher-assignment?mode=by-teacher end to end:
  *   - by-teacher mode loads with the teacher picker (grade selector hidden)
  *   - pick the seed-pinned E2E teacher at the seeded term (1/2568)
- *   - the teacher-centric editor shows the pinned classroom (ม.1/1)
- *   - saving persists via syncAssignmentsAction and reports success
+ *   - the read-only summary shows the pinned classroom ("ชั้น M1-1")
+ *
+ * Since 0965b09d, by-teacher mode is a read-only lens — the by-grade coverage
+ * matrix is the editing surface — so there is no save flow here anymore.
  *
  * The page defaults to academic year 2567, but the seed data lives at 2568,
  * so the year selector is switched first. The E2E teacher is pinned to
- * ค21201 / M1-1 / S1-2568 in seedDemoData(), making ม.1/1 deterministic.
+ * ค21201 / M1-1 / S1-2568 in seedDemoData(), making M1-1 deterministic.
  *
  * @note CI-RECOMMENDED: slow in dev mode due to SSR compilation; CI runs the
  * production build. Requires `pnpm db:seed:demo` data.
@@ -81,7 +83,7 @@ test.describe("Teacher Assignment — by-teacher mode", () => {
     await expect(page.getByLabel("ระดับชั้น")).toHaveCount(0);
   });
 
-  test("BT-02: pick teacher, see pinned classroom, save succeeds", async ({
+  test("BT-02: pick teacher, see pinned classroom in read-only summary", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
@@ -96,15 +98,16 @@ test.describe("Teacher Assignment — by-teacher mode", () => {
     // The E2E teacher's Firstname is "E2E" (label "ครูE2E ทดสอบ").
     await pickTeacher(page, testTeacher.Firstname);
 
-    // Pinned responsibility ค21201 / M1-1 → the editor renders the ม.1/1 room.
-    await expect(page.getByText("ม.1/1").first()).toBeVisible({
+    // Pinned responsibility ค21201 / M1-1 renders in the read-only
+    // assignment summary as "ชั้น M1-1" (raw GradeID, 0965b09d lens).
+    await expect(
+      page.getByText("รายวิชาที่รับผิดชอบ (ดูได้อย่างเดียว)"),
+    ).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText("ชั้น M1-1").first()).toBeVisible({
       timeout: 20000,
     });
 
-    // Save the (idempotent) assignment and confirm success feedback.
-    await page.getByRole("button", { name: /บันทึก/ }).click();
-    await expect(page.getByText("บันทึกข้อมูลสำเร็จ")).toBeVisible({
-      timeout: 30000,
-    });
+    // Read-only lens: no save button in by-teacher mode.
+    await expect(page.getByRole("button", { name: /บันทึก/ })).toHaveCount(0);
   });
 });

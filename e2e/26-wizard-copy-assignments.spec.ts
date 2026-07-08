@@ -27,7 +27,9 @@ import { PrismaClient } from "../prisma/generated/client";
 import type { Page } from "@playwright/test";
 
 const SOURCE_LABEL = /ภาคเรียนที่ 1\/2568/;
-const TARGET_GRADE_LABEL = "ม.1/1";
+// AssignmentFilters' grade Select lists grade YEARS ("ม.1"…"ม.6") since the
+// coverage-matrix redesign (59b2b1dd); sections (ม.1/1, …) are matrix columns.
+const TARGET_GRADE_LABEL = "ม.1";
 
 const TARGETS = [
   { configId: "1-2569", year: 2569, sem: 1 },
@@ -160,7 +162,7 @@ async function openTeacherAssignmentForTarget(
     .getByRole("option", { name: TARGET_GRADE_LABEL, exact: true })
     .click();
 
-  // Wait for the subjects table to settle (seed guarantees M1-1 has subjects).
+  // Wait for the coverage-matrix table to settle (seed guarantees M1 has subjects).
   await expect(page.locator("table tbody tr").first()).toBeVisible({
     timeout: 20000,
   });
@@ -180,12 +182,10 @@ test.describe("CreateSemesterWizard — copyAssignments toggle", () => {
 
     await openTeacherAssignmentForTarget(page, { year: 2569, sem: 1 });
 
-    // SubjectAssignmentTable renders a TeachHour Chip (e.g. "2 ชม./สัปดาห์")
-    // only when an assignment exists. The same "ชม./สัปดาห์" text also appears
-    // as an input label on unassigned rows, so we scope to .MuiChip-root.
-    const assignedChips = page.locator(
-      ".MuiChip-root:has-text('ชม./สัปดาห์')",
-    );
+    // GradeCoverageMatrix renders a teacher-name Chip inside a cell only when a
+    // persisted assignment exists; unassigned cells render an "เพิ่มครู" Button
+    // and the legend Chips live outside the table, so scope to table Chips.
+    const assignedChips = page.locator("table .MuiChip-root");
     await expect(assignedChips.first()).toBeVisible({ timeout: 15000 });
   });
 
@@ -202,12 +202,10 @@ test.describe("CreateSemesterWizard — copyAssignments toggle", () => {
 
     await openTeacherAssignmentForTarget(page, { year: 2569, sem: 2 });
 
-    // Subject rows still render (program_subject is not semester-scoped) and
-    // each unassigned row shows a "ชม./สัปดาห์" input label, so the
-    // discriminator is the assignment Chip — which must be absent.
-    const assignedChips = page.locator(
-      ".MuiChip-root:has-text('ชม./สัปดาห์')",
-    );
+    // Subject rows still render (program_subject is not semester-scoped) but
+    // every in-program cell must be an unassigned "เพิ่มครู" gap — no
+    // teacher-name Chip anywhere in the matrix table.
+    const assignedChips = page.locator("table .MuiChip-root");
     await expect(assignedChips).toHaveCount(0, { timeout: 15000 });
   });
 });
