@@ -13,14 +13,16 @@ export function getBaseUrl(): string {
   // For server-side
   if (typeof window === "undefined") {
     // Precedence:
-    //   1) NEXT_PUBLIC_BASE_URL (custom domain override)
-    //   2) VERCEL_URL           (auto-set by Vercel; needs https:// prefix)
-    //   3) hardcoded production fallback
+    //   1) NEXT_PUBLIC_BASE_URL            (custom domain override)
+    //   2) VERCEL_PROJECT_PRODUCTION_URL   (public prod alias, auto-set)
+    //   3) VERCEL_URL                      (per-deployment host — SSO-gated
+    //      by Deployment Protection, so only a last resort)
+    //   4) hardcoded production fallback
+    const host =
+      process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
     return (
       process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "https://phrasongsa-timetable.vercel.app")
+      (host ? `https://${host}` : "https://phrasongsa-timetable.vercel.app")
     );
   }
 
