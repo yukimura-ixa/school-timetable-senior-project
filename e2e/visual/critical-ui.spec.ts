@@ -173,32 +173,19 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       });
       await page.waitForLoadState("domcontentloaded");
 
-      // Wait for timetable grid to be visible (event-driven)
+      // Render smoke only — no screenshot. Every region of this page
+      // (grid, palette, placed-count alerts, progress panel) displays the
+      // E2E teacher's schedule, which parallel specs mutate concurrently,
+      // so a full-page snapshot can never be deterministic here. Page
+      // chrome (navbar, sidebar, stepper) is visually covered by the
+      // config/lock page snapshots.
       const timeslotGrid = page
         .locator('[data-testid="timeslot-grid"], table')
         .first();
       await expect(timeslotGrid).toBeVisible({ timeout: 15000 });
-      await waitForNavbarStable(page);
-
-      // Remove schedule-dependent content entirely before the screenshot.
-      // Masking is not enough: these elements' heights vary with whatever
-      // parallel tests have placed for the E2E teacher, shifting the layout
-      // below them and leaking diffs at mask boundaries.
-      await page.addStyleTag({
-        content:
-          '[data-testid="subject-palette"], [data-testid="timetable-grid"],' +
-          ' [aria-live="polite"] { display: none !important; }',
-      });
-
-      await expect(page).toHaveScreenshot("arrange-page.png", {
-        maxDiffPixels: 500,
-        animations: "disabled",
-        mask: [
-          // Mask teacher-specific content
-          page.locator('[data-testid="teacher-name"]'),
-          page.locator("header, nav"),
-        ],
-      });
+      await expect(
+        page.locator('[data-testid="subject-palette"]').first(),
+      ).toBeVisible({ timeout: 15000 });
     });
 
     test("subject list panel renders correctly", async ({
