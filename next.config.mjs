@@ -9,10 +9,20 @@ const nextConfig = {
   // Allow custom distDir for parallel dev servers
   distDir: process.env.NEXT_DIST_DIR || ".next",
 
-  // Headless-PDF deps must not be bundled/relocated: @sparticuz/chromium
-  // resolves its brotli-packed binaries relative to its own module path, so
-  // bundling breaks it at runtime ("input directory .../bin does not exist").
+  // Headless-PDF deps stay unbundled (both are in Next's default external
+  // list; kept explicit for the print routes' sake).
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+
+  // @sparticuz/chromium unpacks brotli blobs from its bin/ dir with fs at
+  // runtime, which output file tracing can't see — without this the prod
+  // function 500s with "input directory .../bin does not exist". pnpm
+  // symlinks packages, so trace the real .pnpm path as well.
+  outputFileTracingIncludes: {
+    "/print/**": [
+      "./node_modules/@sparticuz/chromium/bin/**",
+      "./node_modules/.pnpm/@sparticuz+chromium*/node_modules/@sparticuz/chromium/bin/**",
+    ],
+  },
 
   experimental: {
     // Required for forbidden()/unauthorized() used by the admin role gates
