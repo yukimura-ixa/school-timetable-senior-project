@@ -9,6 +9,11 @@ const nextConfig = {
   // Allow custom distDir for parallel dev servers
   distDir: process.env.NEXT_DIST_DIR || ".next",
 
+  // Headless-PDF deps must not be bundled/relocated: @sparticuz/chromium
+  // resolves its brotli-packed binaries relative to its own module path, so
+  // bundling breaks it at runtime ("input directory .../bin does not exist").
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+
   experimental: {
     // Required for forbidden()/unauthorized() used by the admin role gates
     // (dashboard/management layouts). Without it forbidden() throws an
