@@ -180,21 +180,23 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await expect(timeslotGrid).toBeVisible({ timeout: 15000 });
       await waitForNavbarStable(page);
 
-      const subjectPalette = page
-        .locator('[data-testid="subject-palette"]')
-        .first();
+      // Remove schedule-dependent content entirely before the screenshot.
+      // Masking is not enough: these elements' heights vary with whatever
+      // parallel tests have placed for the E2E teacher, shifting the layout
+      // below them and leaking diffs at mask boundaries.
+      await page.addStyleTag({
+        content:
+          '[data-testid="subject-palette"], [data-testid="timetable-grid"],' +
+          ' [aria-live="polite"] { display: none !important; }',
+      });
 
       await expect(page).toHaveScreenshot("arrange-page.png", {
-        maxDiffPixels: 500, // Higher tolerance due to dynamic teacher data
+        maxDiffPixels: 500,
         animations: "disabled",
         mask: [
           // Mask teacher-specific content
           page.locator('[data-testid="teacher-name"]'),
           page.locator("header, nav"),
-          timeslotGrid,
-          subjectPalette,
-          // Placed-count alerts change as parallel tests mutate the schedule
-          page.locator('[aria-live="polite"]'),
         ],
       });
     });
