@@ -1,6 +1,7 @@
 import { test, expect } from "../fixtures/admin.fixture";
 import fs from "node:fs";
 import type { Page } from "@playwright/test";
+import { getE2ETeacherId } from "../helpers/teacher-id";
 
 /**
  * Visual Tests for Critical Admin UI Components
@@ -165,7 +166,11 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       const { page } = authenticatedAdmin;
 
       await page.setViewportSize({ width: 1280, height: 807 });
-      await page.goto("/schedule/2568/1/arrange", { timeout: 60000 });
+      // Grid renders an empty-state prompt until a teacher is selected
+      const teacherId = await getE2ETeacherId(page);
+      await page.goto(`/schedule/2568/1/arrange?teacher=${teacherId}&tab=teacher`, {
+        timeout: 60000,
+      });
       await page.waitForLoadState("domcontentloaded");
 
       // Wait for timetable grid to be visible (event-driven)
@@ -195,7 +200,8 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2568/1/arrange");
+      const teacherId = await getE2ETeacherId(page);
+      await page.goto(`/schedule/2568/1/arrange?teacher=${teacherId}&tab=teacher`);
       await page.waitForLoadState("networkidle");
 
       const subjectList = page.locator('[data-testid="subject-list"]').first();
@@ -215,7 +221,10 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     ) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2568/1/arrange", { timeout: 60000 });
+      const teacherId = await getE2ETeacherId(page);
+      await page.goto(`/schedule/2568/1/arrange?teacher=${teacherId}&tab=teacher`, {
+        timeout: 60000,
+      });
       await page.waitForLoadState("domcontentloaded");
 
       const timeslotGrid = page

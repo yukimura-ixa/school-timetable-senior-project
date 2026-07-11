@@ -159,15 +159,14 @@ describe("Lock Template Service", () => {
       expect(fridayPeriods.length).toBeGreaterThan(0);
     });
 
-    it("should generate warning when room not found", () => {
+    it("should not claim a room for multi-grade templates", () => {
       const template = getTemplateById("lunch-junior")!;
-      const roomsWithoutMatch = [{ RoomID: 99, RoomName: "ห้องอื่น" }];
 
-      const result = resolveTemplate(
-        createTestInput(template, { availableRooms: roomsWithoutMatch }),
-      );
+      const result = resolveTemplate(createTestInput(template));
 
-      expect(result.warnings.some((w) => w.includes("ห้อง"))).toBe(true);
+      // Shared room would violate the (TimeslotID, RoomID) unique constraint
+      expect(result.locks.every((l) => l.RoomID === null)).toBe(true);
+      expect(result.warnings.some((w) => w.includes("ห้อง"))).toBe(false);
     });
 
     it("should generate warning when subject not found", () => {
@@ -417,8 +416,8 @@ describe("Lock Template Service", () => {
 
     it("should handle multiple periods in timeslot filter", () => {
       const template = getTemplateById("activity-club")!;
-      // Template uses startTimes array for multiple periods
-      expect(template.config.timeslotFilter.startTimes?.length).toBe(2); // 12:50:00 and 13:40:00
+      // Template uses 1-based period indices for multiple periods
+      expect(template.config.timeslotFilter.periods).toEqual([8, 9]);
 
       const result = resolveTemplate(
         createTestInput(template, {
