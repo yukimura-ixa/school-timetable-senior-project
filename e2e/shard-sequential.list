@@ -12,6 +12,11 @@
 14-lock-templates.spec.ts
 16-publish-gate.spec.ts
 20-subject-assignment.spec.ts
+# Inserts a fixture program + fundamental override, then asserts on
+# checkPublishReadiness — which reads ALL programs UNFILTERED (global MOE
+# state). Concurrent parallel workers mutating programs flip the fixture's
+# MOE result, so this must run in the 1-worker sequential shard (bd w782).
+24-wizard-publish-block.spec.ts
 21-arrangement-flow.spec.ts
 22-auto-arrange.spec.ts
 critical-path/cp-03-lock-integration.spec.ts
