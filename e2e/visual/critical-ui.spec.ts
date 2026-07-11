@@ -180,7 +180,9 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await expect(timeslotGrid).toBeVisible({ timeout: 15000 });
       await waitForNavbarStable(page);
 
-      const subjectList = page.locator('[data-testid="subject-list"]').first();
+      const subjectPalette = page
+        .locator('[data-testid="subject-palette"]')
+        .first();
 
       await expect(page).toHaveScreenshot("arrange-page.png", {
         maxDiffPixels: 500, // Higher tolerance due to dynamic teacher data
@@ -190,7 +192,9 @@ test.describe("Critical Admin UI - Visual Tests", () => {
           page.locator('[data-testid="teacher-name"]'),
           page.locator("header, nav"),
           timeslotGrid,
-          subjectList,
+          subjectPalette,
+          // Placed-count alerts change as parallel tests mutate the schedule
+          page.locator('[aria-live="polite"]'),
         ],
       });
     });
