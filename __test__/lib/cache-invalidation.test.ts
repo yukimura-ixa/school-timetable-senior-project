@@ -66,15 +66,17 @@ describe("invalidatePublicCache", () => {
     await expect(invalidatePublicCache(["stats"])).resolves.toBeUndefined();
   });
 
-  it("passes through multiple tags correctly", async () => {
+  it("sanitizes tags with the same mapping as cacheStrategy", async () => {
     process.env.ACCELERATE_URL =
       "prisma+postgres://accelerate.prisma-data.net/?api_key=test";
     mockInvalidate.mockResolvedValue(undefined);
 
     await invalidatePublicCache(["static_data", "term_1-2567", "stats", "teachers", "classes"]);
 
+    // Hyphens are outside Accelerate's tag charset; invalidation must apply
+    // the identical mapping or it can never hit cacheStrategy's tags.
     expect(mockInvalidate).toHaveBeenCalledWith({
-      tags: ["static_data", "term_1-2567", "stats", "teachers", "classes"],
+      tags: ["static_data", "term_1_2567", "stats", "teachers", "classes"],
     });
   });
 

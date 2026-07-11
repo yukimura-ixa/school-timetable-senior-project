@@ -116,5 +116,26 @@ describe("cache-config", () => {
       const opts = { where: { id: 1 }, ...cacheStrategy("warm") };
       expect(opts).toEqual({ where: { id: 1 } });
     });
+
+    it("sanitizes tag values to Accelerate's [A-Za-z0-9_] charset", () => {
+      process.env.ACCELERATE_URL =
+        "prisma+postgres://accelerate.prisma-data.net/?api_key=test";
+      // Accelerate P6011: tags may only contain alphanumerics + underscore.
+      // GradeIDs/ConfigIDs are hyphenated (M1-1, 1-2568) and Thai text is
+      // possible — both must be mapped, not passed through.
+      expect(cacheStrategy("fresh", ["class_M1-1"])).toEqual({
+        cacheStrategy: { ttl: 60, swr: 30, tags: ["class_M1_1"] },
+      });
+    });
+
+    it("truncates sanitized tags to 64 chars", () => {
+      process.env.ACCELERATE_URL =
+        "prisma+postgres://accelerate.prisma-data.net/?api_key=test";
+      const long = `class_${"x".repeat(100)}`;
+      const result = cacheStrategy("fresh", [long]) as {
+        cacheStrategy: { tags: string[] };
+      };
+      expect(result.cacheStrategy.tags[0]).toHaveLength(64);
+    });
   });
 });

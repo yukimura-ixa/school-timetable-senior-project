@@ -51,7 +51,19 @@ export function cacheStrategy(
   return {
     cacheStrategy: {
       ...config,
-      ...(tags && tags.length > 0 ? { tags } : {}),
+      ...(tags && tags.length > 0
+        ? { tags: tags.map(sanitizeCacheTag) }
+        : {}),
     },
   };
+}
+
+/**
+ * Accelerate rejects the whole query (P6011) if a tag has anything outside
+ * [A-Za-z0-9_] or exceeds 64 chars. GradeIDs/ConfigIDs are hyphenated
+ * (M1-1, 1-2568), so tag inputs must be mapped, and invalidation must apply
+ * the same mapping or its tags won't match the cached ones.
+ */
+export function sanitizeCacheTag(tag: string): string {
+  return tag.replace(/[^A-Za-z0-9_]/g, "_").slice(0, 64);
 }

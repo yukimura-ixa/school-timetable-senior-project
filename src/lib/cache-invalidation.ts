@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { isAccelerateEnabled } from "@/lib/cache-config";
+import { isAccelerateEnabled, sanitizeCacheTag } from "@/lib/cache-config";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("CacheInvalidation");
@@ -19,7 +19,8 @@ export async function invalidatePublicCache(tags: string[]): Promise<void> {
     const client = prisma as unknown as {
       $accelerate: { invalidate: (opts: { tags: string[] }) => Promise<void> };
     };
-    await client.$accelerate.invalidate({ tags });
+    // Same mapping as cacheStrategy() — unsanitized tags would never match
+    await client.$accelerate.invalidate({ tags: tags.map(sanitizeCacheTag) });
   } catch (err) {
     log.warn("Cache invalidation failed", {
       tags,
