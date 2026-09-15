@@ -7,8 +7,8 @@
  * holds schedules: the dialog regenerates by deleting the term first.
  *
  * Usage (dry-run is the default; nothing is written without --apply):
- *   pnpm dotenv -e .env.production -- tsx prisma/repair-timeslot-rows.ts --config 1-2568
- *   pnpm dotenv -e .env.production -- tsx prisma/repair-timeslot-rows.ts --config 1-2568 --apply
+ *   pnpm dotenv -e .env.prod-ops.local -- tsx prisma/repair-timeslot-rows.ts --config 1-2568
+ *   pnpm dotenv -e .env.prod-ops.local -- tsx prisma/repair-timeslot-rows.ts --config 1-2568 --apply
  *
  * When the stored config itself is wrong, override it; the override is
  * written to table_config.Config in the same transaction as the rows:
@@ -33,7 +33,7 @@
  * BREAK_JUNIOR / BREAK_SENIOR enums, and the slot-number ↔ config mapping is
  * what decides break rendering today.
  *
- * Back up first: pnpm dotenv -e .env.production -- tsx scripts/db-backup.ts
+ * Back up first: pnpm dotenv -e .env.prod-ops.local -- tsx scripts/db-backup.ts
  */
 
 /* eslint-disable no-console */

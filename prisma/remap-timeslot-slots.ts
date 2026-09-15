@@ -6,7 +6,7 @@
  * the same-count case.
  *
  * Usage (dry-run is the default; nothing is written without --apply):
- *   pnpm dotenv -e .env.production -- tsx prisma/remap-timeslot-slots.ts \
+ *   pnpm dotenv -e .env.prod-ops.local -- tsx prisma/remap-timeslot-slots.ts \
  *     --config 1-2568 --start 08:30 \
  *     --slots 50,15:*,50,50,50:junior,50:senior,50,50,50 --inserted 2
  *   ... --apply
@@ -38,7 +38,7 @@
  * create final rows → repoint to final ids → drop temp rows → write Config.
  * Then the Accelerate public cache is invalidated the way the app does it.
  *
- * Back up first: pnpm dotenv -e .env.production -- tsx scripts/db-backup.ts
+ * Back up first: pnpm dotenv -e .env.prod-ops.local -- tsx scripts/db-backup.ts
  */
 
 /* eslint-disable no-console */
