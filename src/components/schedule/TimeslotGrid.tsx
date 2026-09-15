@@ -114,72 +114,45 @@ export function TimeslotGrid({
                 {dayNames[day]}
               </td>
               {rows.map((row, idx) => {
-                if (row.kind === "break") {
-                  return (
-                    <td
-                      key={`break-${day}-${row.slotNumber}-${idx}`}
-                      data-testid="break-cell"
-                      className="timeslot-break-cell border-x-2 border-b border-x-slate-300 border-b-slate-200"
-                    />
-                  );
-                }
                 const ts = row.slots.find((s) => s.DayOfWeek === day);
                 const cell = ts
                   ? cellsByTimeslotId.get(ts.TimeslotID)
                   : undefined;
                 const colors = cell ? subjectColors(cell.subjectCode) : null;
-                // Teacher view shows the grade; class view shows the teacher.
-                // Only one is ever passed via `show`, so merge it onto the code
-                // line to keep cells compact without losing context.
-                const context = cell
-                  ? show.grade
-                    ? cell.gradeLabel
-                    : show.teacher
-                      ? cell.teacherLabel
-                      : undefined
-                  : undefined;
+                const cellStyle =
+                  cell && colors
+                    ? {
+                        backgroundColor: colors.bg,
+                        borderLeft: `3px solid ${colors.stripe}`,
+                      }
+                    : undefined;
+                if (row.kind === "break") {
+                  // A locked activity (e.g. ชุมนุม) can sit in a grade's own
+                  // break slot; it still has to show, so an occupied break
+                  // cell renders like a teaching cell inside the break column.
+                  return (
+                    <td
+                      key={`break-${day}-${row.slotNumber}-${idx}`}
+                      data-testid="break-cell"
+                      className={`border-x-2 border-b border-x-slate-300 border-b-slate-200${
+                        cell && colors ? " timeslot-cell px-1.5 py-1 align-top" : " timeslot-break-cell"
+                      }`}
+                      style={cellStyle}
+                    >
+                      {cell && colors ? (
+                        <CellContent cell={cell} colors={colors} show={show} />
+                      ) : null}
+                    </td>
+                  );
+                }
                 return (
                   <td
                     key={`${day}-${row.period}`}
                     className="timeslot-cell border-b border-slate-200 px-1.5 py-1 align-top"
-                    style={
-                      cell && colors
-                        ? {
-                            backgroundColor: colors.bg,
-                            borderLeft: `3px solid ${colors.stripe}`,
-                          }
-                        : undefined
-                    }
+                    style={cellStyle}
                   >
                     {cell && colors ? (
-                      <div className="space-y-0.5">
-                        <div className="flex items-start gap-1">
-                          <span
-                            className="text-[11px] font-semibold leading-tight"
-                            style={{ color: colors.text }}
-                          >
-                            {cell.subjectName}
-                          </span>
-                          {cell.isLocked && (
-                            <span
-                              className="shrink-0 rounded-sm bg-amber-100 px-1 text-[8px] font-semibold text-amber-800"
-                              title="ล็อกแล้ว"
-                              aria-label="ล็อกแล้ว"
-                            >
-                              ล็อก
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[9px] leading-tight tabular-nums text-slate-500">
-                          {cell.subjectCode}
-                          {context ? ` · ${context}` : ""}
-                        </div>
-                        {show.room && cell.roomLabel && (
-                          <div className="text-[9px] leading-tight text-slate-400">
-                            {cell.roomLabel}
-                          </div>
-                        )}
-                      </div>
+                      <CellContent cell={cell} colors={colors} show={show} />
                     ) : (
                       <div className="text-center text-xs text-slate-300">—</div>
                     )}
@@ -190,6 +163,55 @@ export function TimeslotGrid({
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function CellContent({
+  cell,
+  colors,
+  show,
+}: {
+  cell: ScheduleCell;
+  colors: ReturnType<typeof subjectColors>;
+  show: NonNullable<TimeslotGridProps["show"]>;
+}) {
+  // Teacher view shows the grade; class view shows the teacher.
+  // Only one is ever passed via `show`, so merge it onto the code
+  // line to keep cells compact without losing context.
+  const context = show.grade
+    ? cell.gradeLabel
+    : show.teacher
+      ? cell.teacherLabel
+      : undefined;
+  return (
+    <div className="space-y-0.5">
+      <div className="flex items-start gap-1">
+        <span
+          className="text-[11px] font-semibold leading-tight"
+          style={{ color: colors.text }}
+        >
+          {cell.subjectName}
+        </span>
+        {cell.isLocked && (
+          <span
+            className="shrink-0 rounded-sm bg-amber-100 px-1 text-[8px] font-semibold text-amber-800"
+            title="ล็อกแล้ว"
+            aria-label="ล็อกแล้ว"
+          >
+            ล็อก
+          </span>
+        )}
+      </div>
+      <div className="text-[9px] leading-tight tabular-nums text-slate-500">
+        {cell.subjectCode}
+        {context ? ` · ${context}` : ""}
+      </div>
+      {show.room && cell.roomLabel && (
+        <div className="text-[9px] leading-tight text-slate-400">
+          {cell.roomLabel}
+        </div>
+      )}
     </div>
   );
 }
