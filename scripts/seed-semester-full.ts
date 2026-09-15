@@ -44,6 +44,7 @@ import {
 } from "../prisma/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
+import { bangkokClockToTimeslotDate } from "../src/utils/datetime";
 
 // ===========================================================================
 // DATABASE CONNECTION
@@ -1569,8 +1570,8 @@ async function seedTimeslots() {
             TimeslotID: timeslotId,
             AcademicYear: ACADEMIC_YEAR,
             Semester: sem.semester,
-            StartTime: new Date(`2024-01-01T${period.start}:00`),
-            EndTime: new Date(`2024-01-01T${period.end}:00`),
+            StartTime: bangkokClockToTimeslotDate(period.start),
+            EndTime: bangkokClockToTimeslotDate(period.end),
             Breaktime: period.break,
             DayOfWeek: day,
           },

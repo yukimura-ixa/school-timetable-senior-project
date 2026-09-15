@@ -16,6 +16,7 @@ import type {
 import { breaktime as breaktimeEnum } from "@/prisma/generated/client";
 import { timeslotRepository } from "../../infrastructure/repositories/timeslot.repository";
 import type { SlotConfig } from "../models/break.types";
+import { bangkokClockToTimeslotDate } from "@/utils/datetime";
 
 // Helper: convert Prisma semester enum to number string
 const toSemesterNum = (sem: semester): string => {
@@ -53,10 +54,9 @@ type TimeslotsConfig = {
 export function generateTimeslots(config: TimeslotsConfig): timeslot[] {
   const timeslots: timeslot[] = [];
   for (const day of config.Days) {
-    let slotStart = new Date(`2024-01-01T${config.StartTime}:00`);
+    let slotStart = bangkokClockToTimeslotDate(config.StartTime);
     config.slots.forEach((slot, i) => {
-      const endTime = new Date(slotStart);
-      endTime.setMinutes(endTime.getMinutes() + slot.duration);
+      const endTime = new Date(slotStart.getTime() + slot.duration * 60_000);
       const isUniversal = slot.breakGroups?.includes("*") ?? false;
       timeslots.push({
         TimeslotID: generateTimeslotId(config.Semester, config.AcademicYear, day, i + 1),
@@ -67,7 +67,7 @@ export function generateTimeslots(config: TimeslotsConfig): timeslot[] {
         EndTime: endTime,
         Breaktime: (isUniversal ? "BREAK" : breaktimeEnum.NOT_BREAK),
       });
-      slotStart = new Date(endTime);
+      slotStart = endTime;
     });
   }
   return timeslots;

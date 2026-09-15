@@ -4,6 +4,7 @@
  */
 
 import { PrismaClient } from "../prisma/generated/client";
+import { bangkokClockToTimeslotDate } from "../src/utils/datetime";
 
 const prisma = new PrismaClient();
 
@@ -238,8 +239,8 @@ async function main() {
           TimeslotID: timeslotID,
           AcademicYear: 2567,
           Semester: "SEMESTER_1",
-          StartTime: new Date(`2024-01-01T${period.start}`),
-          EndTime: new Date(`2024-01-01T${period.end}`),
+          StartTime: bangkokClockToTimeslotDate(period.start.slice(0, 5)),
+          EndTime: bangkokClockToTimeslotDate(period.end.slice(0, 5)),
           Breaktime: period.break,
           DayOfWeek: day,
         },

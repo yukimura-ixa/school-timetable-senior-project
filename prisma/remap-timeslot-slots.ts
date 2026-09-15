@@ -17,7 +17,6 @@
  *             = 9 new → old 2..8 become 3..9). Inserted slots receive no
  *             schedules, so they must be breaks nobody is scheduled in.
  * --start     optional new StartTime (defaults to the stored one)
- * --tz        see pinProcessTz
  *
  * Breaktime: each moved row keeps the Breaktime it had (legacy terms carry
  * BREAK_JUNIOR / BREAK_SENIOR and several dashboard readers still key off
@@ -29,7 +28,8 @@
  * not a break, a break group name has no break_group row, any class_schedule
  * id fails to parse or maps onto a slot the config does not generate, a
  * schedule would land on a universal break, or a moved row's clock would jump
- * by ≥ 3h (process-TZ mismatch — see pinProcessTz; re-run with --tz).
+ * by ≥ 3h (stored rows off the timeslot time convention, see
+ * bangkokClockToTimeslotDate — not a bell-time change).
  *
  * Mechanics (one transaction, see migration-slots-realbreaks.ts): stage new
  * rows under temp ids → repoint class_schedule (one VALUES-join UPDATE per
@@ -48,10 +48,7 @@ import {
   describeSlots,
   parseIntList,
   parseSlots,
-  pinProcessTz,
 } from "./lib/slot-args";
-
-pinProcessTz(process.argv);
 
 import { Prisma, type day_of_week } from "../prisma/generated/client";
 import prisma from "../src/lib/prisma";
@@ -101,7 +98,6 @@ function parseArgs(argv: string[]): Args {
     else if (a === "--start") args.start = next();
     else if (a === "--slots") args.slots = parseSlots(next());
     else if (a === "--inserted") args.inserted = parseIntList(next(), "--inserted");
-    else if (a === "--tz") next(); // consumed by pinProcessTz
     else throw new Error(`Unknown argument ${a}`);
   }
   if (!args.configId) throw new Error("--config <ConfigID> is required (e.g. --config 1-2568)");
@@ -162,7 +158,7 @@ async function main() {
   console.log(`   timeslot rows in DB: ${existing.length} (${oldSlotCount}/day over ${perDay.size} days)`);
   const firstRow = existing[0];
   if (firstRow) {
-    console.log(`   raw first row: ${firstRow.TimeslotID} StartTime=${firstRow.StartTime.toISOString()}  (comparing under TZ=${process.env.TZ})`);
+    console.log(`   raw first row: ${firstRow.TimeslotID} StartTime=${firstRow.StartTime.toISOString()}`);
   }
 
   const periodMap = planSlotNumberRemap(oldSlotCount, effective.slots.length, args.inserted);
@@ -207,8 +203,9 @@ async function main() {
   }
   if (maxMove >= MAX_BELL_TIME_MOVE_MINUTES) {
     throw new Error(
-      `A moved row's clock would jump by ${maxMove} min — bell-time changes are minutes, a multi-hour jump means a process-TZ mismatch. ` +
-        `Rows were probably written under TZ=${process.env.TZ === "UTC" ? "Asia/Bangkok" : "UTC"}; check the raw first row above and re-run with --tz <that zone>.`,
+      `A moved row's clock would jump by ${maxMove} min — bell-time changes are minutes, a multi-hour jump means a TZ artefact. ` +
+        "Rows written before bangkokClockToTimeslotDate existed may carry a process-TZ offset; " +
+        "check the raw first row above (08:30 Bangkok must read 01:30Z) and fix the rows deliberately rather than through this script.",
     );
   }
 

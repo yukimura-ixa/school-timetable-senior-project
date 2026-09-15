@@ -1,4 +1,5 @@
 import type { Timeslot, ScheduleEntry } from "./teacher-schedule";
+import { formatBangkokTime } from "@/utils/datetime";
 
 export const DAY_FULL_LABEL: Record<string, string> = {
   MON: "จันทร์",
@@ -40,17 +41,12 @@ export function getCellState(
   return { kind: "empty", label: LABELS.empty };
 }
 
-// Timeslots are seeded with `new Date("YYYY-MM-DDTHH:MM:00")` (no Z), i.e.
-// parsed in the write server's local zone. Read back with local getters so the
-// wall-clock HH:MM roundtrips in the same deployment (dev +07 and prod UTC
-// both match) — using getUTC* here showed shifted times (e.g. 01:00 for 08:30).
+// Timeslot times are stored as the UTC instant of the Thai wall-clock (see
+// bangkokClockToTimeslotDate); format in Asia/Bangkok, never with local
+// getters, so the label is the same in a +07 browser and a UTC headless run.
 export function formatPeriodTime(time: string | Date | undefined): string {
   if (!time) return "";
-  const d = typeof time === "string" ? new Date(time) : time;
-  if (Number.isNaN(d.getTime())) return "";
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${mm}`;
+  return formatBangkokTime(time);
 }
 
 export function formatPeriodRange(

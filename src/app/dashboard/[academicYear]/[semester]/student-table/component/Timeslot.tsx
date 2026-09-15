@@ -2,7 +2,7 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
-import { formatTimeslotTimeUtc } from "@/utils/datetime";
+import { formatTimeslotClock } from "@/utils/datetime";
 import { isBreakForGrade, buildGradeGroupIndex } from "@/utils/break-utils";
 import type {
   SlotConfig,
@@ -26,7 +26,7 @@ type Props = {
   breakGroups?: BreakGroup[];
 };
 
-const formatTime = formatTimeslotTimeUtc;
+const formatTime = formatTimeslotClock;
 
 const LABEL_WIDTH = 90;
 const TEACHING_MIN_WIDTH = 80;

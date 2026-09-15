@@ -32,8 +32,9 @@ describe("getCellState", () => {
 });
 
 describe("formatPeriodTime", () => {
-  it("formats a local (no-Z) DateTime to HH:mm — matches how timeslots are seeded, timezone-independent", () => {
-    expect(formatPeriodTime("2024-01-01T08:30:00")).toBe("08:30");
+  it("formats the stored UTC instant as Thai wall-clock, whatever the process TZ", () => {
+    expect(formatPeriodTime("1970-01-01T01:30:00.000Z")).toBe("08:30");
+    expect(formatPeriodTime(new Date("1970-01-01T01:30:00.000Z"))).toBe("08:30");
   });
   it("returns empty string for missing input", () => {
     expect(formatPeriodTime(undefined)).toBe("");
@@ -42,10 +43,10 @@ describe("formatPeriodTime", () => {
 
 describe("formatPeriodRange", () => {
   it("joins start and end with an en dash", () => {
-    expect(formatPeriodRange("2568-01-01T08:30:00", "2568-01-01T09:20:00")).toBe("08:30–09:20");
+    expect(formatPeriodRange("1970-01-01T01:30:00.000Z", "1970-01-01T02:20:00.000Z")).toBe("08:30–09:20");
   });
   it("returns start alone if end is missing", () => {
-    expect(formatPeriodRange("2568-01-01T08:30:00", undefined)).toBe("08:30");
+    expect(formatPeriodRange("1970-01-01T01:30:00.000Z", undefined)).toBe("08:30");
   });
   it("returns empty string when both missing", () => {
     expect(formatPeriodRange(undefined, undefined)).toBe("");

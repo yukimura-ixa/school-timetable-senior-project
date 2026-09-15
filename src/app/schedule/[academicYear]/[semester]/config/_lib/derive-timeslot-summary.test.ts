@@ -11,10 +11,10 @@ function dayRows(day: string): {
   EndTime: string;
 }[] {
   const rows: { DayOfWeek: string; StartTime: string; EndTime: string }[] = [];
-  let start = new Date("2024-01-01T08:30:00");
+  // Stored shape: UTC instant of the Thai wall-clock (08:30 Bangkok = 01:30Z).
+  let start = new Date("1970-01-01T01:30:00.000Z");
   for (const duration of DURATIONS) {
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + duration);
+    const end = new Date(start.getTime() + duration * 60_000);
     rows.push({
       DayOfWeek: day,
       StartTime: start.toISOString(),

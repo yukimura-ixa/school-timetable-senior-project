@@ -100,21 +100,16 @@ describe("generateTimeslots over slots", () => {
     expect(ts[0]!.TimeslotID).toBe("1-2568-MON1");
     expect(ts[1]!.TimeslotID).toBe("1-2568-MON2");
     expect(ts[2]!.TimeslotID).toBe("1-2568-MON3");
-    // slot 0: start 08:30, end 09:20
-    expect(ts[0]!.StartTime.getHours()).toBe(8);
-    expect(ts[0]!.StartTime.getMinutes()).toBe(30);
-    expect(ts[0]!.EndTime.getHours()).toBe(9);
-    expect(ts[0]!.EndTime.getMinutes()).toBe(20);
+    // Thai wall-clock is stored as its UTC instant (08:30 Bangkok = 01:30Z),
+    // whatever TZ the process runs in — Vercel is UTC, dev machines are +07.
+    expect(ts[0]!.StartTime.toISOString()).toBe("1970-01-01T01:30:00.000Z");
+    expect(ts[0]!.EndTime.toISOString()).toBe("1970-01-01T02:20:00.000Z");
     // slot 1: start 09:20, end 09:30 (+10min)
-    expect(ts[1]!.StartTime.getHours()).toBe(9);
-    expect(ts[1]!.StartTime.getMinutes()).toBe(20);
-    expect(ts[1]!.EndTime.getHours()).toBe(9);
-    expect(ts[1]!.EndTime.getMinutes()).toBe(30);
+    expect(ts[1]!.StartTime.toISOString()).toBe("1970-01-01T02:20:00.000Z");
+    expect(ts[1]!.EndTime.toISOString()).toBe("1970-01-01T02:30:00.000Z");
     // slot 2: start 09:30, end 10:20 (+50min)
-    expect(ts[2]!.StartTime.getHours()).toBe(9);
-    expect(ts[2]!.StartTime.getMinutes()).toBe(30);
-    expect(ts[2]!.EndTime.getHours()).toBe(10);
-    expect(ts[2]!.EndTime.getMinutes()).toBe(20);
+    expect(ts[2]!.StartTime.toISOString()).toBe("1970-01-01T02:30:00.000Z");
+    expect(ts[2]!.EndTime.toISOString()).toBe("1970-01-01T03:20:00.000Z");
   });
 
   it("Breaktime=BREAK only for universal slots", () => {

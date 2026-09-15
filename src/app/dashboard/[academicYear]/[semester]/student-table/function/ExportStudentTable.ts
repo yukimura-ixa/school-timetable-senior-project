@@ -1,6 +1,6 @@
 import type { gradelevel, timeslot } from "@/prisma/generated/client";
 import type { Prisma } from "@/prisma/generated/client";
-import { formatTimeslotTimeUtc } from "@/utils/datetime";
+import { formatTimeslotClock } from "@/utils/datetime";
 import ExcelJS from "exceljs";
 import { downloadBlob } from "@/utils/download-blob";
 
@@ -34,7 +34,7 @@ export const ExportStudentTable = (
   academicYear: string,
 ) => {
   const grades = [...gradeLevel];
-  const formatTime = formatTimeslotTimeUtc;
+  const formatTime = formatTimeslotClock;
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("นักเรียน", {

@@ -95,7 +95,7 @@ export function formatBangkokTime(input: DateInput): string {
   return `${hour}:${minute}`;
 }
 
-export function formatTimeslotTimeUtc(input: DateInput): string {
+export function formatTimeslotClock(input: DateInput): string {
   if (typeof input === "string") {
     const match = input.match(TIME_ONLY_PATTERN);
     if (match) {
@@ -112,6 +112,20 @@ export function formatTimeslotTimeUtc(input: DateInput): string {
   if (!hour || !minute) return "";
 
   return `${hour}:${minute}`;
+}
+
+/**
+ * Timeslot StartTime/EndTime convention: the `@db.Time(0)` column holds the
+ * UTC instant of the Thai wall-clock, so 08:30 Bangkok is stored as 01:30Z and
+ * comes back as 1970-01-01T01:30:00.000Z. Build every stored value through
+ * this helper so the result does not depend on the process TZ (Vercel runs
+ * UTC, dev machines run +07), and read it back with the Bangkok formatters.
+ */
+export function bangkokClockToTimeslotDate(hhmm: string): Date {
+  if (!/^\d{2}:\d{2}$/.test(hhmm)) {
+    throw new Error(`Expected HH:MM, got "${hhmm}"`);
+  }
+  return new Date(`1970-01-01T${hhmm}:00+07:00`);
 }
 
 export function getBangkokGregorianYear(input: DateInput = new Date()): number {

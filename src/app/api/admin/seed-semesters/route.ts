@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { day_of_week, semester, breaktime } from "@/prisma/generated/client";   
 import { auth } from "@/lib/auth";
 import { createLogger } from "@/lib/logger";
+import { bangkokClockToTimeslotDate } from "@/utils/datetime";
 
 const log = createLogger("SeedSemesters");
 
@@ -83,8 +84,8 @@ async function seedTimeslots(
         TimeslotID: `${semesterNum}-${academicYear}-${day}${periodNum}`,
         AcademicYear: academicYear,
         Semester: sem,
-        StartTime: new Date(`2024-01-01T${period.start}:00`),
-        EndTime: new Date(`2024-01-01T${period.end}:00`),
+        StartTime: bangkokClockToTimeslotDate(period.start),
+        EndTime: bangkokClockToTimeslotDate(period.end),
         Breaktime: period.break as breaktime,
         DayOfWeek: day,
       });

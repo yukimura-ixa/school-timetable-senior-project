@@ -2,7 +2,7 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
-import { formatTimeslotTimeUtc } from "@/utils/datetime";
+import { formatTimeslotClock } from "@/utils/datetime";
 import { isBreakForTeacher } from "@/utils/break-utils";
 import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 import { formatGradeIdDisplay } from "@/utils/grade-display";
@@ -22,7 +22,7 @@ type Props = {
   slots?: SlotConfig[];
 };
 
-const formatTime = formatTimeslotTimeUtc;
+const formatTime = formatTimeslotClock;
 
 const formatGrade = (gradeId?: string) =>
   gradeId ? formatGradeIdDisplay(gradeId) : "";

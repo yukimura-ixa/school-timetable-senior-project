@@ -33,6 +33,7 @@ import {
 } from "../prisma/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
+import { bangkokClockToTimeslotDate } from "../src/utils/datetime";
 
 const ACADEMIC_YEAR = 2568;
 const SEMESTER_NUMBER = 1;
@@ -185,8 +186,8 @@ async function main() {
         TimeslotID: `${SEMESTER_NUMBER}-${ACADEMIC_YEAR}-MON${n}`,
         AcademicYear: ACADEMIC_YEAR,
         Semester: SEMESTER,
-        StartTime: new Date(`2024-01-01T${hour}:00:00`),
-        EndTime: new Date(`2024-01-01T${hour}:50:00`),
+        StartTime: bangkokClockToTimeslotDate(`${hour}:00`),
+        EndTime: bangkokClockToTimeslotDate(`${hour}:50`),
         Breaktime: "NOT_BREAK" as breaktime,
         DayOfWeek: "MON" as day_of_week,
       },

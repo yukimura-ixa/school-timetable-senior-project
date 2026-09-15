@@ -3,6 +3,7 @@ import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 import { isBreakSlot } from "@/utils/break-utils";
+import { formatBangkokTime } from "@/utils/datetime";
 import type { timeslot } from "@/prisma/generated/client";
 import type { SlotConfig } from "@/features/timeslot/domain/models/break.types";
 import type { TimeslotWithSubject, TimetableColumn } from "@/app/dashboard/[academicYear]/[semester]/shared/timeSlot";
@@ -69,13 +70,14 @@ export const buildTimeSlotData = (
   const firstSlot = data[0];
   const firstSlotDate = firstSlot ? new Date(firstSlot.StartTime) : null;
 
-  const startTime =
-    firstSlotDate && !Number.isNaN(firstSlotDate.getTime())
-      ? {
-          Hours: firstSlotDate.getUTCHours(),
-          Minutes: firstSlotDate.getUTCMinutes(),
-        }
-      : { Hours: 8, Minutes: 0 };
+  // Stored as the UTC instant of the Thai wall-clock — read it back in Bangkok.
+  const firstClock = firstSlotDate ? formatBangkokTime(firstSlotDate) : "";
+  const startTime = firstClock
+    ? {
+        Hours: Number(firstClock.slice(0, 2)),
+        Minutes: Number(firstClock.slice(3, 5)),
+      }
+    : { Hours: 8, Minutes: 0 };
 
   const duration = firstSlot
     ? getMinutes(

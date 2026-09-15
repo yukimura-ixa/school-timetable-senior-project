@@ -24,12 +24,10 @@
  *     it needs an id remap like prisma/migration-slots-realbreaks.ts.
  *   - every breakGroups name in the (possibly overridden) config exists in
  *     break_group for that ConfigID (or is *).
- *   - the planned change is not a uniform whole-hour shift of every row. That
- *     pattern means the rows were written under a different process TZ, not
- *     that the bell times changed. generateTimeslots parses "08:30" in the
- *     process TZ; the app on Vercel runs in UTC, so the default here is UTC.
- *     Rows seeded from a Bangkok machine carry a -7h offset — re-run with
- *     --tz Asia/Bangkok to compare on the same footing.
+ *   - the planned change is not a uniform whole-hour shift of every row and no
+ *     row moves ≥ 3h. Either pattern means the stored rows do not follow the
+ *     timeslot time convention (UTC instant of the Thai wall-clock, see
+ *     bangkokClockToTimeslotDate), not that the bell times changed.
  *
  * Breaktime on the rows is left untouched: consumers still read the legacy
  * BREAK_JUNIOR / BREAK_SENIOR enums, and the slot-number ↔ config mapping is
@@ -40,9 +38,7 @@
 
 /* eslint-disable no-console */
 
-import { assertClock, describeSlots, parseSlots, pinProcessTz } from "./lib/slot-args";
-
-pinProcessTz(process.argv);
+import { assertClock, describeSlots, parseSlots } from "./lib/slot-args";
 
 import { Prisma, type day_of_week } from "../prisma/generated/client";
 import prisma from "../src/lib/prisma";
@@ -78,7 +74,6 @@ function parseArgs(argv: string[]): Args {
     else if (a === "--config") args.configId = next();
     else if (a === "--start") args.start = next();
     else if (a === "--slots") args.slots = parseSlots(next());
-    else if (a === "--tz") next(); // consumed before imports (see top of file)
     else throw new Error(`Unknown argument ${a}`);
   }
   if (!args.configId) throw new Error("--config <ConfigID> is required (e.g. --config 1-2568)");
@@ -147,7 +142,7 @@ async function main() {
   console.log(`   timeslot rows in DB: ${existing.length} (${[...perDay].map(([d, n]) => `${d}=${n}`).join(" ")})`);
   const firstRow = existing[0];
   if (firstRow) {
-    console.log(`   raw first row: ${firstRow.TimeslotID} StartTime=${firstRow.StartTime.toISOString()} EndTime=${firstRow.EndTime.toISOString()}  (comparing under TZ=${process.env.TZ})`);
+    console.log(`   raw first row: ${firstRow.TimeslotID} StartTime=${firstRow.StartTime.toISOString()} EndTime=${firstRow.EndTime.toISOString()}`);
   }
   console.log(`   rows the config generates: ${generated.length} (${effective.slots.length}/day × ${effective.Days.length} days)`);
 
@@ -174,16 +169,16 @@ async function main() {
   console.log(`   class_schedule rows on this term: ${schedules} (untouched — ids are preserved)`);
 
   const tzHint =
-    `Rows were probably written under TZ=${process.env.TZ === "UTC" ? "Asia/Bangkok" : "UTC"}; ` +
-    "check the raw first row above and re-run with --tz <that zone> so the comparison uses the same footing.";
+    "Rows written before bangkokClockToTimeslotDate existed may carry a process-TZ offset; " +
+    "check the raw first row above (08:30 Bangkok must read 01:30Z) and fix the rows deliberately rather than through this script.";
   if (plan.uniformShiftMinutes !== null) {
     throw new Error(
-      `Every row would shift by exactly ${plan.uniformShiftMinutes / 60}h — that is a process-TZ mismatch, not a bell-time change. ${tzHint}`,
+      `Every row would shift by exactly ${plan.uniformShiftMinutes / 60}h — that is a TZ artefact, not a bell-time change. ${tzHint}`,
     );
   }
   if (plan.maxShiftMinutes >= MAX_BELL_TIME_MOVE_MINUTES) {
     throw new Error(
-      `A row would move by ${plan.maxShiftMinutes} min — bell-time repairs move rows by minutes, a multi-hour move means a process-TZ mismatch. ${tzHint}`,
+      `A row would move by ${plan.maxShiftMinutes} min — bell-time repairs move rows by minutes, a multi-hour move means a TZ artefact. ${tzHint}`,
     );
   }
 

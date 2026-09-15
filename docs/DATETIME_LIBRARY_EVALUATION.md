@@ -35,7 +35,7 @@ After analyzing the current DIY datetime utilities, I **recommend against migrat
 |----------|---------|-------------|
 | `formatBangkokDateTime` | Format datetime in Bangkok TZ (DD/MM/YYYY HH:mm) | 3 usages |
 | `formatBangkokTime` | Format time only (HH:mm) | 3 usages |
-| `formatTimeslotTimeUtc` | Format timeslot times (special handling) | 4 usages |
+| `formatTimeslotClock` | Format timeslot times (special handling) | 4 usages |
 | `getBangkokGregorianYear` | Get current year in Bangkok TZ | 5 usages |
 | `getBangkokThaiBuddhistYear` | Get Thai Buddhist year (Gregorian + 543) | 7 usages |
 | `formatThaiDateTimeBangkok` | Thai locale long format | 2 usages |

@@ -46,15 +46,3 @@ export function describeSlots(slots: SlotConfig[]): string {
     })
     .join("  ");
 }
-
-/**
- * Consumes --tz before any Date is built. generateTimeslots parses "08:30" in
- * the process TZ; the app on Vercel runs in UTC, so that is the default. Rows
- * seeded from a Bangkok machine carry a -7h offset — pass --tz Asia/Bangkok.
- * Node applies a changed process.env.TZ to every Date built afterwards, so
- * call this before any Date is constructed.
- */
-export function pinProcessTz(argv: string[]): void {
-  const tzIdx = argv.indexOf("--tz");
-  process.env.TZ = tzIdx >= 0 ? (argv[tzIdx + 1] ?? "UTC") : "UTC";
-}
