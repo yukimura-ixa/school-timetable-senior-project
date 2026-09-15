@@ -15,7 +15,8 @@
  * --inserted  NEW slot numbers that have no old counterpart. Old periods keep
  *             their order and fill the remaining positions (8 old + 1 inserted
  *             = 9 new → old 2..8 become 3..9). Inserted slots receive no
- *             schedules, so they must be breaks nobody is scheduled in.
+ *             schedules: mid-day they must be breaks; appended at the end
+ *             they may be new empty teaching periods (e.g. --inserted 10).
  * --start     optional new StartTime (defaults to the stored one)
  *
  * Breaktime: each moved row keeps the Breaktime it had (legacy terms carry
@@ -128,10 +129,14 @@ async function main() {
   console.log(`   new config:    StartTime=${effective.StartTime}  slots: ${describeSlots(effective.slots)}`);
   console.log(`   inserted new slots: ${args.inserted.join(", ") || "none"}`);
 
+  // An inserted slot receives no schedules. In the middle of the day that only
+  // makes sense for a break; appended at the end it may be a new empty
+  // teaching period the school will fill afterwards.
+  const oldSlotCountHint = effective.slots.length - args.inserted.length;
   for (const n of args.inserted) {
     const slot = effective.slots[n - 1];
-    if (!slot?.breakGroups?.length) {
-      throw new Error(`inserted slot ${n} is a teaching slot — inserted slots must be breaks (nothing can be scheduled there)`);
+    if (!slot?.breakGroups?.length && n <= oldSlotCountHint) {
+      throw new Error(`inserted slot ${n} is a teaching slot in the middle of the day — inserted slots must be breaks unless appended at the end`);
     }
   }
 
