@@ -119,6 +119,24 @@ export async function count(): Promise<number> {
 }
 
 /**
+ * Rows that updateConfigWithTimeslotsAction would wipe for a term.
+ */
+export async function countTermData(
+  academicYear: number,
+  semesterValue: semester,
+): Promise<{ scheduleCount: number; responsibilityCount: number }> {
+  const [scheduleCount, responsibilityCount] = await Promise.all([
+    prisma.class_schedule.count({
+      where: { timeslot: { AcademicYear: academicYear, Semester: semesterValue } },
+    }),
+    prisma.teachers_responsibility.count({
+      where: { AcademicYear: academicYear, Semester: semesterValue },
+    }),
+  ]);
+  return { scheduleCount, responsibilityCount };
+}
+
+/**
  * Update config status
  */
 export async function updateStatus(

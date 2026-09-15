@@ -17,11 +17,16 @@ import {
   Button,
   Alert,
   Box,
+  Checkbox,
   CircularProgress,
+  FormControlLabel,
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
 import { createTimeslotsAction, getBreakContextAction } from "@/features/timeslot/application/actions/timeslot.actions";
-import { updateConfigWithTimeslotsAction } from "@/features/config/application/actions/config.actions";
+import {
+  getTermWipeImpactAction,
+  updateConfigWithTimeslotsAction,
+} from "@/features/config/application/actions/config.actions";
 import type { ConfigData } from "@/features/config/domain/types/config-data.types";
 import type { BreakGroup } from "@/features/timeslot/domain/models/break.types";
 import { TimeslotConfigurationStep } from "./TimeslotConfigurationStep";
@@ -63,7 +68,15 @@ function ConfigureTimeslotsContent({
   const [loading, setLoading] = useState(false);
   const [initialBreakGroups, setInitialBreakGroups] = useState<BreakGroup[]>([]);
   const [breakGroupsLoaded, setBreakGroupsLoaded] = useState(false);
+  const [wipeImpact, setWipeImpact] = useState<{
+    scheduleCount: number;
+    responsibilityCount: number;
+  } | null>(null);
+  const [wipeConfirmed, setWipeConfirmed] = useState(false);
   const fetchedRef = useRef(false);
+  const hasTermData =
+    wipeImpact !== null &&
+    (wipeImpact.scheduleCount > 0 || wipeImpact.responsibilityCount > 0);
 
   // Sync the parent-provided academicYear/semester into the context
   useEffect(() => {
@@ -89,7 +102,16 @@ function ConfigureTimeslotsContent({
       .finally(() => {
         setBreakGroupsLoaded(true);
       });
-  }, [academicYear, semester]);
+    if (mode === "edit") {
+      getTermWipeImpactAction({ AcademicYear: academicYear, Semester: semesterEnum })
+        .then((result) => {
+          if (result.success && result.data) setWipeImpact(result.data);
+        })
+        .catch(() => {
+          // Unknown impact: the server guard still refuses an unconfirmed wipe
+        });
+    }
+  }, [academicYear, semester, mode]);
 
   const handleSubmit = async () => {
     if (!timeslotConfig) {
@@ -105,6 +127,7 @@ function ConfigureTimeslotsContent({
         const result = await updateConfigWithTimeslotsAction({
           ConfigID: configId,
           Config: configData,
+          confirmWipe: wipeConfirmed,
         });
         if (!result.success) {
           const errorMessage =
@@ -146,6 +169,23 @@ function ConfigureTimeslotsContent({
             <strong>คำเตือน:</strong> การแก้ไขจะ<strong>ลบข้อมูลทั้งหมด</strong>ในภาคเรียนนี้ ได้แก่
             ตารางสอน (class_schedule) การมอบหมายครู และคาบเรียนทั้งหมด
             จากนั้นจะสร้างคาบเรียนใหม่ตามค่าที่กำหนด
+            {hasTermData && (
+              <Box sx={{ mt: 1 }}>
+                ขณะนี้มีตารางสอน <strong>{wipeImpact.scheduleCount}</strong> รายการ
+                และการมอบหมายครู <strong>{wipeImpact.responsibilityCount}</strong> รายการ
+                <FormControlLabel
+                  sx={{ display: "flex", mt: 1 }}
+                  control={
+                    <Checkbox
+                      checked={wipeConfirmed}
+                      onChange={(e) => setWipeConfirmed(e.target.checked)}
+                      data-testid="confirm-wipe-checkbox"
+                    />
+                  }
+                  label="ฉันเข้าใจว่าข้อมูลเหล่านี้จะถูกลบทั้งหมดและไม่สามารถกู้คืนได้"
+                />
+              </Box>
+            )}
           </Alert>
         ) : (
           <Alert severity="info" sx={{ mb: 2 }}>
@@ -168,7 +208,7 @@ function ConfigureTimeslotsContent({
         <Button
           onClick={() => void handleSubmit()}
           variant="contained"
-          disabled={loading || !isTimeslotConfigValid}
+          disabled={loading || !isTimeslotConfigValid || (hasTermData && !wipeConfirmed)}
           startIcon={loading && <CircularProgress size={20} />}
         >
           {loading

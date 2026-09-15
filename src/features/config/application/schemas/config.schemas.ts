@@ -64,6 +64,8 @@ export const updateConfigSchema = v.object({
   ),
   Semester: v.optional(v.enum(semester, "ภาคเรียนไม่ถูกต้อง")),
   Config: v.optional(v.unknown()),
+  /** Required by updateConfigWithTimeslotsAction when the term already has schedules or assignments. */
+  confirmWipe: v.optional(v.boolean()),
 });
 
 export type UpdateConfigInput = v.InferOutput<typeof updateConfigSchema>;

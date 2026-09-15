@@ -35,6 +35,7 @@ vi.mock("../../infrastructure/repositories/config.repository", () => ({
   update: vi.fn(),
   deleteById: vi.fn(),
   count: vi.fn(),
+  countTermData: vi.fn(),
 }));
 
 vi.mock("../../domain/services/config-validation.service", () => ({
@@ -53,8 +54,10 @@ import {
   deleteConfigAction,
   copyConfigAction,
   getConfigCountAction,
+  updateConfigWithTimeslotsAction,
 } from "./config.actions";
 import * as configRepository from "../../infrastructure/repositories/config.repository";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   validateConfigExists,
   validateNoDuplicateConfig,
@@ -66,6 +69,9 @@ const mockFindAll = configRepository.findAll as ReturnType<typeof vi.fn>;
 const mockCreate = configRepository.create as ReturnType<typeof vi.fn>;
 const mockDeleteById = configRepository.deleteById as ReturnType<typeof vi.fn>;
 const mockCount = configRepository.count as ReturnType<typeof vi.fn>;
+const mockCountTermData = configRepository.countTermData as ReturnType<typeof vi.fn>;
+const mockFindByConfigId = configRepository.findByConfigId as ReturnType<typeof vi.fn>;
+const mockWithPrismaTransaction = withPrismaTransaction as ReturnType<typeof vi.fn>;
 const mockValidateExists = validateConfigExists as ReturnType<typeof vi.fn>;
 const mockValidateNoDuplicate = validateNoDuplicateConfig as ReturnType<typeof vi.fn>;
 const mockValidateCopyInput = validateCopyInput as ReturnType<typeof vi.fn>;
@@ -276,6 +282,72 @@ describe("Config Actions", () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.count).toBe(0);
+    });
+  });
+
+  describe("updateConfigWithTimeslotsAction", () => {
+    const configData = {
+      Days: ["MON", "TUE"],
+      StartTime: "08:30",
+      slots: [{ duration: 50 }, { duration: 50, breakGroups: ["junior"] }],
+    };
+    const input = { ConfigID: "1-2568", Config: configData };
+
+    function mockTx() {
+      return {
+        teachers_responsibility: { deleteMany: vi.fn() },
+        timeslot: { deleteMany: vi.fn(), createMany: vi.fn() },
+        table_config: { update: vi.fn().mockResolvedValue({ ...mockConfig, ConfigID: "1-2568" }) },
+      };
+    }
+
+    beforeEach(() => {
+      mockValidateExists.mockResolvedValue(null);
+      mockFindByConfigId.mockResolvedValue({
+        ConfigID: "1-2568",
+        AcademicYear: 2568,
+        Semester: "SEMESTER_1",
+        Config: configData,
+      });
+    });
+
+    it("refuses to wipe a term that still has schedules unless confirmWipe is set", async () => {
+      mockCountTermData.mockResolvedValueOnce({ scheduleCount: 648, responsibilityCount: 120 });
+      const tx = mockTx();
+      mockWithPrismaTransaction.mockImplementation((cb: (t: unknown) => unknown) => cb(tx));
+
+      const result = await updateConfigWithTimeslotsAction(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toContain("648");
+      expect(result.error?.message).toContain("120");
+      expect(tx.timeslot.deleteMany).not.toHaveBeenCalled();
+      expect(tx.teachers_responsibility.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it("regenerates when the term is empty", async () => {
+      mockCountTermData.mockResolvedValueOnce({ scheduleCount: 0, responsibilityCount: 0 });
+      const tx = mockTx();
+      mockWithPrismaTransaction.mockImplementation((cb: (t: unknown) => unknown) => cb(tx));
+
+      const result = await updateConfigWithTimeslotsAction(input);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.timeslotCount).toBe(4);
+      expect(tx.timeslot.deleteMany).toHaveBeenCalledTimes(1);
+      expect(tx.timeslot.createMany).toHaveBeenCalledTimes(1);
+    });
+
+    it("regenerates a populated term when confirmWipe is true", async () => {
+      mockCountTermData.mockResolvedValueOnce({ scheduleCount: 648, responsibilityCount: 120 });
+      const tx = mockTx();
+      mockWithPrismaTransaction.mockImplementation((cb: (t: unknown) => unknown) => cb(tx));
+
+      const result = await updateConfigWithTimeslotsAction({ ...input, confirmWipe: true });
+
+      expect(result.success).toBe(true);
+      expect(tx.teachers_responsibility.deleteMany).toHaveBeenCalledTimes(1);
+      expect(tx.timeslot.deleteMany).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -33,6 +33,7 @@ import {
   type CopyConfigInput,
 } from "../schemas/config.schemas";
 import { invalidatePublicCache } from "@/lib/cache-invalidation";
+import { createValidationError } from "@/types";
 
 /**
  * Get all configs ordered by ConfigID
@@ -244,6 +245,21 @@ export const updateConfigWithTimeslotsAction = createAction(
       throw new Error("ไม่พบการตั้งค่า");
     }
 
+    // Regeneration wipes the term. A populated term (prod 1-2568 carries 648
+    // schedules) must be wiped only on an explicit, informed confirmation.
+    const { scheduleCount, responsibilityCount } =
+      await configRepository.countTermData(
+        existingConfig.AcademicYear,
+        existingConfig.Semester,
+      );
+    if ((scheduleCount > 0 || responsibilityCount > 0) && !input.confirmWipe) {
+      throw createValidationError(
+        `ภาคเรียนนี้มีตารางสอน ${scheduleCount} รายการ และการมอบหมายครู ${responsibilityCount} รายการ ` +
+          "การแก้ไขคาบเรียนจะลบข้อมูลเหล่านี้ทั้งหมด กรุณายืนยันการลบก่อนบันทึก",
+        "confirmWipe",
+      );
+    }
+
     // Use transaction to ensure atomicity
     const result = await withPrismaTransaction(async (tx) => {
       // Step 1: Delete existing teacher responsibilities
@@ -296,4 +312,14 @@ export const updateConfigWithTimeslotsAction = createAction(
     await invalidatePublicCache(["static_data"]);
     return result;
   },
+);
+
+/**
+ * What updateConfigWithTimeslotsAction would wipe for a term — shown in the
+ * edit dialog before the admin confirms.
+ */
+export const getTermWipeImpactAction = createAction(
+  getConfigByTermSchema,
+  async (input: GetConfigByTermInput) =>
+    configRepository.countTermData(input.AcademicYear, input.Semester),
 );
