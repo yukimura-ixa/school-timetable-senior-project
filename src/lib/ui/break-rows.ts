@@ -17,6 +17,8 @@ export type ViewMode =
   | { mode: "class"; gradeId: string; groupNames: string[] }
   | { mode: "all" };
 
+const UNIVERSAL_BREAKS = new Set<timeslot["Breaktime"]>(["BREAK", "BREAK_BOTH"]);
+
 /**
  * Merges sorted teaching timeslots with break slot config into ordered rows
  * for grid rendering. Period numbers count teaching slots only — break rows
@@ -93,10 +95,13 @@ export function buildGridRows(
   }
 
   // Teaching rows: a slot with DB timeslots that is NOT a break row for this view.
+  // Only universal breaks disqualify a row. Legacy terms still carry
+  // BREAK_JUNIOR / BREAK_SENIOR on the rows themselves; for the non-owning
+  // group that slot is a teaching slot with real classes scheduled in it.
   const teachingBySlot = new Map<number, timeslot[]>();
   for (const [slotNum, arr] of timeslotsBySlot) {
     if (breaksBySlot.has(slotNum)) continue;
-    const teaching = arr.filter((t) => t.Breaktime === "NOT_BREAK");
+    const teaching = arr.filter((t) => !UNIVERSAL_BREAKS.has(t.Breaktime));
     if (teaching.length > 0) teachingBySlot.set(slotNum, teaching);
   }
 

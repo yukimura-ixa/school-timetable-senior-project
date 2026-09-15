@@ -176,3 +176,66 @@ describe("buildGridRows", () => {
     expect(periods).toEqual([1, 2, 3, 4]);
   });
 });
+
+// Pre-Phase-2A terms (prod 1-2568) still carry the legacy per-group enums on
+// the DB rows themselves: every slot-4 row is BREAK_JUNIOR, every slot-5 row
+// is BREAK_SENIOR, slot-3 rows are BREAK. Only universal breaks may remove a
+// slot from the teaching rows — the non-owning group is taught during a
+// staggered break and has real classes scheduled there.
+describe("buildGridRows with legacy Breaktime enums on rows", () => {
+  const legacyBreak = (p: number) =>
+    p === 3 ? "BREAK" : p === 4 ? "BREAK_JUNIOR" : p === 5 ? "BREAK_SENIOR" : "NOT_BREAK";
+  const timeslots = [1, 2, 3, 4, 5, 6].flatMap((p) => [
+    ts(p, "MON", legacyBreak(p)),
+    ts(p, "TUE", legacyBreak(p)),
+  ]);
+  const teachingSlots = (rows: ReturnType<typeof buildGridRows>) =>
+    rows.filter((r) => r.kind === "teaching").map((r) => (r as any).slotNumber);
+  const breakSlots = (rows: ReturnType<typeof buildGridRows>) =>
+    rows.filter((r) => r.kind === "break").map((r) => (r as any).slotNumber);
+
+  it("junior class view keeps the senior-break slot as a teaching row", () => {
+    const rows = buildGridRows(timeslots, slots, breakGroups, {
+      mode: "class",
+      gradeId: "M1-1",
+      groupNames: ["junior"],
+    });
+    expect(breakSlots(rows)).toEqual([3, 4]);
+    expect(teachingSlots(rows)).toEqual([1, 2, 5, 6]);
+    const slot5 = rows.find((r) => r.kind === "teaching" && (r as any).slotNumber === 5) as any;
+    expect(slot5.slots.map((t: timeslot) => t.Breaktime)).toEqual(["BREAK_SENIOR", "BREAK_SENIOR"]);
+  });
+
+  it("senior class view keeps the junior-break slot as a teaching row", () => {
+    const rows = buildGridRows(timeslots, slots, breakGroups, {
+      mode: "class",
+      gradeId: "M5-1",
+      groupNames: ["senior"],
+    });
+    expect(breakSlots(rows)).toEqual([3, 5]);
+    expect(teachingSlots(rows)).toEqual([1, 2, 4, 6]);
+  });
+
+  it("teacher view treats both staggered slots as teaching", () => {
+    const rows = buildGridRows(timeslots, slots, breakGroups, { mode: "teacher" });
+    expect(breakSlots(rows)).toEqual([3]);
+    expect(teachingSlots(rows)).toEqual([1, 2, 4, 5, 6]);
+  });
+
+  it("all view shows every break and no extra teaching rows", () => {
+    const rows = buildGridRows(timeslots, slots, breakGroups, { mode: "all" });
+    expect(breakSlots(rows)).toEqual([3, 4, 5]);
+    expect(teachingSlots(rows)).toEqual([1, 2, 6]);
+  });
+
+  it("universal BREAK / BREAK_BOTH rows never become teaching rows", () => {
+    const universal = [1, 2, 3].flatMap((p) => [
+      ts(p, "MON", p === 1 ? "NOT_BREAK" : p === 2 ? "BREAK" : "BREAK_BOTH"),
+    ]);
+    const rows = buildGridRows(universal, [{ duration: 50 }, { duration: 50 }, { duration: 50 }], [], {
+      mode: "teacher",
+    });
+    expect(teachingSlots(rows)).toEqual([1]);
+    expect(breakSlots(rows)).toEqual([]);
+  });
+});
