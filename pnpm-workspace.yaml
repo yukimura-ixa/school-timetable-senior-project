@@ -39,3 +39,31 @@ overrides:
   "undici@>=7.23.0 <7.28.0": ">=7.28.0"
   "undici@>=7.0.0 <7.28.0": ">=7.28.0"
   "undici@<6.27.0": ">=6.27.0"
+minimumReleaseAgeExclude:
+  - '@vercel/backends@8.0.1'
+  - '@vercel/build-utils@14.10.1'
+  - '@vercel/cervel@0.1.65'
+  - '@vercel/container@8.1.0'
+  - '@vercel/elysia@8.0.1'
+  - '@vercel/express@8.0.1'
+  - '@vercel/fastify@8.0.1'
+  - '@vercel/gatsby-plugin-vercel-builder@2.2.57'
+  - '@vercel/go@11.0.1'
+  - '@vercel/h3@8.0.1'
+  - '@vercel/hono@8.0.1'
+  - '@vercel/hydrogen@9.0.1'
+  - '@vercel/koa@8.0.1'
+  - '@vercel/nestjs@8.0.1'
+  - '@vercel/next@12.0.1'
+  - '@vercel/node@13.0.1'
+  - '@vercel/python@14.1.0'
+  - '@vercel/redwood@10.0.1'
+  - '@vercel/remix-builder@13.0.1'
+  - '@vercel/ruby@10.0.1'
+  - '@vercel/rust@9.0.1'
+  - '@vercel/static-build@10.0.1'
+  - '@vercel/vc-native-darwin-arm64@59.17.0'
+  - '@vercel/vc-native-darwin-x64@59.17.0'
+  - '@vercel/vc-native-linux-arm64@59.17.0'
+  - '@vercel/vc-native-linux-x64@59.17.0'
+  - vercel@59.17.0
