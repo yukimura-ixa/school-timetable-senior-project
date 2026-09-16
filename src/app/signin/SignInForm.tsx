@@ -136,7 +136,10 @@ export default function SignInForm() {
             window.location.href = redirectTarget;
           },
           onError: (ctx) => {
-            log.error("Authentication failed", { error: ctx.error.message });
+            log.error("Authentication failed", {
+              status: ctx.error.status,
+              error: ctx.error.message,
+            });
             setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
             setSubmitting(false);
           },
