@@ -104,8 +104,10 @@ export const auth = betterAuth({
     window: 60, // 60 second window
     max: 20, // 20 attempts per window — tighter against brute-force while still generous for normal use
   },
-  // Enable experimental joins for 2-3x performance improvement
-  experimental: {
-    joins: true,
+  // Database joins for 2-3x performance improvement (moved out of `experimental` in better-auth 1.7)
+  advanced: {
+    database: {
+      joins: true,
+    },
   },
 });;
