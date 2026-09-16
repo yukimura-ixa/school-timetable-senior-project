@@ -28,8 +28,12 @@ test.describe("User Profile Management", () => {
     // Wait for navigation to complete
     await page.waitForURL("/dashboard/profile", { timeout: 30000 });
 
-    // Page title should be visible
-    await expect(page.getByText("โปรไฟล์ของฉัน")).toBeVisible({ timeout: 10000 });
+    // Page title should be visible. Scope to the heading: after client-side
+    // navigation Next.js also mirrors the title into #__next-route-announcer__,
+    // which makes a bare getByText a strict-mode violation.
+    await expect(
+      page.getByRole("heading", { name: "โปรไฟล์ของฉัน" }),
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test("should display profile information section", async ({ page }) => {
